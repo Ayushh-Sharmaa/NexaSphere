@@ -81,8 +81,6 @@ export default function TeamMemberModal({ member, onClose }) {
             {member.email && (
               <a
                 href={`mailto:${member.email}`}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="modal-social-btn btn-contact"
               >
                 ✉️ Email
