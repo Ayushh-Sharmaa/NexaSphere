@@ -21,7 +21,7 @@ export const teamMembers = [
     photo: ayushImg,
     linkedin: 'https://www.linkedin.com/in/ayushh-sharmaa/',
     email: 'ayush.sharmaa@hotmail.com',
-    whatsapp: 'https://wa.me/qr/LSBK5DLVGPMCD1',
+    whatsapp: '8923995135',
     instagram: null,
   },
   {
@@ -34,7 +34,7 @@ export const teamMembers = [
     photo: tanishkImg,
     linkedin: 'https://www.linkedin.com/in/tanishk-bansal-a07334381/',
     email: 'tb1093612@gmail.com',
-    whatsapp: null,
+    whatsapp: '8534998412',
     instagram: null,
   },
   {
@@ -47,7 +47,7 @@ export const teamMembers = [
     photo: tusharImg,
     linkedin: 'https://www.linkedin.com/in/not-tushar/',
     email: 'tushh45@gmail.com',
-    whatsapp: null,
+    whatsapp: '7253948594',
     instagram: null,
   },
   {
@@ -59,7 +59,7 @@ export const teamMembers = [
     section: 'E',
     photo: swayamImg,
     linkedin: 'https://www.linkedin.com/in/swayam-dwivedi-245b45391/',
-    email: null,
+    email: 7307391343,
     whatsapp: null,
     instagram: null,
   },
