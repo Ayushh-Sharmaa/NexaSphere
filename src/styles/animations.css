@@ -1,0 +1,196 @@
+/* ════════════════════════════════════════
+   NEXASPHERE — animations.css
+   All keyframe animations & scroll-reveal
+════════════════════════════════════════ */
+
+/* ── Gradient Text Cycle ── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Floating / Drift ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-18px) rotate(3deg); }
+  66%       { transform: translateY(-8px) rotate(-3deg); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(14px) rotate(-4deg); }
+  66%       { transform: translateY(6px) rotate(4deg); }
+}
+
+/* ── Pulse Ring (upcoming events dot) ── */
+@keyframes pulseRing {
+  0%   { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.6); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+  100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+}
+
+/* ── Shimmer Sweep ── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
+}
+
+/* ── Glow Pulse ── */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(0, 212, 255, 0.3); }
+  50%       { box-shadow: 0 0 32px rgba(0, 212, 255, 0.7), 0 0 64px rgba(0, 212, 255, 0.3); }
+}
+
+/* ── Ripple ── */
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 1; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* ── Spin (loader) ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Navbar Underline Slide ── */
+@keyframes underlineIn {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Loading Splash ── */
+@keyframes splashFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes splashFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+
+/* ── Particle (canvas handled in JS) ── */
+
+/* ── Modal Entrance ── */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger helpers */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+
+/* ── Gradient Hero Text ── */
+.animated-gradient-text {
+  background: linear-gradient(270deg, #00d4ff, #6366f1, #a855f7, #00d4ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 5s ease infinite;
+}
+
+/* ── Button Ripple Container ── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  width: 100px;
+  height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* ── Card 3D Tilt ── */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease, box-shadow var(--transition-med);
+  will-change: transform;
+}
+
+/* ── Shimmer card overlay ── */
+.shimmer-card {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255,255,255,0.06) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+  pointer-events: none;
+}
+.shimmer-card:hover::after {
+  animation: shimmer 0.7s ease forwards;
+}
+
+/* ── Timeline dot pulse ── */
+.timeline-dot-upcoming {
+  animation: pulseRing 1.8s infinite;
+}
+
+/* ── Glow Border ── */
+.glow-border-cyan {
+  box-shadow: 0 0 0 1px var(--border-cyan), var(--shadow-cyan);
+}
+.glow-border-indigo {
+  box-shadow: 0 0 0 1px var(--border-indigo), var(--shadow-indigo);
+}
+
+/* ── Hero Geometric Shapes ── */
+.geo-shape {
+  position: absolute;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.geo-shape.hex {
+  animation: float 8s ease-in-out infinite;
+}
+.geo-shape.tri {
+  animation: floatReverse 10s ease-in-out infinite;
+}
+.geo-shape.circle {
+  animation: float 12s ease-in-out infinite;
+  animation-delay: -4s;
+}
