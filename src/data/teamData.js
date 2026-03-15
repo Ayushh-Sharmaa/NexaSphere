@@ -7,13 +7,14 @@ import tanishkImg from '../assets/images/team/tanishk.png';
 import swayamImg from '../assets/images/team/swayam.png';
 import tusharImg from '../assets/images/team/tushar.png';
 import aryanImg from '../assets/images/team/aryan.png';
+import vartikaImg from '../assets/images/team/vartika.png';
 import placeholderImg from '../assets/images/team/placeholder.png';
 
 export const teamMembers = [
   {
     id: 1,
     name: 'Ayush Sharma',
-    role: 'Co-Founder & Lead',
+    role: 'Organiser',
     year: '1st Year',
     branch: 'CSE (AI & ML)',
     section: 'F',
@@ -26,12 +27,13 @@ export const teamMembers = [
   {
     id: 2,
     name: 'Tanishk Bansal',
-    role: 'Co-Founder & Lead',
+    role: 'Co-organiser',
     year: '1st Year',
     branch: 'CSE',
     section: 'E',
     photo: tanishkImg,
     linkedin: 'https://www.linkedin.com/in/tanishk-bansal-a07334381/',
+    email: 'tb1093612@gmail.com',
     whatsapp: null,
     instagram: null,
   },
@@ -56,6 +58,7 @@ export const teamMembers = [
     section: 'J',
     photo: tusharImg,
     linkedin: 'https://www.linkedin.com/in/not-tushar/',
+    email: 'tushh45@gmail.com',
     whatsapp: null,
     instagram: null,
   },
@@ -138,8 +141,8 @@ export const teamMembers = [
     year: '1st Year',
     branch: 'CS',
     section: 'J',
-    photo: placeholderImg,
-    linkedin: null,
+    photo: vartikaImg,
+    linkedin: 'https://www.linkedin.com/in/vartika-sharma-5092a430b/',
     whatsapp: null,
     instagram: null,
   },
