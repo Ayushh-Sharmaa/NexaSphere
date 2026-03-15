@@ -14,7 +14,7 @@ export default function TeamMemberModal({ member, onClose }) {
 
   if (!member) return null;
 
-  const hasSocial = member.linkedin || member.whatsapp || member.instagram;
+  const hasSocial = member.linkedin || member.whatsapp || member.instagram || member.email;
 
   return (
     <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -76,6 +76,14 @@ export default function TeamMemberModal({ member, onClose }) {
                 className="modal-social-btn btn-instagram"
               >
                 📸 Instagram
+              </a>
+            )}
+            {member.email && (
+              <a
+                href={`mailto:${member.email}`}
+                className="modal-social-btn btn-contact"
+              >
+                ✉️ Email
               </a>
             )}
           </div>
