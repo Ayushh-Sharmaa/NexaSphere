@@ -142,7 +142,7 @@ export const teamMembers = [
     section: 'E',
     photo: placeholderImg,
     linkedin: 'https://www.linkedin.com/in/vikas-kumar-sharma-42137412b/',
-    email: null,
+    email: 'vks184953@gmail.com',
     whatsapp: '7983419487',
     instagram: null,
   },
