@@ -14,7 +14,7 @@ import Footer from './components/Footer';
 import ActivityDetailPage from './components/ActivityDetailPage';
 import EventDetailPage from './components/EventDetailPage';
 
-import { activityPages } from './data/activityPagesData';
+import { activityPages } from './data/activities/index';
 import nexasphereLogo from './assets/images/logos/nexasphere-logo.png';
 
 const MOBILE_NAV_HEIGHT = 88;
