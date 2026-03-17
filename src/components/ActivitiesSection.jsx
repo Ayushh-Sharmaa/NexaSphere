@@ -16,10 +16,10 @@ function useReveal() {
   return ref;
 }
 
-function ActivityCard({ activity, delay }) {
+function ActivityCard({ activity, delay, onNavigate }) {
   const ref = useRef(null);
+  const isInsight = activity.title === 'Insight Session';
 
-  // 3D tilt effect
   const handleMouseMove = (e) => {
     const card = ref.current;
     if (!card) return;
@@ -32,25 +32,38 @@ function ActivityCard({ activity, delay }) {
     if (ref.current) ref.current.style.transform = '';
   };
 
+  const handleClick = () => {
+    if (isInsight && onNavigate) onNavigate('insight-sessions');
+  };
+
   return (
     <div
       ref={ref}
       className={`activity-card shimmer-card tilt-card reveal reveal-delay-${delay}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ perspective: '600px' }}
+      onClick={handleClick}
+      style={{ perspective: '600px', cursor: isInsight ? 'pointer' : 'default' }}
     >
       <div className="activity-icon">{activity.icon}</div>
       <div className="activity-title">{activity.title}</div>
       <p className="activity-desc">{activity.description}</p>
+      {isInsight && (
+        <div style={{
+          marginTop: '12px', display: 'inline-flex', alignItems: 'center',
+          gap: '5px', fontSize: '0.78rem', color: 'var(--cyan)',
+          fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase',
+        }}>
+          View Sessions →
+        </div>
+      )}
     </div>
   );
 }
 
-export default function ActivitiesSection() {
+export default function ActivitiesSection({ onNavigate }) {
   const titleRef = useReveal();
 
-  // Reveal each card
   useEffect(() => {
     const cards = document.querySelectorAll('#section-activities .activity-card');
     const obs = new IntersectionObserver(
@@ -70,7 +83,12 @@ export default function ActivitiesSection() {
         </p>
         <div className="activity-grid">
           {activities.map((a, i) => (
-            <ActivityCard key={a.id} activity={a} delay={Math.min((i % 4) + 1, 6)} />
+            <ActivityCard
+              key={a.id}
+              activity={a}
+              delay={Math.min((i % 4) + 1, 6)}
+              onNavigate={onNavigate}
+            />
           ))}
         </div>
       </div>
