@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
-// Small popup showing a value with a copy button
-function CopyPopup({ label, value, onClose }) {
+// ── Copy Popup ──
+function CopyPopup({ value, onClose }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -11,7 +12,6 @@ function CopyPopup({ label, value, onClose }) {
     });
   };
 
-  // Close when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (!e.target.closest('.copy-popup')) onClose();
@@ -30,10 +30,19 @@ function CopyPopup({ label, value, onClose }) {
   );
 }
 
-export default function TeamMemberModal({ member, onClose }) {
-  const [activePopup, setActivePopup] = useState(null); // 'email' | 'whatsapp' | null
+// ── Normalize WhatsApp: handle plain numbers OR full URLs ──
+function getWhatsappDisplay(raw) {
+  if (!raw) return null;
+  // Already a full URL
+  if (raw.startsWith('http')) return raw;
+  // Plain number — just show it as-is for copy
+  return raw;
+}
 
-  // Close on Escape
+// ── Modal Content ──
+function ModalContent({ member, onClose }) {
+  const [activePopup, setActivePopup] = useState(null);
+
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -44,21 +53,14 @@ export default function TeamMemberModal({ member, onClose }) {
     };
   }, [onClose]);
 
-  if (!member) return null;
-
   const hasSocial = member.linkedin || member.whatsapp || member.instagram || member.email;
-
-  // Extract phone number from WhatsApp URL for display
-  // e.g. https://wa.me/919876543210 → +91 98765 43210
-  // or QR link → show the full URL
-  const whatsappDisplay = member.whatsapp
-    ? member.whatsapp.replace('https://wa.me/', '').startsWith('qr/')
-      ? member.whatsapp   // QR link — show full URL for copy
-      : '+' + member.whatsapp.replace('https://wa.me/', '')
-    : null;
+  const whatsappValue = getWhatsappDisplay(member.whatsapp);
 
   return (
-    <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="modal-box">
         {/* Close */}
         <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
@@ -86,7 +88,7 @@ export default function TeamMemberModal({ member, onClose }) {
           </div>
         </div>
 
-        {/* Social links */}
+        {/* Social */}
         {hasSocial && (
           <div className="modal-social">
             {member.linkedin && (
@@ -100,7 +102,6 @@ export default function TeamMemberModal({ member, onClose }) {
               </a>
             )}
 
-            {/* WhatsApp — click to show number/link + copy */}
             {member.whatsapp && (
               <div style={{ position: 'relative' }}>
                 <button
@@ -113,11 +114,7 @@ export default function TeamMemberModal({ member, onClose }) {
                   💬 WhatsApp
                 </button>
                 {activePopup === 'whatsapp' && (
-                  <CopyPopup
-                    label="WhatsApp"
-                    value={member.whatsapp}
-                    onClose={() => setActivePopup(null)}
-                  />
+                  <CopyPopup value={whatsappValue} onClose={() => setActivePopup(null)} />
                 )}
               </div>
             )}
@@ -133,7 +130,6 @@ export default function TeamMemberModal({ member, onClose }) {
               </a>
             )}
 
-            {/* Email — click to show address + copy */}
             {member.email && (
               <div style={{ position: 'relative' }}>
                 <button
@@ -146,11 +142,7 @@ export default function TeamMemberModal({ member, onClose }) {
                   ✉️ Email
                 </button>
                 {activePopup === 'email' && (
-                  <CopyPopup
-                    label="Email"
-                    value={member.email}
-                    onClose={() => setActivePopup(null)}
-                  />
+                  <CopyPopup value={member.email} onClose={() => setActivePopup(null)} />
                 )}
               </div>
             )}
@@ -158,5 +150,14 @@ export default function TeamMemberModal({ member, onClose }) {
         )}
       </div>
     </div>
+  );
+}
+
+// ── Export: renders via Portal so it's never clipped by any parent ──
+export default function TeamMemberModal({ member, onClose }) {
+  if (!member) return null;
+  return createPortal(
+    <ModalContent member={member} onClose={onClose} />,
+    document.body
   );
 }
