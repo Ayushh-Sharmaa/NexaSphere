@@ -114,9 +114,9 @@ function CursorGlow() {
       <div ref={dot} style={{
         position:'fixed', pointerEvents:'none', zIndex:1,
         width:'6px', height:'6px', borderRadius:'50%',
-        background:'var(--cyan)', opacity:0.7,
+        background:'#00e5ff', opacity:0.75,
         transform:'translate(-50%,-50%)',
-        boxShadow:'0 0 12px var(--cyan)',
+        boxShadow:'0 0 14px rgba(0,229,255,0.9)',
         transition:'none',
       }} />
     </>
