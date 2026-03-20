@@ -246,12 +246,16 @@ export default function App() {
 
       {/* Splash */}
       {!splashDone&&(
-        <div className={`splash-screen${splashFading?' fade-out':''}`}>
-          <img src={nexasphereLogo} alt="NexaSphere" className="splash-logo"/>
-          <div className="splash-brand grad-text">NexaSphere</div>
-          <div className="splash-spinner"/>
-        </div>
-      )}
+  <div className={`splash-screen${splashFading?' fade-out':''}`}>
+    <div className="curtain-left"/>
+    <div className="curtain-right"/>
+    <div className="curtain-logo">
+      <img src={nexasphereLogo} alt="NexaSphere" className="splash-logo"/>
+      <div className="splash-brand grad-text">NexaSphere</div>
+      <div className="splash-spinner"/>
+    </div>
+  </div>
+)}
 
       {splashDone && <ParticleBackground theme={theme}/>}
       <Navbar activeTab={activeTab} onTabChange={onTab}/>
