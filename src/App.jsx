@@ -140,15 +140,46 @@ export default function App() {
     return()=>window.removeEventListener('resize',fn);
   },[]);
 
-  // Scroll reveal
+  // Scroll reveal + cinematic pop
   useEffect(()=>{
     if(!splashDone)return;
-    const obs=new IntersectionObserver(
+    // Legacy reveal classes
+    const obs1=new IntersectionObserver(
       e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),
       {threshold:.07,rootMargin:'0px 0px -36px 0px'}
     );
-    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-flip').forEach(el=>obs.observe(el));
-    return()=>obs.disconnect();
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-flip').forEach(el=>obs1.observe(el));
+    // New cinematic pop classes
+    const obs2=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('fired');
+          obs2.unobserve(e.target);
+        }
+      });
+    },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.pop-in,.pop-left,.pop-right,.pop-scale,.pop-flip,.pop-word,.pop-clip,.pop-num').forEach(el=>obs2.observe(el));
+    // Magnetic buttons
+    const btns = document.querySelectorAll('.mag-btn');
+    const onMove = e => {
+      btns.forEach(btn=>{
+        const rect=btn.getBoundingClientRect();
+        const dx=e.clientX-(rect.left+rect.width/2);
+        const dy=e.clientY-(rect.top+rect.height/2);
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<90){
+          const f=(90-d)/90;
+          btn.style.transform=`translate(${dx*f*.35}px,${dy*f*.35}px)`;
+        } else {
+          btn.style.transform='';
+        }
+      });
+    };
+    window.addEventListener('mousemove',onMove,{passive:true});
+    return()=>{
+      obs1.disconnect(); obs2.disconnect();
+      window.removeEventListener('mousemove',onMove);
+    };
   },[splashDone,page]);
 
   const nav = useCallback((fn)=>{
@@ -208,7 +239,7 @@ export default function App() {
       <Wipe on={wipeOn} ph={wipePh}/>
 
       {/* Theme toggle */}
-      <button id="theme-toggle" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}
+      <button id="theme-toggle" className="mag-btn" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}
         aria-label="Toggle theme" title="Toggle light/dark">
         {theme==='dark'?'☀️':'🌙'}
       </button>
