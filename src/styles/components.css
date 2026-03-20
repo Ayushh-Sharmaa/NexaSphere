@@ -531,3 +531,100 @@
   transition:opacity 0.15s; white-space:nowrap;
 }
 .copy-popup-btn:hover { opacity:0.85; }
+
+/* ════ LIGHT MODE OVERRIDES ════ */
+[data-theme="light"] .ns-navbar {
+  background: var(--navbar-blur);
+  border-bottom-color: rgba(0,153,204,0.15);
+}
+[data-theme="light"] .ns-navbar.scrolled {
+  background: var(--navbar-blur-scrolled);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .ns-navbar-mobile {
+  background: rgba(240,244,255,0.97);
+  border-bottom-color: rgba(0,153,204,0.2);
+}
+[data-theme="light"] .activity-card {
+  background: #ffffff;
+  border-color: rgba(0,153,204,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .activity-card:hover {
+  border-color: rgba(0,153,204,0.4);
+  box-shadow: 0 8px 32px rgba(0,153,204,0.15), 0 0 0 1px rgba(0,153,204,0.2);
+}
+[data-theme="light"] .team-card {
+  background: #ffffff;
+  border-color: rgba(0,153,204,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+[data-theme="light"] .team-card:hover {
+  box-shadow: 0 0 24px rgba(0,153,204,0.2), 0 12px 40px rgba(0,0,0,0.1);
+}
+[data-theme="light"] .modal-box {
+  background: #ffffff;
+  border-color: rgba(0,153,204,0.25);
+  box-shadow: 0 8px 48px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,153,204,0.15);
+}
+[data-theme="light"] .timeline-card {
+  background: #ffffff;
+  border-color: rgba(0,153,204,0.15);
+}
+[data-theme="light"] .splash-screen { background: var(--bg-primary); }
+[data-theme="light"] .hero-bg { filter: brightness(0.55) saturate(0.8); }
+[data-theme="light"] .hero-overlay {
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(240,244,255,0.3) 0%, rgba(240,244,255,0.7) 70%, rgba(240,244,255,0.95) 100%);
+}
+[data-theme="light"] .activity-title { color: var(--indigo); }
+[data-theme="light"] .team-card-role { color: var(--indigo); }
+[data-theme="light"] .modal-info { background: rgba(0,153,204,0.05); }
+[data-theme="light"] .copy-popup {
+  background: #ffffff;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,153,204,0.2);
+}
+
+/* ════ TEAM SECTION FLOATING CARDS ════ */
+.team-card.floating-card {
+  animation: antiGravity 7s ease-in-out infinite;
+}
+
+/* ════ ANTI-GRAVITY SECTION TITLES ════ */
+.section-title {
+  animation: titleFloat 5s ease-in-out infinite;
+}
+@keyframes titleFloat {
+  0%,100% { filter: drop-shadow(0 0 12px rgba(0,229,255,0.3)); }
+  50%      { filter: drop-shadow(0 0 24px rgba(124,110,255,0.5)); }
+}
+[data-theme="light"] .section-title {
+  animation: titleFloatLight 5s ease-in-out infinite;
+}
+@keyframes titleFloatLight {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(0,153,204,0.2)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(80,70,228,0.3)); }
+}
+
+/* ════ ABOUT CARD LIGHT MODE ════ */
+[data-theme="light"] .about-card-inner {
+  background: #ffffff;
+  border-color: rgba(0,153,204,0.2);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+
+/* ════ EVENTS TIMELINE LIGHT ════ */
+[data-theme="light"] .events-timeline::before {
+  background: linear-gradient(180deg, transparent, var(--cyan) 10%, var(--indigo) 90%, transparent);
+  box-shadow: none;
+}
+[data-theme="light"] .timeline-dot { box-shadow: 0 0 8px var(--cyan-glow); }
+[data-theme="light"] .timeline-badge.completed {
+  background: rgba(5,150,105,0.1); color: #059669;
+  border-color: rgba(5,150,105,0.3);
+}
+
+/* ════ FOOTER LIGHT MODE ════ */
+[data-theme="light"] .ns-footer {
+  background: linear-gradient(180deg, transparent, rgba(0,153,204,0.04));
+  border-top-color: rgba(0,153,204,0.15);
+}
