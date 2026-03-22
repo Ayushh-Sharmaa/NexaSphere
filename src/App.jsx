@@ -13,6 +13,7 @@ import TeamSection from './components/TeamSection';
 import Footer from './components/Footer';
 import ActivityDetailPage from './components/ActivityDetailPage';
 import EventDetailPage from './components/EventDetailPage';
+import CinematicOpening from './components/CinematicOpening';
 
 import { activityPages } from './data/activities/index';
 import nexasphereLogo from './assets/images/logos/nexasphere-logo.png';
@@ -28,9 +29,11 @@ function Wipe({ on, ph }) {
       <style>{`@keyframes wD{from{transform:scaleY(0);transform-origin:top}to{transform:scaleY(1);transform-origin:top}}@keyframes wU{from{transform:scaleY(1);transform-origin:bottom}to{transform:scaleY(0);transform-origin:bottom}}`}</style>
       <div style={{position:'fixed',inset:0,zIndex:8000,background:'var(--bg)',animation:`${ph==='out'?'wD .28s':'wU .32s'} cubic-bezier(.77,0,.18,1) forwards`,pointerEvents:'all'}}/>
       <div style={{position:'fixed',inset:0,zIndex:8001,background:'linear-gradient(90deg,var(--c1),var(--c2),var(--c3))',opacity:.09,animation:`${ph==='out'?'wD .22s .04s':'wU .26s .04s'} cubic-bezier(.77,0,.18,1) forwards`,pointerEvents:'none'}}/>
-      {ph==='out' && <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:8002,pointerEvents:'none',opacity:0,animation:'splashIn .18s .12s ease forwards'}}>
-        <img src={nexasphereLogo} style={{height:'50px',filter:'drop-shadow(0 0 14px var(--c1))',opacity:.65}} alt=""/>
-      </div>}
+      {ph==='out' && (
+        <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:8002,pointerEvents:'none',opacity:0,animation:'splashIn .18s .12s ease forwards'}}>
+          <img src={nexasphereLogo} style={{height:'50px',mixBlendMode:'screen',filter:'drop-shadow(0 0 14px var(--c1))',opacity:.65}} alt=""/>
+        </div>
+      )}
     </>
   );
 }
@@ -46,7 +49,7 @@ function PageIn({ children, k }) {
   );
 }
 
-/* ── Magnetic dual cursor ── */
+/* ── Dual cursor ── */
 function Cursor() {
   const blob = useRef(null), dot = useRef(null);
   useEffect(() => {
@@ -59,37 +62,34 @@ function Cursor() {
       if (dot.current)  { dot.current.style.left=tx+'px';  dot.current.style.top=ty+'px'; }
       raf = requestAnimationFrame(tick);
     };
-    window.addEventListener('mousemove', mv, {passive:true});
+    window.addEventListener('mousemove',mv,{passive:true});
     raf = requestAnimationFrame(tick);
-    return () => { window.removeEventListener('mousemove', mv); cancelAnimationFrame(raf); };
+    return () => { window.removeEventListener('mousemove',mv); cancelAnimationFrame(raf); };
   }, []);
   return (
     <>
-      <div ref={blob} style={{position:'fixed',pointerEvents:'none',zIndex:0,width:'420px',height:'420px',borderRadius:'50%',background:'radial-gradient(circle,rgba(0,229,255,.035) 0%,transparent 70%)',transform:'translate(-50%,-50%)'}}/>
+      <div ref={blob} style={{position:'fixed',pointerEvents:'none',zIndex:0,width:'400px',height:'400px',borderRadius:'50%',background:'radial-gradient(circle,rgba(0,229,255,.035) 0%,transparent 70%)',transform:'translate(-50%,-50%)'}}/>
       <div ref={dot} style={{position:'fixed',pointerEvents:'none',zIndex:1,width:'5px',height:'5px',borderRadius:'50%',background:'var(--c1)',opacity:.85,transform:'translate(-50%,-50%)',boxShadow:'0 0 10px rgba(0,229,255,.9)'}}/>
     </>
   );
 }
 
 export default function App() {
-  const [splashDone,   setSplashDone]   = useState(false);
-  const [splashFading, setSplashFading] = useState(false);
-  const [activeTab,    setActiveTab]    = useState('Home');
-  const [mobile,       setMobile]       = useState(window.innerWidth<=768);
-  const [wipeOn,       setWipeOn]       = useState(false);
-  const [wipePh,       setWipePh]       = useState('out');
-  const [page,         setPage]         = useState(null);
-  const [theme,        setTheme]        = useState(() => localStorage.getItem('ns-theme')||'dark');
+  const [cinDone,    setCinDone]    = useState(false);
+  const [activeTab,  setActiveTab]  = useState('Home');
+  const [mobile,     setMobile]     = useState(window.innerWidth<=768);
+  const [wipeOn,     setWipeOn]     = useState(false);
+  const [wipePh,     setWipePh]     = useState('out');
+  const [page,       setPage]       = useState(null);
+  const [theme,      setTheme]      = useState(() => localStorage.getItem('ns-theme')||'dark');
 
-  useEffect(() => { document.documentElement.setAttribute('data-theme',theme); localStorage.setItem('ns-theme',theme); }, [theme]);
-
+  // Apply theme
   useEffect(() => {
-    const t1 = setTimeout(()=>setSplashFading(true), 1100);
-    const t2 = setTimeout(()=>setSplashDone(true), 1600);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ns-theme', theme);
+  }, [theme]);
 
-  // Scroll progress - rAF throttled
+  // Scroll progress
   useEffect(() => {
     const bar = document.getElementById('scroll-progress');
     if (!bar) return;
@@ -118,7 +118,7 @@ export default function App() {
     return()=>window.removeEventListener('scroll',fn);
   },[]);
 
-  // Active tab
+  // Active tab from scroll
   useEffect(()=>{
     if(page)return;
     const nh=mobile?MNH:DNH;
@@ -140,47 +140,36 @@ export default function App() {
     return()=>window.removeEventListener('resize',fn);
   },[]);
 
-  // Scroll reveal + cinematic pop
+  // Scroll reveal + cinematic pop + magnetic buttons
   useEffect(()=>{
-    if(!splashDone)return;
-    // Legacy reveal classes
+    if(!cinDone)return;
+    // Legacy reveal
     const obs1=new IntersectionObserver(
       e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),
       {threshold:.07,rootMargin:'0px 0px -36px 0px'}
     );
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-flip').forEach(el=>obs1.observe(el));
-    // New cinematic pop classes
+    // Cinematic pop
     const obs2=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
-        if(e.isIntersecting){
-          e.target.classList.add('fired');
-          obs2.unobserve(e.target);
-        }
+        if(e.isIntersecting){e.target.classList.add('fired');obs2.unobserve(e.target);}
       });
     },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
     document.querySelectorAll('.pop-in,.pop-left,.pop-right,.pop-scale,.pop-flip,.pop-word,.pop-clip,.pop-num').forEach(el=>obs2.observe(el));
     // Magnetic buttons
-    const btns = document.querySelectorAll('.mag-btn');
-    const onMove = e => {
+    const btns=document.querySelectorAll('.mag-btn');
+    const onMove=e=>{
       btns.forEach(btn=>{
         const rect=btn.getBoundingClientRect();
         const dx=e.clientX-(rect.left+rect.width/2);
         const dy=e.clientY-(rect.top+rect.height/2);
         const d=Math.sqrt(dx*dx+dy*dy);
-        if(d<90){
-          const f=(90-d)/90;
-          btn.style.transform=`translate(${dx*f*.35}px,${dy*f*.35}px)`;
-        } else {
-          btn.style.transform='';
-        }
+        btn.style.transform = d<90 ? `translate(${dx*(90-d)/90*.35}px,${dy*(90-d)/90*.35}px)` : '';
       });
     };
     window.addEventListener('mousemove',onMove,{passive:true});
-    return()=>{
-      obs1.disconnect(); obs2.disconnect();
-      window.removeEventListener('mousemove',onMove);
-    };
-  },[splashDone,page]);
+    return()=>{obs1.disconnect();obs2.disconnect();window.removeEventListener('mousemove',onMove);};
+  },[cinDone,page]);
 
   const nav = useCallback((fn)=>{
     setWipeOn(true); setWipePh('out');
@@ -199,8 +188,7 @@ export default function App() {
       setTimeout(()=>{
         const el=document.getElementById(`section-${tab.toLowerCase()}`);
         if(!el)return;
-        const nh=mobile?MNH:DNH;
-        window.scrollTo({top:el.offsetTop-nh,behavior:'smooth'});
+        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
       },55);
     });
   },[nav,mobile]);
@@ -223,8 +211,7 @@ export default function App() {
       setTimeout(()=>{
         const el=document.getElementById('section-activities');
         if(!el)return;
-        const nh=mobile?MNH:DNH;
-        window.scrollTo({top:el.offsetTop-nh,behavior:'smooth'});
+        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
       },55);
     });
   },[nav,mobile]);
@@ -234,26 +221,21 @@ export default function App() {
 
   return (
     <>
+      {/* Cinematic opening — plays once on first load */}
+      {!cinDone && <CinematicOpening theme={theme} onDone={()=>setCinDone(true)}/>}
+
       <div id="scroll-progress"/>
       <Cursor/>
       <Wipe on={wipeOn} ph={wipePh}/>
 
       {/* Theme toggle */}
       <button id="theme-toggle" className="mag-btn" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}
-        aria-label="Toggle theme" title="Toggle light/dark">
-        {theme==='dark'?'☀️':'🌙'}
+        aria-label="Toggle theme" title={`Switch to ${theme==='dark'?'light':'dark'} mode`}
+        style={{fontSize:'1.1rem'}}>
+        {theme==='dark' ? '☀️' : '🌙'}
       </button>
 
-      {/* Splash */}
-      {!splashDone&&(
-        <div className={`splash-screen${splashFading?' fade-out':''}`}>
-          <img src={nexasphereLogo} alt="NexaSphere" className="splash-logo"/>
-          <div className="splash-brand grad-text">NexaSphere</div>
-          <div className="splash-spinner"/>
-        </div>
-      )}
-
-      {splashDone && <ParticleBackground theme={theme}/>}
+      {cinDone && <ParticleBackground theme={theme}/>}
       <Navbar activeTab={activeTab} onTabChange={onTab}/>
 
       <main style={{paddingTop:nh,position:'relative',zIndex:1}}>
@@ -269,7 +251,7 @@ export default function App() {
         )}
         {!page&&(
           <PageIn k="main">
-            <HeroSection onTabChange={onTab}/>
+            <HeroSection onTabChange={onTab} theme={theme}/>
             <ActivitiesSection onNavigate={onNavigate}/>
             <EventsSection/>
             <AboutSection/>
@@ -278,6 +260,7 @@ export default function App() {
           </PageIn>
         )}
       </main>
+
       <button id="back-to-top" aria-label="Back to top">↑</button>
     </>
   );
