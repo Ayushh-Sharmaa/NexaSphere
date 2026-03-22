@@ -222,6 +222,7 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
         <div style={{fontSize:'.56rem',color:'var(--t3)',letterSpacing:'.22em',fontFamily:"'Space Mono',monospace"}}>SCROLL</div>
         <div style={{width:'1px',height:'28px',background:`linear-gradient(to bottom,var(--c1),transparent)`}}/>
       </div>
+    
     </section>
   );
 }
