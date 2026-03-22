@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { teamMembers } from '../../data/teamData';
 import TeamMemberModal from './TeamMemberModal';
 
-const CORE_TEAM_FORM = 'https://forms.gle/4M5w1dfD6un6tmGz5';
+const CORE_TEAM_FORM = 'https://forms.gle/XDjnAcJN99zCcswn6';
 
 function MemberCard({ member, idx, onClick }) {
   const ref = useRef(null);
