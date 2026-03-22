@@ -3,17 +3,21 @@ import './styles/globals.css';
 import './styles/animations.css';
 import './styles/components.css';
 
-import ParticleBackground  from './components/ParticleBackground';
-import Navbar              from './components/Navbar';
-import HeroSection         from './components/HeroSection';
-import ActivitiesSection   from './components/ActivitiesSection';
-import EventsSection       from './components/EventsSection';
-import AboutSection        from './components/AboutSection';
-import TeamSection         from './components/TeamSection';
-import Footer              from './components/Footer';
-import ActivityDetailPage  from './components/ActivityDetailPage';
-import EventDetailPage     from './components/EventDetailPage';
-import CinematicOpening    from './components/CinematicOpening';
+import ParticleBackground  from './shared/ParticleBackground';
+import Navbar              from './shared/Navbar';
+import HeroSection         from './pages/home/HeroSection';
+import ActivitiesSection   from './pages/activities/ActivitiesSection';
+import EventsSection       from './pages/events/EventsSection';
+import AboutSection        from './pages/about/AboutSection';
+import TeamSection         from './pages/team/TeamSection';
+import Footer              from './shared/Footer';
+import ActivityDetailPage  from './pages/activities/ActivityDetailPage';
+import EventDetailPage     from './pages/events/EventDetailPage';
+import CinematicOpening    from './shared/CinematicOpening';
+import ActivitiesPage      from './pages/activities/ActivitiesPage';
+import EventsPage          from './pages/events/EventsPage';
+import AboutPage           from './pages/about/AboutPage';
+import TeamPage            from './pages/team/TeamPage';
 
 import { activityPages }   from './data/activities/index';
 import nexasphereLogo      from './assets/images/logos/nexasphere-logo.png';
@@ -46,27 +50,127 @@ function PageIn({ children, k }) {
   );
 }
 
-/* ── Dual cursor ── */
+/* ── Anti-gravity orb cursor ── */
 function Cursor() {
-  const blob=useRef(null), dot=useRef(null);
+  const orbRef  = useRef(null);
+  const trailRef= useRef(null);
+  const glowRef = useRef(null);
+  const stateRef= useRef({
+    // real mouse position
+    mx:0, my:0,
+    // orb position (lags behind)
+    ox:0, oy:0,
+    // anti-gravity float offset
+    floatY:0, floatPhase:0,
+    // hover state
+    hovering:false,
+    clicking:false,
+    raf:null
+  });
+
   useEffect(()=>{
-    if(window.matchMedia('(hover:none)').matches)return;
-    let x=0,y=0,tx=0,ty=0,raf;
-    const mv=e=>{tx=e.clientX;ty=e.clientY;};
-    const tick=()=>{
-      x+=(tx-x)*.09;y+=(ty-y)*.09;
-      if(blob.current){blob.current.style.left=x+'px';blob.current.style.top=y+'px';}
-      if(dot.current) {dot.current.style.left=tx+'px';dot.current.style.top=ty+'px';}
-      raf=requestAnimationFrame(tick);
+    if(window.matchMedia('(hover:none)').matches) return;
+    document.body.style.cursor='none';
+
+    const s = stateRef.current;
+
+    const onMove = e => { s.mx = e.clientX; s.my = e.clientY; };
+    const onDown = () => { s.clicking = true; };
+    const onUp   = () => { s.clicking = false; };
+
+    // Detect hoverable elements
+    const onOver = e => {
+      s.hovering = !!(e.target.closest('button,a,[role="button"],[tabindex]'));
     };
-    window.addEventListener('mousemove',mv,{passive:true});
-    raf=requestAnimationFrame(tick);
-    return()=>{window.removeEventListener('mousemove',mv);cancelAnimationFrame(raf);};
-  },[]);
+
+    const tick = () => {
+      // Smooth follow
+      s.ox += (s.mx - s.ox) * 0.11;
+      s.oy += (s.my - s.oy) * 0.11;
+
+      // Anti-gravity float: continuous gentle bob
+      s.floatPhase += 0.022;
+      s.floatY = Math.sin(s.floatPhase) * 6
+               + Math.sin(s.floatPhase * 1.7) * 3
+               + Math.sin(s.floatPhase * 0.5) * 4;
+
+      const fy = s.oy + s.floatY;
+
+      const scale = s.clicking ? 0.7 : s.hovering ? 1.55 : 1;
+      const opacity = s.hovering ? 0.95 : 0.82;
+
+      if (orbRef.current) {
+        orbRef.current.style.left    = s.ox + 'px';
+        orbRef.current.style.top     = fy  + 'px';
+        orbRef.current.style.transform = `translate(-50%,-50%) scale(${scale})`;
+        orbRef.current.style.opacity = opacity;
+      }
+      if (trailRef.current) {
+        trailRef.current.style.left  = s.ox + 'px';
+        trailRef.current.style.top   = s.oy + s.floatY * 0.4 + 'px';
+        trailRef.current.style.opacity = s.hovering ? 0 : 0.35;
+      }
+      if (glowRef.current) {
+        glowRef.current.style.left = s.mx + 'px';
+        glowRef.current.style.top  = s.my + 'px';
+      }
+
+      s.raf = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('mousemove', onMove,  { passive:true });
+    window.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup',   onUp);
+    window.addEventListener('mouseover', onOver,  { passive:true });
+    s.raf = requestAnimationFrame(tick);
+
+    return () => {
+      document.body.style.cursor = '';
+      cancelAnimationFrame(s.raf);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mouseup',   onUp);
+      window.removeEventListener('mouseover', onOver);
+    };
+  }, []);
+
   return (
     <>
-      <div ref={blob} style={{position:'fixed',pointerEvents:'none',zIndex:0,width:'380px',height:'380px',borderRadius:'50%',background:'radial-gradient(circle,rgba(0,212,255,.03) 0%,transparent 70%)',transform:'translate(-50%,-50%)'}}/>
-      <div ref={dot}  style={{position:'fixed',pointerEvents:'none',zIndex:1,width:'5px',height:'5px',borderRadius:'50%',background:'var(--c1)',opacity:.8,transform:'translate(-50%,-50%)',boxShadow:'0 0 8px rgba(0,212,255,.85)'}}/>
+      {/* Big ambient glow — follows mouse directly */}
+      <div ref={glowRef} style={{
+        position:'fixed', pointerEvents:'none', zIndex:9990,
+        width:'320px', height:'320px', borderRadius:'50%',
+        background:'radial-gradient(circle, rgba(0,212,255,.055) 0%, rgba(123,111,255,.03) 40%, transparent 70%)',
+        transform:'translate(-50%,-50%)',
+        transition:'opacity .3s',
+      }}/>
+
+      {/* Trail dot — slower, creates depth */}
+      <div ref={trailRef} style={{
+        position:'fixed', pointerEvents:'none', zIndex:9992,
+        width:'28px', height:'28px', borderRadius:'50%',
+        background:'radial-gradient(circle, var(--c2) 0%, transparent 70%)',
+        transform:'translate(-50%,-50%)',
+        filter:'blur(6px)',
+        transition:'opacity .25s',
+      }}/>
+
+      {/* Main anti-gravity orb */}
+      <div ref={orbRef} style={{
+        position:'fixed', pointerEvents:'none', zIndex:9995,
+        width:'18px', height:'18px', borderRadius:'50%',
+        background:'radial-gradient(circle at 35% 35%, #fff 0%, var(--c1) 40%, var(--c2) 100%)',
+        boxShadow:'0 0 10px var(--c1), 0 0 24px rgba(0,212,255,.5), 0 0 50px rgba(123,111,255,.2)',
+        transition:'transform .18s cubic-bezier(.34,1.56,.64,1), opacity .2s',
+      }}>
+        {/* Inner sparkle */}
+        <div style={{
+          position:'absolute', top:'20%', left:'22%',
+          width:'5px', height:'5px', borderRadius:'50%',
+          background:'rgba(255,255,255,.9)',
+          filter:'blur(1px)',
+        }}/>
+      </div>
     </>
   );
 }
@@ -172,6 +276,11 @@ export default function App() {
   },[]);
 
   const onTab=useCallback(tab=>{
+    // These tabs get their own dedicated page
+    if(['Activities','Events','About','Team'].includes(tab)){
+      nav(()=>{setPage({type:'section',section:tab});setActiveTab(tab);});
+      return;
+    }
     nav(()=>{
       setPage(null);setActiveTab(tab);
       setTimeout(()=>{
@@ -190,6 +299,11 @@ export default function App() {
     nav(()=>setPage(p=>({...p,type:'event',event:ev})));
   },[nav]);
 
+  const onKSSClick=useCallback(()=>{
+    // Link to the existing Insight Session page which contains KSS #153
+    nav(()=>setPage({type:'activity',activityKey:'Insight Session'}));
+  },[nav]);
+
   const onBackAct=useCallback(()=>{
     nav(()=>setPage(p=>({type:'activity',activityKey:p.activityKey})));
   },[nav]);
@@ -204,6 +318,14 @@ export default function App() {
       },50);
     });
   },[nav,mobile]);
+
+  const onBackToSection=useCallback((section)=>{
+    nav(()=>setPage({type:'section',section}));
+  },[nav]);
+
+  const onBackHome=useCallback(()=>{
+    nav(()=>{setPage(null);setActiveTab('Home');window.scrollTo({top:0});});
+  },[nav]);
 
   const nh=mobile?MNH:DNH;
   const cur=page?.activityKey?activityPages[page.activityKey]:null;
@@ -228,9 +350,31 @@ export default function App() {
       <Navbar activeTab={activeTab} onTabChange={onTab}/>
 
       <main style={{paddingTop:nh,position:'relative',zIndex:1}}>
+        {/* Section pages — navbar tab clicks */}
+        {page?.type==='section'&&page.section==='Activities'&&(
+          <PageIn k="pg-activities">
+            <ActivitiesPage onNavigate={onNavigate} onBack={onBackHome}/>
+          </PageIn>
+        )}
+        {page?.type==='section'&&page.section==='Events'&&(
+          <PageIn k="pg-events">
+            <EventsPage onBack={onBackHome} onEventClick={onKSSClick}/>
+          </PageIn>
+        )}
+        {page?.type==='section'&&page.section==='About'&&(
+          <PageIn k="pg-about">
+            <AboutPage onBack={onBackHome}/>
+          </PageIn>
+        )}
+        {page?.type==='section'&&page.section==='Team'&&(
+          <PageIn k="pg-team">
+            <TeamPage onBack={onBackHome}/>
+          </PageIn>
+        )}
+        {/* Activity detail pages */}
         {page?.type==='activity'&&cur&&(
           <PageIn k={`a-${page.activityKey}`}>
-            <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>
+            <ActivityDetailPage activity={cur} onBack={()=>nav(()=>setPage({type:'section',section:'Activities'}))} onSelectEvent={onEvent}/>
           </PageIn>
         )}
         {page?.type==='event'&&page.event&&cur&&(
@@ -238,6 +382,7 @@ export default function App() {
             <EventDetailPage event={page.event} activityColor={cur.color} activityIcon={cur.icon} onBack={onBackAct}/>
           </PageIn>
         )}
+        {/* Main home page */}
         {!page&&(
           <PageIn k="main">
             <HeroSection onTabChange={onTab} theme={theme}/>

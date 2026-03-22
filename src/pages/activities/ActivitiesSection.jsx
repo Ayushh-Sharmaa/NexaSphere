@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { activities } from '../data/activitiesData';
+import { activities } from '../../data/activitiesData';
 
 function ActivityCard({ a, idx, onNav }) {
   const ref = useRef(null);

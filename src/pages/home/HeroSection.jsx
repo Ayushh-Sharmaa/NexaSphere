@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import nexasphereLogo from '../assets/images/logos/nexasphere-logo.png';
+import nexasphereLogo from '../../assets/images/logos/nexasphere-logo.png';
 
-const WHATSAPP   = 'https://chat.whatsapp.com/Jjc5cuUKENu0RC1vWSEs20';
-const JOIN_FORM  = 'https://forms.gle/NWb49scknwD6PP769';
+const JOIN_MEMBER_FORM = 'https://forms.gle/NWb49scknwD6PP769';
+const JOIN_CORE_FORM   = 'https://forms.gle/XDjnAcJN99zCcswn6';
 
 /* ── Ripple Button ── */
 function RippleBtn({ cls, children, href, onClick }) {
@@ -164,12 +164,14 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
 
   return (
     <section className="hero-section" id="section-home">
-      {/* BG — nexasphere logo as hero bg, very dark */}
+      {/* BG — nexasphere logo as hero bg */}
       <div style={{
         position:'absolute',inset:0,zIndex:0,
         backgroundImage:`url(${nexasphereLogo})`,
         backgroundSize:'55%',backgroundPosition:'center',backgroundRepeat:'no-repeat',
-        filter: isLight ? 'brightness(.05) saturate(.4)' : 'brightness(.08) saturate(1.2)',
+        filter: isLight
+          ? 'brightness(.55) saturate(2.2) hue-rotate(220deg) opacity(0.22)'
+          : 'brightness(.08) saturate(1.2)',
         transform:'scale(1.04)',
       }}/>
       <div className="hero-overlay"/>
@@ -193,10 +195,10 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
           flexDirection:'column',alignItems:'center',gap:'10px',
         }}>
           <div style={{display:'flex',gap:'12px',flexWrap:'wrap',justifyContent:'center'}}>
-            <RippleBtn cls="btn-primary" href={WHATSAPP}>💬 Join Community</RippleBtn>
+            <RippleBtn cls="btn-primary" href={JOIN_MEMBER_FORM}>🚀 Join as Member</RippleBtn>
             <RippleBtn cls="btn-outline" onClick={()=>onTabChange('Team')}>👥 Core Team</RippleBtn>
           </div>
-          {/* Join NexaSphere CTA */}
+          {/* Core Team CTA */}
           <div style={{
             marginTop:'6px',padding:'14px 24px',
             background: isLight ? 'rgba(109,40,217,.05)' : 'rgba(123,111,255,.07)',
@@ -204,9 +206,9 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
             borderRadius:'16px',maxWidth:'420px',textAlign:'center',
           }}>
             <p style={{fontSize:'.82rem',color:'var(--t2)',marginBottom:'10px',lineHeight:1.5}}>
-              🚀 Want to be part of the NexaSphere team?
+              🚀 Want to be part of the NexaSphere Core Team?
             </p>
-            <RippleBtn cls="btn-join" href={JOIN_FORM}>✨ Apply for Core Team</RippleBtn>
+            <RippleBtn cls="btn-join" href={JOIN_CORE_FORM}>✨ Apply for Core Team Here</RippleBtn>
           </div>
         </div>
 

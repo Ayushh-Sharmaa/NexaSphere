@@ -80,7 +80,7 @@
 canvas, .no-transition, [style*="animation"] { transition: none !important; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body {
+body { cursor: none;
   background: var(--bg); color: var(--t1);
   font-family: 'Rajdhani', sans-serif;
   font-size: 16px; line-height: 1.65;
@@ -96,9 +96,9 @@ body {
 
 h1,h2,h3,h4,h5,h6 { font-family:'Orbitron',monospace; font-weight:700; line-height:1.15; }
 p { line-height: 1.78; }
-a { color: var(--c1); text-decoration: none; }
+a { color: var(--c1); text-decoration: none; cursor: none; }
 img, svg { display: block; max-width: 100%; }
-button { cursor: pointer; font-family: 'Rajdhani', sans-serif; border: none; background: none; }
+button { cursor: none; font-family: 'Rajdhani', sans-serif; border: none; background: none; }
 
 .container { width:100%; max-width:1240px; margin:0 auto; padding:0 28px; }
 .section { padding: 100px 0; }

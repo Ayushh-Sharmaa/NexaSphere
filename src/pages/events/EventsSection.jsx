@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { events } from '../data/eventsData';
+import { events } from '../../data/eventsData';
 
 export default function EventsSection() {
   useEffect(()=>{

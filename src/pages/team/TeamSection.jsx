@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { teamMembers } from '../data/teamData';
+import { teamMembers } from '../../data/teamData';
 import TeamMemberModal from './TeamMemberModal';
 
-const CORE_TEAM_FORM = 'https://forms.gle/4M5w1dfD6un6tmGz5';
+const CORE_TEAM_FORM = 'https://forms.gle/XDjnAcJN99zCcswn6';
 
 function MemberCard({ member, idx, onClick }) {
   const ref = useRef(null);
@@ -29,12 +29,13 @@ function MemberCard({ member, idx, onClick }) {
 
   return (
     <div ref={ref}
-      className="team-card shimmer pop-flip"
+      className="team-card shimmer"
       style={{
         cursor:'pointer',perspective:'800px',
         animation:`ag 7s ease-in-out ${agDelay[idx%12]}s infinite`,
         willChange:'transform',
         animationFillMode:'both',
+        opacity:1,
       }}
       onMouseMove={onMove} onMouseLeave={onLeave} onClick={click}
       role="button" tabIndex={0}
@@ -59,11 +60,19 @@ export default function TeamSection() {
   const [sel, setSel] = useState(null);
 
   useEffect(() => {
+    const elements = document.querySelectorAll('#section-team .pop-flip, #section-team .pop-in, #section-team .pop-word');
     const obs = new IntersectionObserver(entries=>{
       entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('fired');obs.unobserve(e.target);}});
-    },{threshold:.07});
-    document.querySelectorAll('#section-team .pop-flip,.pop-in,.pop-word').forEach(el=>obs.observe(el));
-    return()=>obs.disconnect();
+    },{threshold:0, rootMargin:'0px 0px -10px 0px'});
+    elements.forEach(el=>obs.observe(el));
+    // Fallback: if already scrolled into view, fire immediately
+    const fallback = setTimeout(() => {
+      elements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 100) el.classList.add('fired');
+      });
+    }, 120);
+    return()=>{obs.disconnect(); clearTimeout(fallback);};
   },[]);
 
   return (
@@ -86,13 +95,13 @@ export default function TeamSection() {
         }}>
           <div className="corner-tl"/><div className="corner-br"/>
           <div style={{fontSize:'2rem',marginBottom:'10px'}}>🚀</div>
-          <h3 style={{fontFamily:'Orbitron,monospace',fontSize:'1rem',fontWeight:700,color:'var(--c1)',marginBottom:'8px',letterSpacing:'.05em'}}>Want to Join the Core Team?</h3>
+          <h3 style={{fontFamily:'Orbitron,monospace',fontSize:'1rem',fontWeight:700,color:'var(--c1)',marginBottom:'8px',letterSpacing:'.05em'}}>Want to Join NexaSphere?</h3>
           <p style={{color:'var(--t2)',fontSize:'.88rem',marginBottom:'18px',lineHeight:1.65}}>
             We&apos;re looking for passionate students to drive NexaSphere forward. Fill in the form and we&apos;ll reach out!
           </p>
           <a href={CORE_TEAM_FORM} target="_blank" rel="noopener noreferrer"
             className="btn btn-join btn-ripple">
-            ✨ Apply Now
+            ✨ Apply Here
           </a>
         </div>
       </div>

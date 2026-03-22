@@ -141,7 +141,7 @@
   animation:gradientShift 5s ease infinite;
 }
 [data-theme="light"] .hero-title-text {
-  background:linear-gradient(135deg,#c2770a 0%,#6d28d9 55%,#be185d 100%);
+  background:linear-gradient(135deg,#7c3aed 0%,#9333ea 40%,#c026d3 80%,#db2777 100%);
   background-size:200% 200%;
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   animation:gradientShift 5s ease infinite;
