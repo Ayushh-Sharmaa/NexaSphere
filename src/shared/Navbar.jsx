@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import nexasphereLogo from '../assets/images/logos/nexasphere-logo.png';
-import glbajajLogo    from '../assets/images/logos/glbajaj-logo.png';
 
 const TABS = ['Home','Activities','Events','About','Team'];
 
@@ -21,7 +20,6 @@ export default function Navbar({ activeTab, onTabChange }) {
       <div className="ns-mobile-top">
         <img src={nexasphereLogo} alt="NexaSphere" className="ns-mobile-logo-ns"/>
         <span className="ns-mobile-brand"><span>NexaSphere</span></span>
-        <img src={glbajajLogo}    alt="GL Bajaj"   className="ns-mobile-logo-gl"/>
       </div>
       <div className="ns-mobile-tabs">
         {TABS.map(t => (
@@ -49,9 +47,6 @@ export default function Navbar({ activeTab, onTabChange }) {
               </li>
             ))}
           </ul>
-          <div className="ns-nav-divider"/>
-          {/* GL Bajaj logo with white bg pill for dark mode visibility */}
-          <img src={glbajajLogo} alt="GL Bajaj" className="ns-nav-logo-gl"/>
         </div>
       </div>
     </nav>
