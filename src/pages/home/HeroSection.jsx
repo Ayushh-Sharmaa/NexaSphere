@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import nexasphereLogo from '../../assets/images/logos/nexasphere-logo.png';
 
-const WHATSAPP   = 'https://chat.whatsapp.com/Jjc5cuUKENu0RC1vWSEs20';
-const JOIN_FORM  = 'https://forms.gle/NWb49scknwD6PP769';
+const JOIN_MEMBER_FORM = 'https://forms.gle/NWb49scknwD6PP769';
+const JOIN_CORE_FORM   = 'https://forms.gle/XDjnAcJN99zCcswn6';
 
 /* ── Ripple Button ── */
 function RippleBtn({ cls, children, href, onClick }) {
@@ -195,10 +195,10 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
           flexDirection:'column',alignItems:'center',gap:'10px',
         }}>
           <div style={{display:'flex',gap:'12px',flexWrap:'wrap',justifyContent:'center'}}>
-            <RippleBtn cls="btn-primary" href={WHATSAPP}>💬 Join Community</RippleBtn>
+            <RippleBtn cls="btn-primary" href={JOIN_MEMBER_FORM}>🚀 Join as Member</RippleBtn>
             <RippleBtn cls="btn-outline" onClick={()=>onTabChange('Team')}>👥 Core Team</RippleBtn>
           </div>
-          {/* Join NexaSphere CTA */}
+          {/* Core Team CTA */}
           <div style={{
             marginTop:'6px',padding:'14px 24px',
             background: isLight ? 'rgba(109,40,217,.05)' : 'rgba(123,111,255,.07)',
@@ -208,7 +208,7 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
             <p style={{fontSize:'.82rem',color:'var(--t2)',marginBottom:'10px',lineHeight:1.5}}>
               🚀 Want to be part of the NexaSphere?
             </p>
-            <RippleBtn cls="btn-join" href={JOIN_FORM}>✨ Apply Here</RippleBtn>
+            <RippleBtn cls="btn-join" href={JOIN_CORE_FORM}>✨ Apply Here</RippleBtn>
           </div>
         </div>
 
@@ -222,7 +222,6 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
         <div style={{fontSize:'.56rem',color:'var(--t3)',letterSpacing:'.22em',fontFamily:"'Space Mono',monospace"}}>SCROLL</div>
         <div style={{width:'1px',height:'28px',background:`linear-gradient(to bottom,var(--c1),transparent)`}}/>
       </div>
-    
     </section>
   );
 }
