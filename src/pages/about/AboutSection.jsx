@@ -32,12 +32,8 @@ export default function AboutSection() {
             <p className="about-text pop-left" style={{marginTop:'12px',animationDelay:'.16s'}}>
               From intense hackathons to insightful knowledge sessions, NexaSphere is where curiosity meets collaboration. The best learning happens when you build, share, and grow together.
             </p>
-            <div className="pop-left" style={{marginTop:'16px',paddingTop:'14px',borderTop:'1px solid var(--bdr)',animationDelay:'.22s'}}>
-              <div style={{fontFamily:'Orbitron,monospace',fontSize:'.7rem',color:'var(--c2)',fontWeight:700,letterSpacing:'.1em',marginBottom:'4px',textTransform:'uppercase'}}>Architected by</div>
-              <div style={{color:'var(--t2)',fontSize:'.88rem'}}>Ayush Sharma</div>
-            </div>
             {/* Contact */}
-            <div className="pop-left" style={{marginTop:'14px',animationDelay:'.28s'}}>
+            <div className="pop-left" style={{marginTop:'16px',animationDelay:'.22s'}}>
               <div style={{fontFamily:'Orbitron,monospace',fontSize:'.7rem',color:'var(--c1)',fontWeight:700,letterSpacing:'.1em',marginBottom:'4px',textTransform:'uppercase'}}>Contact Us</div>
               <a href={`mailto:${NEXASPHERE_EMAIL}`} style={{color:'var(--c1)',fontSize:'.88rem',fontWeight:600}}>{NEXASPHERE_EMAIL}</a>
             </div>

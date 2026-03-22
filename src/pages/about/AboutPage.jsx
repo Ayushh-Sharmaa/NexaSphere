@@ -79,12 +79,7 @@ export default function AboutPage({ onBack }) {
               From intense hackathons to insightful knowledge sessions, NexaSphere is where curiosity meets collaboration. The best learning happens when you build, share, and grow together.
             </p>
 
-            <div className="pop-in" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--bdr)', animationDelay: '.22s' }}>
-              <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '.68rem', color: 'var(--c2)', fontWeight: 700, letterSpacing: '.1em', marginBottom: '4px', textTransform: 'uppercase' }}>Architected by</div>
-              <div style={{ color: 'var(--t1)', fontSize: '.95rem', fontWeight: 700 }}>Ayush Sharma</div>
-            </div>
-
-            <div className="pop-in" style={{ marginTop: '14px', animationDelay: '.28s' }}>
+            <div className="pop-in" style={{ marginTop: '14px', animationDelay: '.22s' }}>
               <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '.68rem', color: 'var(--c1)', fontWeight: 700, letterSpacing: '.1em', marginBottom: '4px', textTransform: 'uppercase' }}>Contact Us</div>
               <a href={`mailto:${NEXASPHERE_EMAIL}`} style={{ color: 'var(--c1)', fontSize: '.88rem', fontWeight: 600, cursor: 'none' }}>{NEXASPHERE_EMAIL}</a>
             </div>
