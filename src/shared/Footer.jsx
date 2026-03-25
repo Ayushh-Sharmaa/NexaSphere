@@ -24,7 +24,6 @@ export default function Footer() {
           <p className="ns-footer-text" style={{fontSize:'.72rem',opacity:.6}}>
             Built with ❤️ by the NexaSphere Core Team · Architected by Ayush Sharma
           </p>
-          <div style={{fontFamily:"'Space Mono',monospace",fontSize:'.55rem',color:'rgba(0,212,255,.15)',letterSpacing:'.2em',marginTop:'4px'}}>REACT + VITE + GITHUB PAGES</div>
         </div>
       </div>
     </footer>
