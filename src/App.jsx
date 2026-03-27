@@ -188,6 +188,8 @@ export default function App() {
   const [stormOn,  setStormOn]  = useState(false);
   const [stormTo,  setStormTo]  = useState('light');
   const stormLock = useRef(false);
+  const themeRef  = useRef(theme); // always-current theme ref to avoid stale closures
+  useEffect(() => { themeRef.current = theme; }, [theme]);
 
   // Apply theme to html element
   useEffect(()=>{
@@ -195,23 +197,31 @@ export default function App() {
     localStorage.setItem('ns-theme',theme);
   },[theme]);
 
-  // Storm theme toggle
+  // Storm theme toggle — uses ref so never stale
   const triggerStorm = useCallback(() => {
     if (stormLock.current) return;
     stormLock.current = true;
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme = themeRef.current === 'dark' ? 'light' : 'dark';
     setStormTo(nextTheme);
     setStormOn(true);
-    // Add spinning class to toggle button
     const btn = document.getElementById('theme-toggle');
     if (btn) btn.classList.add('storm-spinning');
-  }, [theme]);
+    // Safety fallback — unlock after 3s if onDone never fires
+    setTimeout(() => {
+      if (stormLock.current) {
+        stormLock.current = false;
+        setStormOn(false);
+        const b = document.getElementById('theme-toggle');
+        if (b) b.classList.remove('storm-spinning');
+      }
+    }, 3000);
+  }, []);
 
   const onStormMidpoint = useCallback(() => {
-    // Flip theme at storm peak
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    // Flip theme at storm peak using ref — never stale
+    const nextTheme = themeRef.current === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-  }, [theme]);
+  }, []);
 
   const onStormDone = useCallback(() => {
     setStormOn(false);

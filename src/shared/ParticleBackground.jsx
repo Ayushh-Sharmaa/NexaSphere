@@ -49,7 +49,7 @@ export default function ParticleBackground({ theme = 'dark' }) {
         x, y, ox: x, oy: y,
         vx: (Math.random() - 0.5) * 0.38,
         vy: (Math.random() - 0.5) * 0.38,
-        r:  Math.random() * 1.8 + 0.5,
+        r:  Math.random() * 2.2 + 0.4,
         ph: Math.random() * Math.PI * 2,
         // dark hues: cyan/indigo/green; light hues: amber/violet/rose
         hue: [192, 262, 165, 300, 210][Math.floor(Math.random() * 5)],
@@ -64,12 +64,12 @@ export default function ParticleBackground({ theme = 'dark' }) {
 
       /* ── theme-aware palette ── */
       // Dark mode: bright glowing dots on dark bg
-      // Light mode: vivid saturated dots on light bg — dark enough to see clearly
-      const dotL     = isL ? 28  : 72;   // lightness of dot (low = darker dot)
-      const dotSat   = isL ? 80  : 100;
-      const dotA     = isL ? 0.65 : 0.58; // dot alpha — high in light mode
-      const lineA    = isL ? 0.18 : 0.18; // connection line alpha
-      const haloA    = isL ? 0.22 : 0.15;
+      // Light mode: VERY dark vivid dots on light bg — must be clearly visible
+      const dotL     = isL ? 20  : 72;   // lightness — very dark in light mode
+      const dotSat   = isL ? 90  : 100;
+      const dotA     = isL ? 0.85: 0.58; // much higher alpha in light mode
+      const lineA    = isL ? 0.35 : 0.18; // thicker lines in light mode
+      const haloA    = isL ? 0.30 : 0.15;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -196,8 +196,8 @@ export default function ParticleBackground({ theme = 'dark' }) {
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
         zIndex: 0, pointerEvents: 'none',
-        // Both modes fully visible but balanced
-        opacity: theme === 'light' ? 0.85 : 0.55,
+        // Both modes fully visible — light mode gets full opacity
+        opacity: theme === 'light' ? 1.0 : 0.55,
         transition: 'opacity 1.2s ease',
       }}
     />
