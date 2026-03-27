@@ -18,6 +18,10 @@
 .btn-whatsapp:hover { background:#1dbc58; transform:translateY(-2px) !important; box-shadow:0 6px 18px rgba(37,211,102,.4) !important; }
 .btn-linkedin  { background:#0a66c2; color:#fff; }
 .btn-linkedin:hover  { background:#0957a7; transform:translateY(-2px) !important; box-shadow:0 6px 18px rgba(10,102,194,.4) !important; }
+.btn-instagram { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; }
+.btn-instagram:hover { filter:brightness(1.1); transform:translateY(-2px) !important; box-shadow:0 6px 18px rgba(220,39,67,.4) !important; }
+.btn-contact   { background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; }
+.btn-contact:hover   { filter:brightness(1.1); transform:translateY(-2px) !important; box-shadow:0 6px 18px rgba(99,102,241,.4) !important; }
 .btn-join      { background:linear-gradient(135deg,#7b6fff,#bd5cff); color:#fff; box-shadow:0 0 20px rgba(123,111,255,.3); }
 .btn-join:hover{ transform:translateY(-4px) scale(1.04) !important; box-shadow:0 0 36px rgba(123,111,255,.5),0 12px 28px rgba(0,0,0,.35) !important; }
 [data-theme="light"] .btn-primary { box-shadow:0 4px 16px rgba(0,0,0,.12); }
@@ -227,7 +231,9 @@
 [data-theme="light"] .modal-info { background:rgba(28,25,23,.04); border-color:rgba(28,25,23,.1); }
 .modal-info-row { display:flex; gap:10px; font-size:.84rem; }
 .modal-info-label { color:var(--t3); min-width:66px; font-weight:600; }
+[data-theme="light"] .modal-info-label { color:#78716c; }
 .modal-info-value { color:var(--t1); }
+[data-theme="light"] .modal-info-value { color:#1c1917; }
 .modal-social { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
 .modal-social-btn { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:50px; font-size:.75rem; font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; border:none; text-decoration:none; color:#fff; transition:all .2s !important; }
 .modal-social-btn:hover { transform:translateY(-2px) !important; filter:brightness(1.12); }

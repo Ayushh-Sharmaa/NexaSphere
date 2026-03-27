@@ -119,7 +119,7 @@ function StatsBar({ vis, isLight }) {
             WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text',
             animation:vis?`countUp .5s ${.4+i*.1}s both`:'none',
           }}>{s.v}</div>
-          <div style={{fontSize:'.58rem',color:'var(--t2)',textTransform:'uppercase',letterSpacing:'.1em',marginTop:'1px',fontFamily:"'Space Mono',monospace"}}>{s.l}</div>
+          <div style={{fontSize:'.58rem',color:isLight?'#57534e':'var(--t2)',textTransform:'uppercase',letterSpacing:'.1em',marginTop:'1px',fontFamily:"'Space Mono',monospace"}}>{s.l}</div>
         </div>
       ))}
     </div>
@@ -219,7 +219,7 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
       <div style={{position:'absolute',bottom:0,left:0,right:0,height:'150px',background:'linear-gradient(to bottom,transparent,var(--bg))',pointerEvents:'none',zIndex:2}}/>
       {/* Scroll indicator */}
       <div style={{position:'absolute',bottom:'22px',left:'50%',transform:'translateX(-50%)',zIndex:3,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',opacity:.38,animation:'float 2.5s ease-in-out infinite'}}>
-        <div style={{fontSize:'.56rem',color:'var(--t3)',letterSpacing:'.22em',fontFamily:"'Space Mono',monospace"}}>SCROLL</div>
+        <div style={{fontSize:'.56rem',color:isLight?'#78716c':'var(--t3)',letterSpacing:'.22em',fontFamily:"'Space Mono',monospace"}}>SCROLL</div>
         <div style={{width:'1px',height:'28px',background:`linear-gradient(to bottom,var(--c1),transparent)`}}/>
       </div>
     </section>
