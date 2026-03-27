@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import nexasphereLogo from '../assets/images/logos/nexasphere-logo.png';
-import glbajajLogo    from '../assets/images/logos/glbajaj-logo.png';
+
 
 const TABS = ['Home', 'Activities', 'Events', 'About', 'Team', 'Contact'];
 
@@ -30,7 +30,7 @@ export default function Navbar({ activeTab, onTabChange }) {
       <div className="ns-mobile-top">
         <img src={nexasphereLogo} alt="NexaSphere" className="ns-mobile-logo-ns"/>
         <span className="ns-mobile-brand"><span>NexaSphere</span></span>
-        <img src={glbajajLogo}    alt="GL Bajaj"   className="ns-mobile-logo-gl"/>
+
       </div>
       <div className="ns-mobile-tabs">
         {TABS.map(t => (
@@ -39,7 +39,7 @@ export default function Navbar({ activeTab, onTabChange }) {
             className={`ns-mobile-tab${activeTab === t ? ' active' : ''}${t === 'Contact' ? ' contact-tab' : ''}`}
             onClick={() => handleTab(t)}
           >
-            {t === 'Contact' ? '📞 ' + t : t}
+            {t}
           </button>
         ))}
       </div>
@@ -65,13 +65,12 @@ export default function Navbar({ activeTab, onTabChange }) {
                   className={`ns-nav-tab${activeTab === t ? ' active' : ''}${t === 'Contact' ? ' contact-nav-tab' : ''}`}
                   onClick={() => handleTab(t)}
                 >
-                  {t === 'Contact' ? '📞 ' + t : t}
+                  {t}
                 </button>
               </li>
             ))}
           </ul>
-          <div className="ns-nav-divider"/>
-          <img src={glbajajLogo} alt="GL Bajaj" className="ns-nav-logo-gl"/>
+
         </div>
       </div>
     </nav>
