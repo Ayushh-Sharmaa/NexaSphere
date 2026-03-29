@@ -6,6 +6,7 @@
 import hackathon from './hackathon';
 import codathon from './codathon';
 import ideathon from './ideathon';
+import promptathon from './promptathon';
 import workshop from './workshop';
 import insightSession from './insightSession';
 import openSourceDay from './openSourceDay';
@@ -16,6 +17,7 @@ export const activityPages = {
   'Hackathon':       hackathon,
   'Codathon':        codathon,
   'Ideathon':        ideathon,
+  'Promptathon':     promptathon,
   'Workshop':        workshop,
   'Insight Session': insightSession,
   'Open Source Day': openSourceDay,

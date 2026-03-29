@@ -93,7 +93,7 @@ function Logo3D({ ready, isLight }) {
 
 /* ── Stats bar ── */
 function StatsBar({ vis, isLight }) {
-  const items = [{v:'12',l:'Members',i:'👥'},{v:'7',l:'Activities',i:'⚡'},{v:'1',l:'Events Done',i:'📅'},{v:'∞',l:'Ideas',i:'💡'}];
+  const items = [{v:'12',l:'Members',i:'👥'},{v:'8',l:'Activities',i:'⚡'},{v:'1',l:'Events Done',i:'📅'},{v:'∞',l:'Ideas',i:'💡'}];
   return (
     <div style={{
       display:'flex',maxWidth:'500px',margin:'40px auto 0',

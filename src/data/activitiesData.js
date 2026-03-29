@@ -24,27 +24,34 @@ export const activities = [
   },
   {
     id: 4,
+    icon: '🤖',
+    title: 'Promptathon',
+    description:
+      'AI prompt engineering competitions where participants craft the most creative, effective prompts to solve real-world challenges.',
+  },
+  {
+    id: 5,
     icon: '🔧',
     title: 'Workshop',
     description:
       'Hands-on learning sessions on cutting-edge tools, frameworks, and emerging technologies led by experts.',
   },
   {
-    id: 5,
+    id: 6,
     icon: '🔍',
     title: 'Insight Session',
     description:
       'Deep-dive talks and discussions exploring industry trends, career paths, and the future of technology.',
   },
   {
-    id: 6,
+    id: 7,
     icon: '🌐',
     title: 'Open Source Day',
     description:
       'Dedicated events encouraging contributions to open-source projects, building real-world dev experience.',
   },
   {
-    id: 7,
+    id: 8,
     icon: '🎙️',
     title: 'Tech Debate',
     description:

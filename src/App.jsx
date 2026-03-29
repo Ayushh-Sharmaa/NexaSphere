@@ -184,12 +184,7 @@ export default function App() {
   const [wipeOn,   setWipeOn]   = useState(false);
   const [wipePh,   setWipePh]   = useState('out');
   const [page,     setPage]     = useState(null);
-  const [theme,    setTheme]    = useState(()=>{
-    const saved = localStorage.getItem('ns-theme');
-    if (saved) return saved;
-    // Fall back to OS / device preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const [theme,    setTheme]    = useState(()=>localStorage.getItem('ns-theme')||'dark');
   const [stormOn,  setStormOn]  = useState(false);
   const [stormTo,  setStormTo]  = useState('light');
   const stormLock = useRef(false);
