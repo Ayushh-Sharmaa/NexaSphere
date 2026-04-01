@@ -211,8 +211,8 @@
 [data-theme="light"] .card-num { color:rgba(28,25,23,.14); }
 .activity-icon { font-size:2.6rem; margin-bottom:14px; display:block; transition:transform .38s cubic-bezier(.34,1.56,.64,1) !important; }
 .activity-card:hover .activity-icon { transform:scale(1.25) rotate(10deg) !important; }
-.activity-title { font-family:'Orbitron',monospace; font-size:.88rem; font-weight:700; color:var(--c1); margin-bottom:8px; letter-spacing:.05em; }
-[data-theme="light"] .activity-title { color:#c2770a; }
+.activity-title { font-family:'Orbitron',monospace; font-size:.9rem; font-weight:800; color:var(--c1); margin-bottom:8px; letter-spacing:.05em; text-shadow:0 0 16px var(--c1g); }
+[data-theme="light"] .activity-title { color:#8b5300; font-weight:800; }
 .activity-desc { color:var(--t2); font-size:.86rem; line-height:1.65; }
 .activity-cta { margin-top:13px; display:flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; color:var(--c1); text-transform:uppercase; letter-spacing:.1em; opacity:.5; transition:opacity .22s, transform .22s !important; }
 .activity-card:hover .activity-cta { opacity:1; transform:translateX(4px); }
@@ -241,8 +241,8 @@
 [data-theme="light"] .team-card:hover .team-card-photo { border-color:#c2770a; box-shadow:0 0 12px rgba(194,119,10,.3); }
 .team-card-photo-wrap::before { content:''; position:absolute; inset:-4px; border-radius:50%; background:conic-gradient(from 0deg,var(--c1),var(--c2),var(--c3),var(--c1)); opacity:0; transition:opacity .28s !important; animation:spin 4s linear infinite; z-index:-1; }
 .team-card:hover .team-card-photo-wrap::before { opacity:.45; }
-.team-card-name  { font-family:'Orbitron',monospace; font-size:.72rem; font-weight:700; color:var(--t1); margin-bottom:3px; }
-.team-card-role  { font-size:.7rem; color:var(--c1); font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+.team-card-name  { font-family:'Orbitron',monospace; font-size:.72rem; font-weight:700; color:var(--t1); margin-bottom:3px; letter-spacing:.03em; }
+.team-card-role  { font-size:.7rem; color:var(--c1); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
 [data-theme="light"] .team-card-role { color:#c2770a; }
 .team-card-chips { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-top:8px; }
 .chip-branch { font-size:.55rem; padding:2px 7px; border-radius:10px; background:var(--c1a); color:var(--c1); border:1px solid var(--c1b); font-family:'Space Mono',monospace; }
@@ -275,7 +275,7 @@
 .modal-info-row { display:flex; gap:10px; font-size:.84rem; }
 .modal-info-label { color:var(--t3); min-width:66px; font-weight:600; }
 [data-theme="light"] .modal-info-label { color:#78716c; }
-.modal-info-value { color:var(--t1); }
+.modal-info-value { color:var(--t1); font-weight:600; }
 [data-theme="light"] .modal-info-value { color:#1c1917; }
 .modal-social { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
 .modal-social-btn { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:50px; font-size:.75rem; font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; border:none; text-decoration:none; color:#fff; transition:all .2s !important; }
@@ -296,7 +296,7 @@
 [data-theme="light"] .timeline-card { background:#fff; border-color:rgba(28,25,23,.09); }
 [data-theme="light"] .timeline-card:hover { border-color:rgba(194,119,10,.28); box-shadow:0 6px 24px rgba(194,119,10,.1); }
 .timeline-event-name { font-family:'Orbitron',monospace; font-size:.86rem; font-weight:700; color:var(--c1); margin-bottom:4px; }
-[data-theme="light"] .timeline-event-name { color:#c2770a; }
+[data-theme="light"] .timeline-event-name { color:#7c4a00; font-weight:800; }
 .timeline-event-date { font-size:.76rem; color:var(--t3); margin-bottom:8px; }
 .timeline-event-desc { font-size:.84rem; color:var(--t2); line-height:1.65; margin-bottom:10px; }
 .timeline-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:20px; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
@@ -385,3 +385,16 @@
 /* Mobile contact tab */
 .contact-tab { color: var(--c1) !important; font-weight: 800 !important; }
 [data-theme="light"] .contact-tab { color: #c2770a !important; }
+
+/* ── TEXT CONTRAST BOOST ──────────────────── */
+[data-theme="light"] .section-subtitle { color: #4a4540; }
+[data-theme="light"] .about-text { color: #4a4540; }
+[data-theme="light"] .timeline-event-desc { color: #4a4540; }
+[data-theme="light"] .activity-desc { color: #4a4540; }
+[data-theme="light"] .team-card-name { color: #111110; }
+[data-theme="light"] .chip-branch { color: #7c4a00; background:rgba(184,104,0,.1); border-color:rgba(184,104,0,.25); }
+[data-theme="light"] .chip-section { color: #3b0d8b; background:rgba(91,33,182,.09); border-color:rgba(91,33,182,.22); }
+[data-theme="light"] .modal-name  { color: #111110; }
+[data-theme="light"] .modal-role  { color: #7c4a00; }
+[data-theme="light"] .ns-footer-text { color: #4a4540; }
+[data-theme="light"] .cin-section-label { color: #6b6560; }

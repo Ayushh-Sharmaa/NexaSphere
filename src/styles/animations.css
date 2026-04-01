@@ -185,3 +185,10 @@
   animation:glowRing 1.4s ease-in-out infinite;
   pointer-events:none;
 }
+
+/* ── Color transition on content text for smooth theme switch ── */
+.section-subtitle, .about-text, .activity-desc, .timeline-event-desc,
+.timeline-event-date, .team-card-name, .modal-info-value, .ns-footer-text,
+.hero-tagline {
+  transition: color .3s cubic-bezier(.4,0,.2,1) !important;
+}
