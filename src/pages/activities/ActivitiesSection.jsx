@@ -1,37 +1,51 @@
 import { useEffect, useRef } from 'react';
 import { activities } from '../../data/activitiesData';
 
+/* Anti-gravity delays — same pattern as team cards */
+const AG_DELAYS = [0, -2.1, -4.2, -1.0, -3.3, -5.5, -0.7, -6.1];
+
 function ActivityCard({ a, idx, onNav }) {
-  const ref = useRef(null);
+  const ref      = useRef(null);
+  const agDelay  = AG_DELAYS[idx % AG_DELAYS.length];
 
   const onMove = e => {
     const c = ref.current; if (!c) return;
     const rect = c.getBoundingClientRect();
-    const x = (e.clientX - rect.left)/rect.width  - .5;
-    const y = (e.clientY - rect.top )/rect.height - .5;
-    c.style.transform = `translateY(-14px) rotateX(${-y*15}deg) rotateY(${x*15}deg) scale(1.03)`;
+    const x = (e.clientX - rect.left) / rect.width  - .5;
+    const y = (e.clientY - rect.top)  / rect.height - .5;
+    /* pause float while tilting */
+    c.style.animationPlayState = 'paused';
+    c.style.transform = `translateY(-16px) rotateX(${-y * 16}deg) rotateY(${x * 16}deg) scale(1.04)`;
   };
-  const onLeave = () => { if(ref.current) ref.current.style.transform=''; };
+
+  const onLeave = () => {
+    const c = ref.current; if (!c) return;
+    c.style.transform = '';
+    c.style.animationPlayState = '';
+  };
+
   const click = () => {
     const c = ref.current;
-    if(c){c.style.transform='scale(.93)';setTimeout(()=>{c.style.transform='';},140);}
-    setTimeout(()=>onNav('activity',a.title),160);
+    if (c) { c.style.transform = 'scale(.92)'; setTimeout(() => { c.style.transform = ''; }, 130); }
+    setTimeout(() => onNav('activity', a.title), 160);
   };
 
   return (
-    <div ref={ref}
-      className={`activity-card shimmer tilt pop-flip ag`}
+    <div
+      ref={ref}
+      className="activity-card shimmer"
       style={{
-        cursor:'pointer',
-        perspective:'800px',
-        animationDelay: `${[-0, -2.1, -4.2, -1.0, -3.3, -5.5, -0.7, -6.1][idx % 8]}s`,
+        cursor: 'pointer',
+        perspective: '800px',
+        /* Float animation — starts immediately, no pop-flip class needed */
+        animation: `ag 7s ease-in-out ${agDelay}s infinite`,
+        willChange: 'transform',
       }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       onClick={click}
     >
-      <div className="card-accent-line"/>
-      <div className="card-num">{String(idx+1).padStart(2,'0')}</div>
+      <div className="card-num">{String(idx + 1).padStart(2, '0')}</div>
       <div className="activity-icon">{a.icon}</div>
       <div className="activity-title">{a.title}</div>
       <p className="activity-desc">{a.description}</p>
@@ -42,21 +56,28 @@ function ActivityCard({ a, idx, onNav }) {
 }
 
 export default function ActivitiesSection({ onNavigate }) {
-  useEffect(()=>{
-    const obs=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('fired');obs.unobserve(e.target);}});
-    },{threshold:.09});
-    document.querySelectorAll('#section-activities .pop-flip,#section-activities .pop-in,#section-activities .pop-word').forEach(el=>obs.observe(el));
-    return()=>obs.disconnect();
-  },[]);
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('fired'); obs.unobserve(e.target); }
+      });
+    }, { threshold: .08 });
+    document.querySelectorAll('#section-activities .pop-word, #section-activities .pop-in')
+      .forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section className="section" id="section-activities">
       <div className="container">
         <h2 className="section-title pop-word">Our Activities</h2>
-        <p className="section-subtitle pop-in" style={{animationDelay:'.1s'}}>Click any activity to explore sessions &amp; events</p>
+        <p className="section-subtitle pop-in" style={{ animationDelay: '.1s' }}>
+          Click any activity to explore sessions &amp; events
+        </p>
         <div className="activity-grid cin-container">
-          {activities.map((a,i)=><ActivityCard key={a.id} a={a} idx={i} onNav={onNavigate}/>)}
+          {activities.map((a, i) => (
+            <ActivityCard key={a.id} a={a} idx={i} onNav={onNavigate}/>
+          ))}
         </div>
       </div>
     </section>
