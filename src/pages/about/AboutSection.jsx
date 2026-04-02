@@ -4,7 +4,7 @@ const WHATSAPP       = 'https://chat.whatsapp.com/Jjc5cuUKENu0RC1vWSEs20';
 const LINKEDIN       = 'https://www.linkedin.com/showcase/glbajaj-nexasphere/';
 const NEXASPHERE_EMAIL = 'nexasphere@glbajajgroup.org';
 
-const values = ['Innovation','Collaboration','Learning','Growth','Community','Technology'];
+const values = ['Innovation','Collaboration','Learning','Growth','Community','Technology','Career','Mentorship'];
 
 export default function AboutSection() {
   useEffect(()=>{
@@ -27,10 +27,10 @@ export default function AboutSection() {
             <p className="about-text pop-left" style={{animationDelay:'.08s'}}>
               <strong style={{color:'var(--c1)'}}>NexaSphere</strong> is a student-driven tech ecosystem at{' '}
               <strong style={{color:'var(--c2)'}}>GL Bajaj Group of Institutions, Mathura</strong>.
-              We bridge the gap between academic learning and real-world technology through a thriving community of passionate engineers and innovators.
+              Founded to bridge the gap between academic learning and real-world technology, we run hackathons, workshops, knowledge-sharing sessions, and career guidance events.
             </p>
             <p className="about-text pop-left" style={{marginTop:'12px',animationDelay:'.16s'}}>
-              From intense hackathons to insightful knowledge sessions, NexaSphere is where curiosity meets collaboration. The best learning happens when you build, share, and grow together.
+              We've hosted KSS #153 on the Impact of AI, are running an Industry Insider career guidance session on March 13, and a Git &amp; GitHub workshop is coming soon. NexaSphere is where curiosity meets real opportunity.
             </p>
             {/* Contact */}
             <div className="pop-left" style={{marginTop:'16px',animationDelay:'.22s'}}>

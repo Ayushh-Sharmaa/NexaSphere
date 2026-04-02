@@ -76,7 +76,7 @@ export default function AboutPage({ onBack }) {
               We bridge the gap between academic learning and real-world technology through a thriving community of passionate engineers and innovators.
             </p>
             <p className="about-text pop-in" style={{ marginTop: '12px', animationDelay: '.16s' }}>
-              From intense hackathons to insightful knowledge sessions, NexaSphere is where curiosity meets collaboration. The best learning happens when you build, share, and grow together.
+              We've hosted KSS #153 on the Impact of AI, are running an Industry Insider career guidance session on March 13, and a Git &amp; GitHub workshop is coming soon. NexaSphere is where curiosity meets real opportunity.
             </p>
 
             <div className="pop-in" style={{ marginTop: '14px', animationDelay: '.22s' }}>
