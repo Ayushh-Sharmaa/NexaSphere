@@ -1,6 +1,6 @@
 // ── Insight Session Activity Data ──
-// To add a new KSS: copy the KSS #153 block, change id/name/date and fill in details.
-// To mark as upcoming: set status: 'upcoming' and remove topics/volunteers etc.
+// To add a new KSS: copy a block from conductedEvents and fill in details.
+// To mark as upcoming: set status: 'upcoming'.
 
 const insightSession = {
   id: 'insight-session',
@@ -78,53 +78,42 @@ const insightSession = {
         {
           name: 'Prof.(Dr.) V.K. Singh Sir',
           title: 'HOD',
-          note: 'For your constant guidance and belief in student-led initiatives.',
+          note: 'For your constant guidance and for creating space for student-led learning.',
         },
         {
-          name: 'Dr. Shashi Shekhar (PhD) Sir',
-          title: 'HOD',
-          note: 'For your constant guidance and belief in student-led initiatives.',
-        },
-        {
-          name: "Richa Mishra Ma'am & Vivek Bhardwaj Sir",
+          name: 'Dr. Shashi Shekhar Sir',
           title: 'Faculty',
-          note: 'For being the backbone behind every event and always pushing us to do better.',
+          note: 'For showing us what it means to be a lifelong learner.',
+        },
+        {
+          name: 'Richa Mishra & Vivek Bhardwaj',
+          title: 'Coordinators',
+          note: 'For your on-ground support and making the logistics feel effortless.',
         },
         {
           name: 'Dr. Wazir Singh Sir',
           title: 'KSS Coordinator',
-          note: 'For approving and supporting this session. Your trust in us means everything!',
+          note: 'For trusting NexaSphere with this platform and guiding us every step.',
         },
       ],
-      closingNote:
-        "This is just the BEGINNING. Bigger events. Deeper sessions. More ideas. More inspiration. The journey has just started and we're only getting warmed up! 🔥",
-      photoLink: 'https://drive.google.com/drive/folders/1f4J58M59YxIKnXIik8Om10EoucyE_mNT?usp=drive_link',
-      videoLink: 'https://drive.google.com/drive/folders/1D-LQlN_WmMT10IhD1NnMcjJPi5dWheDf?usp=drive_link',
+      photoLink: null,
+      videoLink: null,
+      closingNote: `That's the magic of a KSS — it doesn't just inform, it transforms. A big thank you to every presenter, every volunteer, every face in the audience. You are NexaSphere. 🌐✨`,
     },
-
-    // ── Add next KSS below ──
-    // {
-    //   id: 'kss-154',
-    //   name: 'KSS #154 — Topic Name',
-    //   shortName: 'KSS #154',
-    //   date: 'Month Year',
-    //   status: 'completed',
-    //   tagline: '...',
-    //   hashtags: ['#KSS154', '#NexaSphere', '#GLBajaj'],
-    //   stats: [],
-    //   overview: '...',
-    //   topics: [],
-    //   videoPresenter: [],
-    //   anchor: null,
-    //   volunteers: [],
-    //   acknowledgements: [],
-    //   closingNote: '',
-    //   photoLink: null,
-    //   videoLink: null,
-    // },
   ],
 
-  upcomingEvents: [],
+  upcomingEvents: [
+    {
+      id: 'industry-insider-career',
+      name: 'Industry Insider Session — Career Guidance',
+      shortName: 'Industry Insider',
+      date: 'March 13',
+      status: 'upcoming',
+      description:
+        'Career Guidance, Placement Preparation & Company Hiring Insights — a deep dive into what the industry actually looks for, how to prepare for placements, and real-world hiring insights from those who know.',
+      tags: ['Career', 'Placement', 'Hiring', 'Industry'],
+    },
+  ],
 };
 
 export default insightSession;
