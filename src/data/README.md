@@ -1,76 +1,81 @@
-# 📊 src/data/
+# data/
+All site content lives here — edit these files to update the website without touching any component code.
 
-All website content lives here. **You should only ever need to edit files in this folder** for routine updates — no component code changes required.
+## Files
+
+| File | Edit to... |
+|---|---|
+| `teamData.js` | Add / update core team members |
+| `activitiesData.js` | Change activity card icons & descriptions (home grid) |
+| `eventsData.js` | Add events to the home page timeline + Events page |
+| `activities/index.js` | Register a new activity page |
+| `activities/workshop.js` | Add / update Workshop events |
+| `activities/insightSession.js` | Add / update KSS & Insight Session events |
+| `activities/hackathon.js` | Add / update Hackathon events |
 
 ---
 
-## Files Overview
+## How to add a new event to the Home / Events page
 
-| File | Controls | How often edited |
+Open `eventsData.js` and add a new object to the `events` array:
+
+```js
+{
+  id: 4,                          // next sequential number
+  name: 'Your Event Name',
+  shortName: 'Short Name',
+  date: 'April 2025',
+  description: 'One paragraph description.',
+  status: 'upcoming',             // 'upcoming' | 'completed'
+  icon: '🚀',
+  tags: ['Tag1', 'Tag2'],
+}
+```
+
+---
+
+## How to add an upcoming Workshop event
+
+Open `activities/workshop.js` → add to `upcomingEvents`:
+
+```js
+{
+  id: 'workshop-your-id',
+  name: 'Workshop: Topic Name',
+  shortName: 'Topic Name',
+  date: 'Coming Soon',            // or 'April 15, 2025'
+  status: 'upcoming',
+  description: 'What attendees will learn.',
+  tags: ['Tag1', 'Tag2'],
+}
+```
+
+---
+
+## How to add an upcoming Insight Session
+
+Open `activities/insightSession.js` → add to `upcomingEvents`:
+
+```js
+{
+  id: 'industry-insider-career',
+  name: 'Session Title',
+  shortName: 'Short Name',
+  date: 'March 13',
+  status: 'upcoming',
+  description: 'Session description.',
+  tags: ['Career', 'Guidance'],
+}
+```
+
+When the session is conducted, move it to `conductedEvents` and fill in speakers, topics, volunteers, etc.
+
+---
+
+## Current Events (as of March 2025)
+
+| Event | Status | File |
 |---|---|---|
-| `teamData.js` | All 12 team members — names, roles, photos, social links | When adding/updating members |
-| `eventsData.js` | Events timeline on the main Events tab | When adding/updating events |
-| `activitiesData.js` | The 7 activity card titles, icons, descriptions | Rarely — only for wording changes |
-| `activities/` | Full detail pages for each activity type | When a new event is conducted |
-
----
-
-## teamData.js
-
-Each member object:
-
-```js
-{
-  id: 1,                                    // Unique number — never repeat
-  name: 'Full Name',
-  role: 'Organiser',                        // Shown on card and modal
-  year: '1st Year',
-  branch: 'CSE (AI & ML)',
-  section: 'F',
-  photo: memberImg,                         // Import at top of file
-  linkedin: 'https://linkedin.com/in/...',  // null = button hidden
-  email: 'name@example.com',               // null = button hidden
-  whatsapp: '9876543210',                  // Plain number or wa.me URL
-  instagram: 'https://instagram.com/...',  // null = button hidden
-}
-```
-
----
-
-## eventsData.js
-
-Each event object:
-
-```js
-{
-  id: 1,
-  name: 'KSS — Knowledge Sharing Session',
-  shortName: 'KSS',
-  date: 'March 14, 2025',
-  description: 'Full description shown on timeline card...',
-  status: 'completed',   // or 'upcoming'
-  icon: '🧠',
-  tags: ['Learning', 'Community', 'Tech'],
-}
-```
-
----
-
-## activitiesData.js
-
-Each activity card:
-
-```js
-{
-  id: 1,
-  icon: '⚡',
-  title: 'Hackathon',      // MUST match key in activities/index.js exactly
-  description: 'Card body text...',
-}
-```
-
----
-
-## activities/ folder
-
-See `activities/README.md` for the full guide.
+| KSS #153 — Impact of AI | ✅ Completed | `activities/insightSession.js` |
+| Industry Insider — Career Guidance | 🔜 March 13 | `activities/insightSession.js` + `eventsData.js` |
+| Workshop: Git & GitHub | 🔜 Coming Soon | `activities/workshop.js` + `eventsData.js` |
