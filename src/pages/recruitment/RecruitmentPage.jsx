@@ -50,14 +50,16 @@ function Field({ label, required, hint, children }) {
   );
 }
 
-function Input({ value, onChange, placeholder, type = 'text' }) {
+function Input({ value, onChange, placeholder, type = 'text', maxLength, inputMode: inputModeProp, onPaste }) {
   return (
     <input
       value={value}
       onChange={e => onChange(e.target.value)}
+      onPaste={onPaste}
       placeholder={placeholder}
       type={type}
-      inputMode={type === 'tel' ? 'numeric' : undefined}
+      maxLength={maxLength}
+      inputMode={inputModeProp || (type === 'tel' ? 'numeric' : undefined)}
       style={{
         width: '100%',
         padding: '12px 14px',
@@ -273,38 +275,72 @@ export default function RecruitmentPage({ onBack }) {
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
           <Field label="Full Name" required>
-            <Input value={form.fullName} onChange={v => setForm(f => ({ ...f, fullName: v }))} placeholder="Your full name" />
+            <Input
+              value={form.fullName}
+              onChange={v => {
+                // Letters, spaces, dots, hyphens only — no numbers or symbols
+                const cleaned = v.replace(/[^a-zA-Z\s.\-']/g, '');
+                setForm(f => ({ ...f, fullName: cleaned }));
+              }}
+              placeholder="Your full name"
+              maxLength={60}
+            />
           </Field>
-          <Field label="College Email ID" required hint="Use your official college email.">
+          <Field label="College Email ID" required hint="Must end with @glbajajgroup.org">
             <Input
               value={form.collegeEmail}
               onChange={v => setForm(f => ({ ...f, collegeEmail: v.trim().toLowerCase() }))}
               placeholder="name@glbajajgroup.org"
               type="email"
+              maxLength={80}
             />
-            <div style={{ color: 'var(--t3)', fontSize: '.82rem' }}>Must end with <span style={{ fontFamily: 'Space Mono,monospace' }}>@glbajajgroup.org</span>.</div>
           </Field>
-          <Field label="Contact Number (WhatsApp preferred)" required>
+          <Field label="WhatsApp Number" required>
             <Input
               value={form.whatsapp}
               onChange={v => {
-                const cleaned = String(v || '').replace(/[^\d]/g, '');
+                // Strip everything except digits, cap at 10
+                const cleaned = String(v || '').replace(/[^\d]/g, '').slice(0, 10);
                 setForm(f => ({ ...f, whatsapp: cleaned }));
               }}
-              placeholder="10-digit number"
+              onPaste={e => {
+                e.preventDefault();
+                const pasted = e.clipboardData.getData('text').replace(/[^\d]/g, '').slice(0, 10);
+                setForm(f => ({ ...f, whatsapp: pasted }));
+              }}
+              placeholder="10-digit mobile number"
               type="tel"
+              inputMode="numeric"
+              maxLength={10}
             />
-            <div style={{ color: 'var(--t3)', fontSize: '.82rem' }}>Digits only (no spaces / + / symbols).</div>
           </Field>
           <Field label="Year of Study" required>
             <PillRadio options={YEAR_OPTIONS} value={form.year} onChange={v => setForm(f => ({ ...f, year: v }))} />
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             <Field label="Branch / Department" required>
-              <Input value={form.branch} onChange={v => setForm(f => ({ ...f, branch: v }))} placeholder="CSE / IT / AIML / ..." />
+              <Input
+                value={form.branch}
+                onChange={v => {
+                  // Letters, spaces, slashes, hyphens only
+                  const cleaned = v.replace(/[^a-zA-Z\s\/\-]/g, '');
+                  setForm(f => ({ ...f, branch: cleaned }));
+                }}
+                placeholder="CSE / IT / AIML / ECE"
+                maxLength={30}
+              />
             </Field>
             <Field label="Section" required>
-              <Input value={form.section} onChange={v => setForm(f => ({ ...f, section: v }))} placeholder="A / B / C / ..." />
+              <Input
+                value={form.section}
+                onChange={v => {
+                  // Single letter A–Z only
+                  const cleaned = v.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 1);
+                  setForm(f => ({ ...f, section: cleaned }));
+                }}
+                placeholder="A / B / C"
+                maxLength={1}
+              />
             </Field>
           </div>
         </div>
@@ -408,17 +444,28 @@ export default function RecruitmentPage({ onBack }) {
               <Input
                 value={form.campusExpDetails}
                 onChange={v => setForm(f => ({ ...f, campusExpDetails: v }))}
-                placeholder="Community name + your role"
+                placeholder="e.g. Leo Club – Event Coordinator"
+                maxLength={100}
               />
             </Field>
           ) : null}
 
-          <Field label="Links to work (GitHub / LinkedIn / Portfolio)">
+          <Field label="GitHub Profile URL" hint="Optional">
             <Input
               value={form.links}
-              onChange={v => setForm(f => ({ ...f, links: v }))}
-              placeholder="Paste links (comma-separated is fine)"
+              onChange={v => {
+                // Only allow valid GitHub profile URL characters while typing
+                // Strip spaces automatically
+                setForm(f => ({ ...f, links: v.replace(/\s/g, '') }));
+              }}
+              placeholder="https://github.com/YourUsername"
+              type="url"
+              inputMode="url"
+              maxLength={120}
             />
+            <div style={{ color: 'var(--t3)', fontSize: '.8rem', marginTop: 4 }}>
+              Format: <span style={{ fontFamily: 'Space Mono,monospace', color: 'var(--c1)' }}>https://github.com/YourUsername</span>
+            </div>
           </Field>
         </div>
       ),
@@ -567,6 +614,13 @@ export default function RecruitmentPage({ onBack }) {
     if (step === 1 && email && !email.endsWith('@glbajajgroup.org')) missing.push('collegeEmail');
     const phone = String(form.whatsapp || '').trim();
     if (step === 1 && phone && !/^\d{10}$/.test(phone)) missing.push('whatsapp');
+    // GitHub URL validation (optional field — only validate format if something is entered)
+    const githubUrl = String(form.links || '').trim();
+    if (step === 3 && githubUrl) {
+      // Must match https://github.com/username or https://github.com/username/
+      const githubPattern = /^https:\/\/github\.com\/[a-zA-Z0-9][a-zA-Z0-9\-]{0,37}\/?$/;
+      if (!githubPattern.test(githubUrl)) missing.push('links');
+    }
     if (step === 3 && form.campusExp === 'Yes' && !String(form.campusExpDetails || '').trim()) {
       // Not required in the original form, but it’s useful when they select Yes.
     }
