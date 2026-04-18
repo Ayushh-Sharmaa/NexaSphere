@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import nexasphereLogo from '../assets/images/logos/nexasphere-logo.png';
 
 
-const TABS = ['Home', 'Activities', 'Events', 'About', 'Team', 'Contact'];
+const TABS = ['Home', 'Activities', 'Events', 'About', 'Team', 'Apply', 'Contact'];
 
 export default function Navbar({ activeTab, onTabChange }) {
   const [scrolled, setScrolled] = useState(false);

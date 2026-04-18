@@ -19,12 +19,13 @@ import EventsPage          from './pages/events/EventsPage';
 import AboutPage           from './pages/about/AboutPage';
 import TeamPage            from './pages/team/TeamPage';
 import ContactPage         from './pages/contact/ContactPage';
+import RecruitmentPage     from './pages/recruitment/RecruitmentPage';
 
 import { activityPages }   from './data/activities/index';
 import nexasphereLogo      from './assets/images/logos/nexasphere-logo.png';
 
 const MNH = 88, DNH = 64;
-const TABS = ['Home','Activities','Events','About','Team','Contact'];
+const TABS = ['Home','Activities','Events','About','Team','Apply','Contact'];
 
 /* ── Page wipe transition ── */
 function Wipe({ on, ph }) {
@@ -285,7 +286,7 @@ export default function App() {
 
   const onTab=useCallback(tab=>{
     // These tabs get their own dedicated page
-    if(['Activities','Events','About','Team','Contact'].includes(tab)){
+    if(['Activities','Events','About','Team','Apply','Contact'].includes(tab)){
       nav(()=>{setPage({type:'section',section:tab});setActiveTab(tab);});
       return;
     }
@@ -408,6 +409,11 @@ export default function App() {
         {page?.type==='section' && page.section==='Contact' && (
           <PageIn k="pg-contact">
             <ContactPage onBack={onBackHome}/>
+          </PageIn>
+        )}
+        {page?.type==='section' && page.section==='Apply' && (
+          <PageIn k="pg-apply">
+            <RecruitmentPage onBack={onBackHome}/>
           </PageIn>
         )}
         {!page&&(

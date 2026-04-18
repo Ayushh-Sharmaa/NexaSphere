@@ -27,10 +27,48 @@ npm run dev
 Push to `main` → GitHub Actions builds and deploys to GitHub Pages automatically.
 
 ## Key Links
-- Core Team Application: https://forms.gle/4M5w1dfD6un6tmGz5
+- Core Team Application: In-built form (see `Apply` tab)
 - Join NexaSphere Form: https://forms.gle/NWb49scknwD6PP769
 - Code of Conduct: https://tinyurl.com/NexaSphere-COD
 - Rules: https://tinyurl.com/NexaSphere-Rules
+
+## Core Team Application (Google Sheets storage)
+The in-built application form submits to a small backend (`server/`) which appends each response to a Google Sheet.
+
+### 1) Create / choose a Google Sheet
+- Create a sheet and add a tab named `Responses` (or set `GOOGLE_SHEET_TAB_NAME`).
+- Share the sheet with your **Google Service Account email** (Editor access).
+
+### 2) Backend setup (local)
+```bash
+cd server
+npm install
+```
+
+Create `server/.env`:
+```bash
+PORT=8787
+GOOGLE_SHEET_ID=YOUR_SHEET_ID
+GOOGLE_SHEET_TAB_NAME=Responses
+GOOGLE_SERVICE_ACCOUNT_EMAIL=xxxxx@xxxxx.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Run the backend:
+```bash
+npm run dev
+```
+
+### 3) Frontend setup
+Local dev uses Vite proxy (already configured), so just run:
+```bash
+npm run dev
+```
+
+For production (GitHub Pages), host the backend separately and set:
+```bash
+VITE_API_BASE=https://your-backend-domain.com
+```
 
 ## Adding Content
 | Task | File |

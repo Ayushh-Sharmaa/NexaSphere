@@ -1,0 +1,16 @@
+{
+  "name": "nexasphere-server",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.1"
+  }
+}
+
