@@ -83,6 +83,7 @@ function RolesGuideModal({ onClose }) {
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             style={{
               background: 'var(--card2)', border: '1px solid var(--bdr2)',
@@ -197,7 +198,7 @@ function RolesGuideModal({ onClose }) {
           display: 'flex', justifyContent: 'flex-end', flexShrink: 0,
           background: 'var(--card)',
         }}>
-          <button onClick={onClose} className="btn btn-primary">
+          <button type="button" onClick={onClose} className="btn btn-primary">
             Back to Application Form
           </button>
         </div>
