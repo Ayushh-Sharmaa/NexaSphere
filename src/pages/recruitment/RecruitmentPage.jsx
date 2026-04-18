@@ -535,7 +535,7 @@ export default function RecruitmentPage({ onBack }) {
     setBusy(true);
     try {
       const apiBase = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
-      const url = `${apiBase}/api/core-team/apply`;
+      const url = apiBase ? `${apiBase}/api/core-team/apply` : '/api/core-team/apply';
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

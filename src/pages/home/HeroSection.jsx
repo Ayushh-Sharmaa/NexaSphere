@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import nexasphereLogo from '../../assets/images/logos/nexasphere-logo.png';
 
 const JOIN_MEMBER_FORM = 'https://forms.gle/NWb49scknwD6PP769';
-const JOIN_CORE_FORM   = 'https://forms.gle/XDjnAcJN99zCcswn6';
 
 /* ── Ripple Button ── */
 function RippleBtn({ cls, children, href, onClick }) {
@@ -208,7 +207,7 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
             <p style={{fontSize:'.82rem',color:'var(--t2)',marginBottom:'10px',lineHeight:1.5}}>
               🚀 Want to be part of the NexaSphere Core Team?
             </p>
-            <RippleBtn cls="btn-join" href={JOIN_CORE_FORM}>✨ Apply for Core Team Here</RippleBtn>
+            <RippleBtn cls="btn-join" onClick={()=>onTabChange('Apply')}>✨ Apply for Core Team Here</RippleBtn>
           </div>
         </div>
 
