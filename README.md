@@ -27,7 +27,7 @@ npm run dev
 Push to `main` → GitHub Actions builds and deploys to GitHub Pages automatically.
 
 ## Key Links
-- Core Team Application: In-built form (see `Apply` tab)
+- Core Team Application: In-built form (opens from “Apply” buttons)
 - Join NexaSphere Form: https://forms.gle/NWb49scknwD6PP769
 - Code of Conduct: https://tinyurl.com/NexaSphere-COD
 - Rules: https://tinyurl.com/NexaSphere-Rules
@@ -37,7 +37,11 @@ The in-built application form submits to a small backend (`server/`) which appen
 
 ### 1) Create / choose a Google Sheet
 - Create a sheet and add a tab named `Responses` (or set `GOOGLE_SHEET_TAB_NAME`).
-- Share the sheet with your **Google Service Account email** (Editor access).
+- Share the sheet with your **Google Service Account email** (Editor access). No Apps Script extension is needed.
+
+Your Sheet (example):
+`https://docs.google.com/spreadsheets/d/1bUtbaHwA7_ooqE4pNn3B74uE3hRQi1e7NzDC-70OjYQ/edit`
+→ `GOOGLE_SHEET_ID=1bUtbaHwA7_ooqE4pNn3B74uE3hRQi1e7NzDC-70OjYQ`
 
 ### 2) Backend setup (local)
 ```bash

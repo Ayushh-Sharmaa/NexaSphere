@@ -14,10 +14,15 @@ function isEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim());
 }
 
+function isGlBajajEmail(s) {
+  const v = String(s || '').trim().toLowerCase();
+  return isEmail(v) && v.endsWith('@glbajajgroup.org');
+}
+
 function isPhoneish(s) {
   const v = String(s || '').trim();
   if (!v) return false;
-  return /^[+()\-\s0-9]{8,20}$/.test(v);
+  return /^\d{10}$/.test(v);
 }
 
 async function readJson(req) {
@@ -118,8 +123,10 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: `Missing required field(s): ${missing.join(', ')}` });
     }
 
-    if (!isEmail(body.collegeEmail)) return res.status(400).json({ error: 'Invalid email address.' });
-    if (!isPhoneish(body.whatsapp)) return res.status(400).json({ error: 'Invalid contact number.' });
+    if (!isGlBajajEmail(body.collegeEmail)) {
+      return res.status(400).json({ error: 'Email must end with @glbajajgroup.org.' });
+    }
+    if (!isPhoneish(body.whatsapp)) return res.status(400).json({ error: 'Invalid contact number (10 digits required).' });
     if (hasNewDeclaration) {
       if (!body.declarationAccepted) return res.status(400).json({ error: 'Declaration not accepted.' });
       if (Array.isArray(body.declarationSelected) && body.declarationSelected.includes('disagree')) {

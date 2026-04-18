@@ -57,6 +57,7 @@ function Input({ value, onChange, placeholder, type = 'text' }) {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       type={type}
+      inputMode={type === 'tel' ? 'numeric' : undefined}
       style={{
         width: '100%',
         padding: '12px 14px',
@@ -275,10 +276,25 @@ export default function RecruitmentPage({ onBack }) {
             <Input value={form.fullName} onChange={v => setForm(f => ({ ...f, fullName: v }))} placeholder="Your full name" />
           </Field>
           <Field label="College Email ID" required hint="Use your official college email.">
-            <Input value={form.collegeEmail} onChange={v => setForm(f => ({ ...f, collegeEmail: v }))} placeholder="name@college.edu" type="email" />
+            <Input
+              value={form.collegeEmail}
+              onChange={v => setForm(f => ({ ...f, collegeEmail: v.trim().toLowerCase() }))}
+              placeholder="name@glbajajgroup.org"
+              type="email"
+            />
+            <div style={{ color: 'var(--t3)', fontSize: '.82rem' }}>Must end with <span style={{ fontFamily: 'Space Mono,monospace' }}>@glbajajgroup.org</span>.</div>
           </Field>
           <Field label="Contact Number (WhatsApp preferred)" required>
-            <Input value={form.whatsapp} onChange={v => setForm(f => ({ ...f, whatsapp: v }))} placeholder="+91 XXXXX XXXXX" type="tel" />
+            <Input
+              value={form.whatsapp}
+              onChange={v => {
+                const cleaned = String(v || '').replace(/[^\d]/g, '');
+                setForm(f => ({ ...f, whatsapp: cleaned }));
+              }}
+              placeholder="10-digit number"
+              type="tel"
+            />
+            <div style={{ color: 'var(--t3)', fontSize: '.82rem' }}>Digits only (no spaces / + / symbols).</div>
           </Field>
           <Field label="Year of Study" required>
             <PillRadio options={YEAR_OPTIONS} value={form.year} onChange={v => setForm(f => ({ ...f, year: v }))} />
@@ -546,6 +562,11 @@ export default function RecruitmentPage({ onBack }) {
         missing.push(k);
       }
     }
+    // Extra validation rules (cannot be bypassed by just typing anything)
+    const email = String(form.collegeEmail || '').trim().toLowerCase();
+    if (step === 1 && email && !email.endsWith('@glbajajgroup.org')) missing.push('collegeEmail');
+    const phone = String(form.whatsapp || '').trim();
+    if (step === 1 && phone && !/^\d{10}$/.test(phone)) missing.push('whatsapp');
     if (step === 3 && form.campusExp === 'Yes' && !String(form.campusExpDetails || '').trim()) {
       // Not required in the original form, but it’s useful when they select Yes.
     }
