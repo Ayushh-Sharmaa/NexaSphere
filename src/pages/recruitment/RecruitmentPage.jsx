@@ -46,13 +46,13 @@ function RolesGuideModal({ onClose }) {
       <div
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 9000,
+          position: 'fixed', inset: 0, zIndex: 99998,
           background: 'rgba(0,0,0,.65)', backdropFilter: 'blur(4px)',
         }}
       />
       {/* Panel */}
       <div style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 9001,
+        position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 99999,
         width: 'min(680px, 96vw)',
         background: 'var(--bg)',
         borderLeft: '1px solid var(--bdr2)',
@@ -1316,7 +1316,7 @@ export default function RecruitmentPage({ onBack }) {
           textTransform: 'uppercase',
           opacity: .9,
         }}>
-          Powered by NexaSphere • Responses are stored in Google Sheets
+          Powered by NexaSphere
         </div>
       </div>
     </div>
