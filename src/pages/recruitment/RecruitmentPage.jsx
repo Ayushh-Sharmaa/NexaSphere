@@ -579,29 +579,57 @@ export default function RecruitmentPage({ onBack }) {
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // Google Apps Script Web App URL — writes responses directly to Google Sheets
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo1g6WNiO-f8kySE4Mqbdlh3VxZx9pRGLcjt7qyzRCNB1TMK0kRwjZbDD2UsaJFQ0q/exec';
+
   async function submit() {
     setErr('');
     setBusy(true);
     try {
+      const payload = {
+        ...form,
+        interests: Array.isArray(form.interests) ? form.interests.join(', ') : '',
+        declarationAccepted: !!form.declarations?.truth && !!form.declarations?.time && !!form.declarations?.participate && !form.declarations?.disagree,
+        declarationSelected: Object.entries(form.declarations || {}).filter(([,v])=>!!v).map(([k])=>k).join(', '),
+        submittedAt: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+      };
+
+      // Try Google Apps Script first (primary — writes to Google Sheet directly)
+      const gasUrl = import.meta?.env?.VITE_APPS_SCRIPT_URL || APPS_SCRIPT_URL;
+      const useGas = gasUrl && !gasUrl.includes('PLACEHOLDER');
+
+      if (useGas) {
+        // Use no-cors mode for Apps Script (it returns opaque response — treat success as ok)
+        // IMPORTANT: must use 'text/plain' not 'application/json' — only simple headers
+        // are allowed in no-cors mode; json triggers a preflight that Apps Script blocks,
+        // causing the body to be silently dropped. Apps Script still parses the raw text as JSON.
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload),
+        });
+        // no-cors gives opaque response — assume success if no network error thrown
+        setDone(true);
+        scrollTop();
+        return;
+      }
+
+      // Fallback: backend API route
       const apiBase = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const url = apiBase ? `${apiBase}/api/core-team/apply` : '/api/core-team/apply';
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          declarationAccepted: !!form.declarations?.truth && !!form.declarations?.time && !!form.declarations?.participate && !form.declarations?.disagree,
-          declarationSelected: Object.entries(form.declarations || {}).filter(([,v])=>!!v).map(([k])=>k),
-          submittedAt: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'Submission failed');
       setDone(true);
       scrollTop();
     } catch (e) {
-      setErr(e?.message || 'Something went wrong');
+      setErr(e?.message || 'Something went wrong. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -897,9 +925,17 @@ export default function RecruitmentPage({ onBack }) {
                   <button
                     className="btn btn-outline"
                     type="button"
-                    onClick={() => { setErr(''); setStep(s => clamp(s - 1, 0, steps.length - 1)); scrollTop(); }}
-                    disabled={busy || step === 0}
-                    style={{ opacity: step === 0 ? .55 : 1 }}
+                    onClick={() => {
+                      setErr('');
+                      if (step === 0) {
+                        // Go back to previous page
+                        if (onBack) onBack();
+                      } else {
+                        setStep(s => clamp(s - 1, 0, steps.length - 1));
+                        scrollTop();
+                      }
+                    }}
+                    disabled={busy}
                   >
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <IconArrowLeft /> Back
