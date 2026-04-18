@@ -157,12 +157,33 @@ function MultiSelectChips({ options, values, onToggle }) {
   );
 }
 
+const BRANCH_OPTIONS = [
+  'Computer Science Engineering (CSE)',
+  'Information Technology (IT)',
+  'AI & Machine Learning (AIML)',
+  'Computer Science & Design (CSD)',
+  'Electronics & Communication (ECE)',
+  'Electrical Engineering (EE)',
+  'Mechanical Engineering (ME)',
+  'Civil Engineering (CE)',
+  'Other',
+];
+
 export default function RecruitmentPage({ onBack }) {
   const [step, setStep] = useState(0); // 0..6
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [err, setErr] = useState('');
   const topRef = useRef(null);
+
+  // Check on mount if this device already submitted
+  useEffect(() => {
+    try {
+      const submitted = JSON.parse(localStorage.getItem('ns_submitted_emails') || '[]');
+      if (submitted.length > 0) setAlreadySubmitted(true);
+    } catch { /* ignore */ }
+  }, []);
 
   const [form, setForm] = useState({
     fullName: '',
@@ -198,10 +219,9 @@ export default function RecruitmentPage({ onBack }) {
 
   const steps = useMemo(() => ([
     {
-      title: 'Mission Briefing',
-      subtitle: 'NexaSphere Core Team Recruitment (2026)',
+      title: 'About NexaSphere',
+      subtitle: 'NexaSphere Core Team Recruitment — 2026',
       icon: <IconBolt style={{ width: 18, height: 18 }} />,
-      xp: 80,
       requiredKeys: [],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -267,10 +287,9 @@ export default function RecruitmentPage({ onBack }) {
       ),
     },
     {
-      title: 'Basic Details',
-      subtitle: 'Tell us who you are.',
+      title: 'Personal Information',
+      subtitle: 'Please fill in your basic details accurately.',
       icon: <IconUsers style={{ width: 18, height: 18 }} />,
-      xp: 120,
       requiredKeys: ['fullName', 'collegeEmail', 'whatsapp', 'year', 'branch', 'section'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -318,23 +337,39 @@ export default function RecruitmentPage({ onBack }) {
             <PillRadio options={YEAR_OPTIONS} value={form.year} onChange={v => setForm(f => ({ ...f, year: v }))} />
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <Field label="Branch / Department" required>
-              <Input
+              <Field label="Branch / Department" required>
+              <select
                 value={form.branch}
-                onChange={v => {
-                  // Letters, spaces, slashes, hyphens only
-                  const cleaned = v.replace(/[^a-zA-Z\s\/\-]/g, '');
-                  setForm(f => ({ ...f, branch: cleaned }));
+                onChange={e => setForm(f => ({ ...f, branch: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: 'var(--card2)',
+                  border: '1px solid var(--bdr2)',
+                  borderRadius: 'var(--r2)',
+                  color: form.branch ? 'var(--t1)' : 'var(--t3)',
+                  fontFamily: 'Rajdhani,sans-serif',
+                  fontSize: '.98rem',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300d4ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 14px center',
+                  paddingRight: '36px',
                 }}
-                placeholder="CSE / IT / AIML / ECE"
-                maxLength={30}
-              />
+                onFocus={e => { e.target.style.borderColor = 'var(--c1b)'; e.target.style.boxShadow = 'var(--sh1)'; }}
+                onBlur={e => { e.target.style.borderColor = 'var(--bdr2)'; e.target.style.boxShadow = 'none'; }}
+              >
+                <option value="" disabled>Select your department</option>
+                {BRANCH_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
             </Field>
             <Field label="Section" required>
               <Input
                 value={form.section}
                 onChange={v => {
-                  // Single letter A–Z only
                   const cleaned = v.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 1);
                   setForm(f => ({ ...f, section: cleaned }));
                 }}
@@ -348,9 +383,8 @@ export default function RecruitmentPage({ onBack }) {
     },
     {
       title: 'Role & Domain Preference',
-      subtitle: 'Choose your quest path.',
+      subtitle: 'Select the role you wish to apply for and your areas of interest.',
       icon: <IconArrowRight style={{ width: 18, height: 18 }} />,
-      xp: 140,
       requiredKeys: ['role', 'interests'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -399,9 +433,8 @@ export default function RecruitmentPage({ onBack }) {
     },
     {
       title: 'Skills & Experience',
-      subtitle: 'Show your loadout.',
+      subtitle: 'Share your technical background, communication skills, and prior experience.',
       icon: <IconBolt style={{ width: 18, height: 18 }} />,
-      xp: 170,
       requiredKeys: ['skills', 'comms', 'campusExp'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -472,9 +505,8 @@ export default function RecruitmentPage({ onBack }) {
     },
     {
       title: 'Commitment & Availability',
-      subtitle: 'Can you keep the streak?',
+      subtitle: 'Confirm your availability and willingness to commit to NexaSphere responsibilities.',
       icon: <IconBolt style={{ width: 18, height: 18 }} />,
-      xp: 160,
       requiredKeys: ['commitHours', 'attendCampus', 'assessmentOk'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -491,10 +523,9 @@ export default function RecruitmentPage({ onBack }) {
       ),
     },
     {
-      title: 'Final Confirmation',
-      subtitle: 'One last checkpoint.',
+      title: 'Motivation & Statement',
+      subtitle: 'Tell us why you want to join and what you bring to the team.',
       icon: <IconSpark style={{ width: 18, height: 18 }} />,
-      xp: 180,
       requiredKeys: ['whyJoin'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -518,10 +549,9 @@ export default function RecruitmentPage({ onBack }) {
       ),
     },
     {
-      title: 'Final Consent',
-      subtitle: 'Confirm the rules of the game.',
+      title: 'Declaration & Consent',
+      subtitle: 'Please read and confirm the following declarations before submitting.',
       icon: <IconShieldCheck style={{ width: 18, height: 18 }} />,
-      xp: 220,
       requiredKeys: ['declarations'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
@@ -588,8 +618,6 @@ export default function RecruitmentPage({ onBack }) {
     },
   ]), [form]);
 
-  const xpTotal = useMemo(() => steps.reduce((a, s) => a + s.xp, 0), [steps]);
-  const xpEarned = useMemo(() => steps.slice(0, step + 1).reduce((a, s) => a + s.xp, 0), [steps, step]);
   const progress = useMemo(() => (step / (steps.length - 1)), [step, steps.length]);
 
   const current = steps[step];
@@ -649,6 +677,17 @@ export default function RecruitmentPage({ onBack }) {
         userAgent: navigator.userAgent,
       };
 
+      // Block duplicate email submissions
+      const emailKey = String(form.collegeEmail || '').trim().toLowerCase();
+      try {
+        const existing = JSON.parse(localStorage.getItem('ns_submitted_emails') || '[]');
+        if (existing.includes(emailKey)) {
+          setErr('This email address has already been used to submit an application. Each applicant may submit only once.');
+          setBusy(false);
+          return;
+        }
+      } catch { /* ignore */ }
+
       // Try Google Apps Script first (primary — writes to Google Sheet directly)
       const gasUrl = import.meta?.env?.VITE_APPS_SCRIPT_URL || APPS_SCRIPT_URL;
       const useGas = gasUrl && !gasUrl.includes('PLACEHOLDER');
@@ -664,7 +703,12 @@ export default function RecruitmentPage({ onBack }) {
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify(payload),
         });
-        // no-cors gives opaque response — assume success if no network error thrown
+        // Save email to localStorage to prevent duplicate from this device
+        try {
+          const existing = JSON.parse(localStorage.getItem('ns_submitted_emails') || '[]');
+          existing.push(emailKey);
+          localStorage.setItem('ns_submitted_emails', JSON.stringify(existing));
+        } catch { /* ignore */ }
         setDone(true);
         scrollTop();
         return;
@@ -793,7 +837,7 @@ export default function RecruitmentPage({ onBack }) {
           lineHeight: 1.75,
           animationDelay: '.12s',
         }}>
-          A 7-step quest. Earn XP as you go. Finish strong — shortlisted candidates will be contacted for the next round.
+          A 7-step application process. Complete all sections carefully — shortlisted candidates will be contacted for the next steps.
         </p>
         <div className="apply-divider" style={{ marginTop: 34, maxWidth: 780 }}/>
       </div>
@@ -854,26 +898,27 @@ export default function RecruitmentPage({ onBack }) {
               <div style={{
                 display: 'grid',
                 gap: 4,
-                minWidth: 220,
                 justifyItems: 'end',
               }}>
                 <div style={{
                   fontFamily: 'Space Mono,monospace',
-                  fontSize: '.65rem',
-                  letterSpacing: '.18em',
+                  fontSize: '.62rem',
+                  letterSpacing: '.14em',
                   color: 'var(--t3)',
                   textTransform: 'uppercase',
                 }}>
-                  XP {clamp(xpEarned, 0, xpTotal)}/{xpTotal}
+                  {done ? 'Application Submitted' : `Step ${step + 1} of ${steps.length}`}
                 </div>
-                <div style={{
-                  fontFamily: 'Orbitron,monospace',
-                  fontSize: '.78rem',
-                  letterSpacing: '.1em',
-                  color: 'var(--c1)',
-                }}>
-                  {form.role ? `Class: ${form.role}` : 'Class: Unlocked at Step 3'}
-                </div>
+                {!done && form.role && (
+                  <div style={{
+                    fontFamily: 'Rajdhani,sans-serif',
+                    fontSize: '.82rem',
+                    color: 'var(--c1)',
+                    fontWeight: 600,
+                  }}>
+                    Applying for: {form.role}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -883,21 +928,41 @@ export default function RecruitmentPage({ onBack }) {
           </div>
 
           <div className="apply-body">
-            {done ? (
+            {alreadySubmitted && !done ? (
+              <div style={{
+                background: 'rgba(255,45,120,.08)',
+                border: '1px solid rgba(255,45,120,.22)',
+                borderRadius: 'var(--r3)',
+                padding: '20px 22px',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: 10 }}>⚠️</div>
+                <div style={{ color: 'var(--t1)', fontWeight: 700, fontSize: '1rem', marginBottom: 8 }}>Application Already Submitted</div>
+                <div style={{ color: 'var(--t2)', fontSize: '.92rem', lineHeight: 1.7 }}>
+                  An application has already been submitted from this device. Each candidate may apply only once.
+                  <br/>If you believe this is an error, please contact us directly.
+                </div>
+              </div>
+            ) : done ? (
               <div style={{ display: 'grid', gap: 18 }}>
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(0,212,255,.08), rgba(123,111,255,.06))',
                   border: '1px solid var(--bdr2)',
                   borderRadius: 'var(--r3)',
-                  padding: 18,
+                  padding: 22,
                   position: 'relative',
                   overflow: 'hidden',
+                  textAlign: 'center',
                 }}>
                   <div className="corner-tl"/><div className="corner-br"/>
-                  <p style={{ color: 'var(--t2)', lineHeight: 1.8 }}>
-                    We truly appreciate your interest in becoming a part of our growing tech community.
+                  <div style={{ fontSize: '2rem', marginBottom: 12 }}>✅</div>
+                  <div style={{ fontFamily: 'Orbitron,monospace', fontSize: '1rem', color: 'var(--t1)', fontWeight: 700, marginBottom: 12 }}>
+                    Application Submitted Successfully
+                  </div>
+                  <p style={{ color: 'var(--t2)', lineHeight: 1.8, maxWidth: 520, margin: '0 auto' }}>
+                    Thank you for applying to the NexaSphere Core Team — GL Bajaj Group of Institutions.
                     <br/><br/>
-                    Shortlisted candidates will be contacted soon regarding the next steps, including test activities, trial sessions, and onboarding.
+                    Your application has been recorded. Shortlisted candidates will be contacted regarding the next steps, which may include a short assessment or trial session.
                     <br/><br/>
                     <b style={{ color: 'var(--t1)' }}>Stay consistent. Stay curious. Keep building.</b>
                   </p>
@@ -914,41 +979,6 @@ export default function RecruitmentPage({ onBack }) {
                       Join NexaSphere Community <IconArrowRight />
                     </span>
                   </a>
-                </div>
-
-                <div style={{ textAlign: 'center' }}>
-                  <button
-                    className="btn btn-outline"
-                    type="button"
-                    onClick={() => {
-                      setDone(false);
-                      setStep(0);
-                      setForm({
-                        fullName: '',
-                        collegeEmail: '',
-                        whatsapp: '',
-                        year: '',
-                        branch: '',
-                        section: '',
-                        role: '',
-                        interests: [],
-                        skills: '',
-                        comms: '',
-                        campusExp: '',
-                        campusExpDetails: '',
-                        links: '',
-                        commitHours: '',
-                        attendCampus: '',
-                        assessmentOk: '',
-                        whyJoin: '',
-                        anythingElse: '',
-                        declarations: { truth: false, time: false, participate: false, disagree: false },
-                      });
-                      scrollTop();
-                    }}
-                  >
-                    Submit another response
-                  </button>
                 </div>
               </div>
             ) : (
@@ -1013,8 +1043,7 @@ export default function RecruitmentPage({ onBack }) {
                       style={{ opacity: canNext ? 1 : .65 }}
                     >
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                        Next <IconArrowRight />
-                        <span style={{ opacity: .85, fontFamily: 'Space Mono,monospace', fontSize: '.65rem' }}>+{current.xp} XP</span>
+                        Continue <IconArrowRight />
                       </span>
                     </button>
                   ) : (
