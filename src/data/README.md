@@ -77,5 +77,4 @@ When the session is conducted, move it to `conductedEvents` and fill in speakers
 | Event | Status | File |
 |---|---|---|
 | KSS #153 — Impact of AI | ✅ Completed | `activities/insightSession.js` |
-| Industry Insider — Career Guidance | 🔜 March 13 | `activities/insightSession.js` + `eventsData.js` |
-| Workshop: Git & GitHub | 🔜 Coming Soon | `activities/workshop.js` + `eventsData.js` |
+| Workshop: Git & GitHub | 🔜 April 24 | `activities/workshop.js` + `eventsData.js` |

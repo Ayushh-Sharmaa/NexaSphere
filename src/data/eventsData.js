@@ -16,20 +16,9 @@ export const events = [
   },
   {
     id: 2,
-    name: 'Industry Insider Session — Career Guidance',
-    shortName: 'Industry Insider',
-    date: 'March 13',
-    description:
-      'Career Guidance, Placement Preparation & Company Hiring Insights. A deep dive into what the industry actually looks for, how to prepare for placements, and real-world hiring insights.',
-    status: 'upcoming',
-    icon: '💼',
-    tags: ['Career', 'Placement', 'Hiring'],
-  },
-  {
-    id: 3,
     name: 'Workshop: Git & GitHub',
     shortName: 'Git & GitHub',
-    date: 'Coming Soon',
+    date: 'April 24',
     description:
       'Version control mastery for every developer. Learn Git from scratch and start contributing to real projects like a pro.',
     status: 'upcoming',

@@ -21,7 +21,7 @@ const workshop = {
       id: 'workshop-git-github',
       name: 'Workshop: Git & GitHub',
       shortName: 'Git & GitHub',
-      date: 'Coming Soon',
+      date: 'April 24',
       status: 'upcoming',
       description:
         'Version control mastery for every developer. Learn Git from scratch — init, commit, branch, merge, pull requests — and start contributing to real projects like a pro.',

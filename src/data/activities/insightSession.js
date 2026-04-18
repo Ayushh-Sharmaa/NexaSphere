@@ -102,18 +102,7 @@ const insightSession = {
     },
   ],
 
-  upcomingEvents: [
-    {
-      id: 'industry-insider-career',
-      name: 'Industry Insider Session — Career Guidance',
-      shortName: 'Industry Insider',
-      date: 'March 13',
-      status: 'upcoming',
-      description:
-        'Career Guidance, Placement Preparation & Company Hiring Insights — a deep dive into what the industry actually looks for, how to prepare for placements, and real-world hiring insights from those who know.',
-      tags: ['Career', 'Placement', 'Hiring', 'Industry'],
-    },
-  ],
+  upcomingEvents: [],
 };
 
 export default insightSession;
