@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import nexasphereLogo from '../../assets/images/logos/nexasphere-logo.png';
+import { IconArrowRight, IconSpark } from '../../shared/Icons';
 
 const JOIN_MEMBER_FORM = 'https://forms.gle/NWb49scknwD6PP769';
 
@@ -150,7 +151,7 @@ function Atmosphere({ isLight }) {
   );
 }
 
-export default function HeroSection({ onTabChange, theme = 'dark' }) {
+export default function HeroSection({ onTabChange, onApply, theme = 'dark' }) {
   const [ready, setReady]     = useState(false);
   const [statsVis, setStatsVis] = useState(false);
   const isLight = theme === 'light';
@@ -194,8 +195,16 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
           flexDirection:'column',alignItems:'center',gap:'10px',
         }}>
           <div style={{display:'flex',gap:'12px',flexWrap:'wrap',justifyContent:'center'}}>
-            <RippleBtn cls="btn-primary" href={JOIN_MEMBER_FORM}>🚀 Join as Member</RippleBtn>
-            <RippleBtn cls="btn-outline" onClick={()=>onTabChange('Team')}>👥 Core Team</RippleBtn>
+            <RippleBtn cls="btn-primary" href={JOIN_MEMBER_FORM}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                Join as Member <IconArrowRight />
+              </span>
+            </RippleBtn>
+            <RippleBtn cls="btn-outline" onClick={()=>onTabChange('Team')}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                Core Team <IconArrowRight />
+              </span>
+            </RippleBtn>
           </div>
           {/* Core Team CTA */}
           <div style={{
@@ -205,9 +214,13 @@ export default function HeroSection({ onTabChange, theme = 'dark' }) {
             borderRadius:'16px',maxWidth:'420px',textAlign:'center',
           }}>
             <p style={{fontSize:'.82rem',color:'var(--t2)',marginBottom:'10px',lineHeight:1.5}}>
-              🚀 Want to be part of the NexaSphere Core Team?
+              Want to be part of the NexaSphere Core Team?
             </p>
-            <RippleBtn cls="btn-join" onClick={()=>onTabChange('Apply')}>✨ Apply for Core Team Here</RippleBtn>
+            <RippleBtn cls="btn-join" onClick={()=> (onApply ? onApply() : onTabChange('Team'))}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                Apply for Core Team <IconSpark />
+              </span>
+            </RippleBtn>
           </div>
         </div>
 

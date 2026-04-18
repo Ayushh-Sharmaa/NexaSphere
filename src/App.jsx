@@ -25,7 +25,7 @@ import { activityPages }   from './data/activities/index';
 import nexasphereLogo      from './assets/images/logos/nexasphere-logo.png';
 
 const MNH = 88, DNH = 64;
-const TABS = ['Home','Activities','Events','About','Team','Apply','Contact'];
+const TABS = ['Home','Activities','Events','About','Team','Contact'];
 
 /* ── Page wipe transition ── */
 function Wipe({ on, ph }) {
@@ -286,7 +286,7 @@ export default function App() {
 
   const onTab=useCallback(tab=>{
     // These tabs get their own dedicated page
-    if(['Activities','Events','About','Team','Apply','Contact'].includes(tab)){
+    if(['Activities','Events','About','Team','Contact'].includes(tab)){
       nav(()=>{setPage({type:'section',section:tab});setActiveTab(tab);});
       return;
     }
@@ -330,6 +330,10 @@ export default function App() {
 
   const onBackToSection=useCallback((section)=>{
     nav(()=>setPage({type:'section',section}));
+  },[nav]);
+
+  const openApply = useCallback(()=>{
+    nav(()=>setPage({type:'apply'}));
   },[nav]);
 
   const onBackHome=useCallback(()=>{
@@ -382,7 +386,7 @@ export default function App() {
         )}
         {page?.type==='section'&&page.section==='Team'&&(
           <PageIn k="pg-team">
-            <TeamPage onBack={onBackHome}/>
+            <TeamPage onBack={onBackHome} onApply={openApply}/>
           </PageIn>
         )}
         {/* Activity detail pages */}
@@ -411,18 +415,18 @@ export default function App() {
             <ContactPage onBack={onBackHome}/>
           </PageIn>
         )}
-        {page?.type==='section' && page.section==='Apply' && (
+        {page?.type==='apply' && (
           <PageIn k="pg-apply">
             <RecruitmentPage onBack={onBackHome}/>
           </PageIn>
         )}
         {!page&&(
           <PageIn k="main">
-            <HeroSection onTabChange={onTab} theme={theme}/>
+            <HeroSection onTabChange={onTab} onApply={openApply} theme={theme}/>
             <ActivitiesSection onNavigate={onNavigate}/>
             <EventsSection onEventClick={onKSSClick}/>
             <AboutSection/>
-            <TeamSection/>
+            <TeamSection onApply={openApply}/>
             <Footer/>
           </PageIn>
         )}

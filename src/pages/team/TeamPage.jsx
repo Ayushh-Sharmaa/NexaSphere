@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { teamMembers } from '../../data/teamData';
 import TeamMemberModal from './TeamMemberModal';
-
-const CORE_TEAM_FORM = 'https://forms.gle/XDjnAcJN99zCcswn6';
+import { IconArrowRight, IconSpark } from '../../shared/Icons';
 
 function MemberCard({ member, idx, onClick }) {
   const ref = useRef(null);
@@ -56,7 +55,7 @@ function MemberCard({ member, idx, onClick }) {
   );
 }
 
-export default function TeamPage({ onBack }) {
+export default function TeamPage({ onBack, onApply }) {
   const [sel, setSel] = useState(null);
 
   useEffect(() => { window.scrollTo({ top: 0 }); }, []);
@@ -160,9 +159,17 @@ export default function TeamPage({ onBack }) {
           <p style={{ color: 'var(--t2)', fontSize: '.88rem', marginBottom: '18px', lineHeight: 1.65 }}>
             We&apos;re looking for passionate students to drive NexaSphere forward. Fill in the form and we&apos;ll reach out!
           </p>
-          <a href={CORE_TEAM_FORM} target="_blank" rel="noopener noreferrer" className="btn btn-join btn-ripple">
-            ✨ Apply Here
-          </a>
+          <button
+            type="button"
+            onClick={() => onApply && onApply()}
+            className="btn btn-join btn-ripple"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          >
+            Apply Here <IconSpark />
+          </button>
+          <div style={{ marginTop: 12, color: 'var(--t3)', fontSize: '.72rem', fontFamily: 'Space Mono,monospace', letterSpacing: '.12em' }}>
+            Learn more <IconArrowRight style={{ width: 14, height: 14 }} />
+          </div>
         </div>
       </div>
 

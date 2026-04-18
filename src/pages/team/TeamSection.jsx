@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { teamMembers } from '../../data/teamData';
 import TeamMemberModal from './TeamMemberModal';
-
-const CORE_TEAM_FORM = 'https://forms.gle/XDjnAcJN99zCcswn6';
+import { IconArrowRight, IconSpark } from '../../shared/Icons';
 
 function MemberCard({ member, idx, onClick }) {
   const ref = useRef(null);
@@ -56,7 +55,7 @@ function MemberCard({ member, idx, onClick }) {
   );
 }
 
-export default function TeamSection() {
+export default function TeamSection({ onApply }) {
   const [sel, setSel] = useState(null);
 
   useEffect(() => {
@@ -94,15 +93,21 @@ export default function TeamSection() {
           position:'relative',overflow:'hidden',
         }}>
           <div className="corner-tl"/><div className="corner-br"/>
-          <div style={{fontSize:'2rem',marginBottom:'10px'}}>🚀</div>
           <h3 style={{fontFamily:'Orbitron,monospace',fontSize:'1rem',fontWeight:700,color:'var(--c1)',marginBottom:'8px',letterSpacing:'.05em'}}>Want to Join NexaSphere?</h3>
           <p style={{color:'var(--t2)',fontSize:'.88rem',marginBottom:'18px',lineHeight:1.65}}>
             We&apos;re looking for passionate students to drive NexaSphere forward. Fill in the form and we&apos;ll reach out!
           </p>
-          <a href={CORE_TEAM_FORM} target="_blank" rel="noopener noreferrer"
-            className="btn btn-join btn-ripple">
-            ✨ Apply Here
-          </a>
+          <button
+            type="button"
+            onClick={() => onApply && onApply()}
+            className="btn btn-join btn-ripple"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          >
+            Apply Here <IconSpark />
+          </button>
+          <div style={{ marginTop: 12, color: 'var(--t3)', fontSize: '.72rem', fontFamily: 'Space Mono,monospace', letterSpacing: '.12em' }}>
+            Learn more <IconArrowRight style={{ width: 14, height: 14 }} />
+          </div>
         </div>
       </div>
 
