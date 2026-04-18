@@ -606,7 +606,6 @@ export default function RecruitmentPage({ onBack }) {
       requiredKeys: ['role', 'interests'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
-          {showRoles && <RolesGuideModal onClose={() => setShowRoles(false)} />}
           <div style={{
             background: 'var(--card)',
             border: '1px solid var(--bdr)',
@@ -966,6 +965,7 @@ export default function RecruitmentPage({ onBack }) {
 
   return (
     <div id="pg-apply" ref={topRef}>
+      {showRoles && <RolesGuideModal onClose={() => setShowRoles(false)} />}
       <style>{`
         .apply-hero {
           text-align:center;
