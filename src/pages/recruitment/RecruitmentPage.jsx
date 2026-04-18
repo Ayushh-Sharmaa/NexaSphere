@@ -364,13 +364,11 @@ function MultiSelectChips({ options, values, onToggle }) {
 
 const BRANCH_OPTIONS = [
   'Computer Science Engineering (CSE)',
+  'Computer Science (CS)',
   'Information Technology (IT)',
   'AI & Machine Learning (AIML)',
   'Computer Science & Design (CSD)',
-  'Electronics & Communication (ECE)',
-  'Electrical Engineering (EE)',
-  'Mechanical Engineering (ME)',
-  'Civil Engineering (CE)',
+  'MBA',
   'Other',
 ];
 
@@ -396,6 +394,7 @@ export default function RecruitmentPage({ onBack }) {
     whatsapp: '',
     year: '',
     branch: '',
+    branchOther: '',
     section: '',
 
     role: '',
@@ -543,33 +542,46 @@ export default function RecruitmentPage({ onBack }) {
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <Field label="Branch / Department" required>
-              <select
-                value={form.branch}
-                onChange={e => setForm(f => ({ ...f, branch: e.target.value }))}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  background: 'var(--card2)',
-                  border: '1px solid var(--bdr2)',
-                  borderRadius: 'var(--r2)',
-                  color: form.branch ? 'var(--t1)' : 'var(--t3)',
-                  fontFamily: 'Rajdhani,sans-serif',
-                  fontSize: '.98rem',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300d4ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 14px center',
-                  paddingRight: '36px',
-                }}
-                onFocus={e => { e.target.style.borderColor = 'var(--c1b)'; e.target.style.boxShadow = 'var(--sh1)'; }}
-                onBlur={e => { e.target.style.borderColor = 'var(--bdr2)'; e.target.style.boxShadow = 'none'; }}
-              >
-                <option value="" disabled>Select your department</option>
-                {BRANCH_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
-              </select>
+              <div style={{ display: 'grid', gap: 8 }}>
+                <select
+                  value={form.branch}
+                  onChange={e => setForm(f => ({ ...f, branch: e.target.value, branchOther: '' }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    background: 'var(--card2)',
+                    border: '1px solid var(--bdr2)',
+                    borderRadius: 'var(--r2)',
+                    color: form.branch ? 'var(--t1)' : 'var(--t3)',
+                    fontFamily: 'Rajdhani,sans-serif',
+                    fontSize: '.98rem',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300d4ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 14px center',
+                    paddingRight: '36px',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--c1b)'; e.target.style.boxShadow = 'var(--sh1)'; }}
+                  onBlur={e => { e.target.style.borderColor = 'var(--bdr2)'; e.target.style.boxShadow = 'none'; }}
+                >
+                  <option value="" disabled>Select your department</option>
+                  {BRANCH_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+                {form.branch === 'Other' && (
+                  <Input
+                    value={form.branchOther}
+                    onChange={v => {
+                      const cleaned = v.replace(/[^a-zA-Z0-9\s\/\-&().]/g, '');
+                      setForm(f => ({ ...f, branchOther: cleaned }));
+                    }}
+                    placeholder="Please specify your department"
+                    maxLength={60}
+                  />
+                )}
+              </div>
             </Field>
             <Field label="Section" required>
               <Input
@@ -878,6 +890,8 @@ export default function RecruitmentPage({ onBack }) {
     try {
       const payload = {
         ...form,
+        // If 'Other' was selected, use the custom text; otherwise use the selected option
+        branch: form.branch === 'Other' ? (form.branchOther || 'Other') : form.branch,
         interests: Array.isArray(form.interests) ? form.interests.join(', ') : '',
         declarationAccepted: !!form.declarations?.truth && !!form.declarations?.time && !!form.declarations?.participate && !form.declarations?.disagree,
         declarationSelected: Object.entries(form.declarations || {}).filter(([,v])=>!!v).map(([k])=>k).join(', '),

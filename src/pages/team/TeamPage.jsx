@@ -167,18 +167,6 @@ export default function TeamPage({ onBack, onApply }) {
           >
             Apply Here <IconSpark />
           </button>
-          <button
-            type="button"
-            onClick={() => onApply && onApply()}
-            style={{
-              marginTop: 12, background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--c1)', fontSize: '.78rem', fontFamily: 'Space Mono,monospace',
-              letterSpacing: '.1em', display: 'inline-flex', alignItems: 'center', gap: 4,
-              textDecoration: 'underline', textUnderlineOffset: 3, padding: 0,
-            }}
-          >
-            Learn more <IconArrowRight style={{ width: 12, height: 12 }} />
-          </button>
         </div>
       </div>
 
