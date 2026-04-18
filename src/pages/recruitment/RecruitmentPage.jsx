@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { IconArrowLeft, IconArrowRight, IconBolt, IconShieldCheck, IconSpark, IconUsers } from '../../shared/Icons';
 
 const WHATSAPP_SCREENING = 'https://chat.whatsapp.com/EFbDGo6awGP2L0laESg3lq';
 const WHATSAPP_COMMUNITY = 'https://chat.whatsapp.com/FhpJEaod2g419jFMfqrhGZ';
@@ -184,14 +185,19 @@ export default function RecruitmentPage({ onBack }) {
     whyJoin: '',
     anythingElse: '',
 
-    declaration: '',
+    declarations: {
+      truth: false,
+      time: false,
+      participate: false,
+      disagree: false,
+    },
   });
 
   const steps = useMemo(() => ([
     {
       title: 'Mission Briefing',
       subtitle: 'NexaSphere Core Team Recruitment (2026)',
-      icon: '🛰️',
+      icon: <IconBolt style={{ width: 18, height: 18 }} />,
       xp: 80,
       requiredKeys: [],
       render: () => (
@@ -231,19 +237,25 @@ export default function RecruitmentPage({ onBack }) {
           }}>
             <div className="activity-card" style={{ cursor: 'default' }}>
               <div className="card-accent-line"/>
-              <div className="activity-icon">⏱️</div>
+              <div className="activity-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                <IconBolt style={{ width: 34, height: 34 }} />
+              </div>
               <div className="activity-title">Weekly Commitment</div>
               <div className="activity-desc">4–6 hours, consistent.</div>
             </div>
             <div className="activity-card" style={{ cursor: 'default' }}>
               <div className="card-accent-line"/>
-              <div className="activity-icon">🤝</div>
+              <div className="activity-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                <IconUsers style={{ width: 34, height: 34 }} />
+              </div>
               <div className="activity-title">Team First</div>
               <div className="activity-desc">Collaboration and reliability.</div>
             </div>
             <div className="activity-card" style={{ cursor: 'default' }}>
               <div className="card-accent-line"/>
-              <div className="activity-icon">🧪</div>
+              <div className="activity-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                <IconShieldCheck style={{ width: 34, height: 34 }} />
+              </div>
               <div className="activity-title">Trial Rounds</div>
               <div className="activity-desc">Short assessments may happen.</div>
             </div>
@@ -254,7 +266,7 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Basic Details',
       subtitle: 'Tell us who you are.',
-      icon: '🪪',
+      icon: <IconUsers style={{ width: 18, height: 18 }} />,
       xp: 120,
       requiredKeys: ['fullName', 'collegeEmail', 'whatsapp', 'year', 'branch', 'section'],
       render: () => (
@@ -285,7 +297,7 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Role & Domain Preference',
       subtitle: 'Choose your quest path.',
-      icon: '🧭',
+      icon: <IconArrowRight style={{ width: 18, height: 18 }} />,
       xp: 140,
       requiredKeys: ['role', 'interests'],
       render: () => (
@@ -336,7 +348,7 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Skills & Experience',
       subtitle: 'Show your loadout.',
-      icon: '🧰',
+      icon: <IconBolt style={{ width: 18, height: 18 }} />,
       xp: 170,
       requiredKeys: ['skills', 'comms', 'campusExp'],
       render: () => (
@@ -398,7 +410,7 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Commitment & Availability',
       subtitle: 'Can you keep the streak?',
-      icon: '🔥',
+      icon: <IconBolt style={{ width: 18, height: 18 }} />,
       xp: 160,
       requiredKeys: ['commitHours', 'attendCampus', 'assessmentOk'],
       render: () => (
@@ -418,7 +430,7 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Final Confirmation',
       subtitle: 'One last checkpoint.',
-      icon: '🧩',
+      icon: <IconSpark style={{ width: 18, height: 18 }} />,
       xp: 180,
       requiredKeys: ['whyJoin'],
       render: () => (
@@ -445,25 +457,37 @@ export default function RecruitmentPage({ onBack }) {
     {
       title: 'Final Consent',
       subtitle: 'Confirm the rules of the game.',
-      icon: '✅',
+      icon: <IconShieldCheck style={{ width: 18, height: 18 }} />,
       xp: 220,
-      requiredKeys: ['declaration'],
+      requiredKeys: ['declarations'],
       render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
           <Field label="Declaration" required>
             <div style={{ display: 'grid', gap: 10 }}>
               {[
-                'I confirm that all details provided are true.',
-                'I understand the time commitment (4–6 hours/week).',
-                'I agree to participate in test sessions and team activities.',
-                'I do not agree to the above declaration.',
+                { k: 'truth', label: 'I confirm that all details provided are true.' },
+                { k: 'time', label: 'I understand the time commitment (4–6 hours/week).' },
+                { k: 'participate', label: 'I agree to participate in test sessions and team activities.' },
+                { k: 'disagree', label: 'I do not agree to the above declaration.' },
               ].map(opt => {
-                const active = form.declaration === opt;
+                const active = !!form.declarations?.[opt.k];
+                const isDisagree = opt.k === 'disagree';
                 return (
                   <button
-                    key={opt}
+                    key={opt.k}
                     type="button"
-                    onClick={() => setForm(f => ({ ...f, declaration: opt }))}
+                    onClick={() => setForm(f => {
+                      const next = { ...(f.declarations || {}) };
+                      const nextVal = !next[opt.k];
+                      if (isDisagree && nextVal) {
+                        return { ...f, declarations: { truth: false, time: false, participate: false, disagree: true } };
+                      }
+                      if (!isDisagree && nextVal) {
+                        next.disagree = false;
+                      }
+                      next[opt.k] = nextVal;
+                      return { ...f, declarations: { truth: !!next.truth, time: !!next.time, participate: !!next.participate, disagree: !!next.disagree } };
+                    })}
                     style={{
                       textAlign: 'left',
                       background: active ? 'rgba(0,212,255,.10)' : 'var(--card)',
@@ -479,7 +503,7 @@ export default function RecruitmentPage({ onBack }) {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{
-                        width: 18, height: 18, borderRadius: '50%',
+                        width: 18, height: 18, borderRadius: 5,
                         border: `2px solid ${active ? 'var(--c1)' : 'var(--bdr2)'}`,
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -489,7 +513,7 @@ export default function RecruitmentPage({ onBack }) {
                       }}>
                         ✓
                       </span>
-                      <span style={{ fontSize: '.98rem', fontWeight: 600 }}>{opt}</span>
+                      <span style={{ fontSize: '.98rem', fontWeight: 600 }}>{opt.label}</span>
                     </div>
                   </button>
                 );
@@ -512,7 +536,11 @@ export default function RecruitmentPage({ onBack }) {
     const missing = [];
     for (const k of keys) {
       const v = form[k];
-      if (Array.isArray(v)) {
+      if (k === 'declarations') {
+        const d = v || {};
+        const ok = !!d.truth && !!d.time && !!d.participate && !d.disagree;
+        if (!ok) missing.push(k);
+      } else if (Array.isArray(v)) {
         if (v.length === 0) missing.push(k);
       } else if (!String(v || '').trim()) {
         missing.push(k);
@@ -541,6 +569,8 @@ export default function RecruitmentPage({ onBack }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          declarationAccepted: !!form.declarations?.truth && !!form.declarations?.time && !!form.declarations?.participate && !form.declarations?.disagree,
+          declarationSelected: Object.entries(form.declarations || {}).filter(([,v])=>!!v).map(([k])=>k),
           submittedAt: new Date().toISOString(),
           userAgent: navigator.userAgent,
         }),
@@ -643,7 +673,9 @@ export default function RecruitmentPage({ onBack }) {
             className="btn btn-outline btn-sm"
             style={{ position: 'absolute', top: 24, left: 24 }}
           >
-            ← Back
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <IconArrowLeft style={{ width: 14, height: 14 }} /> Back
+            </span>
           </button>
         ) : null}
         <span className="cin-section-label pop-in">Core Team Recruitment</span>
@@ -685,7 +717,7 @@ export default function RecruitmentPage({ onBack }) {
                   boxShadow: '0 0 20px rgba(0,212,255,.08)',
                   fontSize: '1.25rem',
                 }}>
-                  {done ? '🏁' : current.icon}
+                  {done ? <IconShieldCheck style={{ width: 18, height: 18 }} /> : current.icon}
                 </div>
                 <div>
                   <div style={{
@@ -711,7 +743,7 @@ export default function RecruitmentPage({ onBack }) {
                     ) : null}
                   </div>
                   <div style={{ color: 'var(--t2)', fontSize: '.9rem' }}>
-                    {done ? 'Thank you for applying to NexaSphere – GL Bajaj Group of Institutions 🚀' : current.subtitle}
+                    {done ? 'Thank you for applying to NexaSphere – GL Bajaj Group of Institutions' : current.subtitle}
                   </div>
                 </div>
               </div>
@@ -770,10 +802,14 @@ export default function RecruitmentPage({ onBack }) {
 
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <a className="btn btn-whatsapp" href={WHATSAPP_SCREENING} target="_blank" rel="noopener noreferrer">
-                    🎯 Core Team Screening Room
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      Core Team Screening Room <IconArrowRight />
+                    </span>
                   </a>
                   <a className="btn btn-join" href={WHATSAPP_COMMUNITY} target="_blank" rel="noopener noreferrer">
-                    🌐 Join NexaSphere Community
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      Join NexaSphere Community <IconArrowRight />
+                    </span>
                   </a>
                 </div>
 
@@ -803,12 +839,12 @@ export default function RecruitmentPage({ onBack }) {
                         assessmentOk: '',
                         whyJoin: '',
                         anythingElse: '',
-                        declaration: '',
+                        declarations: { truth: false, time: false, participate: false, disagree: false },
                       });
                       scrollTop();
                     }}
                   >
-                    ↺ Submit another response
+                    Submit another response
                   </button>
                 </div>
               </div>
@@ -844,7 +880,9 @@ export default function RecruitmentPage({ onBack }) {
                     disabled={busy || step === 0}
                     style={{ opacity: step === 0 ? .55 : 1 }}
                   >
-                    ← Back
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      <IconArrowLeft /> Back
+                    </span>
                   </button>
 
                   {step < steps.length - 1 ? (
@@ -863,15 +901,18 @@ export default function RecruitmentPage({ onBack }) {
                       }}
                       style={{ opacity: canNext ? 1 : .65 }}
                     >
-                      Next → <span style={{ opacity: .85, fontFamily: 'Space Mono,monospace', fontSize: '.65rem' }}>+{current.xp} XP</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                        Next <IconArrowRight />
+                        <span style={{ opacity: .85, fontFamily: 'Space Mono,monospace', fontSize: '.65rem' }}>+{current.xp} XP</span>
+                      </span>
                     </button>
                   ) : (
                     <button
                       className="btn btn-primary btn-ripple"
                       type="button"
-                      disabled={busy || !canNext || form.declaration === 'I do not agree to the above declaration.'}
+                      disabled={busy || !canNext || !!form.declarations?.disagree}
                       onClick={() => {
-                        if (form.declaration === 'I do not agree to the above declaration.') {
+                        if (form.declarations?.disagree) {
                           setErr('You must agree to the declaration to submit.');
                           return;
                         }

@@ -71,7 +71,9 @@ async function appendToSheet(payload) {
     payload.assessmentOk || '',
     payload.whyJoin || '',
     payload.anythingElse || '',
-    payload.declaration || '',
+    Array.isArray(payload.declarationSelected)
+      ? payload.declarationSelected.join(', ')
+      : (payload.declaration || ''),
     payload.submittedAt || '',
     payload.userAgent || '',
   ];
@@ -106,15 +108,26 @@ module.exports = async (req, res) => {
       'attendCampus',
       'assessmentOk',
       'whyJoin',
+      // Support both new and old format.
       'declaration',
     ];
 
+    const hasNewDeclaration = body && typeof body === 'object' && body.declarationAccepted !== undefined;
     const missing = required.filter(k => !String(body[k] || '').trim());
-    if (missing.length) return res.status(400).json({ error: `Missing required field(s): ${missing.join(', ')}` });
+    if (!hasNewDeclaration && missing.length) {
+      return res.status(400).json({ error: `Missing required field(s): ${missing.join(', ')}` });
+    }
 
     if (!isEmail(body.collegeEmail)) return res.status(400).json({ error: 'Invalid email address.' });
     if (!isPhoneish(body.whatsapp)) return res.status(400).json({ error: 'Invalid contact number.' });
-    if (body.declaration === 'I do not agree to the above declaration.') return res.status(400).json({ error: 'Declaration not accepted.' });
+    if (hasNewDeclaration) {
+      if (!body.declarationAccepted) return res.status(400).json({ error: 'Declaration not accepted.' });
+      if (Array.isArray(body.declarationSelected) && body.declarationSelected.includes('disagree')) {
+        return res.status(400).json({ error: 'Declaration not accepted.' });
+      }
+    } else {
+      if (body.declaration === 'I do not agree to the above declaration.') return res.status(400).json({ error: 'Declaration not accepted.' });
+    }
 
     await appendToSheet(body);
     return res.status(200).json({ ok: true });
