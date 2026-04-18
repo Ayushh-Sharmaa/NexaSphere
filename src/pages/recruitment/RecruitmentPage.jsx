@@ -1,6 +1,211 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IconArrowLeft, IconArrowRight, IconBolt, IconShieldCheck, IconSpark, IconUsers } from '../../shared/Icons';
 
+/* ── Roles & Responsibilities slide-over modal ─────────────────────────── */
+function RolesGuideModal({ onClose }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, [onClose]);
+
+  const sec = (emoji, title, children) => (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{
+        fontFamily: 'Orbitron,monospace', fontSize: '.75rem', letterSpacing: '.14em',
+        color: 'var(--c1)', textTransform: 'uppercase', marginBottom: 12,
+        display: 'flex', alignItems: 'center', gap: 8,
+        borderBottom: '1px solid var(--bdr)', paddingBottom: 8,
+      }}>
+        <span style={{ fontSize: '1rem' }}>{emoji}</span> {title}
+      </div>
+      {children}
+    </div>
+  );
+
+  const role = (icon, name, domain, items) => (
+    <div style={{
+      background: 'var(--card2)', border: '1px solid var(--bdr)', borderRadius: 'var(--r2)',
+      padding: '14px 16px', marginBottom: 10, position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{ fontFamily: 'Rajdhani,sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--t1)', marginBottom: 4 }}>
+        {icon} {name}
+      </div>
+      {domain && <div style={{ fontSize: '.78rem', color: 'var(--c1)', marginBottom: 8, fontFamily: 'Space Mono,monospace' }}>Domain: {domain}</div>}
+      <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 4 }}>
+        {items.map((it, i) => <li key={i} style={{ fontSize: '.86rem', color: 'var(--t2)', lineHeight: 1.55 }}>{it}</li>)}
+      </ul>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 9000,
+          background: 'rgba(0,0,0,.65)', backdropFilter: 'blur(4px)',
+        }}
+      />
+      {/* Panel */}
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 9001,
+        width: 'min(680px, 96vw)',
+        background: 'var(--bg)',
+        borderLeft: '1px solid var(--bdr2)',
+        boxShadow: '-8px 0 48px rgba(0,0,0,.5)',
+        display: 'flex', flexDirection: 'column',
+        animation: 'slideInRight .28s cubic-bezier(.22,1,.36,1)',
+      }}>
+        <style>{`
+          @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+          }
+        `}</style>
+
+        {/* Header */}
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid var(--bdr)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(0,212,255,.06), rgba(123,111,255,.04))',
+          flexShrink: 0,
+        }}>
+          <div>
+            <div style={{ fontFamily: 'Orbitron,monospace', fontSize: '.95rem', fontWeight: 700, color: 'var(--t1)' }}>
+              🎯 Core Team Structure & Roles
+            </div>
+            <div style={{ fontSize: '.78rem', color: 'var(--t3)', marginTop: 4 }}>
+              NexaSphere — GL Bajaj Group of Institutions · Last Updated: 25/01/2026
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'var(--card2)', border: '1px solid var(--bdr2)',
+              borderRadius: 8, width: 36, height: 36, cursor: 'pointer',
+              color: 'var(--t1)', fontSize: '1.1rem', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}
+          >✕</button>
+        </div>
+
+        {/* Scrollable content */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', scrollbarWidth: 'thin' }}>
+          <p style={{ color: 'var(--t2)', fontSize: '.88rem', lineHeight: 1.7, marginBottom: 24 }}>
+            NexaSphere operates through a structured, responsibility-driven Core Team where every role has defined authority, accountability, and execution ownership.
+            All roles function under NexaSphere governance and college approval where applicable.
+          </p>
+
+          {sec('🧠', '1. Technical Leadership Team', <>
+            {role('🔹', 'Technical Lead (Overall)', 'Cloud, AI/ML, Android, Web, Cybersecurity', [
+              'Maintain overall technical quality across all NexaSphere initiatives',
+              'Guide and mentor all Domain Leads',
+              'Review and approve session content, workshop plans, and project roadmaps',
+              'Ensure learning remains hands-on, practical, and industry-aligned',
+              'Act as the final technical decision-maker',
+            ])}
+            {role('🔹', 'Domain Lead', 'One specific domain', [
+              'Plan and conduct domain-specific sessions & workshops',
+              'Lead hands-on projects and mentor members in their domain',
+              'Stay updated with tools and trends',
+              'Align activities with Technical Lead\'s roadmap',
+            ])}
+            {role('☁️', 'Cloud Lead', 'Google Cloud, Firebase, DevOps, AWS', [
+              'Conduct Cloud study jams & labs',
+              'Organize certification prep sessions',
+              'Manage demo environments and guide cloud-based projects',
+            ])}
+            {role('🤖', 'AI / ML Lead', 'AI, ML, Generative AI', [
+              'Design structured AI/ML learning paths',
+              'Conduct workshops with live demos',
+              'Mentor AI projects and promote responsible AI practices',
+            ])}
+            {role('📱', 'Android Lead', 'Android, Kotlin, Jetpack', [
+              'Conduct Android workshops and run live coding sessions',
+              'Mentor mobile app projects',
+              'Support hackathons (mobile tech)',
+            ])}
+            {role('🌐', 'Web / Full-Stack Lead', 'Frontend, Backend, MERN', [
+              'Deliver web workshops and guide full-stack learning paths',
+              'Maintain GitHub repositories',
+              'Provide technical support in events',
+            ])}
+            {role('🔐', 'Cybersecurity Lead', 'Cybersecurity, Ethical Hacking', [
+              'Conduct security awareness sessions',
+              'Organize CTF workshops',
+              'Teach secure coding fundamentals',
+            ])}
+          </>)}
+
+          {sec('🎨', '2. Product & Creative Team', <>
+            {role('🎨', 'UI/UX Lead', null, [
+              'Conduct design workshops',
+              'Promote user-centric thinking',
+              'Collaborate with tech teams',
+            ])}
+            {role('🧩', 'Product Management Lead', null, [
+              'Bridge tech and user needs',
+              'Guide MVP development',
+              'Support hackathons with product strategy',
+            ])}
+            {role('🎥', 'Media & Design Lead', null, [
+              'Design posters & certificates',
+              'Handle photography & reels',
+              'Maintain NexaSphere brand consistency',
+            ])}
+          </>)}
+
+          {sec('📋', '3. Operations & Management Team', <>
+            {role('📅', 'Event Management Lead', null, [
+              'Plan and execute events end-to-end',
+              'Manage timelines & logistics',
+              'Coordinate across teams',
+            ])}
+            {role('📅', 'Event Management Co-Lead', null, [
+              'Assist in execution and handle on-ground coordination',
+              'Manage contingencies',
+            ])}
+            {role('📢', 'Marketing & Social Media Lead', null, [
+              'Promote initiatives and manage official platforms',
+              'Increase reach & engagement',
+            ])}
+            {role('✍️', 'Content & Documentation Lead', null, [
+              'Write event reports & announcements',
+              'Maintain internal documentation and collect feedback',
+              'Design two certificates per event (Top 3 Performer + Participation)',
+              'Provide official certificates to Core Team members for events they organised',
+            ])}
+            {role('🎓', 'Community & Outreach Lead', null, [
+              'Manage onboarding and build partnerships',
+              'Drive engagement initiatives',
+              'Represent student voice',
+            ])}
+            {role('👥', 'Volunteers & Coordinators', null, [
+              'Support event execution and handle registrations',
+              'Assist participants and provide technical/logistical support',
+            ])}
+          </>)}
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '14px 24px', borderTop: '1px solid var(--bdr)',
+          display: 'flex', justifyContent: 'flex-end', flexShrink: 0,
+          background: 'var(--card)',
+        }}>
+          <button onClick={onClose} className="btn btn-primary">
+            Back to Application Form
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 const WHATSAPP_SCREENING = 'https://chat.whatsapp.com/EFbDGo6awGP2L0laESg3lq';
 const WHATSAPP_COMMUNITY = 'https://chat.whatsapp.com/FhpJEaod2g419jFMfqrhGZ';
 
@@ -385,9 +590,12 @@ export default function RecruitmentPage({ onBack }) {
       title: 'Role & Domain Preference',
       subtitle: 'Select the role you wish to apply for and your areas of interest.',
       icon: <IconArrowRight style={{ width: 18, height: 18 }} />,
-      requiredKeys: ['role', 'interests'],
-      render: () => (
+       requiredKeys: ['role', 'interests'],
+      render: () => {
+        const [showRoles, setShowRoles] = useState(false);
+        return (
         <div style={{ display: 'grid', gap: 18 }}>
+          {showRoles && <RolesGuideModal onClose={() => setShowRoles(false)} />}
           <div style={{
             background: 'var(--card)',
             border: '1px solid var(--bdr)',
@@ -397,17 +605,16 @@ export default function RecruitmentPage({ onBack }) {
           }}>
             <div className="corner-tl"/><div className="corner-br"/>
             <div style={{ color: 'var(--t2)', fontSize: '.92rem', lineHeight: 1.7 }}>
-              Before selecting any role, please review roles & responsibilities here:
+              Before selecting a role, please review the full roles & responsibilities guide.
               <div style={{ marginTop: 8 }}>
-                <a
-                  href="https://tinyurl.com/gdg-core-team"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setShowRoles(true)}
                   className="btn btn-outline btn-sm"
-                  style={{ display: 'inline-flex' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 >
-                  🔎 View roles guide
-                </a>
+                  🔎 View Roles & Responsibilities
+                </button>
               </div>
             </div>
           </div>
@@ -416,7 +623,7 @@ export default function RecruitmentPage({ onBack }) {
             <PillRadio options={ROLE_OPTIONS} value={form.role} onChange={v => setForm(f => ({ ...f, role: v }))} />
           </Field>
 
-          <Field label="Area's of Interest" required hint="Select one or more.">
+          <Field label="Areas of Interest" required hint="Select one or more.">
             <MultiSelectChips
               options={INTEREST_OPTIONS}
               values={form.interests}
@@ -429,7 +636,8 @@ export default function RecruitmentPage({ onBack }) {
             />
           </Field>
         </div>
-      ),
+        );
+      },
     },
     {
       title: 'Skills & Experience',
@@ -825,7 +1033,20 @@ export default function RecruitmentPage({ onBack }) {
             </span>
           </button>
         ) : null}
-        <span className="cin-section-label pop-in">Core Team Recruitment</span>
+        <div className="pop-in" style={{
+          display: 'inline-block',
+          background: 'linear-gradient(135deg, var(--c1), var(--c2))',
+          borderRadius: 999,
+          padding: '7px 22px',
+          fontFamily: 'Orbitron,monospace',
+          fontSize: '.85rem',
+          fontWeight: 700,
+          letterSpacing: '.1em',
+          color: '#fff',
+          textTransform: 'uppercase',
+          boxShadow: '0 0 24px var(--c1g)',
+          marginBottom: 16,
+        }}>Core Team Recruitment</div>
         <h1 className="section-title pop-word" style={{ marginBottom: 14 }}>
           NexaSphere Application Form
         </h1>
