@@ -378,6 +378,7 @@ export default function RecruitmentPage({ onBack }) {
   const [done, setDone] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [err, setErr] = useState('');
+  const [showRoles, setShowRoles] = useState(false); // lifted out of useMemo to obey Rules of Hooks
   const topRef = useRef(null);
 
   // Check on mount if this device already submitted
@@ -602,10 +603,8 @@ export default function RecruitmentPage({ onBack }) {
       title: 'Role & Domain Preference',
       subtitle: 'Select the role you wish to apply for and your areas of interest.',
       icon: <IconArrowRight style={{ width: 18, height: 18 }} />,
-       requiredKeys: ['role', 'interests'],
-      render: () => {
-        const [showRoles, setShowRoles] = useState(false);
-        return (
+      requiredKeys: ['role', 'interests'],
+      render: () => (
         <div style={{ display: 'grid', gap: 18 }}>
           {showRoles && <RolesGuideModal onClose={() => setShowRoles(false)} />}
           <div style={{
@@ -648,8 +647,7 @@ export default function RecruitmentPage({ onBack }) {
             />
           </Field>
         </div>
-        );
-      },
+      ),
     },
     {
       title: 'Skills & Experience',
