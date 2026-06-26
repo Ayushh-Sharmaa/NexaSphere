@@ -81,7 +81,8 @@ jobs:
           echo "E2E_API_BASE=http://localhost:8080" >> .env
           echo "VITE_API_BASE=http://localhost:8080" >> website/.env
           echo "CORS_ORIGIN=http://localhost:5175,http://localhost:5001" >> server/.env
-          echo "ADMIN_EVENT_PASSWORD=ChangeMe123!Event" >> server/.env
+          echo "ADMIN_EVENT_PASSWORD=${{ secrets.ADMIN_EVENT_PASSWORD }}" >> server/.env
+          echo "ADMIN_USERS_JSON=${{ secrets.ADMIN_USERS_JSON }}" >> server/.env
           echo "JWT_SECRET=nexasphere-jwt-dev-secret-change-in-production" >> server/.env
 
       - name: Start server
@@ -99,8 +100,8 @@ jobs:
           PORT: 8080
           FRONTEND_URL: http://localhost:5175,http://127.0.0.1:5175
           CORS_ORIGIN: http://localhost:5175,http://127.0.0.1:5175
-          ADMIN_USERS_JSON: '[{"username":"admin","password":"admin123","role":"SuperAdmin"}]'
-          ADMIN_EVENT_PASSWORD: StrongEventPassword123!
+          ADMIN_USERS_JSON: ${{ secrets.ADMIN_USERS_JSON }}
+          ADMIN_EVENT_PASSWORD: ${{ secrets.ADMIN_EVENT_PASSWORD }}
         timeout-minutes: 5
 
       - name: Wait for server
