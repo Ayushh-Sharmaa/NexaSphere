@@ -51,6 +51,7 @@ services:
       - '3000:3000'
     environment:
       GF_SECURITY_ADMIN_USER: admin
+      # TODO: Change this to a more secure mechanism or secrets management system in the future.
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
