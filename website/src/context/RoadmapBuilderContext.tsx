@@ -145,8 +145,8 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
           baseX = Math.max(10, Math.min(baseX, 1800 - 220 - 10));
           baseY = Math.max(10, Math.min(baseY, 1200 - 90 - 10));
 
-          finalX = baseX;
-          finalY = baseY;
+          if (finalX === undefined) finalX = baseX;
+          if (finalY === undefined) finalY = baseY;
 
           // Collision Avoidance & Staggered Spawning
           const OFFSET = 40;
