@@ -107,6 +107,15 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
     // Skip empty initial state saving to prevent overwriting
     if (nodes.length === 0 && roadmapTitle === 'My Custom Path') return;
 
+    // Skip saving if we just reset to default state, to prevent overwriting the removeItem
+    if (
+      roadmapTitle === 'New Learning Path' &&
+      roadmapDescription === 'Custom learning flow created on NexaSphere.' &&
+      nodes === defaultNodes
+    ) {
+      return;
+    }
+
     const stateToSave = {
       title: roadmapTitle,
       description: roadmapDescription,
