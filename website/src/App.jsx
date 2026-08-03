@@ -29,6 +29,7 @@ import './styles/pwa.css';
 import './styles/aurora.css';
 import './styles/motion.css';
 import './styles/accessibility.css';
+import './styles/layout-utilities.css';
 import './i18n';
 
 // Core structural elements
