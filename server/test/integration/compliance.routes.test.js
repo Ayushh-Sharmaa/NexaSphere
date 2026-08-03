@@ -27,14 +27,19 @@ mock.module('../../services/complianceService.js', {
 
       listDocuments: async ({ type, includeArchived }) => {
         if (type) {
-          if (!['privacy_policy', 'terms_of_service', 'code_of_conduct', 'community_guidelines'].includes(type)) {
+          if (
+            ![
+              'privacy_policy',
+              'terms_of_service',
+              'code_of_conduct',
+              'community_guidelines',
+            ].includes(type)
+          ) {
             return [];
           }
           return [{ id: 'doc-1', type, title: 'Test', version: 1 }];
         }
-        return [
-          { id: 'doc-1', type: 'privacy_policy', title: 'Privacy Policy', version: 1 },
-        ];
+        return [{ id: 'doc-1', type: 'privacy_policy', title: 'Privacy Policy', version: 1 }];
       },
 
       getDocument: async (id) => {
@@ -54,9 +59,7 @@ mock.module('../../services/complianceService.js', {
         acceptedAt: new Date().toISOString(),
       }),
 
-      getUserAcceptances: async (userId) => [
-        { id: 'accept-1', userId, documentId: 'doc-1' },
-      ],
+      getUserAcceptances: async (userId) => [{ id: 'accept-1', userId, documentId: 'doc-1' }],
 
       hasUserAccepted: async (userId, type) => true,
 
@@ -146,9 +149,7 @@ mock.module('../../middleware/adminAuthMiddleware.js', {
 // ---------------------------------------------------------------------------
 
 async function createTestApp() {
-  const { default: complianceRouter } = await import(
-    '../../routes/compliance.js'
-  );
+  const { default: complianceRouter } = await import('../../routes/compliance.js');
 
   const app = express();
   app.use(express.json());
@@ -189,9 +190,7 @@ describe('Compliance Routes — Public Documents', () => {
   });
 
   it('GET /api/compliance/documents with unknown type returns empty array', async () => {
-    const res = await request(app)
-      .get('/api/compliance/documents')
-      .query({ type: 'invalid_type' });
+    const res = await request(app).get('/api/compliance/documents').query({ type: 'invalid_type' });
     assert.equal(res.status, 200);
     assert.ok(Array.isArray(res.body.documents));
     assert.equal(res.body.documents.length, 0);
@@ -224,27 +223,21 @@ describe('Compliance Routes — Public Documents', () => {
   });
 
   it('GET /api/compliance/documents/type/:type returns active document', async () => {
-    const res = await request(app).get(
-      '/api/compliance/documents/type/privacy_policy'
-    );
+    const res = await request(app).get('/api/compliance/documents/type/privacy_policy');
     assert.equal(res.status, 200);
     assert.equal(res.body.id, 'privacy_policy-1');
     assert.equal(res.body.title, 'Active privacy_policy');
   });
 
   it('GET /api/compliance/documents/type/:type returns 400 for invalid type', async () => {
-    const res = await request(app).get(
-      '/api/compliance/documents/type/invalid_type'
-    );
+    const res = await request(app).get('/api/compliance/documents/type/invalid_type');
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('GET /api/compliance/documents/type/:type returns 404 for valid type with no active doc', async () => {
     // code_of_conduct is in DOCUMENT_TYPES but getActiveDocument returns null for it
-    const res = await request(app).get(
-      '/api/compliance/documents/type/code_of_conduct'
-    );
+    const res = await request(app).get('/api/compliance/documents/type/code_of_conduct');
     assert.equal(res.status, 404);
     assert.ok(res.body.error);
   });
@@ -282,25 +275,19 @@ describe('Compliance Routes — Public Acceptances', () => {
   });
 
   it('POST /api/compliance/acceptances returns 400 with missing documentId', async () => {
-    const res = await request(app)
-      .post('/api/compliance/acceptances')
-      .send({ userId: 'user-1' });
+    const res = await request(app).post('/api/compliance/acceptances').send({ userId: 'user-1' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/compliance/acceptances returns 400 with empty body', async () => {
-    const res = await request(app)
-      .post('/api/compliance/acceptances')
-      .send({});
+    const res = await request(app).post('/api/compliance/acceptances').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('GET /api/compliance/acceptances/user/:userId returns acceptances', async () => {
-    const res = await request(app).get(
-      '/api/compliance/acceptances/user/user-1'
-    );
+    const res = await request(app).get('/api/compliance/acceptances/user/user-1');
     assert.equal(res.status, 200);
     assert.ok(Array.isArray(res.body.acceptances));
     assert.equal(res.body.acceptances.length, 1);
@@ -364,25 +351,19 @@ describe('Compliance Routes — Public GDPR', () => {
   });
 
   it('POST /api/compliance/gdpr returns 400 with missing userId', async () => {
-    const res = await request(app)
-      .post('/api/compliance/gdpr')
-      .send({ type: 'data_deletion' });
+    const res = await request(app).post('/api/compliance/gdpr').send({ type: 'data_deletion' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/compliance/gdpr returns 400 with missing type', async () => {
-    const res = await request(app)
-      .post('/api/compliance/gdpr')
-      .send({ userId: 'user-1' });
+    const res = await request(app).post('/api/compliance/gdpr').send({ userId: 'user-1' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/compliance/gdpr returns 400 with empty body', async () => {
-    const res = await request(app)
-      .post('/api/compliance/gdpr')
-      .send({});
+    const res = await request(app).post('/api/compliance/gdpr').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -427,9 +408,7 @@ describe('Compliance Routes — Admin Auth Enforcement', () => {
 
   it('DELETE /api/compliance/admin/documents/:id returns 401 without admin auth', async () => {
     authControl.enabled = false;
-    const res = await request(app).delete(
-      '/api/compliance/admin/documents/doc-1'
-    );
+    const res = await request(app).delete('/api/compliance/admin/documents/doc-1');
     assert.equal(res.status, 401);
     authControl.enabled = true;
   });
@@ -507,14 +486,12 @@ describe('Compliance Routes — Admin Document CRUD', () => {
   });
 
   it('POST /api/compliance/admin/documents creates a document (201)', async () => {
-    const res = await request(app)
-      .post('/api/compliance/admin/documents')
-      .send({
-        type: 'privacy_policy',
-        title: 'Updated Privacy Policy',
-        content: 'Full policy text...',
-        version: 3,
-      });
+    const res = await request(app).post('/api/compliance/admin/documents').send({
+      type: 'privacy_policy',
+      title: 'Updated Privacy Policy',
+      content: 'Full policy text...',
+      version: 3,
+    });
     assert.equal(res.status, 201);
     assert.equal(res.body.id, 'new-doc');
     assert.equal(res.body.type, 'privacy_policy');
@@ -564,9 +541,7 @@ describe('Compliance Routes — Admin Document CRUD', () => {
   });
 
   it('DELETE /api/compliance/admin/documents/:id archives a document', async () => {
-    const res = await request(app).delete(
-      '/api/compliance/admin/documents/doc-1'
-    );
+    const res = await request(app).delete('/api/compliance/admin/documents/doc-1');
     assert.equal(res.status, 200);
     assert.equal(res.body.message, 'Document archived');
     assert.ok(res.body.document.archivedBy, 'testadmin');
@@ -574,9 +549,7 @@ describe('Compliance Routes — Admin Document CRUD', () => {
   });
 
   it('DELETE /api/compliance/admin/documents/:id returns 400 for invalid id', async () => {
-    const res = await request(app).delete(
-      '/api/compliance/admin/documents/$$$'
-    );
+    const res = await request(app).delete('/api/compliance/admin/documents/$$$');
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });

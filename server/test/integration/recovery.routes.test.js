@@ -75,33 +75,52 @@ function createTestApp(options = {}) {
     return res.json({ message: 'Account unlocked successfully' });
   });
 
-  router.post('/admin/users/:id/reset-password', mockRequireAdmin, mockAuditMiddleware, (req, res) => {
-    const { newPassword } = req.body;
+  router.post(
+    '/admin/users/:id/reset-password',
+    mockRequireAdmin,
+    mockAuditMiddleware,
+    (req, res) => {
+      const { newPassword } = req.body;
 
-    if (resetPasswordResult && resetPasswordResult.error) {
-      return res.status(resetPasswordResult.status).json({ error: resetPasswordResult.error });
+      if (resetPasswordResult && resetPasswordResult.error) {
+        return res.status(resetPasswordResult.status).json({ error: resetPasswordResult.error });
+      }
+
+      if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      }
+
+      return res.json({ message: 'Password reset successfully' });
     }
+  );
 
-    if (!newPassword || newPassword.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  router.delete(
+    '/admin/portfolios/:username',
+    mockRequireAdmin,
+    mockAuditMiddleware,
+    (req, res) => {
+      if (deletePortfolioResult && deletePortfolioResult.error) {
+        return res
+          .status(deletePortfolioResult.status)
+          .json({ error: deletePortfolioResult.error });
+      }
+      return res.json({ message: 'Portfolio moved to trash' });
     }
+  );
 
-    return res.json({ message: 'Password reset successfully' });
-  });
-
-  router.delete('/admin/portfolios/:username', mockRequireAdmin, mockAuditMiddleware, (req, res) => {
-    if (deletePortfolioResult && deletePortfolioResult.error) {
-      return res.status(deletePortfolioResult.status).json({ error: deletePortfolioResult.error });
+  router.post(
+    '/admin/portfolios/:username/recover',
+    mockRequireAdmin,
+    mockAuditMiddleware,
+    (req, res) => {
+      if (recoverPortfolioResult && recoverPortfolioResult.error) {
+        return res
+          .status(recoverPortfolioResult.status)
+          .json({ error: recoverPortfolioResult.error });
+      }
+      return res.json({ message: 'Portfolio recovered successfully' });
     }
-    return res.json({ message: 'Portfolio moved to trash' });
-  });
-
-  router.post('/admin/portfolios/:username/recover', mockRequireAdmin, mockAuditMiddleware, (req, res) => {
-    if (recoverPortfolioResult && recoverPortfolioResult.error) {
-      return res.status(recoverPortfolioResult.status).json({ error: recoverPortfolioResult.error });
-    }
-    return res.json({ message: 'Portfolio recovered successfully' });
-  });
+  );
 
   // ---- Public Auth Recovery Routes ----
   // These use password reset rate limiter (no admin auth)
@@ -127,7 +146,9 @@ function createTestApp(options = {}) {
     const { token, newPassword } = req.body;
 
     if (resetPasswordWithTokenResult && resetPasswordWithTokenResult.error) {
-      return res.status(resetPasswordWithTokenResult.status).json({ error: resetPasswordWithTokenResult.error });
+      return res
+        .status(resetPasswordWithTokenResult.status)
+        .json({ error: resetPasswordWithTokenResult.error });
     }
 
     if (!token || !newPassword || newPassword.length < 8) {
@@ -246,9 +267,7 @@ describe('Recovery Routes — Admin Reset Password', () => {
   });
 
   it('POST /api/admin/users/:id/reset-password with missing password returns 400', async () => {
-    const res = await request(app)
-      .post('/api/admin/users/42/reset-password')
-      .send({});
+    const res = await request(app).post('/api/admin/users/42/reset-password').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -302,29 +321,26 @@ describe('Recovery Routes — Forgot Password (Public)', () => {
     assert.equal(res.status, 200);
     assert.ok(res.body.message);
     // Verify no email enumeration — always returns the same message
-    assert.equal(res.body.message, 'If an account exists with that email, a password reset link has been sent.');
+    assert.equal(
+      res.body.message,
+      'If an account exists with that email, a password reset link has been sent.'
+    );
   });
 
   it('POST /api/auth/forgot-password with missing email returns 400', async () => {
-    const res = await request(app)
-      .post('/api/auth/forgot-password')
-      .send({});
+    const res = await request(app).post('/api/auth/forgot-password').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/auth/forgot-password with empty email returns 400', async () => {
-    const res = await request(app)
-      .post('/api/auth/forgot-password')
-      .send({ email: '' });
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: '' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/auth/forgot-password with non-string email returns 400', async () => {
-    const res = await request(app)
-      .post('/api/auth/forgot-password')
-      .send({ email: null });
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: null });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -359,9 +375,7 @@ describe('Recovery Routes — Reset Password With Token (Public)', () => {
   });
 
   it('POST /api/auth/reset-password with missing password returns 400', async () => {
-    const res = await request(app)
-      .post('/api/auth/reset-password')
-      .send({ token: 'some-token' });
+    const res = await request(app).post('/api/auth/reset-password').send({ token: 'some-token' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -383,9 +397,7 @@ describe('Recovery Routes — Reset Password With Token (Public)', () => {
   });
 
   it('POST /api/auth/reset-password with empty body returns 400', async () => {
-    const res = await request(app)
-      .post('/api/auth/reset-password')
-      .send({});
+    const res = await request(app).post('/api/auth/reset-password').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });

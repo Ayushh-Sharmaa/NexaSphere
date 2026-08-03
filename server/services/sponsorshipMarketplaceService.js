@@ -54,9 +54,13 @@ export const sponsorshipMarketplaceService = {
       logo: null,
       testimonials: [],
       pastSponsorships: [],
+      interests: [],
       createdAt: new Date().toISOString(),
       ...data,
     };
+    if (!Array.isArray(company.interests)) {
+      company.interests = [];
+    }
     companies.push(company);
     return company;
   },
@@ -93,17 +97,20 @@ export const sponsorshipMarketplaceService = {
     if (!p) return null;
     p.status = status;
     if (status === 'Accepted') {
-      const agreement = {
-        id: 'agr-' + Date.now(),
-        proposalId,
-        companyId: p.companyId,
-        tier: p.tier,
-        benefits: p.benefits,
-        status: 'Active',
-        deliverables: p.benefits.map((b) => ({ item: b, done: false })),
-        createdAt: new Date().toISOString(),
-      };
-      agreements.push(agreement);
+      let agreement = agreements.find((a) => a.proposalId === proposalId);
+      if (!agreement) {
+        agreement = {
+          id: 'agr-' + Date.now(),
+          proposalId,
+          companyId: p.companyId,
+          tier: p.tier,
+          benefits: p.benefits || [],
+          status: 'Active',
+          deliverables: (p.benefits || []).map((b) => ({ item: b, done: false })),
+          createdAt: new Date().toISOString(),
+        };
+        agreements.push(agreement);
+      }
       p.agreementId = agreement.id;
       return { proposal: p, agreement };
     }

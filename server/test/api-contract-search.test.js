@@ -12,9 +12,18 @@ function makeMockRes() {
   const res = {
     _status: 200,
     _body: null,
-    status(code) { this._status = code; return this; },
-    json(body) { this._body = body; return this; },
-    send(body) { this._body = body; return this; },
+    status(code) {
+      this._status = code;
+      return this;
+    },
+    json(body) {
+      this._body = body;
+      return this;
+    },
+    send(body) {
+      this._body = body;
+      return this;
+    },
   };
   return res;
 }
@@ -52,10 +61,11 @@ describe('Search API Contract', () => {
     } else {
       // Acceptable only if the error is due to missing DB configuration (CI environment)
       const errorMsg = res._body?.error || res._body?.message || '';
-      const isDbError = errorMsg.toLowerCase().includes('database') ||
-                        errorMsg.toLowerCase().includes('postgresql') ||
-                        errorMsg.toLowerCase().includes('not configured') ||
-                        errorMsg === 'Search failed';
+      const isDbError =
+        errorMsg.toLowerCase().includes('database') ||
+        errorMsg.toLowerCase().includes('postgresql') ||
+        errorMsg.toLowerCase().includes('not configured') ||
+        errorMsg === 'Search failed';
       assert.ok(isDbError, `Unexpected error response (status ${res._status}): ${errorMsg}`);
     }
   });

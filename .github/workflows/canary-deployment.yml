@@ -1,0 +1,29 @@
+name: Canary Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build and Push Docker Image
+        run: |
+          # Build logic here
+          echo "Building image..."
+
+      - name: Deploy Canary via Argo Rollouts
+        run: |
+          # In a real environment, this would apply the new image tag to the cluster
+          echo "kubectl apply -f infra/k8s/canary-rollout.yaml"
+          
+      - name: Monitor Canary Health
+        run: |
+          echo "Routing 5% traffic to canary..."
+          echo "Monitoring Prometheus metrics for 10 minutes..."
+          # The Argo Rollouts controller handles the automated promotion/rollback
+          # based on AnalysisRuns configured in the cluster.

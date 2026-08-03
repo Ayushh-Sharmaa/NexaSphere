@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { streamRepository } from '../repositories/streamRepository.js';
 
 /**
@@ -28,10 +29,10 @@ export const streamService = {
     const isProd = process.env.NODE_ENV === 'production';
 
     return {
-      streamKey: `sk_${Math.random().toString(36).substring(7)}`,
+      streamKey: `sk_${crypto.randomUUID()}`,
       serverUrl: 'rtmp://live.nexasphere.com/app',
       playbackUrl: isProd
-        ? `https://stream.nexasphere.com/v1/play/${Math.random().toString(36).substring(7)}.m3u8`
+        ? `https://stream.nexasphere.com/v1/play/${crypto.randomUUID()}.m3u8`
         : 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', // Sample HLS
     };
   },

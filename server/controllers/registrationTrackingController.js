@@ -118,7 +118,13 @@ export const bulkRegister = wrapAsync(async (req, res) => {
   const { registrations } = req.body;
 
   if (!Array.isArray(registrations) || registrations.length === 0) {
-    return sendError(req, res, 'registrations array is required and must not be empty', 400, 'VALIDATION_ERROR');
+    return sendError(
+      req,
+      res,
+      'registrations array is required and must not be empty',
+      400,
+      'VALIDATION_ERROR'
+    );
   }
 
   const results = [];
@@ -149,12 +155,16 @@ export const bulkRegister = wrapAsync(async (req, res) => {
     failed: errors.length,
   });
 
-  return sendSuccess(res, {
-    data: {
-      successful: results.length,
-      failed: errors.length,
-      registrations: results,
-      errors: errors.length > 0 ? errors : undefined,
+  return sendSuccess(
+    res,
+    {
+      data: {
+        successful: results.length,
+        failed: errors.length,
+        registrations: results,
+        errors: errors.length > 0 ? errors : undefined,
+      },
     },
-  }, 201);
+    201
+  );
 });

@@ -204,10 +204,9 @@ export async function touchToken(tokenHash) {
   await ensureReady();
 
   await withDb((client) =>
-    client.query(
-      'UPDATE student_refresh_tokens SET last_used_at = NOW() WHERE token_hash = $1',
-      [tokenHash]
-    )
+    client.query('UPDATE student_refresh_tokens SET last_used_at = NOW() WHERE token_hash = $1', [
+      tokenHash,
+    ])
   );
 }
 
@@ -220,9 +219,7 @@ export async function cleanupExpiredTokens() {
   await ensureReady();
 
   const { rowCount } = await withDb((client) =>
-    client.query(
-      'DELETE FROM student_refresh_tokens WHERE expires_at < NOW()'
-    )
+    client.query('DELETE FROM student_refresh_tokens WHERE expires_at < NOW()')
   );
 
   return rowCount ?? 0;

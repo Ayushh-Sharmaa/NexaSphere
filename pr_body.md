@@ -20,34 +20,45 @@ Fixes #1550
 - [ ] Integration
 
 ## Changes Implemented
+
 - Added ria-label attributes to previously unlabelled form inputs across Contact, Membership, Recruitment, and Chatbot components.
-- Added ARIA dialog roles (ole="dialog" and ria-modal="true") to modals for better focus management and semantics.
-- Transformed <span> links in the footer to behave like ole="button" elements with proper keyboard support.
+- Added ARIA dialog roles (
+  ole="dialog" and ria-modal="true") to modals for better focus management and semantics.
+- Transformed <span> links in the footer to behave like
+  ole="button" elements with proper keyboard support.
 - Enforced screen reader visibility over icon-only buttons with standard ria-label additions.
 
 ## Technical Details
 
 ### Frontend
-Applied ria-label, ole="dialog", ria-modal="true", and 	abIndex to React JSX components.
+
+Applied ria-label,
+ole="dialog", ria-modal="true", and abIndex to React JSX components.
 
 ### Backend
+
 N/A
 
 ### Database
+
 N/A
 
 ### API
+
 N/A
 
 ### Infrastructure
+
 N/A
 
 ## Screenshots
 
 ### Before
+
 N/A
 
 ### After
+
 N/A
 
 ## Testing
@@ -69,12 +80,15 @@ N/A
 - [x] Verified accessibility via semantic attributes in code.
 
 ## Security Review
+
 N/A
 
 ## Accessibility Review
+
 Added extensive ARIA attributes for NVDA, JAWS, and VoiceOver support.
 
 ## Performance Impact
+
 N/A
 
 ## Breaking Changes
@@ -83,9 +97,11 @@ N/A
 - [ ] Breaking Changes Documented
 
 ## Deployment Notes
+
 N/A
 
 ## Rollback Plan
+
 Revert commit.
 
 ## Checklist

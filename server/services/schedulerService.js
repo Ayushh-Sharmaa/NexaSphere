@@ -16,7 +16,6 @@ import { backupService } from './backupService.js';
 import { sendEmail } from './emailService.js';
 import { segmentationService } from './segmentationService.js';
 import { portfolioRepository } from '../repositories/portfolioRepository.js';
-import { segmentationService } from './segmentationService.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -223,36 +222,6 @@ const TASK_DEFINITIONS = [
     category: 'email',
     enabled: true,
   },
-
-    id: 'hourly-digest-flush',
-    name: 'Hourly Notification Digest',
-    description: 'Batches and sends hourly notification summaries',
-    cron: '0 * * * *',
-    category: 'notifications',
-    enabled: true,
-  },
-  {
-    id: 'daily-digest-flush',
-    name: 'Daily Notification Digest',
-    description: 'Batches and sends daily notification summaries at 8 AM',
-    cron: '0 8 * * *',
-    category: 'notifications',
-    enabled: true,
-  },
-  {
-    id: 'quiet-hours-flush',
-    name: 'Quiet Hours Recovery',
-    description: 'Flushes notifications queued during quiet hours',
-    cron: '*/15 * * * *',
-    category: 'notifications',
-  {
-    id: 'portfolio-github-sync',
-    name: 'Portfolio GitHub Sync',
-    description: 'Refreshes cached GitHub activity for portfolios with a linked GitHub username',
-    cron: '0 3 * * 1', // Weekly, Mondays at 03:00
-    category: 'portfolio',
-    enabled: true,
-  },
 ];
 
 // ─── In-memory state ──────────────────────────────────────────────────────────
@@ -284,7 +253,7 @@ class SchedulerService extends EventEmitter {
       if (def.enabled) this._scheduleNext(def.id);
     }
     this._initialized = true;
-    console.log('[SchedulerService] Initialized with', this._tasks.size, 'tasks');
+    logger.info('[SchedulerService] Initialized with', this._tasks.size, 'tasks');
   }
 
   // ── Internal scheduling ──────────────────────────────────────────────────────
@@ -330,7 +299,7 @@ class SchedulerService extends EventEmitter {
     } catch (err) {
       status = 'failed';
       error = err?.message ?? String(err);
-      console.error(`[SchedulerService] Task "${taskId}" failed:`, error);
+      logger.error(`[SchedulerService] Task "${taskId}" failed:`, { error });
     } finally {
       const finishedAt = new Date();
       const durationMs = finishedAt - startedAt;
@@ -396,7 +365,7 @@ class SchedulerService extends EventEmitter {
         await this._aggregateAnalytics();
         break;
       case 'overdue-task-reminder':
-        console.log('[SchedulerService] Processing overdue task notifications...');
+        logger.info('[SchedulerService] Processing overdue task notifications...');
         // logic to fetch tasks with dueDate < now and status != 'Done' and notify assignees
         break;
       case 'announcement-publisher':
@@ -678,50 +647,6 @@ class SchedulerService extends EventEmitter {
       );
     } catch (err) {
       logger.error('[Scheduler] Error processing email queue:', err.message);
-      throw err;
-    }
-  }
-
-  async _syncPortfolioGithubData() {
-    logger.info('[Scheduler] Starting weekly portfolio GitHub sync');
-    try {
-      const portfolios = await portfolioRepository.listAll();
-      const withGithub = portfolios.filter((p) => p.githubUsername);
-
-      if (withGithub.length === 0) {
-        logger.info('[Scheduler] No portfolios with a linked GitHub username, skipping');
-        return;
-      }
-
-      let checked = 0;
-      let failed = 0;
-
-      for (const portfolio of withGithub) {
-        try {
-          const res = await fetch(
-            `https://api.github.com/users/${encodeURIComponent(portfolio.githubUsername)}`
-          );
-          if (!res.ok) {
-            failed++;
-            continue;
-          }
-          checked++;
-          // Rate-limit friendly: small delay between unauthenticated GitHub
-          // API calls to avoid tripping the 60 req/hour anonymous limit.
-          await new Promise((resolve) => setTimeout(resolve, 1200));
-        } catch (err) {
-          failed++;
-          logger.warn(
-            `[Scheduler] GitHub sync failed for @${portfolio.githubUsername}: ${err.message}`
-          );
-        }
-      }
-
-      logger.info(
-        `[Scheduler] Portfolio GitHub sync complete: ${checked} verified, ${failed} failed, out of ${withGithub.length} linked portfolios`
-      );
-    } catch (err) {
-      logger.error('[Scheduler] Portfolio GitHub sync error:', err.message);
       throw err;
     }
   }

@@ -1,18 +1,22 @@
 /**
  * Socket.IO Client for Admin Dashboard
+ * Uses singleton pattern with proper lifecycle management.
  * Emits content:updated events to the Node.js server when admin
  * creates, updates, or deletes events, activity events, or team members.
  * Falls back gracefully when the socket server is unreachable.
  */
 
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
 let socket = null;
+let hasAttachedGlobalListeners = false;
+let reconnectionAttempts = 0;
+const MAX_RECONNECTION_ATTEMPTS = 10;
 
 const SOCKET_SERVER =
   import.meta.env.VITE_SOCKET_URL ||
-  import.meta.env.VITE_API_BASE?.replace(/\/api\/?.*$/, '') ||
-  'http://localhost:8787';
+  import.meta.env.VITE_API_BASE?.replace(/\/api\/?.*$/, "") ||
+  "http://localhost:8787";
 
 /**
  * Initialize socket connection — called once on admin dashboard mount.
@@ -23,32 +27,58 @@ export function initAdminSocket() {
 
   try {
     socket = io(SOCKET_SERVER, {
-      path: import.meta.env.VITE_SOCKET_PATH || '/socket.io',
+      path: import.meta.env.VITE_SOCKET_PATH || "/socket.io",
       reconnection: true,
-      reconnectionDelay: 2000,
+      reconnectionDelay: 1000,
       reconnectionDelayMax: 8000,
-      reconnectionAttempts: 5,
-      transports: ['websocket', 'polling'],
+      reconnectionAttempts: MAX_RECONNECTION_ATTEMPTS,
+      transports: ["websocket", "polling"],
       timeout: 5000,
       autoConnect: false,
     });
 
-    socket.on('connect', () => {
-      console.log('[Admin Socket] Connected:', socket.id);
-    });
+    // Prevent duplicate global listeners
+    if (!hasAttachedGlobalListeners) {
+      hasAttachedGlobalListeners = true;
 
-    socket.on('connect_error', (err) => {
-      console.warn('[Admin Socket] Connection failed:', err.message);
-    });
+      socket.on("connect", () => {
+        console.log("[Admin Socket] Connected:", socket.id);
+        reconnectionAttempts = 0;
+      });
 
-    socket.on('reconnect_failed', () => {
-      console.warn('[Admin Socket] Reconnection failed — admin will work without real-time sync.');
-    });
+      socket.on("disconnect", (reason) => {
+        console.log("[Admin Socket] Disconnected:", reason);
+      });
+
+      socket.on("connect_error", (err) => {
+        reconnectionAttempts++;
+        console.warn("[Admin Socket] Connection failed:", err.message);
+      });
+
+      socket.on("reconnect", (attemptNumber) => {
+        console.log(
+          "[Admin Socket] Reconnected after",
+          attemptNumber,
+          "attempts"
+        );
+        reconnectionAttempts = 0;
+      });
+
+      socket.on("reconnect_attempt", (attemptNumber) => {
+        console.log("[Admin Socket] Reconnection attempt:", attemptNumber);
+      });
+
+      socket.on("reconnect_failed", () => {
+        console.warn(
+          "[Admin Socket] Reconnection failed — admin will work without real-time sync."
+        );
+      });
+    }
 
     socket.connect();
     return socket;
   } catch (err) {
-    console.warn('[Admin Socket] Init failed:', err.message);
+    console.warn("[Admin Socket] Init failed:", err.message);
     return null;
   }
 }
@@ -59,7 +89,7 @@ export function initAdminSocket() {
  */
 export function broadcastContentUpdate(type) {
   if (!socket?.connected) return;
-  socket.emit('content:updated', { type });
+  socket.emit("content:updated", { type });
 }
 
 /**
@@ -99,3 +129,33 @@ export function emit(eventName, data) {
     socket.emit(eventName, data);
   }
 }
+
+/**
+ * Disconnect and cleanup socket
+ */
+export function disconnect() {
+  if (socket) {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
+    hasAttachedGlobalListeners = false;
+  }
+}
+
+/**
+ * Get connection status
+ */
+export function isConnected() {
+  return socket?.connected || false;
+}
+
+export default {
+  initAdminSocket,
+  broadcastContentUpdate,
+  getSocket,
+  on,
+  off,
+  emit,
+  disconnect,
+  isConnected,
+};

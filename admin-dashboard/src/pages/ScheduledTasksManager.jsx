@@ -329,7 +329,7 @@ export default function ScheduledTasksManager() {
 
   // ── Filter / search ────────────────────────────────────────────────────────
 
-  const categories = [...new Set(tasks.map((t) => t.category))].sort();
+  const categories = [...new Set(tasks.map((t) => t.category))].sort((a, b) => a - b);
 
   const filtered = tasks.filter((t) => {
     const matchCat = filter === 'all' || t.category === filter;

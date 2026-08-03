@@ -497,7 +497,7 @@ export default function EventBudgetPage() {
               opacity: tab !== 'budgets' && !selectedBudget ? 0.5 : 1,
             }}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab[0].toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>

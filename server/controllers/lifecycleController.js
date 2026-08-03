@@ -5,18 +5,27 @@ import eventManager from '../services/eventEmitterService.js';
 const prisma = new PrismaClient();
 
 // Calculate lifecycle stage based on rules
-const determineStage = (eventsAttended, lastActiveAt, createdAt) => {
-  const daysSinceActive = (new Date() - new Date(lastActiveAt)) / (1000 * 60 * 60 * 24);
-  const daysSinceSignup = (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24);
+const determineStage = (eventsAttended = 0, lastActiveAt, createdAt) => {
+  const now = new Date();
+  const createdDate = createdAt ? new Date(createdAt) : now;
+  const activeDate = lastActiveAt ? new Date(lastActiveAt) : createdDate;
 
-  if (daysSinceActive > 180) return 'CHURNED';
-  if (daysSinceActive > 60) return 'INACTIVE';
+  const daysSinceActive = (now - activeDate) / (1000 * 60 * 60 * 24);
+  const daysSinceSignup = (now - createdDate) / (1000 * 60 * 60 * 24);
+
+  // High engagement users
   if (eventsAttended >= 10) return 'POWER_USER';
   if (eventsAttended >= 3) return 'ACTIVE';
+
+  // Inactivity checks for low/medium engagement
+  if (daysSinceActive > 180) return 'CHURNED';
+  if (daysSinceActive > 60) return 'INACTIVE';
+
+  // Early stage users
   if (eventsAttended === 0 && daysSinceSignup <= 7) return 'NEW_USER';
   if (eventsAttended === 0 && daysSinceSignup > 7) return 'PROSPECT';
 
-  return 'NEW_USER';
+  return 'ACTIVE';
 };
 
 export const getUserLifecycle = async (req, res) => {

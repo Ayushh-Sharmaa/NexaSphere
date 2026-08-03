@@ -177,7 +177,11 @@ export const refreshTokenService = {
       userAgent: userAgent ?? tokenRow.user_agent,
     });
 
-    logSecurityEvent('TOKEN_ROTATED', { userId: tokenRow.user_id, familyId: tokenRow.family_id, ip });
+    logSecurityEvent('TOKEN_ROTATED', {
+      userId: tokenRow.user_id,
+      familyId: tokenRow.family_id,
+      ip,
+    });
 
     return {
       accessToken,

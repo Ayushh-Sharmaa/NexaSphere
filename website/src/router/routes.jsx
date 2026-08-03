@@ -46,6 +46,8 @@ const WebhooksPage = lazy(() => import('../pages/monitoring/WebhooksPage'));
 const AmaListPage = lazy(() => import('../pages/ama/AmaListPage'));
 const AmaThreadPage = lazy(() => import('../pages/ama/AmaThreadPage'));
 const RevenueDashboardPage = lazy(() => import('../pages/monitoring/RevenueDashboardPage'));
+const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'));
+const AccountSettingsPage = lazy(() => import('../pages/settings/AccountSettingsPage'));
 
 // Static/Eager page components
 import HeroSection from '../pages/home/HeroSection';
@@ -629,8 +631,6 @@ export function AppRoutes({
       />
 
       {/* ── Profile & Settings ── */}
-      <Route path="/profile" element={<ProtectedRoute><PageIn k="profile"><ProfilePage /></PageIn></ProtectedRoute>} />
-      <Route path="/settings/account" element={<ProtectedRoute><PageIn k="settings"><AccountSettingsPage /></PageIn></ProtectedRoute>} />
       <Route
         path="/profile"
         element={
@@ -651,7 +651,6 @@ export function AppRoutes({
           </ProtectedRoute>
         }
       />
-
       {/* ── 404 ── */}
       <Route path="*" element={<NotFoundPage onGoHome={onBackHome} />} />
     </Routes>

@@ -31,7 +31,6 @@ export default function EventsPage({
   const EVENTS_PER_PAGE = 20;
   const [currentPage, setCurrentPage] = useState(1);
 
-
   const getEffectiveStatus = (ev) => {
     if (ev.status === 'completed') return 'completed';
     const startDate = ev.startDate ?? ev.date;
@@ -92,24 +91,6 @@ export default function EventsPage({
         return aIsUpcoming ? da - db : db - da;
       });
   }, [filteredEvents]);
-
-  // Reset to page 1 when filters change. Adjusting state during render
-  // (rather than in a useEffect) avoids an extra cascading render pass —
-  // this is React's recommended pattern for 'resetting state when a prop
-  // changes' (https://react.dev/learn/you-might-not-need-an-effect).
-  const [prevFilters, setPrevFilters] = useState(filters);
-  if (filters !== prevFilters) {
-    setPrevFilters(filters);
-    setCurrentPage(1);
-  }
-
-  const totalPages = Math.max(1, Math.ceil(sortedEvents.length / EVENTS_PER_PAGE));
-
-  const paginatedEvents = useMemo(() => {
-    const start = (currentPage - 1) * EVENTS_PER_PAGE;
-    return sortedEvents.slice(start, start + EVENTS_PER_PAGE);
-  }, [sortedEvents, currentPage]);
-
 
   const { recommendations, loading: recsLoading } = useRecommendations(user?.sub || user?.id || '');
 
@@ -311,295 +292,296 @@ export default function EventsPage({
           />
         ) : view === 'timeline' ? (
           <>
-          <div className="events-timeline ns-reveal">
-            {paginatedEvents.map((ev, i) => {
-              const hasDetailPage = ev.hasDetailPage !== false;
-              const dynamicGradient = buildGradient(ev);
-              const glowColor = ev.gradientColors?.[0] || null;
-              return (
-                <div className="timeline-item" key={ev.id}>
-                  <div className={`timeline-dot${ev.status !== 'completed' ? ' upcoming' : ''}`} />
-                  <div
-                    className={`timeline-card shimmer ${i % 2 === 0 ? 'pop-left' : 'pop-right'}`}
-                    style={{
-                      animationDelay: `${i * 0.11}s`,
-                      cursor: hasDetailPage ? 'pointer' : 'default',
-                      transition: 'all .28s ease',
-                      ...(dynamicGradient
-                        ? {
-                            position: 'relative',
-                            overflow: 'hidden',
-                            borderColor: 'transparent',
-                          }
-                        : {}),
-                    }}
-                    onClick={hasDetailPage ? () => onEventClick(ev) : undefined}
-                    onMouseEnter={
-                      hasDetailPage
-                        ? (e) => {
-                            e.currentTarget.style.borderColor = glowColor || 'var(--c1b)';
-                            e.currentTarget.style.boxShadow = `0 6px 24px ${glowColor ? glowColor + '44' : 'var(--c1g)'}`;
-                            e.currentTarget.style.transform = 'translateY(-3px)';
-                          }
-                        : undefined
-                    }
-                    onMouseLeave={
-                      hasDetailPage
-                        ? (e) => {
-                            e.currentTarget.style.borderColor = dynamicGradient
-                              ? 'transparent'
-                              : '';
-                            e.currentTarget.style.boxShadow = '';
-                            e.currentTarget.style.transform = '';
-                          }
-                        : undefined
-                    }
-                  >
-                    {dynamicGradient && (
-                      <div
-                        aria-hidden="true"
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          borderRadius: 'inherit',
-                          padding: '1px',
-                          background: dynamicGradient,
-                          WebkitMask:
-                            'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                          WebkitMaskComposite: 'xor',
-                          maskComposite: 'exclude',
-                          opacity: 0.6,
-                          pointerEvents: 'none',
-                          transition: 'opacity 0.3s',
-                        }}
-                      />
-                    )}
-                    {dynamicGradient && (
-                      <div
-                        aria-hidden="true"
-                        style={{
-                          position: 'absolute',
-                          inset: -8,
-                          background: dynamicGradient,
-                          filter: 'blur(16px)',
-                          opacity: 0.12,
-                          pointerEvents: 'none',
-                          transition: 'opacity 0.3s',
-                        }}
-                      />
-                    )}
+            <div className="events-timeline ns-reveal">
+              {sortedEvents.map((ev, i) => {
+                const hasDetailPage = ev.hasDetailPage !== false;
+                const dynamicGradient = buildGradient(ev);
+                const glowColor = ev.gradientColors?.[0] || null;
+                return (
+                  <div className="timeline-item" key={ev.id}>
                     <div
-                      className="timeline-event-name"
+                      className={`timeline-dot${ev.status !== 'completed' ? ' upcoming' : ''}`}
+                    />
+                    <div
+                      className={`timeline-card shimmer ${i % 2 === 0 ? 'pop-left' : 'pop-right'}`}
                       style={{
-                        fontSize: '1.05rem',
-                        fontWeight: 800,
-                        color: 'var(--c1)',
-                        marginBottom: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '8px',
+                        animationDelay: `${i * 0.11}s`,
+                        cursor: hasDetailPage ? 'pointer' : 'default',
+                        transition: 'all .28s ease',
+                        ...(dynamicGradient
+                          ? {
+                              position: 'relative',
+                              overflow: 'hidden',
+                              borderColor: 'transparent',
+                            }
+                          : {}),
                       }}
+                      onClick={hasDetailPage ? () => onEventClick(ev) : undefined}
+                      onMouseEnter={
+                        hasDetailPage
+                          ? (e) => {
+                              e.currentTarget.style.borderColor = glowColor || 'var(--c1b)';
+                              e.currentTarget.style.boxShadow = `0 6px 24px ${glowColor ? glowColor + '44' : 'var(--c1g)'}`;
+                              e.currentTarget.style.transform = 'translateY(-3px)';
+                            }
+                          : undefined
+                      }
+                      onMouseLeave={
+                        hasDetailPage
+                          ? (e) => {
+                              e.currentTarget.style.borderColor = dynamicGradient
+                                ? 'transparent'
+                                : '';
+                              e.currentTarget.style.boxShadow = '';
+                              e.currentTarget.style.transform = '';
+                            }
+                          : undefined
+                      }
                     >
-                      <span>{ev.name}</span>
-                      {hasDetailPage && (
-                        <span
+                      {dynamicGradient && (
+                        <div
+                          aria-hidden="true"
                           style={{
-                            color: 'var(--c1)',
-                            opacity: 0.8,
-                            fontSize: '0.9rem',
+                            position: 'absolute',
+                            inset: 0,
+                            borderRadius: 'inherit',
+                            padding: '1px',
+                            background: dynamicGradient,
+                            WebkitMask:
+                              'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            WebkitMaskComposite: 'xor',
+                            maskComposite: 'exclude',
+                            opacity: 0.6,
+                            pointerEvents: 'none',
+                            transition: 'opacity 0.3s',
                           }}
-                        >
-                          →
-                        </span>
+                        />
                       )}
-                    </div>
-                    <div
-                      className="timeline-event-date"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '.74rem',
-                        color: 'var(--t3)',
-                        marginBottom: '8px',
-                      }}
-                    >
-                      <DynamicIcon
-                        name={ev.icon || 'Calendar'}
-                        size={13}
-                        style={{ color: 'var(--c1)' }}
-                      />
-                      {ev.dateText ?? ev.date}
-                    </div>
-                    <p
-                      className="timeline-event-desc"
-                      style={{
-                        fontSize: '.84rem',
-                        lineHeight: '1.55',
-                        marginBottom: '12px',
-                      }}
-                    >
-                      {ev.description}
-                    </p>
-                    <EventCountdown event={ev} />
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '7px',
-                        flexWrap: 'wrap',
-                      }}
-                    >
-                      <span
-                        className={`timeline-badge ${ev.status}`}
-                        style={{ fontSize: '.64rem', padding: '1px 8px' }}
-                      >
-                        {ev.status === 'completed' ? (
-                          <>
-                            <DynamicIcon
-                              name="CheckCircle"
-                              size={11}
-                              style={{ marginRight: '4px' }}
-                            />{' '}
-                            Completed
-                          </>
-                        ) : ev.status === 'live' ? (
-                          <>
-                            <DynamicIcon
-                              name="PlayCircle"
-                              size={11}
-                              style={{ marginRight: '4px' }}
-                            />{' '}
-                            Live Now
-                          </>
-                        ) : ev.status === 'starting-soon' ? (
-                          <>
-                            <DynamicIcon name="Clock" size={11} style={{ marginRight: '4px' }} />{' '}
-                            <DynamicIcon
-                              name="Clock"
-                              size={11}
-                              style={{ marginRight: '4px' }}
-                            />{' '}
-                            Starting Soon
-                          </>
-                        ) : (
-                          <>
-                            <DynamicIcon name="Calendar" size={11} style={{ marginRight: '4px' }} />{' '}
-                            Upcoming
-                          </>
-                        )}
-                      </span>
-                      {ev.tags?.map((t) => (
-                        <span
-                          key={t}
+                      {dynamicGradient && (
+                        <div
+                          aria-hidden="true"
                           style={{
-                            fontSize: '.64rem',
-                            padding: '1px 8px',
-                            borderRadius: '10px',
-                            background: 'var(--c2a)',
-                            color: 'var(--c2)',
-                            border: '1px solid var(--c2b)',
-                            fontWeight: 600,
+                            position: 'absolute',
+                            inset: -8,
+                            background: dynamicGradient,
+                            filter: 'blur(16px)',
+                            opacity: 0.12,
+                            pointerEvents: 'none',
+                            transition: 'opacity 0.3s',
                           }}
+                        />
+                      )}
+                      <div
+                        className="timeline-event-name"
+                        style={{
+                          fontSize: '1.05rem',
+                          fontWeight: 800,
+                          color: 'var(--c1)',
+                          marginBottom: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px',
+                        }}
+                      >
+                        <span>{ev.name}</span>
+                        {hasDetailPage && (
+                          <span
+                            style={{
+                              color: 'var(--c1)',
+                              opacity: 0.8,
+                              fontSize: '0.9rem',
+                            }}
+                          >
+                            →
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className="timeline-event-date"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontSize: '.74rem',
+                          color: 'var(--t3)',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        <DynamicIcon
+                          name={ev.icon || 'Calendar'}
+                          size={13}
+                          style={{ color: 'var(--c1)' }}
+                        />
+                        {ev.dateText ?? ev.date}
+                      </div>
+                      <p
+                        className="timeline-event-desc"
+                        style={{
+                          fontSize: '.84rem',
+                          lineHeight: '1.55',
+                          marginBottom: '12px',
+                        }}
+                      >
+                        {ev.description}
+                      </p>
+                      <EventCountdown event={ev} />
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '7px',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span
+                          className={`timeline-badge ${ev.status}`}
+                          style={{ fontSize: '.64rem', padding: '1px 8px' }}
                         >
-                          {t}
+                          {ev.status === 'completed' ? (
+                            <>
+                              <DynamicIcon
+                                name="CheckCircle"
+                                size={11}
+                                style={{ marginRight: '4px' }}
+                              />{' '}
+                              Completed
+                            </>
+                          ) : ev.status === 'live' ? (
+                            <>
+                              <DynamicIcon
+                                name="PlayCircle"
+                                size={11}
+                                style={{ marginRight: '4px' }}
+                              />{' '}
+                              Live Now
+                            </>
+                          ) : ev.status === 'starting-soon' ? (
+                            <>
+                              <DynamicIcon name="Clock" size={11} style={{ marginRight: '4px' }} />{' '}
+                              Starting Soon
+                            </>
+                          ) : (
+                            <>
+                              <DynamicIcon
+                                name="Calendar"
+                                size={11}
+                                style={{ marginRight: '4px' }}
+                              />{' '}
+                              Upcoming
+                            </>
+                          )}
                         </span>
-                      ))}
+                        {ev.tags?.map((t) => (
+                          <span
+                            key={t}
+                            style={{
+                              fontSize: '.64rem',
+                              padding: '1px 8px',
+                              borderRadius: '10px',
+                              background: 'var(--c2a)',
+                              color: 'var(--c2)',
+                              border: '1px solid var(--c2b)',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
-            {currentPage === totalPages && (
-              <div className="timeline-item">
-                <div className="timeline-dot upcoming" />
-                <div
-                  className="timeline-card pop-in fired"
+              {currentPage === totalPages && (
+                <div className="timeline-item">
+                  <div className="timeline-dot upcoming" />
+                  <div
+                    className="timeline-card pop-in fired"
+                    style={{
+                      textAlign: 'center',
+                      color: 'var(--t3)',
+                    }}
+                  >
+                    <DynamicIcon
+                      name="Rocket"
+                      size={24}
+                      style={{ color: 'var(--c1)', marginBottom: '8px' }}
+                    />
+                    <p style={{ marginTop: '6px', fontSize: '.84rem' }}>
+                      More events coming soon. Watch this space!
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '10px',
+                  marginTop: '32px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setCurrentPage((p) => Math.max(1, p - 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === 1}
                   style={{
-                    textAlign: 'center',
-                    color: 'var(--t3)',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--bdr)',
+                    background: 'var(--card)',
+                    color: currentPage === 1 ? 'var(--t3)' : 'var(--t1)',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '.82rem',
+                    fontFamily: "'Rajdhani', sans-serif",
+                    fontWeight: 600,
+                    opacity: currentPage === 1 ? 0.5 : 1,
                   }}
                 >
-                  <DynamicIcon
-                    name="Rocket"
-                    size={24}
-                    style={{ color: 'var(--c1)', marginBottom: '8px' }}
-                  />
-                  <p style={{ marginTop: '6px', fontSize: '.84rem' }}>
-                    More events coming soon. Watch this space!
-                  </p>
-                </div>
+                  ← Previous
+                </button>
+                <span
+                  style={{
+                    fontSize: '.82rem',
+                    color: 'var(--t2)',
+                    fontFamily: "'Space Mono', monospace",
+                    padding: '0 8px',
+                  }}
+                >
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    setCurrentPage((p) => Math.min(totalPages, p + 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--bdr)',
+                    background: 'var(--card)',
+                    color: currentPage === totalPages ? 'var(--t3)' : 'var(--t1)',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '.82rem',
+                    fontFamily: "'Rajdhani', sans-serif",
+                    fontWeight: 600,
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                  }}
+                >
+                  Next →
+                </button>
               </div>
             )}
-          </div>
-
-          {totalPages > 1 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '10px',
-                marginTop: '32px',
-                flexWrap: 'wrap',
-              }}
-            >
-              <button
-                onClick={() => {
-                  setCurrentPage((p) => Math.max(1, p - 1));
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                disabled={currentPage === 1}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--bdr)',
-                  background: 'var(--card)',
-                  color: currentPage === 1 ? 'var(--t3)' : 'var(--t1)',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  fontSize: '.82rem',
-                  fontFamily: "'Rajdhani', sans-serif",
-                  fontWeight: 600,
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                }}
-              >
-                ← Previous
-              </button>
-              <span
-                style={{
-                  fontSize: '.82rem',
-                  color: 'var(--t2)',
-                  fontFamily: "'Space Mono', monospace",
-                  padding: '0 8px',
-                }}
-              >
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => {
-                  setCurrentPage((p) => Math.min(totalPages, p + 1));
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--bdr)',
-                  background: 'var(--card)',
-                  color: currentPage === totalPages ? 'var(--t3)' : 'var(--t1)',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  fontSize: '.82rem',
-                  fontFamily: "'Rajdhani', sans-serif",
-                  fontWeight: 600,
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                }}
-              >
-                Next →
-              </button>
-            </div>
-          )}
           </>
         ) : (
           <EventCalendarView events={sortedEvents} onEventClick={onEventClick} />

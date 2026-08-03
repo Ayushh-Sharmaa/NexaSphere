@@ -90,13 +90,10 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
       <ThemeProvider>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
         <SocketProvider>
-          <GlobalErrorBoundary>
+          <ErrorBoundary>
             <App />
-          </GlobalErrorBoundary>
+          </ErrorBoundary>
         </SocketProvider>
       </ThemeProvider>
     </HelmetProvider>

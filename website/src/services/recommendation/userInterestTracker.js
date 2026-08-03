@@ -45,7 +45,9 @@ class UserInterestTracker {
       events: {},
     };
     if (stored) {
-      try { return JSON.parse(stored); } catch (e) {}
+      try {
+        return JSON.parse(stored);
+      } catch (e) {}
     }
     return defaults;
   }
@@ -53,7 +55,9 @@ class UserInterestTracker {
   loadHistory() {
     const stored = localStorage.getItem(STORAGE_KEYS.USER_HISTORY);
     if (stored) {
-      try { return JSON.parse(stored); } catch (e) {}
+      try {
+        return JSON.parse(stored);
+      } catch (e) {}
     }
     return [];
   }
@@ -67,7 +71,9 @@ class UserInterestTracker {
       preferredLocations: [],
     };
     if (stored) {
-      try { return JSON.parse(stored); } catch (e) {}
+      try {
+        return JSON.parse(stored);
+      } catch (e) {}
     }
     return defaults;
   }

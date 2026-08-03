@@ -129,6 +129,8 @@ const knowledgeBase = [
     answer:
       'Sorry to hear that! You can report bugs via:\n• **GitHub Issues**: github.com/Ayushh-Sharmaa/NexaSphere\n• **Email**: nexasphere@glbajajgroup.org\n• **Contact page**: Use the contact form on our website\n\nPlease describe the issue and which page/feature is affected.',
     quickReplies: ['Contact us', 'Go to GitHub', 'Try refreshing the page'],
+  },
+  {
     keywords: ['nexasphere', 'about', 'community', 'what is'],
     answer:
       'NexaSphere is the official tech ecosystem at GL Bajaj Group of Institutions, Mathura, run by students for students to foster innovation and learning.',
@@ -345,15 +347,12 @@ const Chatbot = () => {
         const lastBotIndex = messages.indexOf(lastBotMsg);
         const lastUserIndex = messages.indexOf(lastUserMsg);
         if (lastBotIndex > lastUserIndex) {
-          savePrompt(lastUserMsg.text, lastBotMsg.text, currentWorkspace).catch((err) => {
-            if (import.meta.env.DEV) console.error('[Chatbot] Error saving prompt:', err.message);
-          });
           savePrompt(lastUserMsg.text, lastBotMsg.text, currentWorkspace)
             .then(() => {
               triggerHistoryRefresh();
             })
             .catch((err) => {
-              console.error('Error saving prompt:', err);
+              if (import.meta.env.DEV) console.error('[Chatbot] Error saving prompt:', err.message);
             });
         }
       }
@@ -486,7 +485,6 @@ const Chatbot = () => {
             </div>
 
             <div className="chat-content">
-              <PinnedChats onSelectPrompt={handleSelectPrompt} workspace={currentWorkspace} />
               <PinnedChats
                 onSelectPrompt={handleSelectPrompt}
                 workspace={currentWorkspace}

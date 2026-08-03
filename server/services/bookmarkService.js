@@ -99,7 +99,15 @@ class BookmarkService {
         message: 'Folder not found.',
       };
 
+    const oldName = folder.name;
     folder.name = name;
+
+    // Update matching bookmarks
+    bookmarks.forEach((b) => {
+      if (b.folder === oldName) {
+        b.folder = name;
+      }
+    });
 
     return {
       success: true,
@@ -116,7 +124,15 @@ class BookmarkService {
         message: 'Folder not found.',
       };
 
+    const folderName = folders[index].name;
     folders.splice(index, 1);
+
+    // Reset matching bookmarks to General
+    bookmarks.forEach((b) => {
+      if (b.folder === folderName) {
+        b.folder = 'General';
+      }
+    });
 
     return {
       success: true,

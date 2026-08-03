@@ -5,7 +5,12 @@ export const up = (pgm) => {
     email: { type: 'varchar(255)', notNull: true },
     role: { type: 'varchar(50)', notNull: true, default: 'co-organizer' },
     status: { type: 'varchar(50)', notNull: true, default: 'pending' }, // pending, accepted
-    permissions: { type: 'jsonb', notNull: true, default: '{"can_edit": true, "can_delete": false, "can_view_attendance": true, "can_message": true}' },
+    permissions: {
+      type: 'jsonb',
+      notNull: true,
+      default:
+        '{"can_edit": true, "can_delete": false, "can_view_attendance": true, "can_message": true}',
+    },
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('now()') },
     updated_at: { type: 'timestamptz', notNull: true, default: pgm.func('now()') },
   });

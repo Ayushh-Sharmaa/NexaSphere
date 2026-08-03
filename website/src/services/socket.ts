@@ -1,20 +1,15 @@
 import logger from '../utils/logger.js';
 import { io, Socket } from 'socket.io-client';
+import { getSocketServerUrl } from '../utils/runtimeConfig';
 
 /** Type-safe listener signature matching Socket.IO's internal contract. */
 type SocketListener = (...args: unknown[]) => void;
-import { getSocketServerUrl } from '../utils/runtimeConfig';
 
 // Keep a singleton instance
 let socketInstance: Socket | null = null;
 let connectionUrl: string = '';
 
-export const initializeSocket = (
-  // Uses getSocketServerUrl() from runtimeConfig which correctly returns
-  // empty string in production when unconfigured instead of falling back
-  // to a hardcoded localhost URL that doesn't exist in deployed environments.
-  url: string = getSocketServerUrl()
-): Socket => {
+export const initializeSocket = (url: string = getSocketServerUrl()): Socket => {
   if (!socketInstance || (connectionUrl && connectionUrl !== url)) {
     if (socketInstance) {
       if (import.meta.env.DEV) {
@@ -32,18 +27,12 @@ export const initializeSocket = (
       typeof window !== 'undefined' && window.navigator?.userAgent?.includes('Playwright-E2E');
 
     socketInstance = io(url, {
-      reconnection: true,
-      reconnectionAttempts: 8,
       reconnection: !isE2E,
       reconnectionAttempts: isE2E ? 1 : 10,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: isE2E ? 2000 : 20000,
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
       randomizationFactor: 0.5,
-      timeout: 20000,
+      timeout: isE2E ? 2000 : 20000,
       autoConnect: true,
       transports: ['websocket', 'polling'],
     });
@@ -95,8 +84,6 @@ export const initializeSocket = (
     });
 
     // Monkey-patch on/off for event listener observability — DEV only.
-    // Restricted to DEV to avoid interfering with Socket.IO internals
-    // and to prevent event names leaking into production logs.
     if (import.meta.env.DEV) {
       const originalOn = socketInstance.on.bind(socketInstance);
       socketInstance.on = (event: string, listener: SocketListener) => {

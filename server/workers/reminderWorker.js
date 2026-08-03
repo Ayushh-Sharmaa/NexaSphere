@@ -60,10 +60,6 @@ export const reminderWorker = connection
             return { sent: 0 };
           }
 
-          let timeUntilEvent = 'soon';
-          if (type === 'event-reminder-24h') timeUntilEvent = '24 hours';
-          if (type === 'event-reminder-1h' || type === 'event-reminder') timeUntilEvent = '1 hour';
-
           let sentCount = 0;
           for (const attendee of attendees) {
             try {

@@ -195,7 +195,7 @@ export default function CertificateTemplateEditor({ token }) {
                                 <input type="number" className="input-field" style={{ padding: '0.2rem' }} value={el.fontSize} 
                                     onChange={(e) => {
                                         const els = typeof activeTemplate.elements === 'string' ? JSON.parse(activeTemplate.elements) : activeTemplate.elements;
-                                        const newEls = els.map(e => e.id === el.id ? {...e, fontSize: parseInt(e.target.value)} : e);
+                                        const newEls = els.map(e => e.id === el.id ? {...e, fontSize: parseInt(e.target.value, 10)} : e);
                                         setActiveTemplate({...activeTemplate, elements: newEls});
                                     }}
                                 />

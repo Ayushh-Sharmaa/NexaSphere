@@ -11,7 +11,10 @@ globalThis.fetch = async (url, options = {}) => {
   const method = options.method || 'GET';
   fetchCalls.push({ url: String(url), method });
 
-  if (String(url) === 'https://supabase.test/rest/v1/pending_digests?frequency=eq.daily_digest' && method === 'GET') {
+  if (
+    String(url) === 'https://supabase.test/rest/v1/pending_digests?frequency=eq.daily_digest' &&
+    method === 'GET'
+  ) {
     return new Response(
       JSON.stringify([
         {

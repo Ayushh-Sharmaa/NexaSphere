@@ -12,12 +12,12 @@ const mediaManagementService = {
   uploadFile(file) {
     const newFile = {
       id: Date.now().toString(),
-      name: file?.name || "sample-image.png",
-      type: file?.type || "image/png",
-      size: file?.size || "2 MB",
-      folder: file?.folder || "General",
+      name: file?.name || 'sample-image.png',
+      type: file?.type || 'image/png',
+      size: file?.size || '2 MB',
+      folder: file?.folder || 'General',
       tags: file?.tags || [],
-      uploadedBy: file?.uploadedBy || "Admin",
+      uploadedBy: file?.uploadedBy || 'Admin',
       uploadedAt: new Date().toISOString(),
       version: 1,
       compressed: false,
@@ -59,18 +59,16 @@ const mediaManagementService = {
   },
 
   searchFiles(query) {
-    return mediaLibrary.filter((file) =>
-      file.name.toLowerCase().includes(query.toLowerCase())
-    );
+    return mediaLibrary.filter((file) => file.name.toLowerCase().includes(query.toLowerCase()));
   },
 
   getStorageUsage() {
     return {
       totalFiles: mediaLibrary.length,
       totalFolders: 5,
-      usedStorage: "312 MB",
-      availableStorage: "4.7 GB",
-      storageLimit: "5 GB",
+      usedStorage: '312 MB',
+      availableStorage: '4.7 GB',
+      storageLimit: '5 GB',
     };
   },
 
@@ -101,11 +99,11 @@ const mediaManagementService = {
   getStatistics() {
     return {
       totalFiles: mediaLibrary.length,
-      totalImages: mediaLibrary.filter(f => f.type.includes("image")).length,
-      totalDocuments: mediaLibrary.filter(f => f.type.includes("pdf")).length,
-      compressedFiles: mediaLibrary.filter(f => f.compressed).length,
+      totalImages: mediaLibrary.filter((f) => f.type.includes('image')).length,
+      totalDocuments: mediaLibrary.filter((f) => f.type.includes('pdf')).length,
+      compressedFiles: mediaLibrary.filter((f) => f.compressed).length,
     };
-  }
+  },
 };
 
 export default mediaManagementService;

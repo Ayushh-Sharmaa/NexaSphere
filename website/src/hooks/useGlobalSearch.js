@@ -43,7 +43,7 @@ export const useGlobalSearch = () => {
   });
 
   const updateRecentSearches = useCallback((q) => {
-    if (!q || q.trim() === '') return;
+    if (!q || q.trim().length === 0) return;
 
     setRecentSearches((prev) => {
       const filtered = prev.filter((item) => item !== q);

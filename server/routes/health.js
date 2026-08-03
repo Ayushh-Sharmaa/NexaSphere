@@ -27,20 +27,28 @@ const router = Router();
  *               timestamp: "2026-07-14T10:00:00.000Z"
  */
 router.get('/health', (_req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     uptime: process.uptime(),
-    service: 'nexasphere-api', 
-    timestamp: new Date().toISOString() 
+    service: 'nexasphere-api',
+    timestamp: new Date().toISOString(),
   });
-  sendSuccess(res, { status: 'ok', service: 'nexasphere-api', timestamp: new Date().toISOString() });
+  sendSuccess(res, {
+    status: 'ok',
+    service: 'nexasphere-api',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 /**
  * GET /api/health — Alias for /health used by platform-level monitors.
  */
 router.get('/api/health', (_req, res) => {
-  sendSuccess(res, { status: 'ok', service: 'nexasphere-api', timestamp: new Date().toISOString() });
+  sendSuccess(res, {
+    status: 'ok',
+    service: 'nexasphere-api',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 /**

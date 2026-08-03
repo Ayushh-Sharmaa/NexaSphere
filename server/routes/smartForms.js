@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const forms = await prisma.form.findMany({
-      include: { fields: true }
+      include: { fields: true },
     });
     sendSuccess(res, forms);
   } catch (error) {
@@ -27,13 +27,15 @@ router.post('/', async (req, res) => {
         description,
         eventId,
         fields: {
-          create: fields
+          create: fields,
         },
-        logic: logic ? {
-          create: logic
-        } : undefined
+        logic: logic
+          ? {
+              create: logic,
+            }
+          : undefined,
       },
-      include: { fields: true, logic: true }
+      include: { fields: true, logic: true },
     });
     sendSuccess(res, form, 201);
   } catch (error) {
@@ -46,19 +48,19 @@ router.post('/:id/responses', async (req, res) => {
   try {
     const { id } = req.params;
     const { answers, userId } = req.body;
-    
+
     const response = await prisma.formResponse.create({
       data: {
         formId: id,
         userId,
         answers: {
-          create: answers.map(ans => ({
+          create: answers.map((ans) => ({
             fieldId: ans.fieldId,
-            value: ans.value
-          }))
-        }
+            value: ans.value,
+          })),
+        },
       },
-      include: { answers: true }
+      include: { answers: true },
     });
     sendSuccess(res, response, 201);
   } catch (error) {
@@ -72,7 +74,7 @@ router.get('/:id/responses', async (req, res) => {
     const { id } = req.params;
     const responses = await prisma.formResponse.findMany({
       where: { formId: id },
-      include: { answers: { include: { field: true } } }
+      include: { answers: { include: { field: true } } },
     });
     sendSuccess(res, responses);
   } catch (error) {

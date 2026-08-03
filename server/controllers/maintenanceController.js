@@ -1,4 +1,4 @@
-const maintenanceService = require("../services/maintenanceService");
+const maintenanceService = require('../services/maintenanceService');
 
 // Get All Maintenance
 const getAllMaintenance = async (req, res) => {
@@ -12,7 +12,7 @@ const getAllMaintenance = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch maintenance schedules.",
+      message: 'Failed to fetch maintenance schedules.',
       error: error.message,
     });
   }
@@ -21,14 +21,12 @@ const getAllMaintenance = async (req, res) => {
 // Get Maintenance By ID
 const getMaintenanceById = async (req, res) => {
   try {
-    const maintenance = await maintenanceService.getMaintenanceById(
-      req.params.id
-    );
+    const maintenance = await maintenanceService.getMaintenanceById(req.params.id);
 
     if (!maintenance) {
       return res.status(404).json({
         success: false,
-        message: "Maintenance schedule not found.",
+        message: 'Maintenance schedule not found.',
       });
     }
 
@@ -39,7 +37,7 @@ const getMaintenanceById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch maintenance schedule.",
+      message: 'Failed to fetch maintenance schedule.',
       error: error.message,
     });
   }
@@ -52,13 +50,13 @@ const createMaintenance = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Maintenance scheduled successfully.",
+      message: 'Maintenance scheduled successfully.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create maintenance schedule.",
+      message: 'Failed to create maintenance schedule.',
       error: error.message,
     });
   }
@@ -67,27 +65,24 @@ const createMaintenance = async (req, res) => {
 // Update Maintenance
 const updateMaintenance = async (req, res) => {
   try {
-    const maintenance = await maintenanceService.updateMaintenance(
-      req.params.id,
-      req.body
-    );
+    const maintenance = await maintenanceService.updateMaintenance(req.params.id, req.body);
 
     if (!maintenance) {
       return res.status(404).json({
         success: false,
-        message: "Maintenance schedule not found.",
+        message: 'Maintenance schedule not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Maintenance updated successfully.",
+      message: 'Maintenance updated successfully.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to update maintenance schedule.",
+      message: 'Failed to update maintenance schedule.',
       error: error.message,
     });
   }
@@ -96,26 +91,24 @@ const updateMaintenance = async (req, res) => {
 // Delete Maintenance
 const deleteMaintenance = async (req, res) => {
   try {
-    const maintenance = await maintenanceService.deleteMaintenance(
-      req.params.id
-    );
+    const maintenance = await maintenanceService.deleteMaintenance(req.params.id);
 
     if (!maintenance) {
       return res.status(404).json({
         success: false,
-        message: "Maintenance schedule not found.",
+        message: 'Maintenance schedule not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Maintenance deleted successfully.",
+      message: 'Maintenance deleted successfully.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to delete maintenance schedule.",
+      message: 'Failed to delete maintenance schedule.',
       error: error.message,
     });
   }
@@ -124,19 +117,17 @@ const deleteMaintenance = async (req, res) => {
 // Start Maintenance
 const startMaintenance = async (req, res) => {
   try {
-    const maintenance = await maintenanceService.startMaintenance(
-      req.params.id
-    );
+    const maintenance = await maintenanceService.startMaintenance(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Maintenance started successfully.",
+      message: 'Maintenance started successfully.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to start maintenance.",
+      message: 'Failed to start maintenance.',
       error: error.message,
     });
   }
@@ -145,19 +136,17 @@ const startMaintenance = async (req, res) => {
 // Complete Maintenance
 const completeMaintenance = async (req, res) => {
   try {
-    const maintenance = await maintenanceService.completeMaintenance(
-      req.params.id
-    );
+    const maintenance = await maintenanceService.completeMaintenance(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Maintenance completed successfully.",
+      message: 'Maintenance completed successfully.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to complete maintenance.",
+      message: 'Failed to complete maintenance.',
       error: error.message,
     });
   }
@@ -170,13 +159,13 @@ const emergencyMaintenance = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Emergency maintenance activated.",
+      message: 'Emergency maintenance activated.',
       data: maintenance,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to activate emergency maintenance.",
+      message: 'Failed to activate emergency maintenance.',
       error: error.message,
     });
   }
@@ -194,7 +183,7 @@ const getPublicStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch public maintenance status.",
+      message: 'Failed to fetch public maintenance status.',
       error: error.message,
     });
   }
@@ -212,7 +201,7 @@ const getHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch maintenance history.",
+      message: 'Failed to fetch maintenance history.',
       error: error.message,
     });
   }
@@ -230,7 +219,7 @@ const getCountdown = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch countdown.",
+      message: 'Failed to fetch countdown.',
       error: error.message,
     });
   }
@@ -243,13 +232,13 @@ const sendNotifications = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Notifications sent successfully.",
+      message: 'Notifications sent successfully.',
       data: notification,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to send notifications.",
+      message: 'Failed to send notifications.',
       error: error.message,
     });
   }
@@ -258,19 +247,17 @@ const sendNotifications = async (req, res) => {
 // Admin Approval
 const approveMaintenance = async (req, res) => {
   try {
-    const approval = await maintenanceService.approveMaintenance(
-      req.params.id
-    );
+    const approval = await maintenanceService.approveMaintenance(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Maintenance approved successfully.",
+      message: 'Maintenance approved successfully.',
       data: approval,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to approve maintenance.",
+      message: 'Failed to approve maintenance.',
       error: error.message,
     });
   }
@@ -288,7 +275,7 @@ const getStatusBanner = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch status banner.",
+      message: 'Failed to fetch status banner.',
       error: error.message,
     });
   }
@@ -306,7 +293,7 @@ const getServiceImpact = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch service impact.",
+      message: 'Failed to fetch service impact.',
       error: error.message,
     });
   }

@@ -61,7 +61,6 @@ services:
       timeout: 5s
       retries: 5
 
-
   # ── API Gateway (Nginx) ──────────────────────────────────────────────────────
   # Handles: SSL termination, rate limiting, request logging, routing to backend.
   # Port 80  → HTTP (redirects to HTTPS)
@@ -125,59 +124,7 @@ networks:
     name: nexasphere-observability
     driver: bridge
 
-  # ── Python AI API (optional, for observability scraping) ────────────────────
-  python-api:
-    profiles: ['python', 'observability']
-    build:
-      context: ./server-python
-      dockerfile: Dockerfile
-    expose:
-      - '8000'
-    environment:
-      REDIS_URL: redis://redis:6379/0
-      OTEL_SERVICE_NAME: nexasphere-python
-      OTEL_ENABLED: 'false'
-      LOG_FORMAT: json
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - default
-      - observability
-
-networks:
-  observability:
-    name: nexasphere-observability
-    driver: bridge
-
-  # ── Python AI API (optional, for observability scraping) ────────────────────
-  python-api:
-    profiles: ['python', 'observability']
-    build:
-      context: ./server-python
-      dockerfile: Dockerfile
-    expose:
-      - '8000'
-    environment:
-      REDIS_URL: redis://redis:6379/0
-      OTEL_SERVICE_NAME: nexasphere-python
-      OTEL_ENABLED: 'false'
-      LOG_FORMAT: json
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - default
-      - observability
-
-networks:
-  observability:
-    name: nexasphere-observability
-    driver: bridge
-
-# Redis is used for rate limiting and Socket.IO session sharing.
+  # Redis is used for rate limiting and Socket.IO session sharing.
 
   # ── Java Microservices API (optional) ────────────────────────────────────────
   java-api:

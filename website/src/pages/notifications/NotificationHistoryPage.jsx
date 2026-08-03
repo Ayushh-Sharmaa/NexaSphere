@@ -4,13 +4,6 @@ import apiClient from '../../utils/apiClient';
 import { formatRelativeTime } from '../../utils/formatRelativeTime';
 import { useStudentAuth } from '../../context/StudentAuthContext';
 import { NotificationSkeleton } from '../../components/ui/skeleton/NotificationSkeleton';
-import {
-  initializeSocket,
-  joinRoom,
-  emit as socketEmit,
-  on as socketOn,
-  off as socketOff,
-} from '../../utils/socketClient';
 
 const TYPE_ICONS = {
   message: '💬',

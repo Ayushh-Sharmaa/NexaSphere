@@ -9,6 +9,16 @@
 
 import logger from '../utils/logger.js';
 
+function formatSafeIsoDate(val) {
+  if (!val) return null;
+  try {
+    const d = new Date(val);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function generateCompliancePdfReport({ run, runIssues = [], summary = {} }) {
   // Minimal, dependency-free placeholder. Replace with a real PDF renderer (pdfkit, puppeteer, etc.).
   const payload = {
@@ -16,8 +26,8 @@ export async function generateCompliancePdfReport({ run, runIssues = [], summary
       runId: run?.id,
       runType: run?.run_type,
       createdBy: run?.created_by_admin_id,
-      startedAt: run?.started_at,
-      finishedAt: run?.finished_at,
+      startedAt: formatSafeIsoDate(run?.started_at),
+      finishedAt: formatSafeIsoDate(run?.finished_at),
       status: run?.status,
     },
     summary,

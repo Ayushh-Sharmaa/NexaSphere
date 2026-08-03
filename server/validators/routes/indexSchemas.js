@@ -27,10 +27,7 @@ export {
   votePollSchema,
 } from '../../schemas/streamSchema.js';
 
-export {
-  createResourceSchema,
-  updateResourceSchema,
-} from '../../schemas/resourceSchema.js';
+export { createResourceSchema, updateResourceSchema } from '../../schemas/resourceSchema.js';
 
 // ────────────────────────────────────────────────────────────────
 //  Analytics

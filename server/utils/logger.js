@@ -1,15 +1,10 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
-
-import winston from 'winston';
-import path from 'path';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { getLogContext } from './logContext.js';
 import SentryTransport from './sentryTransport.js';
 
-// Create logs directory if it doesn't exist (with permission handling)
-import fs from 'fs';
 const logsDir = path.join(process.cwd(), 'logs');
 
 function ensureLogsDirectory() {
@@ -35,10 +30,6 @@ function ensureLogsDirectory() {
 const isStorageWritable = ensureLogsDirectory();
 
 // Define log levels
-const logsDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
 
 const levels = {
   error: 0,

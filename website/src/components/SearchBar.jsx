@@ -14,7 +14,8 @@ import {
   Folder,
   MessageSquare,
 } from 'lucide-react';
-import { useSearch } from '../hooks/useSearch';
+// TODO: useSearch hook not implemented yet
+// import { useSearch } from '../hooks/useSearch';
 
 function Highlight({ text, query }) {
   if (!text) return null;
@@ -25,6 +26,7 @@ function Highlight({ text, query }) {
     const clean = DOMPurify.sanitize(text, {
       ALLOWED_TAGS: ['mark'],
       ALLOWED_ATTR: [],
+      USE_PROFILES: { html: true },
     });
     return <span dangerouslySetInnerHTML={{ __html: clean }} />;
   }

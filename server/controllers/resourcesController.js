@@ -93,7 +93,13 @@ export const downloadResource = wrapAsync(async (req, res) => {
 export const moderateResource = wrapAsync(async (req, res) => {
   const { status } = req.body;
   if (!['pending', 'approved', 'rejected'].includes(status)) {
-    return sendError(req, res, 'Status must be pending, approved, or rejected', 400, 'VALIDATION_ERROR');
+    return sendError(
+      req,
+      res,
+      'Status must be pending, approved, or rejected',
+      400,
+      'VALIDATION_ERROR'
+    );
   }
   const updated = await resourcesService.moderateResource(req.params.id, status);
   if (!updated) {

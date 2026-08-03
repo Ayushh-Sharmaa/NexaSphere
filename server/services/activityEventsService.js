@@ -5,51 +5,8 @@ import { activityEventsRepository } from '../repositories/activityEventsReposito
 import { coreTeamService } from './coreTeamService.js';
 import { activityEventSchema } from '../validators/activityEventSchemas.js';
 import { sanitizeActivityEventRecord } from '../utils/sanitize.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const CONTENT_FILE = path.join(__dirname, '..', 'data', 'content.json');
-import { activityEventsRepository } from "../repositories/activityEventsRepository.js";
-import { coreTeamService } from "./coreTeamService.js";
-import { activityEventSchema } from "../validators/activityEventSchemas.js";
-import cacheService from "./cacheService.js";
-
-export const activityEventsService = {
-  async listActivityEvents(activityKey, { page = 1, limit = 20 } = {}) {
-    const { rows, total } = await activityEventsRepository.listByActivityKey(activityKey, {
-      page,
-      limit,
-    });
-    return {
-      rows: rows.map((row) => sanitizeActivityEventRecord(row)),
-      total,
-      page,
-      limit,
-    };
-    const cacheKey = `activity_events:list:${activityKey}:${page}:${limit}`;
-    const cached = cacheService.get(cacheKey);
-    if (cached !== undefined) {
-      console.log(`[Activity Events Service] Cache HIT for key "${cacheKey}"`);
-      return cached;
-    }
-
-    console.log(
-      `[Activity Events Service] Cache MISS for key "${cacheKey}". Fetching from database.`
-    );
-    const result = await activityEventsRepository.listByActivityKey(
-      activityKey,
-      { page, limit }
-    );
-    cacheService.set(cacheKey, result);
-    return result;
-  },
-
-  async assertCanManage(body) {
-    await coreTeamService.assertCanManageActivityEvent(body);
-import { activityEventsRepository } from '../repositories/activityEventsRepository.js';
-import { coreTeamService } from './coreTeamService.js';
-import { activityEventSchema } from '../validators/activityEventSchemas.js';
-import { sanitizeActivityEventRecord } from '../utils/sanitize.js';
+import cacheService from './cacheService.js';
+import logger from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,11 +24,28 @@ export const activityEventsService = {
   },
 
   async listActivityEvents(activityKey, { page = 1, limit = 20 } = {}) {
-    const { rows, total } = await activityEventsRepository.listByActivityKey(activityKey, { page, limit });
-    return {
+    const cacheKey = `activity_events:list:${activityKey}:${page}:${limit}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached !== undefined) {
+      logger.info(`[Activity Events Service] Cache HIT for key "${cacheKey}"`);
+      return cached;
+    }
+
+    logger.info(
+      `[Activity Events Service] Cache MISS for key "${cacheKey}". Fetching from database.`
+    );
+    const { rows, total } = await activityEventsRepository.listByActivityKey(
+      activityKey,
+      { page, limit }
+    );
+    const result = {
       rows: rows.map(row => sanitizeActivityEventRecord(row)),
       total,
+      page,
+      limit,
     };
+    cacheService.set(cacheKey, result);
+    return result;
   },
 
   async addActivityEvent(activityKey, input) {
@@ -94,35 +68,30 @@ export const activityEventsService = {
 
     const validated = activityEventSchema.parse(payload);
     const created = await activityEventsRepository.create(activityKey, validated);
+
+    // Invalidate distributed cache after database mutation
+    await cacheService.invalidateCache('activity_events');
     return sanitizeActivityEventRecord(created);
-    const parsed = activityEventSchema.parse(input);
-    const created = await activityEventsRepository.create(activityKey, parsed);
-
-    // Invalidate distributed cache after database mutation
-    await cacheService.invalidateCache("activity_events");
-    return created;
-  },
-
-  async deleteActivityEvent(activityKey, eventId) {
-    const deleted = await activityEventsRepository.delete(activityKey, eventId);
-
-    // Invalidate distributed cache after database mutation
-    if (deleted) {
-      await cacheService.invalidateCache("activity_events");
-    }
-    return deleted;
-    const parsed = activityEventSchema.parse(input);
-    return activityEventsRepository.create(activityKey, parsed);
   },
 
   async deleteActivityEvent(activityKey, eventId, input) {
     if (input) {
       await coreTeamService.assertCanManageActivityEvent(input);
     }
-    return activityEventsRepository.delete(activityKey, eventId);
+    const deleted = await activityEventsRepository.delete(activityKey, eventId);
+
+    // Invalidate distributed cache after database mutation
+    if (deleted) {
+      await cacheService.invalidateCache('activity_events');
+    }
+    return deleted;
   },
 
-  async listAllActivities() {
+  async assertCanManage(body) {
+    await coreTeamService.assertCanManageActivityEvent(body);
+  },
+
+  async listAll() {
     return activityEventsRepository.listAll();
   },
 };

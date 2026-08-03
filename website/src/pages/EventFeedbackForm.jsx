@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
-import { getApiBase, buildUrl } from '../utils/runtimeConfig';
 import { buildUrl, getApiBase } from '../utils/runtimeConfig';
+import { MentionTextarea } from '../components/common/MentionTextarea';
 
 const EventFeedbackForm = () => {
   const { eventId } = useParams();
@@ -23,7 +23,6 @@ const EventFeedbackForm = () => {
     setError('');
     try {
       const response = await fetch(buildUrl(apiBase, '/api/feedback'), {
-      const response = await fetch(buildUrl(getApiBase(), '/api/feedback'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,10 +100,10 @@ const EventFeedbackForm = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             What were the best parts?
           </label>
-          <textarea
+          <MentionTextarea
             rows="3"
             value={formData.bestParts}
-            onChange={(e) => setFormData({ ...formData, bestParts: e.target.value })}
+            onChange={(val) => setFormData({ ...formData, bestParts: val })}
             className="w-full border-gray-300 rounded-md shadow-sm p-2 border"
           />
         </div>
@@ -113,10 +112,10 @@ const EventFeedbackForm = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Any suggestions for improvement?
           </label>
-          <textarea
+          <MentionTextarea
             rows="3"
             value={formData.suggestions}
-            onChange={(e) => setFormData({ ...formData, suggestions: e.target.value })}
+            onChange={(val) => setFormData({ ...formData, suggestions: val })}
             className="w-full border-gray-300 rounded-md shadow-sm p-2 border"
           />
         </div>

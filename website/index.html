@@ -40,48 +40,6 @@
     <!-- API & monitoring preconnects — reduces TTFB on first API call -->
     <link rel="preconnect" href="http://localhost:8787" />
     <link rel="dns-prefetch" href="https://sentry.io" />
-
-    <!-- Critical CSS for above-the-fold layout and preventing FOUC -->
-    <style id="critical-css">
-      :root {
-        --bg: #0b0f19;
-        --t1: #f3f4f6;
-        --c1: #e63946;
-      }
-      [data-theme='light'] {
-        --bg: #ffffff;
-        --t1: #111827;
-      }
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-      }
-      body {
-        background-color: var(--bg);
-        color: var(--t1);
-        font-family: 'Rajdhani', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial;
-        font-size: 16px;
-        line-height: 1.65;
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-      }
-      #root {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      /* Minimal skeleton for Navbar */
-      .navbar-skeleton {
-        height: 88px;
-        width: 100%;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      [data-theme='light'] .navbar-skeleton {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>

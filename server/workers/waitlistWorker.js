@@ -40,12 +40,16 @@ export const waitlistWorker = connection
             // Expire the spot
             await registrationsRepository.expireWaitlistSpot(eventId, email);
             logger.info(`[waitlistWorker] Spot expired for ${email} on event ${eventId}`);
-            
+
             // Promote next person
             const promoted = await registrationsRepository.promoteFromWaitlist(eventId);
             if (promoted) {
               try {
-                await scheduleWaitlistExpiryJob({ eventId, email: promoted.email, delayMs: 24 * 60 * 60 * 1000 });
+                await scheduleWaitlistExpiryJob({
+                  eventId,
+                  email: promoted.email,
+                  delayMs: 24 * 60 * 60 * 1000,
+                });
                 emitToRole('events_admin', 'admin:waitlist-promoted', {
                   eventId,
                   userName: promoted.full_name,
@@ -58,12 +62,16 @@ export const waitlistWorker = connection
                   timestamp: new Date().toISOString(),
                 });
               } catch (realtimeErr) {
-                logger.error(`[waitlistWorker] Failed to broadcast promotion: ${realtimeErr.message}`);
+                logger.error(
+                  `[waitlistWorker] Failed to broadcast promotion: ${realtimeErr.message}`
+                );
               }
             }
             return { processed: true, expired: true, promotedNext: !!promoted };
           } else {
-            logger.info(`[waitlistWorker] Spot already confirmed or cancelled for ${email} on event ${eventId}`);
+            logger.info(
+              `[waitlistWorker] Spot already confirmed or cancelled for ${email} on event ${eventId}`
+            );
             return { processed: true, expired: false, reason: 'not_pending' };
           }
         } else {

@@ -93,7 +93,9 @@ function createTestApp(options = {}) {
       return res.status(400).json({ success: false, error: 'Webhook URL must use HTTPS' });
     }
     if (!events || events.length === 0) {
-      return res.status(400).json({ success: false, error: 'At least one event type must be selected' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'At least one event type must be selected' });
     }
     res.status(201).json({
       success: true,
@@ -106,7 +108,13 @@ function createTestApp(options = {}) {
     res.json({
       success: true,
       data: [
-        { id: 'webhook-1', name: 'Test Webhook', url: 'https://example.com/hook', events: ['event.created'], isActive: true },
+        {
+          id: 'webhook-1',
+          name: 'Test Webhook',
+          url: 'https://example.com/hook',
+          events: ['event.created'],
+          isActive: true,
+        },
       ],
     });
   });
@@ -117,7 +125,10 @@ function createTestApp(options = {}) {
       const status = getByIdError.includes('not found') ? 404 : 500;
       return res.status(status).json({ success: false, error: getByIdError });
     }
-    res.json({ success: true, data: { id: req.params.webhookId, url: 'https://example.com/hook' } });
+    res.json({
+      success: true,
+      data: { id: req.params.webhookId, url: 'https://example.com/hook' },
+    });
   });
 
   // ---- PUT /:webhookId — update webhook ----
@@ -211,14 +222,21 @@ describe('Webhook Routes — Auth Enforcement', () => {
     { method: 'post', path: '/api/webhooks/wh-1/test', desc: 'POST /:webhookId/test' },
     { method: 'get', path: '/api/webhooks/wh-1/deliveries', desc: 'GET /:webhookId/deliveries' },
     { method: 'get', path: '/api/webhooks/wh-1/stats', desc: 'GET /:webhookId/stats' },
-    { method: 'post', path: '/api/webhooks/deliveries/d-1/replay', desc: 'POST /deliveries/:deliveryId/replay' },
+    {
+      method: 'post',
+      path: '/api/webhooks/deliveries/d-1/replay',
+      desc: 'POST /deliveries/:deliveryId/replay',
+    },
   ];
 
   for (const { method, path, desc } of authRoutes) {
     it(`${desc} returns 401 when unauthenticated`, async () => {
       authControl.enabled = false;
       const reqMethod = request(app)[method];
-      const res = await reqMethod(path).send({ url: 'https://example.com/hook', events: ['event.created'] });
+      const res = await reqMethod(path).send({
+        url: 'https://example.com/hook',
+        events: ['event.created'],
+      });
       assert.equal(res.status, 401, `${method.toUpperCase()} ${path} should return 401`);
       assert.ok(res.body.error, 'Response should include error message');
       authControl.enabled = true;
@@ -290,25 +308,21 @@ describe('Webhook Routes — Create Webhook', () => {
   });
 
   it('POST /api/webhooks without events returns 400', async () => {
-    const res = await request(app)
-      .post('/api/webhooks')
-      .send({
-        name: 'No Events',
-        url: 'https://example.com/webhook',
-      });
+    const res = await request(app).post('/api/webhooks').send({
+      name: 'No Events',
+      url: 'https://example.com/webhook',
+    });
     assert.equal(res.status, 400);
     assert.equal(res.body.success, false);
     assert.ok(res.body.error.toLowerCase().includes('event'));
   });
 
   it('POST /api/webhooks with empty events array returns 400', async () => {
-    const res = await request(app)
-      .post('/api/webhooks')
-      .send({
-        name: 'Empty Events',
-        url: 'https://example.com/webhook',
-        events: [],
-      });
+    const res = await request(app).post('/api/webhooks').send({
+      name: 'Empty Events',
+      url: 'https://example.com/webhook',
+      events: [],
+    });
     assert.equal(res.status, 400);
     assert.equal(res.body.success, false);
     assert.ok(res.body.error.toLowerCase().includes('event'));
@@ -396,9 +410,7 @@ describe('Webhook Routes — Update Webhook', () => {
 
   it('PUT /api/webhooks/:webhookId returns 404 when webhook not found', async () => {
     app = createTestApp({ updateError: 'Webhook not found' });
-    const res = await request(app)
-      .put('/api/webhooks/non-existent')
-      .send({ name: 'Ghost' });
+    const res = await request(app).put('/api/webhooks/non-existent').send({ name: 'Ghost' });
     assert.equal(res.status, 404);
     assert.equal(res.body.success, false);
   });

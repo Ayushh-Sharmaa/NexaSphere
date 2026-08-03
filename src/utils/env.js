@@ -11,7 +11,7 @@ export function validateEnvironment() {
   const missing = [];
 
   for (const [key, val] of Object.entries(criticalVars)) {
-    if (!val || val.trim() === '') {
+    if (!val || val.trim().length === 0) {
       missing.push(key);
     }
   }

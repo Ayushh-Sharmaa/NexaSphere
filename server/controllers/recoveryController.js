@@ -33,7 +33,13 @@ export const recoveryController = {
       const { id } = req.params;
       const { newPassword } = req.body;
       if (!newPassword || newPassword.length < 8) {
-        return sendError(req, res, 'Password must be at least 8 characters', 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          'Password must be at least 8 characters',
+          400,
+          'VALIDATION_ERROR'
+        );
       }
 
       const hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
@@ -91,10 +97,21 @@ export const recoveryController = {
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
         await withDb(async (client) => {
-          await client.query(
-            `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
-            [userResult.id, tokenHash, expiresAt]
-          );
+          await client.query('BEGIN');
+          try {
+            await client.query(
+              `UPDATE password_reset_tokens SET used = true WHERE user_id = $1 AND used = false`,
+              [userResult.id]
+            );
+            await client.query(
+              `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
+              [userResult.id, tokenHash, expiresAt]
+            );
+            await client.query('COMMIT');
+          } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+          }
         });
 
         // Send the token via email
@@ -118,7 +135,13 @@ export const recoveryController = {
     try {
       const { token, newPassword } = req.body;
       if (!token || !newPassword || newPassword.length < 8) {
-        return sendError(req, res, 'Valid token and new password (min 8 chars) required', 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          'Valid token and new password (min 8 chars) required',
+          400,
+          'VALIDATION_ERROR'
+        );
       }
 
       const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -136,14 +159,21 @@ export const recoveryController = {
 
       const hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
       await withDb(async (client) => {
-        // Mark token as used and update user password
-        await client.query(`UPDATE password_reset_tokens SET used = true WHERE id = $1`, [
-          result.id,
-        ]);
-        await client.query(
-          `UPDATE users SET password_hash = $1, is_locked = false, failed_login_attempts = 0 WHERE id = $2`,
-          [hash, result.user_id]
-        );
+        await client.query('BEGIN');
+        try {
+          // Mark token as used and update user password atomically
+          await client.query(`UPDATE password_reset_tokens SET used = true WHERE id = $1`, [
+            result.id,
+          ]);
+          await client.query(
+            `UPDATE users SET password_hash = $1, is_locked = false, failed_login_attempts = 0 WHERE id = $2`,
+            [hash, result.user_id]
+          );
+          await client.query('COMMIT');
+        } catch (err) {
+          await client.query('ROLLBACK');
+          throw err;
+        }
       });
 
       return sendSuccess(res, { message: 'Password has been reset successfully' });

@@ -9,20 +9,24 @@ describe('buildFeedbackAnalyticsReport', () => {
     ]);
 
     expect(report.summary.overallSentiment).toBeTruthy();
-    expect(report.summary.sentimentPercentages).toEqual(expect.objectContaining({
-      Positive: expect.any(Number),
-      Negative: expect.any(Number),
-      Neutral: expect.any(Number),
-      Mixed: expect.any(Number),
-    }));
+    expect(report.summary.sentimentPercentages).toEqual(
+      expect.objectContaining({
+        Positive: expect.any(Number),
+        Negative: expect.any(Number),
+        Neutral: expect.any(Number),
+        Mixed: expect.any(Number),
+      })
+    );
     expect(report.summary.topThemes.length).toBeGreaterThan(0);
-    expect(report.summary.aspectRatings).toEqual(expect.objectContaining({
-      Venue: expect.any(Object),
-      Speaker: expect.any(Object),
-      Content: expect.any(Object),
-      Timing: expect.any(Object),
-      Organization: expect.any(Object),
-    }));
+    expect(report.summary.aspectRatings).toEqual(
+      expect.objectContaining({
+        Venue: expect.any(Object),
+        Speaker: expect.any(Object),
+        Content: expect.any(Object),
+        Timing: expect.any(Object),
+        Organization: expect.any(Object),
+      })
+    );
     expect(report.summary.suggestions.length).toBeGreaterThan(0);
   });
 });

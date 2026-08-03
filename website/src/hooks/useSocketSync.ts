@@ -55,19 +55,15 @@ export function useSocketSync(roomId: string, user: UserInfo) {
   });
 
   // Sync events
-  useSocketEvent<[DocumentChangePayload]>('document_change', (payload) => {
-  useSocket('document_state', (payload) => {
+  useSocketEvent<[{ content: string; version?: number }]>('document_state', (payload) => {
     setDocumentContent(payload.content);
     if (payload.version !== undefined) {
       setDocumentVersion(payload.version);
     }
   });
 
-  useSocket('document_change', (payload) => {
+  useSocketEvent<[DocumentChangePayload]>('document_change', (payload) => {
     setDocumentContent(payload.content);
-    if (payload.version !== undefined) {
-      setDocumentVersion(payload.version);
-    }
   });
 
   useSocketEvent<[UserJoinedPayload]>('user_joined', (payload) => {

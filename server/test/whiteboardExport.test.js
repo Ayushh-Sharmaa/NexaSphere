@@ -21,7 +21,7 @@ class MockResponse extends Writable {
     return {
       json: (data) => {
         this.jsonData = data;
-      }
+      },
     };
   }
 
@@ -43,11 +43,20 @@ test('Whiteboard Controller: exportPDF generates PDF output', (t, done) => {
     body: {
       eventId: 'test-event',
       elements: [
-        { type: 'rect', x: 10, y: 10, w: 100, h: 50, color: '#ff0000', opacity: 0.8, strokeWidth: 3 },
+        {
+          type: 'rect',
+          x: 10,
+          y: 10,
+          w: 100,
+          h: 50,
+          color: '#ff0000',
+          opacity: 0.8,
+          strokeWidth: 3,
+        },
         { type: 'circle', x: 200, y: 100, w: 80, h: 80, color: '#00ff00', fill: '#0000ff' },
-        { type: 'text', x: 50, y: 300, text: 'Hello PDF', fontSize: 24, color: '#000000' }
-      ]
-    }
+        { type: 'text', x: 50, y: 300, text: 'Hello PDF', fontSize: 24, color: '#000000' },
+      ],
+    },
   };
 
   const res = new MockResponse((mockRes) => {
@@ -69,8 +78,8 @@ test('Whiteboard Controller: exportPDF handles empty element array', (t, done) =
   const req = {
     body: {
       eventId: 'empty-event',
-      elements: []
-    }
+      elements: [],
+    },
   };
 
   const res = new MockResponse((mockRes) => {

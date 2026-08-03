@@ -16,8 +16,8 @@ export function HeatmapView() {
         `${import.meta.env.VITE_API_BASE}/api/admin/analytics/heatmap?url=${encodeURIComponent(url)}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (!res.ok) throw new Error('Failed to fetch heatmap data');
@@ -78,10 +78,10 @@ export function HeatmapView() {
             borderRadius: '6px',
             border: '1px solid #ccc',
             color: '#000',
-            background: '#fff'
+            background: '#fff',
           }}
         />
-        <button 
+        <button
           onClick={fetchHeatmap}
           style={{
             background: '#6366f1',
@@ -90,7 +90,7 @@ export function HeatmapView() {
             borderRadius: '6px',
             fontWeight: 600,
             cursor: 'pointer',
-            border: 'none'
+            border: 'none',
           }}
         >
           Generate
@@ -109,7 +109,7 @@ export function HeatmapView() {
           position: 'relative',
           overflow: 'hidden',
           borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}
       >
         <div
@@ -121,7 +121,7 @@ export function HeatmapView() {
             justifyContent: 'center',
             color: '#ccc',
             pointerEvents: 'none',
-            zIndex: 0
+            zIndex: 0,
           }}
         >
           [ Heatmap Overlay Container - {url} ]

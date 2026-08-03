@@ -1,4 +1,4 @@
-import { portfolioAnalyticsService } from "../services/portfolioAnalyticsService.js";
+import { portfolioAnalyticsService } from '../services/portfolioAnalyticsService.js';
 import { sendSuccess, sendError } from '../utils/responseHelper.js';
 
 export async function getPortfolioAnalytics(req, res) {

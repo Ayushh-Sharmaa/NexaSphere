@@ -12,8 +12,14 @@ function makeMockRes() {
   const res = {
     _status: 200,
     _body: null,
-    status(code) { this._status = code; return this; },
-    json(body) { this._body = body; return this; },
+    status(code) {
+      this._status = code;
+      return this;
+    },
+    json(body) {
+      this._body = body;
+      return this;
+    },
   };
   return res;
 }
@@ -25,7 +31,10 @@ function makeMockRes() {
  * @param {object} webhook
  */
 function assertWebhookShape(webhook) {
-  assert.ok(typeof webhook.id === 'string' || typeof webhook.id === 'number', 'id must be a string or number');
+  assert.ok(
+    typeof webhook.id === 'string' || typeof webhook.id === 'number',
+    'id must be a string or number'
+  );
   assert.ok(typeof webhook.name === 'string', 'name must be a string');
   assert.ok(typeof webhook.url === 'string', 'url must be a string');
   assert.ok(Array.isArray(webhook.events), 'events must be an array');
@@ -39,7 +48,10 @@ function assertWebhookShape(webhook) {
  * @param {object} delivery
  */
 function assertDeliveryShape(delivery) {
-  assert.ok(['success', 'failed', 'pending'].includes(delivery.status), `status must be success/failed/pending, got: ${delivery.status}`);
+  assert.ok(
+    ['success', 'failed', 'pending'].includes(delivery.status),
+    `status must be success/failed/pending, got: ${delivery.status}`
+  );
   assert.ok(typeof delivery.eventType === 'string', 'eventType must be a string');
   assert.ok(typeof delivery.attemptCount === 'number', 'attemptCount must be a number');
 }
@@ -59,25 +71,37 @@ describe('Webhook Service Contract Tests', () => {
 
   test('createWebhook rejects HTTP (non-HTTPS) URLs', async () => {
     await assert.rejects(
-      () => webhookService.createWebhook({ name: 'Test', url: 'http://insecure.com', events: ['event.created'] }, fakeUser),
+      () =>
+        webhookService.createWebhook(
+          { name: 'Test', url: 'http://insecure.com', events: ['event.created'] },
+          fakeUser
+        ),
       /HTTPS/
     );
   });
 
   test('createWebhook rejects missing events array', async () => {
     await assert.rejects(
-      () => webhookService.createWebhook({ name: 'Test', url: 'https://example.com', events: [] }, fakeUser),
+      () =>
+        webhookService.createWebhook(
+          { name: 'Test', url: 'https://example.com', events: [] },
+          fakeUser
+        ),
       /event/i
     );
   });
 
   test('createWebhook rejects invalid event types', async () => {
     await assert.rejects(
-      () => webhookService.createWebhook({
-        name: 'Test',
-        url: 'https://example.com',
-        events: ['user.deleted', 'unknown.event'],
-      }, fakeUser),
+      () =>
+        webhookService.createWebhook(
+          {
+            name: 'Test',
+            url: 'https://example.com',
+            events: ['user.deleted', 'unknown.event'],
+          },
+          fakeUser
+        ),
       /invalid event types/i
     );
   });

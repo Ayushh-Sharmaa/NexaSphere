@@ -24,16 +24,6 @@ export default defineConfig({
   base: process.env.VITE_CDN_URL || process.env.VITE_BASE_PATH || '/',
   plugins: [
     react(),
-    {
-      name: 'defer-css',
-      enforce: 'post',
-      transformIndexHtml(html) {
-        return html.replace(
-          /<link([^>]*?)rel="stylesheet"([^>]*?)>/g,
-          `<link$1rel="preload" as="style"$2 onload="this.onload=null;this.rel='stylesheet'"><noscript><link$1rel="stylesheet"$2></noscript>`
-        );
-      },
-    },
 
     sentryVitePlugin({
       org: process.env.SENTRY_ORG || 'nexasphere',

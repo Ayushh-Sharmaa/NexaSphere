@@ -9,7 +9,7 @@
  * @module
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // ──────────────────────────────────────────────
 // Dashboard / Gamification
@@ -18,11 +18,11 @@ import { z } from 'zod';
 /** POST /api/dashboard/xp — awardXP */
 export const awardXPSchema = z
   .object({
-    userId: z.string().trim().min(1, 'userId is required'),
+    userId: z.string().trim().min(1, "userId is required"),
     amount: z
-      .number({ required_error: 'amount is required' })
+      .number({ required_error: "amount is required" })
       .int()
-      .positive('amount must be a positive integer'),
+      .positive("amount must be a positive integer"),
   })
   .strict();
 
@@ -33,7 +33,7 @@ export const awardXPSchema = z
 /** POST /api/whiteboard/export-pdf */
 export const exportPDFSchema = z
   .object({
-    content: z.string().trim().min(1, 'Content is required'),
+    content: z.string().trim().min(1, "Content is required"),
   })
   .strict();
 
@@ -44,8 +44,8 @@ export const exportPDFSchema = z
 /** POST /api/content/events/:eventId/register */
 export const eventRegistrationSchema = z
   .object({
-    fullName: z.string().trim().min(1, 'Full name is required').max(120),
-    email: z.string().trim().email('Valid email is required').max(140),
+    fullName: z.string().trim().min(1, "Full name is required").max(120),
+    email: z.string().trim().email("Valid email is required").max(140),
     department: z.string().trim().max(80).optional().nullable(),
     year: z.string().trim().max(20).optional().nullable(),
     teamName: z.string().trim().max(120).optional().nullable(),
@@ -64,7 +64,7 @@ export const eventRegistrationSchema = z
  */
 export const emailSchema = z
   .object({
-    email: z.string().trim().email('Valid email is required').max(140),
+    email: z.string().trim().email("Valid email is required").max(140),
   })
   .strict();
 
@@ -81,11 +81,11 @@ export const emailSchema = z
 export const addActivityEventSchema = z
   .object({
     id: z.string().trim().optional(),
-    name: z.string().trim().min(1, 'Event name is required').max(120),
-    date: z.string().trim().min(1, 'Date is required'),
+    name: z.string().trim().min(1, "Event name is required").max(120),
+    date: z.string().trim().min(1, "Date is required"),
     tagline: z.string().trim().max(240).optional(),
     description: z.string().trim().min(1).max(1200),
-    status: z.enum(['upcoming', 'completed']).optional(),
+    status: z.enum(["upcoming", "completed"]).optional(),
     coreTeamName: z.string().trim().max(120).optional(),
     coreTeamEmail: z.string().trim().max(140).optional(),
     coreTeamPhone: z.string().trim().max(30).optional(),
@@ -100,15 +100,15 @@ export const addActivityEventSchema = z
 /** POST /account-recovery/request */
 export const accountRecoveryRequestSchema = z
   .object({
-    email: z.string().trim().email('Valid email is required'),
+    email: z.string().trim().email("Valid email is required"),
   })
   .strict();
 
 /** POST /account-recovery/verify */
 export const accountRecoveryVerifySchema = z
   .object({
-    email: z.string().trim().email('Valid email is required'),
-    enteredCode: z.string().trim().min(1, 'Recovery code is required'),
+    email: z.string().trim().email("Valid email is required"),
+    enteredCode: z.string().trim().min(1, "Recovery code is required"),
   })
   .strict();
 
@@ -132,9 +132,9 @@ export const markAttendanceSchema = z
 /** POST /api/admin/users */
 export const adminCreateUserSchema = z
   .object({
-    username: z.string().trim().min(1, 'Username is required').max(100),
+    username: z.string().trim().min(1, "Username is required").max(100),
     display_name: z.string().trim().max(200).optional(),
-    email: z.string().trim().email('Valid email is required').max(254),
+    email: z.string().trim().email("Valid email is required").max(254),
     role: z.string().trim().max(50).optional(),
   })
   .strict();
@@ -161,32 +161,32 @@ export const adminUpdateUserRoleSchema = z
 /** POST /api/admin/login */
 export const adminLoginSchema = z
   .object({
-    username: z.string().trim().min(1, 'Username is required').max(128),
-    password: z.string().min(1, 'Password is required').max(128),
+    username: z.string().trim().min(1, "Username is required").max(128),
+    password: z.string().min(1, "Password is required").max(128),
   })
   .strict();
 
 /** POST /api/auth/local/login */
 export const localLoginSchema = z
   .object({
-    email: z.string().trim().email('Valid email is required'),
-    password: z.string().min(1, 'Password is required'),
+    email: z.string().trim().email("Valid email is required"),
+    password: z.string().min(1, "Password is required"),
   })
   .strict();
 
 /** POST /api/admin/2fa/verify */
 export const verifyTwoFactorSchema = z
   .object({
-    challengeToken: z.string().min(1, 'Challenge token is required'),
-    code: z.string().min(1, 'Verification code is required'),
+    challengeToken: z.string().min(1, "Challenge token is required"),
+    code: z.string().min(1, "Verification code is required"),
   })
   .strict();
 
 /** POST /api/admin/2fa/setup/verify */
 export const verifyTwoFactorSetupSchema = z
   .object({
-    setupToken: z.string().min(1, 'Setup token is required'),
-    code: z.string().min(1, 'Verification code is required'),
+    setupToken: z.string().min(1, "Setup token is required"),
+    code: z.string().min(1, "Verification code is required"),
   })
   .strict();
 
@@ -201,18 +201,24 @@ export const verifyTwoFactorSetupSchema = z
  */
 export const adminCreateEventSchema = z
   .object({
-    name: z.string().trim().min(1, 'Event name is required').max(120),
+    name: z.string().trim().min(1, "Event name is required").max(120),
     shortName: z.string().trim().max(60).optional(),
-    date: z.string().trim().min(1, 'Date is required').max(80),
+    date: z.string().trim().min(1, "Date is required").max(80),
     description: z.string().trim().min(1).max(1200),
-    status: z.enum(['upcoming', 'completed']).optional(),
+    status: z.enum(["upcoming", "completed"]).optional(),
     icon: z.string().trim().max(32).optional(),
     tags: z.union([z.array(z.string()), z.string()]).optional(),
     seriesId: z.string().optional().nullable(),
-    recurrencePattern: z.enum(['daily', 'weekly', 'monthly', 'custom']).optional().nullable(),
+    recurrencePattern: z
+      .enum(["daily", "weekly", "monthly", "custom"])
+      .optional()
+      .nullable(),
     recurrenceEndDate: z.string().optional().nullable(),
     occurrenceIndex: z.number().int().optional().nullable(),
     capacity: z.coerce.number().int().min(1).optional().nullable(),
+    isHybrid: z.boolean().optional().default(false),
+    videoLink: z.string().url().optional().nullable(),
+    location: z.string().optional().nullable(),
   })
   .strict()
   .passthrough();
@@ -227,8 +233,8 @@ export const adminUpdateEventSchema = adminCreateEventSchema.partial();
 /** POST /api/admin/subscriptions */
 export const createSubscriptionSchema = z
   .object({
-    userId: z.string().trim().min(1, 'userId is required'),
-    tierId: z.string().trim().min(1, 'tierId is required'),
+    userId: z.string().trim().min(1, "userId is required"),
+    tierId: z.string().trim().min(1, "tierId is required"),
   })
   .strict();
 
@@ -245,8 +251,8 @@ export const createSubscriptionSchema = z
  */
 export const adminBannerBodySchema = z
   .object({
-    title: z.string().trim().min(1, 'Title is required').max(120),
-    imageUrl: z.string().trim().url('Must be a valid URL'),
+    title: z.string().trim().min(1, "Title is required").max(120),
+    imageUrl: z.string().trim().url("Must be a valid URL"),
     linkUrl: z.string().trim().url().optional().nullable(),
     startTime: z.string().optional().nullable(),
     endTime: z.string().optional().nullable(),

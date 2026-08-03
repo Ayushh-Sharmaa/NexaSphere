@@ -13,6 +13,7 @@ import { sendWelcomeVerificationEmail } from './emailService.js';
 import { broadcastSSEEvent } from './sseService.js';
 import { emitToRole } from '../config/socket.js';
 import { CircuitBreaker, circuitBreakerRegistry } from '../utils/circuitBreaker.js';
+import logger from '../utils/logger.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -60,15 +61,11 @@ function writeFallbackSubmission(formType, payload, error) {
       ),
       'utf8'
     );
-    console.error(`[Forms Service] Supabase insertion failed — saved fallback to ${filePath}`);
+    logger.error(`[Forms Service] Supabase insertion failed - saved fallback to ${filePath}`);
   } catch (writeErr) {
-    console.error('[Forms Service] Failed to write fallback submission file:', writeErr);
+    logger.error('[Forms Service] Failed to write fallback submission file:', { error: writeErr?.message });
   }
 }
-import { emitToRoom, getRoom } from '../config/socket.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 function toSafeString(value, max = 4000) {
   return String(value ?? '')
@@ -97,8 +94,6 @@ const _sheetBreaker = circuitBreakerRegistry.register(
   })
 );
 // ── Offline retry queue ────────────────────────────────────────────────
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const QUEUE_FILE = path.join(__dirname, '..', 'data', 'pending-forms.json');
 
 const MAX_RETRIES = 5;
@@ -123,7 +118,7 @@ function saveQueue() {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(QUEUE_FILE, JSON.stringify(pendingQueue, null, 2), 'utf8');
   } catch (err) {
-    console.error('[Forms Queue] Failed to persist queue:', err);
+    logger.error('[Forms Queue] Failed to persist queue:', { error: err?.message });
   }
 }
 
@@ -160,7 +155,7 @@ async function processQueue() {
       if (item.retries < MAX_RETRIES) {
         batch.push(item);
       } else {
-        console.error(`[Forms Queue] Max retries exceeded for ${item.formType}:`, item.payload);
+        logger.error(`[Forms Queue] Max retries exceeded for ${item.formType}:`, { payload: item.payload });
       }
     }
   }
@@ -200,9 +195,9 @@ export const formsService = {
       return true;
     } catch (err) {
       if (err.code === 'CIRCUIT_OPEN') {
-        console.warn('[Forms Service] Supabase circuit breaker is OPEN, using fallback');
+        logger.warn('[Forms Service] Supabase circuit breaker is OPEN, using fallback');
       } else {
-        console.error('[Forms Service] Supabase insertion failed:', err?.message || err);
+        logger.error('[Forms Service] Supabase insertion failed:', { error: err?.message || err });
       }
       writeFallbackSubmission(formType, payload, err);
       return false;
@@ -244,23 +239,23 @@ export const formsService = {
         await this.appendFormToSheet(formType, payload);
         savedToSheet = true;
       } catch (sheetErr) {
-        console.error('[Forms Service] Failed to append to Google Sheet:', sheetErr);
+        logger.error('[Forms Service] Failed to append to Google Sheet:', { error: sheetErr?.message });
         sheetsWriteFailed = true;
         if (!savedToSupabase) throw sheetErr;
-        console.error('[Forms Service] Google Sheets append failed:', sheetErr);
+        logger.error('[Forms Service] Google Sheets append failed:', { error: sheetErr?.message });
       }
 
       // If both storage backends failed, queue for retry instead of losing data
       if (!savedToSupabase && !savedToSheet) {
         enqueue(formType, payload);
-        console.warn(`[Forms Service] Queued ${formType} submission for retry (both storage backends failed)`);
+        logger.warn(`[Forms Service] Queued ${formType} submission for retry (both storage backends failed)`);
       }
 
       try {
         const verifyUrl = `${getPublicAppUrl()}/verify?email=${encodeURIComponent(payload.collegeEmail)}`;
         await sendWelcomeVerificationEmail(payload.collegeEmail, payload.fullName, verifyUrl);
       } catch (emailErr) {
-        console.error('[Forms Service] Failed to send welcome verification email:', emailErr);
+        logger.error('[Forms Service] Failed to send welcome verification email:', { error: emailErr?.message });
       }
 
       try {
@@ -275,7 +270,7 @@ export const formsService = {
           timestamp: new Date(),
         });
       } catch (realtimeErr) {
-        console.error('[Forms Service] Failed to broadcast real-time updates:', realtimeErr);
+        logger.error('[Forms Service] Failed to broadcast real-time updates:', { error: realtimeErr?.message });
       }
 
       // Return success with optional warning if Sheets write failed

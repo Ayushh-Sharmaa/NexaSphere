@@ -58,11 +58,10 @@ export default function SubscriptionPage({ onBack }) {
   const [lastInvoice, setLastInvoice] = useState(null);
   const [loading, setLoading] = useState(false);
   const isMountedRef = useRef(true);
-  useEffect(() => {
-    isMountedRef.current = true;
   const subscribeDelayRef = useRef(null);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       if (subscribeDelayRef.current) {

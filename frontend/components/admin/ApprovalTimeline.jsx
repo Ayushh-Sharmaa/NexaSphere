@@ -50,10 +50,16 @@ const ApprovalTimeline = () => {
       </Row>
       <Table striped bordered hover>
         <thead>
-          <tr><th>Applicant</th><th>Role</th><th>Approved By</th><th>Date</th><th>Feedback</th></tr>
+          <tr>
+            <th>Applicant</th>
+            <th>Role</th>
+            <th>Approved By</th>
+            <th>Date</th>
+            <th>Feedback</th>
+          </tr>
         </thead>
         <tbody>
-          {timeline.map(item => (
+          {timeline.map((item) => (
             <tr key={item._id}>
               <td>{item.userId.name}</td>
               <td>{item.role}</td>

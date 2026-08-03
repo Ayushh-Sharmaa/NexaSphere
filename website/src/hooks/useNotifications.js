@@ -64,7 +64,7 @@ export function useNotifications() {
 
         const responses = await Promise.allSettled(
           fetchUrls.map(async (url) => {
-            const res = await fetch(url, { headers: getAuthHeaders() });
+            const res = await fetch(url, { credentials: 'include' });
             if (!res.ok) {
               const error = new Error(`Failed to load notifications (${res.status})`);
               error.status = res.status;
@@ -257,16 +257,11 @@ export function useNotifications() {
       };
       setNotifications((prev) => [note, ...prev]);
     };
-
     const handleNewComment = (data) => {
       const note = {
         id: `new-comment-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         type: 'message',
         title: 'New Reply on Forum! 💬',
-        message:
-          data.authorName && data.threadTitle
-            ? `${data.authorName} replied to "${data.threadTitle}"`
-            : 'Someone replied to your thread.',
         message:
           data.authorName && data.threadTitle
             ? `${data.authorName} replied to "${data.threadTitle}"`
@@ -347,10 +342,46 @@ export function useNotifications() {
         });
       } catch (e) {
         console.error('[useNotifications] Failed to mark all as read:', e);
-        console.error('[useNotifications] Failed to mark all notifications as read:', e);
       }
     })();
   }, []);
+
+  const markAsUnread = useCallback(
+    (id) => {
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: false } : n)));
+      (async () => {
+        try {
+          await fetch(buildUrl(getApiBase(), '/api/notifications/mark-unread'), {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ id }),
+          });
+          trackAction(id, 'marked_unread');
+        } catch (e) {
+          console.error('[useNotifications] Failed to mark as unread:', e);
+        }
+      })();
+    },
+    [trackAction]
+  );
+
+  const deleteNotification = useCallback(
+    (id) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      (async () => {
+        try {
+          await fetch(buildUrl(getApiBase(), `/api/notifications/${id}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+          });
+          trackAction(id, 'deleted');
+        } catch (e) {
+          console.error('[useNotifications] Failed to delete notification:', e);
+        }
+      })();
+    },
+    [trackAction]
+  );
 
   const clearAll = useCallback(() => {
     setNotifications([]);
@@ -381,8 +412,10 @@ export function useNotifications() {
     togglePanel,
     closePanel,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     clearAll,
+    deleteNotification,
     trackAction,
   };
 }

@@ -50,7 +50,12 @@ function mockRequireStudent(req, res, next) {
   if (!authControl.studentEnabled) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  req.studentUser = { sub: 'student-1', id: 'student-1', email: 'student@example.com', role: 'student' };
+  req.studentUser = {
+    sub: 'student-1',
+    id: 'student-1',
+    email: 'student@example.com',
+    role: 'student',
+  };
   next();
 }
 
@@ -69,7 +74,12 @@ function mockRequireNotificationAuth(req, res, next) {
     return next();
   }
   if (authControl.studentEnabled) {
-    req.studentUser = { sub: 'student-1', id: 'student-1', email: 'student@example.com', role: 'student' };
+    req.studentUser = {
+      sub: 'student-1',
+      id: 'student-1',
+      email: 'student@example.com',
+      role: 'student',
+    };
     return next();
   }
   return res.status(401).json({ error: 'Unauthorized: Authentication required' });
@@ -153,7 +163,10 @@ function mockValidatePushSubscription(req, res, next) {
     });
   }
   // Strict sanitization: reconstruct object
-  const { endpoint, keys: { p256dh, auth } } = req.body.subscription;
+  const {
+    endpoint,
+    keys: { p256dh, auth },
+  } = req.body.subscription;
   req.body.subscription = { endpoint, keys: { p256dh, auth } };
   next();
 }
@@ -202,7 +215,7 @@ function createTestApp(options = {}) {
         }
       }
       res.json({ success: true });
-    },
+    }
   );
 
   /**
@@ -219,7 +232,7 @@ function createTestApp(options = {}) {
         pushSubscriptions.delete(JSON.stringify(subscription));
       }
       res.json({ success: true });
-    },
+    }
   );
 
   // =========================================================================
@@ -239,12 +252,14 @@ function createTestApp(options = {}) {
       if (req.studentUser) {
         const studentId = req.studentUser.sub || req.studentUser.id;
         if (userId && userId !== studentId) {
-          return res.status(403).json({ error: 'Forbidden: Cannot modify other users notifications' });
+          return res
+            .status(403)
+            .json({ error: 'Forbidden: Cannot modify other users notifications' });
         }
       }
       if (markReadResult === false) return res.json({ success: false });
       return res.json({ success: true });
-    },
+    }
   );
 
   /**
@@ -262,67 +277,59 @@ function createTestApp(options = {}) {
           return res.status(403).json({ error: 'Forbidden' });
         }
       }
-      if (markAllReadResult === false) return res.status(500).json({ error: 'Failed to mark all as read' });
+      if (markAllReadResult === false)
+        return res.status(500).json({ error: 'Failed to mark all as read' });
       return res.json({ success: true });
-    },
+    }
   );
 
   /**
    * DELETE /notifications/:id
    */
-  router.delete(
-    '/notifications/:id',
-    mockRequireNotificationAuth,
-    mockPassThrough,
-    (req, res) => {
-      const id = req.params.id;
-      if (req.studentUser) {
-        const studentId = req.studentUser.sub || req.studentUser.id;
-        if (req.query.userId && req.query.userId !== studentId) {
-          return res.status(403).json({ error: 'Forbidden' });
-        }
+  router.delete('/notifications/:id', mockRequireNotificationAuth, mockPassThrough, (req, res) => {
+    const id = req.params.id;
+    if (req.studentUser) {
+      const studentId = req.studentUser.sub || req.studentUser.id;
+      if (req.query.userId && req.query.userId !== studentId) {
+        return res.status(403).json({ error: 'Forbidden' });
       }
-      if (removeResult === false) return res.status(404).json({ error: 'Notification not found' });
-      return res.json({ success: true });
-    },
-  );
+    }
+    if (removeResult === false) return res.status(404).json({ error: 'Notification not found' });
+    return res.json({ success: true });
+  });
 
   /**
    * DELETE /notifications (clear all)
    */
-  router.delete(
-    '/notifications',
-    mockRequireNotificationAuth,
-    mockPassThrough,
-    (req, res) => {
-      if (req.studentUser) {
-        const studentId = req.studentUser.sub || req.studentUser.id;
-        if (req.query.userId && req.query.userId !== studentId) {
-          return res.status(403).json({ error: 'Forbidden' });
-        }
+  router.delete('/notifications', mockRequireNotificationAuth, mockPassThrough, (req, res) => {
+    if (req.studentUser) {
+      const studentId = req.studentUser.sub || req.studentUser.id;
+      if (req.query.userId && req.query.userId !== studentId) {
+        return res.status(403).json({ error: 'Forbidden' });
       }
-      if (clearResult === false) return res.status(500).json({ error: 'Failed to clear' });
-      return res.json({ success: true });
-    },
-  );
+    }
+    if (clearResult === false) return res.status(500).json({ error: 'Failed to clear' });
+    return res.json({ success: true });
+  });
 
   /**
    * POST /notifications (create — admin only)
    */
-  router.post(
-    '/notifications',
-    mockRequireAdmin,
-    mockPassThrough,
-    (req, res) => {
-      const { title, message } = req.body || {};
-      if (!title || !message) {
-        return res.status(400).json({ error: 'title and message are required' });
-      }
-      if (addNotificationError) return res.status(500).json({ error: addNotificationError });
-      const note = { id: 'notif-1', title, message, type: req.body.type || null, link: req.body.link || null };
-      return res.json({ success: true, notification: note });
-    },
-  );
+  router.post('/notifications', mockRequireAdmin, mockPassThrough, (req, res) => {
+    const { title, message } = req.body || {};
+    if (!title || !message) {
+      return res.status(400).json({ error: 'title and message are required' });
+    }
+    if (addNotificationError) return res.status(500).json({ error: addNotificationError });
+    const note = {
+      id: 'notif-1',
+      title,
+      message,
+      type: req.body.type || null,
+      link: req.body.link || null,
+    };
+    return res.json({ success: true, notification: note });
+  });
 
   // =========================================================================
   // Notification Retrieval
@@ -332,59 +339,44 @@ function createTestApp(options = {}) {
    * GET /notifications — retrieves notifications for authenticated user.
    * Uses inline auth logic (bearer token or cookie based).
    */
-  router.get(
-    '/notifications',
-    mockInlineNotificationAuth,
-    (req, res) => {
-      const userId = req.query.userId || 'global';
-      const offset = parseInt(req.query.offset, 10) || 0;
-      const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
-      res.json({ notifications: [] });
-    },
-  );
+  router.get('/notifications', mockInlineNotificationAuth, (req, res) => {
+    const userId = req.query.userId || 'global';
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
+    res.json({ notifications: [] });
+  });
 
   /**
    * GET /notifications/preferences
    */
-  router.get(
-    '/notifications/preferences',
-    mockRequireNotificationPrefAuth,
-    (req, res) => {
-      const userId = req.query.userId || 'global';
-      const prefs = getPrefsResult || [];
-      return res.json({ preferences: prefs });
-    },
-  );
+  router.get('/notifications/preferences', mockRequireNotificationPrefAuth, (req, res) => {
+    const userId = req.query.userId || 'global';
+    const prefs = getPrefsResult || [];
+    return res.json({ preferences: prefs });
+  });
 
   /**
    * PUT /notifications/preferences
    */
-  router.put(
-    '/notifications/preferences',
-    mockRequireNotificationPrefAuth,
-    (req, res) => {
-      const { category } = req.body;
-      if (!category) return res.status(400).json({ error: 'category is required' });
-      const pref = setPrefResult || { category, email: true, push: true };
-      return res.json({ preference: pref });
-    },
-  );
+  router.put('/notifications/preferences', mockRequireNotificationPrefAuth, (req, res) => {
+    const { category } = req.body;
+    if (!category) return res.status(400).json({ error: 'category is required' });
+    const pref = setPrefResult || { category, email: true, push: true };
+    return res.json({ preference: pref });
+  });
 
   /**
    * PUT /notifications/preferences/bulk
    */
-  router.put(
-    '/notifications/preferences/bulk',
-    mockRequireNotificationPrefAuth,
-    (req, res) => {
-      const { preferences } = req.body;
-      if (!Array.isArray(preferences) || !preferences.length) {
-        return res.status(400).json({ error: 'preferences array is required' });
-      }
-      const results = setBulkResult || preferences.map((p) => ({ category: p.category, email: true }));
-      return res.json({ preferences: results });
-    },
-  );
+  router.put('/notifications/preferences/bulk', mockRequireNotificationPrefAuth, (req, res) => {
+    const { preferences } = req.body;
+    if (!Array.isArray(preferences) || !preferences.length) {
+      return res.status(400).json({ error: 'preferences array is required' });
+    }
+    const results =
+      setBulkResult || preferences.map((p) => ({ category: p.category, email: true }));
+    return res.json({ preferences: results });
+  });
 
   // =========================================================================
   // Notification Analytics (no auth — lightweight collector)
@@ -465,9 +457,7 @@ describe('Notification Routes — Push Subscription Validation', () => {
   });
 
   it('POST /notifications/subscribe without subscription object returns 400', async () => {
-    const res = await request(app)
-      .post('/notifications/subscribe')
-      .send({});
+    const res = await request(app).post('/notifications/subscribe').send({});
     assert.equal(res.status, 400);
     assert.equal(res.body.error, 'Invalid subscription payload');
   });
@@ -523,9 +513,7 @@ describe('Notification Routes — Push Subscription Validation', () => {
   });
 
   it('POST /notifications/unsubscribe without subscription returns 400', async () => {
-    const res = await request(app)
-      .post('/notifications/unsubscribe')
-      .send({});
+    const res = await request(app).post('/notifications/unsubscribe').send({});
     assert.equal(res.status, 400);
     assert.equal(res.body.error, 'Invalid subscription payload');
   });
@@ -593,9 +581,7 @@ describe('Notification Routes — Create Auth Enforcement (Admin Only)', () => {
 
   it('POST /notifications (create) returns 401 when admin unauthenticated', async () => {
     authControl.adminEnabled = false;
-    const res = await request(app)
-      .post('/notifications')
-      .send({ title: 'Test', message: 'Hello' });
+    const res = await request(app).post('/notifications').send({ title: 'Test', message: 'Hello' });
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
@@ -670,7 +656,9 @@ describe('Notification Routes — Mark All Read', () => {
   it('POST /notifications/mark-all-read works as student on own notifications', async () => {
     authControl.adminEnabled = false;
     authControl.studentEnabled = true;
-    const res = await request(app).post('/notifications/mark-all-read').send({ userId: 'student-1' });
+    const res = await request(app)
+      .post('/notifications/mark-all-read')
+      .send({ userId: 'student-1' });
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     authControl.adminEnabled = true;
@@ -679,7 +667,9 @@ describe('Notification Routes — Mark All Read', () => {
   it('POST /notifications/mark-all-read returns 403 as student on other user', async () => {
     authControl.adminEnabled = false;
     authControl.studentEnabled = true;
-    const res = await request(app).post('/notifications/mark-all-read').send({ userId: 'other-user' });
+    const res = await request(app)
+      .post('/notifications/mark-all-read')
+      .send({ userId: 'other-user' });
     assert.equal(res.status, 403);
     authControl.adminEnabled = true;
   });
@@ -769,17 +759,13 @@ describe('Notification Routes — Create Notification', () => {
   });
 
   it('POST /notifications without title returns 400', async () => {
-    const res = await request(app)
-      .post('/notifications')
-      .send({ message: 'Missing title' });
+    const res = await request(app).post('/notifications').send({ message: 'Missing title' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error.toLowerCase().includes('title'));
   });
 
   it('POST /notifications without message returns 400', async () => {
-    const res = await request(app)
-      .post('/notifications')
-      .send({ title: 'Missing message' });
+    const res = await request(app).post('/notifications').send({ title: 'Missing message' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error.toLowerCase().includes('message'));
   });
@@ -930,9 +916,7 @@ describe('Notification Routes — Set Preferences', () => {
   });
 
   it('PUT /notifications/preferences without category returns 400', async () => {
-    const res = await request(app)
-      .put('/notifications/preferences')
-      .send({ email: true });
+    const res = await request(app).put('/notifications/preferences').send({ email: true });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -963,17 +947,13 @@ describe('Notification Routes — Bulk Set Preferences', () => {
   });
 
   it('PUT /notifications/preferences/bulk without preferences array returns 400', async () => {
-    const res = await request(app)
-      .put('/notifications/preferences/bulk')
-      .send({});
+    const res = await request(app).put('/notifications/preferences/bulk').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('PUT /notifications/preferences/bulk with empty array returns 400', async () => {
-    const res = await request(app)
-      .put('/notifications/preferences/bulk')
-      .send({ preferences: [] });
+    const res = await request(app).put('/notifications/preferences/bulk').send({ preferences: [] });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -1013,9 +993,7 @@ describe('Notification Routes — Analytics', () => {
   });
 
   it('POST /notifications/analytics without auth header succeeds', async () => {
-    const res = await request(app)
-      .post('/notifications/analytics')
-      .send({ type: 'page_view' });
+    const res = await request(app).post('/notifications/analytics').send({ type: 'page_view' });
     assert.equal(res.status, 200);
     assert.equal(res.body.ok, true);
   });

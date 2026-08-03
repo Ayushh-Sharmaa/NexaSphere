@@ -16,6 +16,8 @@ import {
 let warnedMissingSocketConfig = false;
 let hasAttachedGlobalListeners = false;
 
+const GLOBAL_EVENTS = ['connect', 'disconnect', 'connect_error', 'error', 'reconnect_failed'];
+
 // Track current active socket instance
 let activeSocket = null;
 
@@ -28,11 +30,14 @@ export function initializeSocket(serverUrl = getSocketServerUrl()) {
   if (!resolvedUrl) {
     if (!warnedMissingSocketConfig) {
       warnedMissingSocketConfig = true;
-
       console.warn('Socket.IO disabled: no socket server URL configured.');
     }
-
     return null;
+  }
+
+  // If already connected to the same socket, return it
+  if (activeSocket && activeSocket.connected) {
+    return activeSocket;
   }
 
   // Create/get singleton socket
@@ -45,11 +50,8 @@ export function initializeSocket(serverUrl = getSocketServerUrl()) {
   // Clean previous socket before reconnecting if URL changed or socket was recreated
   if (activeSocket) {
     activeSocket.removeAllListeners();
-
     activeSocket.disconnect();
-
     activeSocket = null;
-
     hasAttachedGlobalListeners = false;
   }
 
@@ -61,15 +63,9 @@ export function initializeSocket(serverUrl = getSocketServerUrl()) {
 
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
-
       if (typeof identifyUser === 'function') {
         identifyUser();
       }
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-      identifyUser();
     });
 
     socket.on('disconnect', (reason) => {
@@ -121,9 +117,7 @@ export function identifyUser(userId, email) {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-
         finalUserId = user.id || user.userId;
-
         finalEmail = user.email;
       } catch {
         // Ignore malformed user data
@@ -143,7 +137,6 @@ export function identifyUser(userId, email) {
 
 export function joinRoom(roomName) {
   const socket = getCoreSocket();
-
   if (socket) {
     socket.emit('room:join', roomName);
   }
@@ -151,7 +144,6 @@ export function joinRoom(roomName) {
 
 export function leaveRoom(roomName) {
   const socket = getCoreSocket();
-
   if (socket) {
     socket.emit('room:leave', roomName);
   }
@@ -159,7 +151,6 @@ export function leaveRoom(roomName) {
 
 export function on(eventName, handler) {
   const socket = getCoreSocket();
-
   if (socket) {
     socket.on(eventName, handler);
   }
@@ -167,7 +158,6 @@ export function on(eventName, handler) {
 
 export function off(eventName, handler) {
   const socket = getCoreSocket();
-
   if (socket) {
     if (handler) {
       socket.off(eventName, handler);
@@ -179,7 +169,6 @@ export function off(eventName, handler) {
 
 export function emit(eventName, data) {
   const socket = getCoreSocket();
-
   if (socket) {
     socket.emit(eventName, data);
   }
@@ -191,14 +180,10 @@ export function emit(eventName, data) {
 export function disconnect() {
   if (activeSocket) {
     activeSocket.removeAllListeners();
-
     activeSocket.disconnect();
-
     activeSocket = null;
   }
-
   hasAttachedGlobalListeners = false;
-
   disconnectCoreSocket();
 }
 
@@ -208,14 +193,10 @@ export function disconnect() {
 export function destroySocket() {
   if (activeSocket) {
     activeSocket.removeAllListeners();
-
     activeSocket.disconnect();
-
     activeSocket = null;
   }
-
   hasAttachedGlobalListeners = false;
-
   disconnectCoreSocket();
 }
 

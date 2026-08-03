@@ -2,6 +2,16 @@ import QRCode from 'qrcode';
 import { portfolioRepository } from '../repositories/portfolioRepository.js';
 import logger from '../utils/logger.js';
 
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 const PDF_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -419,7 +429,7 @@ export const portfolioExportService = {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${portfolio.title || portfolio.username} - Portfolio</title>
+  <title>${escapeHtml(portfolio.title || portfolio.username)} - Portfolio</title>
   ${seoTags}
   ${analyticsTag}
   <link rel="stylesheet" href="styles.css">
@@ -427,16 +437,16 @@ export const portfolioExportService = {
 <body>
   <div class="container">
     <header class="header">
-      ${portfolio.avatar_url ? `<img src="${portfolio.avatar_url}" alt="Avatar" class="avatar">` : ''}
-      <h1 class="name">${portfolio.title || portfolio.username}</h1>
-      ${portfolio.title ? `<p class="title">${portfolio.title}</p>` : ''}
-      ${portfolio.bio ? `<p class="bio">${portfolio.bio}</p>` : ''}
+      ${portfolio.avatar_url ? `<img src="${escapeHtml(portfolio.avatar_url)}" alt="Avatar" class="avatar">` : ''}
+      <h1 class="name">${escapeHtml(portfolio.title || portfolio.username)}</h1>
+      ${portfolio.title ? `<p class="title">${escapeHtml(portfolio.title)}</p>` : ''}
+      ${portfolio.bio ? `<p class="bio">${escapeHtml(portfolio.bio)}</p>` : ''}
       ${
         portfolio.social_links
           ? `
       <div class="social-links">
         ${Object.entries(portfolio.social_links)
-          .map(([key, url]) => `<a href="${url}" class="social-link" target="_blank" rel="noopener noreferrer">${key}</a>`)
+          .map(([key, url]) => `<a href="${escapeHtml(url)}" class="social-link" target="_blank" rel="noopener noreferrer">${escapeHtml(key)}</a>`)
           .join('\n        ')}
       </div>`
           : ''

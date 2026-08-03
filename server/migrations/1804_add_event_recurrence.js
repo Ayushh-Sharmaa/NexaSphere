@@ -3,7 +3,7 @@ exports.up = (pgm) => {
     series_id: { type: 'text' },
     recurrence_pattern: { type: 'text' },
     recurrence_end_date: { type: 'timestamptz' },
-    occurrence_index: { type: 'integer' }
+    occurrence_index: { type: 'integer' },
   });
 
   // Update the register_for_event function to register for all events in the series
@@ -61,8 +61,13 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropColumns('events', ['series_id', 'recurrence_pattern', 'recurrence_end_date', 'occurrence_index']);
-  
+  pgm.dropColumns('events', [
+    'series_id',
+    'recurrence_pattern',
+    'recurrence_end_date',
+    'occurrence_index',
+  ]);
+
   // Revert function to old behavior
   pgm.sql(`
     create or replace function register_for_event(p_event_id text, p_full_name text, p_email text)

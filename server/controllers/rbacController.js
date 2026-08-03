@@ -48,14 +48,22 @@ export async function createRole(req, res) {
     const { name, description, permissions, hierarchy } = req.body;
 
     if (!name || !permissions || !Array.isArray(permissions)) {
-      return sendError(req, res, 'Name and permissions array are required', 400, 'VALIDATION_ERROR');
+      return sendError(
+        req,
+        res,
+        'Name and permissions array are required',
+        400,
+        'VALIDATION_ERROR'
+      );
     }
 
     // Validate permissions exist
     const validPermissions = Object.keys(PERMISSIONS);
     const invalidPermissions = permissions.filter((p) => !validPermissions.includes(p));
     if (invalidPermissions.length > 0) {
-      return sendError(req, res, 'Invalid permissions', 400, 'VALIDATION_ERROR', { invalid: invalidPermissions });
+      return sendError(req, res, 'Invalid permissions', 400, 'VALIDATION_ERROR', {
+        invalid: invalidPermissions,
+      });
     }
 
     // Check if role already exists
@@ -105,7 +113,9 @@ export async function updateRole(req, res) {
       const validPermissions = Object.keys(PERMISSIONS);
       const invalidPermissions = permissions.filter((p) => !validPermissions.includes(p));
       if (invalidPermissions.length > 0) {
-        return sendError(req, res, 'Invalid permissions', 400, 'VALIDATION_ERROR', { invalid: invalidPermissions });
+        return sendError(req, res, 'Invalid permissions', 400, 'VALIDATION_ERROR', {
+          invalid: invalidPermissions,
+        });
       }
     }
 

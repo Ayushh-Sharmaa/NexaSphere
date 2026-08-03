@@ -60,139 +60,88 @@ function createTestApp(options = {}) {
 
   // ---- Budget Routes ----
 
-  router.post('/budgets',
-    mockAuth('admin'),
-    (req, res) => {
-      if (budgetCreateError) return res.status(500).json({ error: budgetCreateError });
-      res.status(201).json({ success: true, budget: { id: 'budget-1' } });
-    },
-  );
+  router.post('/budgets', mockAuth('admin'), (req, res) => {
+    if (budgetCreateError) return res.status(500).json({ error: budgetCreateError });
+    res.status(201).json({ success: true, budget: { id: 'budget-1' } });
+  });
 
-  router.get('/budgets',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ budgets: [], pagination: { total: 0, page: 1, limit: 50 } });
-    },
-  );
+  router.get('/budgets', mockAuth('student'), (_req, res) => {
+    res.json({ budgets: [], pagination: { total: 0, page: 1, limit: 50 } });
+  });
 
-  router.get('/budgets/utilization',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ utilization: [] });
-    },
-  );
+  router.get('/budgets/utilization', mockAuth('student'), (_req, res) => {
+    res.json({ utilization: [] });
+  });
 
-  router.get('/budgets/:budgetId',
-    mockAuth('student'),
-    (req, res) => {
-      res.json({ budget: { id: req.params.budgetId } });
-    },
-  );
+  router.get('/budgets/:budgetId', mockAuth('student'), (req, res) => {
+    res.json({ budget: { id: req.params.budgetId } });
+  });
 
-  router.put('/budgets/:budgetId',
-    mockAuth('admin'),
-    (req, res) => {
-      if (budgetUpdateError) return res.status(500).json({ error: budgetUpdateError });
-      res.json({ success: true, budget: { id: req.params.budgetId } });
-    },
-  );
+  router.put('/budgets/:budgetId', mockAuth('admin'), (req, res) => {
+    if (budgetUpdateError) return res.status(500).json({ error: budgetUpdateError });
+    res.json({ success: true, budget: { id: req.params.budgetId } });
+  });
 
-  router.delete('/budgets/:budgetId',
-    mockAuth('admin'),
-    (req, res) => {
-      if (budgetDeleteError) return res.status(500).json({ error: budgetDeleteError });
-      res.json({ success: true });
-    },
-  );
+  router.delete('/budgets/:budgetId', mockAuth('admin'), (req, res) => {
+    if (budgetDeleteError) return res.status(500).json({ error: budgetDeleteError });
+    res.json({ success: true });
+  });
 
-  router.post('/budgets/:budgetId/clone',
-    mockAuth('admin'),
-    (req, res) => {
-      if (budgetCloneError) return res.status(500).json({ error: budgetCloneError });
-      res.status(201).json({ budget: { id: 'cloned-1' } });
-    },
-  );
+  router.post('/budgets/:budgetId/clone', mockAuth('admin'), (req, res) => {
+    if (budgetCloneError) return res.status(500).json({ error: budgetCloneError });
+    res.status(201).json({ budget: { id: 'cloned-1' } });
+  });
 
   // ---- Expense Routes ----
 
-  router.post('/budgets/:budgetId/expenses',
-    mockAuth('admin'),
-    (req, res) => {
-      if (expenseCreateError) return res.status(500).json({ error: expenseCreateError });
-      res.status(201).json({ success: true, expense: { id: 'expense-1' } });
-    },
-  );
+  router.post('/budgets/:budgetId/expenses', mockAuth('admin'), (req, res) => {
+    if (expenseCreateError) return res.status(500).json({ error: expenseCreateError });
+    res.status(201).json({ success: true, expense: { id: 'expense-1' } });
+  });
 
-  router.get('/budgets/:budgetId/expenses',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ expenses: [], pagination: { total: 0 } });
-    },
-  );
+  router.get('/budgets/:budgetId/expenses', mockAuth('student'), (_req, res) => {
+    res.json({ expenses: [], pagination: { total: 0 } });
+  });
 
-  router.put('/expenses/:expenseId',
-    mockAuth('admin'),
-    (req, res) => {
-      if (expenseUpdateError) return res.status(500).json({ error: expenseUpdateError });
-      res.json({ success: true, expense: { id: req.params.expenseId } });
-    },
-  );
+  router.put('/expenses/:expenseId', mockAuth('admin'), (req, res) => {
+    if (expenseUpdateError) return res.status(500).json({ error: expenseUpdateError });
+    res.json({ success: true, expense: { id: req.params.expenseId } });
+  });
 
-  router.delete('/expenses/:expenseId',
-    mockAuth('admin'),
-    (req, res) => {
-      if (expenseDeleteError) return res.status(500).json({ error: expenseDeleteError });
-      res.json({ success: true });
-    },
-  );
+  router.delete('/expenses/:expenseId', mockAuth('admin'), (req, res) => {
+    if (expenseDeleteError) return res.status(500).json({ error: expenseDeleteError });
+    res.json({ success: true });
+  });
 
   // ---- Revenue Routes ----
 
-  router.post('/budgets/:budgetId/revenues',
-    mockAuth('admin'),
-    (req, res) => {
-      if (revenueCreateError) return res.status(500).json({ error: revenueCreateError });
-      res.status(201).json({ success: true, revenue: { id: 'revenue-1' } });
-    },
-  );
+  router.post('/budgets/:budgetId/revenues', mockAuth('admin'), (req, res) => {
+    if (revenueCreateError) return res.status(500).json({ error: revenueCreateError });
+    res.status(201).json({ success: true, revenue: { id: 'revenue-1' } });
+  });
 
-  router.get('/budgets/:budgetId/revenues',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ revenues: [], pagination: { total: 0 } });
-    },
-  );
+  router.get('/budgets/:budgetId/revenues', mockAuth('student'), (_req, res) => {
+    res.json({ revenues: [], pagination: { total: 0 } });
+  });
 
-  router.delete('/revenues/:revenueId',
-    mockAuth('admin'),
-    (req, res) => {
-      if (revenueDeleteError) return res.status(500).json({ error: revenueDeleteError });
-      res.json({ success: true });
-    },
-  );
+  router.delete('/revenues/:revenueId', mockAuth('admin'), (req, res) => {
+    if (revenueDeleteError) return res.status(500).json({ error: revenueDeleteError });
+    res.json({ success: true });
+  });
 
   // ---- Report / Calculation Routes ----
 
-  router.get('/budgets/:budgetId/variance',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ variance: [] });
-    },
-  );
+  router.get('/budgets/:budgetId/variance', mockAuth('student'), (_req, res) => {
+    res.json({ variance: [] });
+  });
 
-  router.get('/budgets/:budgetId/income',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ income: [] });
-    },
-  );
+  router.get('/budgets/:budgetId/income', mockAuth('student'), (_req, res) => {
+    res.json({ income: [] });
+  });
 
-  router.get('/budgets/:budgetId/export',
-    mockAuth('student'),
-    (_req, res) => {
-      res.json({ report: [] });
-    },
-  );
+  router.get('/budgets/:budgetId/export', mockAuth('student'), (_req, res) => {
+    res.json({ report: [] });
+  });
 
   // Mount at /api/financial to match the real app's mount location
   app.use('/api/financial', router);
@@ -243,7 +192,9 @@ describe('Financial Routes — Auth Enforcement (Admin Routes)', () => {
 
   it('POST /api/financial/budgets/:budgetId/expenses returns 401 when admin unauthenticated', async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).post('/api/financial/budgets/b-1/expenses').send({ amount: 100 });
+    const res = await request(app)
+      .post('/api/financial/budgets/b-1/expenses')
+      .send({ amount: 100 });
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
@@ -264,7 +215,9 @@ describe('Financial Routes — Auth Enforcement (Admin Routes)', () => {
 
   it('POST /api/financial/budgets/:budgetId/revenues returns 401 when admin unauthenticated', async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).post('/api/financial/budgets/b-1/revenues').send({ amount: 500 });
+    const res = await request(app)
+      .post('/api/financial/budgets/b-1/revenues')
+      .send({ amount: 500 });
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
@@ -441,9 +394,7 @@ describe('Financial Routes — Expense CRUD', () => {
   });
 
   it('PUT /api/financial/expenses/:expenseId updates an expense', async () => {
-    const res = await request(app)
-      .put('/api/financial/expenses/expense-42')
-      .send({ amount: 2000 });
+    const res = await request(app).put('/api/financial/expenses/expense-42').send({ amount: 2000 });
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.equal(res.body.expense.id, 'expense-42');
@@ -559,14 +510,18 @@ describe('Financial Routes — Error Handling', () => {
 
   it('returns 500 when createExpense controller throws', async () => {
     app = createTestApp({ expenseCreateError: 'DB error' });
-    const res = await request(app).post('/api/financial/budgets/b-1/expenses').send({ amount: 100 });
+    const res = await request(app)
+      .post('/api/financial/budgets/b-1/expenses')
+      .send({ amount: 100 });
     assert.equal(res.status, 500);
     assert.ok(res.body.error);
   });
 
   it('returns 500 when createRevenue controller throws', async () => {
     app = createTestApp({ revenueCreateError: 'DB error' });
-    const res = await request(app).post('/api/financial/budgets/b-1/revenues').send({ amount: 100 });
+    const res = await request(app)
+      .post('/api/financial/budgets/b-1/revenues')
+      .send({ amount: 100 });
     assert.equal(res.status, 500);
     assert.ok(res.body.error);
   });

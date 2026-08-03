@@ -19,8 +19,8 @@ export function SessionPlayer() {
       const token = localStorage.getItem('token');
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/recordings`, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error('Failed to fetch recordings');
       const list = await res.json();
@@ -37,17 +37,20 @@ export function SessionPlayer() {
     if (playerRef.current) {
       // Destroy old player
       if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+        containerRef.current.textContent = '';
       }
     }
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/recordings/${sessionId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/admin/analytics/recordings/${sessionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
       if (!res.ok) throw new Error('Failed to fetch recording events');
       const events = await res.json();
 
@@ -91,13 +94,12 @@ export function SessionPlayer() {
               onClick={() => playSession(rec.session_id)}
               style={{
                 padding: '1rem',
-                background:
-                  activeSessionId === rec.session_id ? '#6366f1' : '#f3f4f6',
+                background: activeSessionId === rec.session_id ? '#6366f1' : '#f3f4f6',
                 color: activeSessionId === rec.session_id ? '#fff' : '#1f2937',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 border: '1px solid #e5e7eb',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s',
               }}
             >
               <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
@@ -131,11 +133,13 @@ export function SessionPlayer() {
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-            position: 'relative'
+            position: 'relative',
           }}
         >
           {!activeSessionId && (
-            <div className="text-gray-400">[ Select a session from the list to start playback ]</div>
+            <div className="text-gray-400">
+              [ Select a session from the list to start playback ]
+            </div>
           )}
         </div>
       </div>

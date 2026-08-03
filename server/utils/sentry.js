@@ -16,7 +16,7 @@ async function initializeSentry(app) {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const dsn = process.env.SENTRY_DSN;
 
-  if ((!dsn || dsn.trim() === '') && !isDevelopment) {
+  if ((!dsn || dsn.trim().length === 0) && !isDevelopment) {
 function initializeSentry(app) {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const dsn = process.env.SENTRY_DSN;

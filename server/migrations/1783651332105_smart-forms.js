@@ -49,7 +49,7 @@ exports.up = (pgm) => {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
-    }
+    },
   });
 
   pgm.createIndex('smart_forms', 'event_id');
@@ -84,7 +84,7 @@ exports.up = (pgm) => {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
-    }
+    },
   });
 
   pgm.createIndex('smart_form_responses', 'form_id');
