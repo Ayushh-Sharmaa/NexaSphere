@@ -98,7 +98,6 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
     } finally {
       isHydrated.current = true;
-      console.error('Failed to load roadmap from localStorage:', e);
     }
   }, []);
 
