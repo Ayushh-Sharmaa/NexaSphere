@@ -412,12 +412,6 @@ Or start services individually:
 | `npm run dev:admin`   | Admin Dashboard  | <http://localhost:5001>        |
 | `npm run dev:server`  | Backend API      | <http://localhost:8787>        |
 | —                     | API Health Check | <http://localhost:8787/health> |
-| Command                 | Service          | URL                          |
-| ----------------------- | ---------------- | ---------------------------- |
-| `npm run dev:website`   | Website          | http://localhost:5175        |
-| `npm run dev:admin`     | Admin Dashboard  | http://localhost:5001        |
-| `npm run dev:server`    | Backend API      | http://localhost:8787        |
-| —                       | API Health Check | http://localhost:8787/health |
 
 > **Tip:** The website works in **offline mode** when `VITE_API_BASE` is empty.
 > All data comes from localStorage / static JSON files — no backend needed.
