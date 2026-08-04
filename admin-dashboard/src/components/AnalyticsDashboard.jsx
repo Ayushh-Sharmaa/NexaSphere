@@ -37,29 +37,11 @@ export default function AnalyticsDashboard({ eventId }) {
       console.error('Failed to fetch check-in stats:', err);
     }
   }, [eventId]);
-  // Fetch check-in stats
+  // Fetch immediately on mount / eventId change
   useEffect(() => {
-    if (!eventId || !isAuthenticated) return;
-
-    const fetchCheckInStats = async () => {
-      try {
-        const stats = await analyticsAPI.getCheckInStats(eventId);
-        setCheckInStats(stats);
-      } catch (err) {
-        console.error('Failed to fetch check-in stats:', err);
-      }
-    };
-
+    if (!eventId) return;
     fetchCheckInStats();
-    const interval = setInterval(fetchCheckInStats, 10000); // Refresh every 10 seconds
-
-    return () => clearInterval(interval);
-  }, [eventId, isAuthenticated]);
-
-  // Fetch check-in stats
-  useEffect(() => {
-    fetchCheckInStats();
-  }, [fetchCheckInStats]);
+  }, [eventId, fetchCheckInStats]);
 
   useLogoutAwareInterval(fetchCheckInStats, 10000, Boolean(eventId));
 
