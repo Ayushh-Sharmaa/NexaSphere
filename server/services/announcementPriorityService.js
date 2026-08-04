@@ -13,11 +13,6 @@ export const announcementPriorityService = {
 
     return announcements
       .filter((announcement) => !announcement.expiresAt || new Date(announcement.expiresAt) > now)
-      .filter(
-        (announcement) =>
-          !announcement.expiresAt ||
-          new Date(announcement.expiresAt) > now
-      )
       .sort((a, b) => {
         const isAPinned = Boolean(a.pinned === true || a.pinned === 'true');
         const isBPinned = Boolean(b.pinned === true || b.pinned === 'true');
@@ -55,10 +50,6 @@ export const announcementPriorityService = {
       pinned: data.pinned || false,
       expiresAt: data.expiresAt || null,
       audience: data.audience || 'All',
-      priority: data.priority || "Low",
-      pinned: data.pinned || false,
-      expiresAt: data.expiresAt || null,
-      audience: data.audience || "All",
       readBy: [],
       views: 0,
       createdAt: new Date().toISOString(),
@@ -71,10 +62,6 @@ export const announcementPriorityService = {
 
   updatePriority(id, priority) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
-
     if (!announcement) return null;
 
     announcement.priority = priority;
@@ -84,10 +71,7 @@ export const announcementPriorityService = {
 
   pinAnnouncement(id, pinned = true) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
-
+    
     if (!announcement) return null;
 
     announcement.pinned = pinned;
@@ -97,10 +81,6 @@ export const announcementPriorityService = {
 
   markAnnouncementRead(id, userId) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
-
     if (!announcement) return null;
 
     if (!announcement.readBy.includes(userId)) {
@@ -118,15 +98,6 @@ export const announcementPriorityService = {
     const totalViews = announcements.reduce((sum, item) => sum + item.views, 0);
 
     const totalReads = announcements.reduce((sum, item) => sum + item.readBy.length, 0);
-    const totalViews = announcements.reduce(
-      (sum, item) => sum + item.views,
-      0
-    );
-
-    const totalReads = announcements.reduce(
-      (sum, item) => sum + item.readBy.length,
-      0
-    );
 
     return {
       totalAnnouncements: total,
@@ -141,19 +112,4 @@ export const announcementPriorityService = {
     };
   },
 };
-        Critical: announcements.filter(
-          (a) => a.priority === "Critical"
-        ).length,
-        High: announcements.filter(
-          (a) => a.priority === "High"
-        ).length,
-        Medium: announcements.filter(
-          (a) => a.priority === "Medium"
-        ).length,
-        Low: announcements.filter(
-          (a) => a.priority === "Low"
-        ).length,
-      },
-    };
-  },
-};
+
