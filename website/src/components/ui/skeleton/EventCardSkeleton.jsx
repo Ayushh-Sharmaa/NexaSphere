@@ -7,7 +7,7 @@ export function EventCardSkeleton({ count = 4 }) {
     <div role="status" aria-label="Loading events..." aria-busy="true">
       {Array.from({ length: count }, (_, i) => (
         <div
-          key={i}
+          key={`skeleton-event-${i}`}
           style={{
             display: 'flex',
             gap: '24px',
