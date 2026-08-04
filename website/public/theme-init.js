@@ -1,6 +1,6 @@
 (function () {
   try {
-    var stored = localStorage.getItem('ns-theme');
+    var stored = localStorage.getItem('nexasphere-theme');
     if (stored === 'light' || stored === 'dark') {
       document.documentElement.setAttribute('data-theme', stored);
     } else {

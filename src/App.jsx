@@ -1747,7 +1747,7 @@ export default function App() {
   const [wipeOn,       setWipeOn]       = useState(false);
   const [wipePh,       setWipePh]       = useState('out');
   const [page,         setPage]         = useState(null);
-  const [theme,        setTheme]        = useState(() => localStorage.getItem('ns-theme') || 'dark');
+  const [theme,        setTheme]        = useState(() => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark');
   const [eventsData,   setEventsData]   = useState(fallbackEvents);
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [bookmarksOpen,setBookmarksOpen]= useState(false);
@@ -1819,7 +1819,7 @@ function MainApp() {
   const [wipeOn,        setWipeOn]        = useState(false);
   const [wipePh,        setWipePh]        = useState('out');
   const [page,          setPage]          = useState(null);
-  const [theme,         setTheme]         = useState(() => localStorage.getItem('ns-theme') || 'dark');
+  const [theme,         setTheme]         = useState(() => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark');
   const [eventsData,    setEventsData]    = useState(fallbackEvents);
   const [searchOpen,    setSearchOpen]    = useState(false);
   const [bookmarksOpen, setBookmarksOpen] = useState(false);
@@ -1940,11 +1940,11 @@ export default function App() {
 
   /* ── Theme: persisted to localStorage ── */
   const [theme, setTheme] = useState(
-    () => localStorage.getItem('ns-theme') || 'dark'
+    () => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark'
   );
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('ns-theme', theme);
+    localStorage.setItem('nexasphere-theme', theme);
   }, [theme]);
 
   useEffect(() => {
