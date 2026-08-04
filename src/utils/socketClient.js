@@ -64,23 +64,26 @@ export function initializeSocket(serverUrl = getSocketServerUrl()) {
       console.log("[Socket.IO] Reconnecting attempt:", attemptNumber);
     });
 
-    socket.on("connect_error", (error) => {
+    // Named handlers enable Socket.IO to deduplicate if initializeSocket is called twice
+    const handleConnectError = (error) => {
       console.error("[Socket.IO] Connection Error:", error);
       captureHandledException(error, "Socket.IO connect_error:");
-    });
-
-    socket.on("error", (error) => {
+    };
+    const handleSocketError = (error) => {
       console.error("[Socket.IO] Error:", error);
       captureHandledException(error, "Socket.IO error:");
-    });
-
-    socket.on("reconnect_failed", () => {
+    };
+    const handleReconnectFailed = () => {
       console.error("[Socket.IO] Reconnection failed after max attempts");
       captureHandledException(
         new Error("Socket.IO reconnect attempts exhausted"),
         "Socket.IO reconnect failed:"
       );
-    });
+    };
+
+    socket.on("connect_error", handleConnectError);
+    socket.on("error", handleSocketError);
+    socket.on("reconnect_failed", handleReconnectFailed);
   }
 
   return socket;
