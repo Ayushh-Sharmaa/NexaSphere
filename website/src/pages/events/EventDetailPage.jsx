@@ -486,6 +486,12 @@ function QRTicketCard({ event, ticket, color, rgb, onCalendarDownload }) {
   const [showCalendarMenu, setShowCalendarMenu] = useState(false);
   const [showReminderMenu, setShowReminderMenu] = useState(false);
   const [reminderSet, setReminderSet] = useState('');
+  const [reminderFeedback, setReminderFeedback] = useState(null);
+
+  const showReminderFeedback = (msg, type = 'info') => {
+    setReminderFeedback({ msg, type });
+    setTimeout(() => setReminderFeedback(null), 5000);
+  };
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -949,12 +955,12 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         }, delay);
         setReminderSet(label);
         setShowReminderMenu(false);
-        alert(`Reminder set for ${label} before the event!`);
+        showReminderFeedback(`Reminder set for ${label} before the event!`, 'success');
       } else {
-        alert('This event is too close or has already started.');
+        showReminderFeedback('This event is too close or has already started.', 'error');
       }
     } else {
-      alert('Please enable notifications in your browser settings to use reminders.');
+      showReminderFeedback('Please enable notifications in your browser settings to use reminders.', 'error');
     }
   };
 
@@ -1271,7 +1277,23 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   >
                     <DynamicIcon name="Bell" size={14} />
                   </button>
-                  {showReminderMenu && (
+                  {reminderFeedback && (
+        <div
+          role="status"
+          style={{
+            padding: "8px 12px",
+            borderRadius: "6px",
+            fontSize: "0.85rem",
+            marginBottom: "8px",
+            backgroundColor: reminderFeedback.type === "error" ? "rgba(239, 68, 68, 0.15)" : "rgba(16, 185, 129, 0.15)",
+            color: reminderFeedback.type === "error" ? "#f87171" : "#34d399",
+            border: `1px solid ${reminderFeedback.type === "error" ? "#ef4444" : "#10b981"}`,
+          }}
+        >
+          {reminderFeedback.msg}
+        </div>
+      )}
+      {showReminderMenu && (
                     <div
                       style={{
                         position: 'absolute',
