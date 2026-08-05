@@ -4,6 +4,12 @@ export default function PortfolioModerationQueue({ token }) {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   const [rejectReason, setRejectReason] = useState('');
   const [activeReject, setActiveReject] = useState(null);
 
@@ -45,16 +51,16 @@ export default function PortfolioModerationQueue({ token }) {
       });
       
       if (res.ok) {
-          alert(`Portfolio ${action}ed successfully!`);
+          showFeedback(`Portfolio ${action}ed successfully!`, 'success');
           setActiveReject(null);
           setRejectReason('');
           fetchPortfolios();
       } else {
-          alert(`Failed to ${action} portfolio`);
+          showFeedback(`Failed to ${action} portfolio`, 'error');
       }
     } catch (err) {
       console.error(err);
-      alert('An error occurred');
+      showFeedback('An error occurred', 'error');
     } finally {
       setActionLoading(null);
     }
@@ -64,6 +70,28 @@ export default function PortfolioModerationQueue({ token }) {
 
   return (
     <div style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', color: 'var(--t1)' }}>
+      {feedback && (
+        <div
+          role="status"
+          style={{
+            marginBottom: '1.5rem',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            backgroundColor:
+              feedback.type === 'error'
+                ? 'rgba(239, 68, 68, 0.15)'
+                : 'rgba(16, 185, 129, 0.15)',
+            color: feedback.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${
+              feedback.type === 'error' ? '#ef4444' : '#10b981'
+            }`,
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          }}
+        >
+          {feedback.message}
+        </div>
+      )}
       <h2>Portfolio Moderation Queue</h2>
       <p style={{ color: 'var(--t2)', marginBottom: '2rem' }}>Review flagged user portfolios before they appear publicly.</p>
       
