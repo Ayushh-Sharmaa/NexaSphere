@@ -1,13 +1,36 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+/**
+ * Escape a single CSV cell value per RFC 4180.
+ * Wraps in quotes if the value contains comma, newline, or quote,
+ * and doubles embedded quotes.
+ * @param {*} value
+ * @returns {string}
+ */
+function escapeCsvCell(value) {
+  if (value === null || value === undefined) return '';
+  let str = String(value);
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+/**
+ * Export data to a CSV file with proper RFC 4180 escaping.
+ * @param {Object[]} data - Array of row objects
+ * @param {string} filename - Output filename
+ */
 export function exportToCSV(data, filename = 'export.csv') {
   if (!data || !data.length) return;
 
   const headers = Object.keys(data[0]);
   const csvContent = [
-    headers.join(','),
-    ...data.map((row) => headers.map((header) => `"${row[header] || ''}"`).join(',')),
+    headers.map(escapeCsvCell).join(','),
+    ...data.map((row) =>
+      headers.map((header) => escapeCsvCell(row[header])).join(',')
+    ),
   ].join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -19,6 +42,13 @@ export function exportToCSV(data, filename = 'export.csv') {
   document.body.removeChild(link);
 }
 
+/**
+ * Export data to a PDF file.
+ * @param {string} title - Document title
+ * @param {string[]} headers - Column headers
+ * @param {Object[]} data - Row data
+ * @param {string} filename - Output filename
+ */
 export function exportToPDF(title, headers, data, filename = 'export.pdf') {
   const doc = new jsPDF();
 
@@ -34,7 +64,11 @@ export function exportToPDF(title, headers, data, filename = 'export.pdf') {
   doc.save(filename);
 }
 
+/**
+ * Export data to an Excel-compatible file (CSV format).
+ * @param {Object[]} data - Array of row objects
+ * @param {string} filename - Output filename
+ */
 export function exportToExcel(data, filename = 'export.csv') {
-  // Simple fallback to CSV format for Excel to open
   exportToCSV(data, filename);
 }
