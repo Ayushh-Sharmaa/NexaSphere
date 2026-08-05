@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
+const getToken = () => {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('token') || '';
+};
+
 export default function WaitlistManager() {
   const [eventId, setEventId] = useState('');
   const [waitlist, setWaitlist] = useState([]);
@@ -16,7 +21,7 @@ export default function WaitlistManager() {
     try {
       const res = await fetch(`/api/admin/waitlist/event/${eventId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getToken()}`
         }
       });
       const data = await res.json();
@@ -43,7 +48,7 @@ export default function WaitlistManager() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ email })
       });
