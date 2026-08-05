@@ -6,7 +6,7 @@ export const RepoCardSkeleton = ({ count = 1 }) => {
     <>
       {Array.from({ length: count }).map((_, i) => (
         <div
-          key={i}
+          key={`repo-skeleton-${i}`}
           className="checklist-item"
           style={{
             display: 'flex',
