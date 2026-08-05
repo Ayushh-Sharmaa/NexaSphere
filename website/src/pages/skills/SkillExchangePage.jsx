@@ -121,7 +121,11 @@ export default function SkillExchangePage({ onBack }) {
           user: USER_ID,
         });
         fetchListings();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to create listing:', err.message);
+        }
+      }
     }
   };
 
@@ -131,7 +135,11 @@ export default function SkillExchangePage({ onBack }) {
       try {
         const d = await apiClient(url);
         setMatches(d.matches || []);
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to find matches:', err.message);
+        }
+      }
   };
 
   const bookSession = async (match) => {
@@ -150,7 +158,11 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         fetchUserStats();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to book session:', err.message);
+        }
+      }
     }
   };
 
@@ -165,7 +177,11 @@ export default function SkillExchangePage({ onBack }) {
         });
         fetchUserStats();
         fetchLeaderboard();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to complete session:', err.message);
+        }
+      }
     }
   };
 
@@ -186,7 +202,11 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         setRating({ sessionId: null, score: 5, comment: '' });
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to submit feedback:', err.message);
+        }
+      }
     }
   };
 
