@@ -5,6 +5,12 @@ export default function CertificateTemplateEditor({ token }) {
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(null);
+
+  const showStatus = (text, type = "success") => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage(null), 4000);
+  };
   const canvasRef = useRef(null);
   const [draggingElement, setDraggingElement] = useState(null);
 
@@ -139,14 +145,15 @@ export default function CertificateTemplateEditor({ token }) {
       });
       
       if (res.ok) {
-          alert('Template saved successfully!');
+          showStatus('Template saved successfully!', 'success');
           fetchTemplates();
       } else {
-          alert('Failed to save template');
+          const errData = await res.json().catch(() => ({}));
+          showStatus(errData.message || 'Failed to save template', 'error');
       }
     } catch (err) {
       console.error(err);
-      alert('Error saving template');
+      showStatus(err.message || 'Error saving template', 'error');
     } finally {
       setSaving(false);
     }
@@ -158,6 +165,28 @@ export default function CertificateTemplateEditor({ token }) {
     <div style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', color: 'var(--t1)' }}>
       <h2>Certificate Template Editor</h2>
       <p style={{ color: 'var(--t2)', marginBottom: '1.5rem' }}>Drag and drop text fields to customize your certificate layout.</p>
+      {statusMessage && (
+        <div
+          role="status"
+          style={{
+            padding: '10px 14px',
+            borderRadius: '6px',
+            marginBottom: '1.5rem',
+            backgroundColor:
+              statusMessage.type === 'error'
+                ? 'rgba(239, 68, 68, 0.15)'
+                : 'rgba(16, 185, 129, 0.15)',
+            color: statusMessage.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${
+              statusMessage.type === 'error' ? '#ef4444' : '#10b981'
+            }`,
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          }}
+        >
+          {statusMessage.text}
+        </div>
+      )}
       
       {activeTemplate && (
           <div style={{ display: 'flex', gap: '2rem' }}>
