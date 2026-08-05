@@ -130,7 +130,7 @@ export function AmbientOrbs({ theme = 'dark' }) {
     <div aria-hidden="true" style={{ pointerEvents: 'none', zIndex: 0 }}>
       {orbs.map((o, i) => (
         <div
-          key={i}
+          key={`motion-orb-dark-${i}`}
           className="ambient-orb"
           style={{
             width: o.w,
@@ -173,7 +173,7 @@ export function BannerOrbs({ color = 'rgba(0,212,255,.06)' }) {
     <>
       {specs.map((s, i) => (
         <div
-          key={i}
+          key={`motion-banner-orb-${i}`}
           aria-hidden="true"
           style={{
             position: 'absolute',
