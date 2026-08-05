@@ -13,10 +13,6 @@ test('XSS Sanitizer Middleware', async (t) => {
         },
         tags: ['<a href="javascript:alert(1)">Link</a>', 'safe'],
       },
-          count: 42
-        },
-        tags: ['<a href="javascript:alert(1)">Link</a>', 'safe']
-      }
     };
     const res = {};
     xssSanitizer(req, res, () => {});
@@ -31,7 +27,6 @@ test('XSS Sanitizer Middleware', async (t) => {
     const req = {
       query: { search: '<img src=x onerror=alert(1)>Query' },
       params: { id: '<script></script>123' },
-      params: { id: '<script></script>123' }
     };
     const res = {};
     xssSanitizer(req, res, () => {});
