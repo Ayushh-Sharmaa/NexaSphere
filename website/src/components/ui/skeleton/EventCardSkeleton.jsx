@@ -7,7 +7,7 @@ export function EventCardSkeleton({ count = 4 }) {
     <div role="status" aria-label="Loading events..." aria-busy="true">
       {Array.from({ length: count }, (_, i) => (
         <div
-          key={i}
+          key={`event-skeleton-${i}`}
           style={{
             display: 'flex',
             gap: '24px',
@@ -62,7 +62,7 @@ export function EventCardSkeleton({ count = 4 }) {
             {/* Description lines */}
             {[85, 75, 55].map((w, li) => (
               <div
-                key={li}
+                key={`desc-line-${li}`}
                 className="skeleton-pulse"
                 style={{
                   height: '11px',
