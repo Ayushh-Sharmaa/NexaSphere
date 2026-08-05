@@ -41,7 +41,7 @@ class ErrorBoundary extends Component {
 
 // Inner DataTable component that renders the actual table
 function DataTableContent({ data, columns = [], emptyMessage = "No data available." }) {
-  const rows = Array.isArray(data) ? data : [];
+  const rows = data == null ? [] : Array.isArray(data) ? data : [];
 
   if (rows.length === 0) {
     return (
