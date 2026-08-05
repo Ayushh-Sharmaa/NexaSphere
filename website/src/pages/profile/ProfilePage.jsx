@@ -206,6 +206,7 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [activeTab, setActiveTab] = useState('registrations');
   const [editForm, setEditForm] = useState({
     fullName: '',
@@ -248,18 +249,22 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       setSaving(true);
+      setSaveError(null);
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
       });
-      if (!res.ok) throw new Error('Failed to update profile');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || 'Failed to update profile');
+      }
       const updated = await res.json();
       setProfile((prev) => ({ ...prev, ...updated }));
       setEditing(false);
     } catch (err) {
-      alert(err.message);
+      setSaveError(err.message || 'An unexpected error occurred while saving profile.');
     } finally {
       setSaving(false);
     }
@@ -630,7 +635,7 @@ export default function ProfilePage() {
                 placeholder="https://yourportfolio.com"
               />
               <div style={styles.modalBtns}>
-                <button onClick={() => setEditing(false)} style={styles.btnOutline}>
+                <button onClick={() => { setEditing(false); setSaveError(null); }} style={styles.btnOutline}>
                   Cancel
                 </button>
                 <button
