@@ -107,6 +107,12 @@ export default function ModerationDashboard() {
   const [selectedTab, setSelectedTab] = useState('pending');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 5000);
+  };
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
@@ -234,7 +240,7 @@ export default function ModerationDashboard() {
       });
       if (!res.ok) throw new Error('Failed to approve all');
       const data = await res.json();
-      alert(`Approved ${data.approvedCount} items`);
+      showNotification(`Approved ${data.approvedCount} items`);
       fetchFlags();
       fetchStats();
     } catch (err) {
@@ -313,6 +319,25 @@ export default function ModerationDashboard() {
           >
             <span style={{ color: '#EF4444' }}>{error}</span>
             <button style={buttonStyle('danger')} onClick={() => setError(null)}>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {notification && (
+          <div
+            role="status"
+            style={{
+              ...cardStyle,
+              border: '1px solid #10B981',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ color: '#10B981' }}>{notification}</span>
+            <button style={buttonStyle('success')} onClick={() => setNotification(null)}>
               Dismiss
             </button>
           </div>
