@@ -6,6 +6,12 @@ export default function SyncDashboard({ token }) {
   const [syncStatus, setSyncStatus] = useState(null);
   const [conflicts, setConflicts] = useState(null);
   const [forceSyncing, setForceSyncing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   const fetchData = async () => {
     try {
@@ -45,10 +51,10 @@ export default function SyncDashboard({ token }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to force sync');
-      alert(data.data.message);
+      showFeedback(data.data.message, 'success');
       await fetchData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showFeedback(`Error: ${err.message}`, 'error');
     } finally {
       setForceSyncing(false);
     }
@@ -59,6 +65,28 @@ export default function SyncDashboard({ token }) {
 
   return (
     <div style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', color: 'var(--t1)' }}>
+      {feedback && (
+        <div
+          role="status"
+          style={{
+            marginBottom: '1.5rem',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            backgroundColor:
+              feedback.type === 'error'
+                ? 'rgba(239, 68, 68, 0.15)'
+                : 'rgba(16, 185, 129, 0.15)',
+            color: feedback.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${
+              feedback.type === 'error' ? '#ef4444' : '#10b981'
+            }`,
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          }}
+        >
+          {feedback.message}
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h2 style={{ margin: 0, color: 'white' }}>Database Sync Status</h2>
         <button 
