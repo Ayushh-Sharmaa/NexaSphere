@@ -79,6 +79,7 @@ export const EVENTS = {
   CORE_TEAM_MEMBER_REMOVED: 'core-team:removed',
 
   AUTH_TOKEN_EXPIRED: 'auth:token-expired',
+  AUTH_LOGIN: 'auth:login',
   AUTH_LOGOUT: 'auth:logout',
 
   NOTIFY: 'notify',

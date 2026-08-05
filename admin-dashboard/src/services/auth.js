@@ -8,6 +8,8 @@
 
 import { eventEmitter, EVENTS } from "./eventEmitter";
 
+const _loginEmitter = () => eventEmitter.emit(EVENTS.AUTH_LOGIN);
+
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 const TOKEN_KEY = "ns_admin_token";
 const EMAIL_KEY = "ns_admin_email";
@@ -93,6 +95,7 @@ export const auth = {
       }
       localStorage.setItem(EMAIL_KEY, cleanEmail);
       localStorage.removeItem(OFFLINE_FLAG_KEY);
+      _loginEmitter();
 
       if (data.expiresAt) {
         localStorage.setItem(EXPIRY_KEY, data.expiresAt);
@@ -132,6 +135,7 @@ export const auth = {
         localStorage.setItem(TOKEN_KEY, mockToken);
         localStorage.setItem(EMAIL_KEY, cleanEmail);
         localStorage.setItem(OFFLINE_FLAG_KEY, "true");
+        _loginEmitter();
         return { token: mockToken, email: cleanEmail, offline: true };
       }
 
