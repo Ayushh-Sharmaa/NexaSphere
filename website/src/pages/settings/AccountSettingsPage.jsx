@@ -103,7 +103,13 @@ export default function AccountSettingsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
+
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000);
+  };
 
   const handleExport = async () => {
     try {
@@ -120,7 +126,7 @@ export default function AccountSettingsPage() {
       link.click();
       link.remove();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to export data');
+      showNotification('error', err.response?.data?.error || 'Failed to export data');
     } finally {
       setExporting(false);
     }
@@ -131,10 +137,10 @@ export default function AccountSettingsPage() {
     try {
       setDeleting(true);
       await apiClient.delete('/api/auth/me');
-      alert('Your account has been successfully deleted.');
+      showNotification('success', 'Your account has been successfully deleted.');
       window.location.href = '/login';
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete account');
+      showNotification('error', err.response?.data?.error || 'Failed to delete account');
       setDeleting(false);
     }
   };
@@ -143,6 +149,42 @@ export default function AccountSettingsPage() {
     <div style={styles.page}>
       <div style={styles.container}>
         <h1 style={styles.header}>Account Settings</h1>
+
+        {notification && (
+          <div
+            role="alert"
+            style={{
+              padding: '1rem 1.25rem',
+              borderRadius: '8px',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              background: notification.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+              border: `1px solid ${notification.type === 'error' ? '#ef4444' : '#22c55e'}`,
+              color: notification.type === 'error' ? '#fca5a5' : '#86efac',
+              fontSize: '0.95rem',
+              fontWeight: '500',
+            }}
+          >
+            <span>{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                marginLeft: 'auto',
+                fontSize: '1.1rem',
+                padding: '0 0.5rem',
+              }}
+              aria-label="Dismiss notification"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>Export My Data</h2>
