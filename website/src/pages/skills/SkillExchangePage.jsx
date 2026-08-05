@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // Validates a date value before formatting — avoids rendering literal
 // "Invalid Date" text when the API returns a null or malformed timestamp.
@@ -18,7 +18,20 @@ function formatSkillSessionDate(value) {
   return date.toLocaleDateString();
 }
 
-const USER_ID = localStorage.getItem('ns_user_id') || `user-${Date.now().toString(36)}`;
+function getUserId() {
+  if (typeof window === 'undefined') return 'user-ssr';
+  try {
+    let id = localStorage.getItem('ns_user_id');
+    if (!id) {
+      id = `user-${Date.now().toString(36)}`;
+      localStorage.setItem('ns_user_id', id);
+    }
+    return id;
+  } catch {
+    return `user-fallback`;
+  }
+}
+
 const PROFICIENCY = ['Beginner', 'Intermediate', 'Advanced'];
 const FORMATS = ['Video', 'Chat', 'In-person'];
 const DURATIONS = [30, 60, 90];
@@ -30,11 +43,8 @@ function formatSkillDate(value) {
   return date.toLocaleDateString();
 }
 
-if (!localStorage.getItem('ns_user_id')) {
-  localStorage.setItem('ns_user_id', USER_ID);
-}
-
 export default function SkillExchangePage({ onBack }) {
+  const USER_ID = useMemo(() => getUserId(), []);
   const [tab, setTab] = useState('listings');
   const [listings, setListings] = useState([]);
   const [matches, setMatches] = useState([]);
