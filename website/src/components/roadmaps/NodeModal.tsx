@@ -134,7 +134,6 @@ export const NodeModal: React.FC<NodeModalProps> = ({ theme }) => {
       };
 
       if (hasCycle(node.id, targetId)) {
-        alert('Invalid connection: checking this node will create a circular loop!');
         setUrlError('Invalid connection: checking this node will create a circular loop.');
         return;
       }
