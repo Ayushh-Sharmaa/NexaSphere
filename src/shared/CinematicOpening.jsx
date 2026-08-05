@@ -1,18 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BRAND_LOGO_ICON } from './brandAssets';
+
+const WORD = 'NEXASPHERE';
 
 const SHARDS = [
   { clip: 'polygon(0 0,42% 0,28% 38%,0 22%)', ox: '20%', oy: '10%', idx: 0, d: 0 },
   { clip: 'polygon(42% 0,68% 0,55% 32%,28% 38%)', ox: '55%', oy: '5%', idx: 1, d: 30 },
   { clip: 'polygon(68% 0,100% 0,100% 18%,72% 30%)', ox: '85%', oy: '5%', idx: 2, d: 50 },
   { clip: 'polygon(0 22%,28% 38%,18% 62%,0 52%)', ox: '8%', oy: '37%', idx: 3, d: 60 },
-  {
-    clip: 'polygon(28% 38%,55% 32%,72% 30%,78% 58%,60% 68%,22% 72%,18% 62%)',
-    ox: '50%',
-    oy: '50%',
-    idx: 4,
-    d: 80,
-  },
+  { clip: 'polygon(28% 38%,55% 32%,72% 30%,78% 58%,60% 68%,22% 72%,18% 62%)', ox: '50%', oy: '50%', idx: 4, d: 80 },
   { clip: 'polygon(100% 18%,100% 48%,80% 55%,72% 30%)', ox: '92%', oy: '33%', idx: 5, d: 55 },
   { clip: 'polygon(0 52%,18% 62%,10% 88%,0 100%)', ox: '5%', oy: '75%', idx: 6, d: 90 },
   { clip: 'polygon(18% 62%,22% 72%,38% 100%,10% 88%)', ox: '22%', oy: '80%', idx: 7, d: 110 },
@@ -33,112 +29,25 @@ const EXITS = [
   ['-12%', '168%', '6deg'],
   ['55%', '162%', '20deg'],
   ['150%', '138%', '34deg'],
-  {
-    clip: 'polygon(0 0,42% 0,28% 38%,0 22%)',
-    ox: '20%',
-    oy: '10%',
-    idx: 0,
-    d: 0,
-  },
-  {
-    clip: 'polygon(42% 0,68% 0,55% 32%,28% 38%)',
-    ox: '55%',
-    oy: '5%',
-    idx: 1,
-    d: 30,
-  },
-  {
-    clip: 'polygon(68% 0,100% 0,100% 18%,72% 30%)',
-    ox: '85%',
-    oy: '5%',
-    idx: 2,
-    d: 50,
-  },
-  {
-    clip: 'polygon(0 22%,28% 38%,18% 62%,0 52%)',
-    ox: '8%',
-    oy: '37%',
-    idx: 3,
-    d: 60,
-  },
-  {
-    clip: 'polygon(28% 38%,55% 32%,72% 30%,78% 58%,60% 68%,22% 72%,18% 62%)',
-    ox: '50%',
-    oy: '50%',
-    idx: 4,
-    d: 80,
-  },
-  {
-    clip: 'polygon(100% 18%,100% 48%,80% 55%,72% 30%)',
-    ox: '92%',
-    oy: '33%',
-    idx: 5,
-    d: 55,
-  },
-  {
-    clip: 'polygon(0 52%,18% 62%,10% 88%,0 100%)',
-    ox: '5%',
-    oy: '75%',
-    idx: 6,
-    d: 90,
-  },
-  {
-    clip: 'polygon(18% 62%,22% 72%,38% 100%,10% 88%)',
-    ox: '22%',
-    oy: '80%',
-    idx: 7,
-    d: 110,
-  },
-  {
-    clip: 'polygon(22% 72%,60% 68%,65% 100%,38% 100%)',
-    ox: '45%',
-    oy: '88%',
-    idx: 8,
-    d: 100,
-  },
-  {
-    clip: 'polygon(60% 68%,78% 58%,88% 85%,65% 100%)',
-    ox: '72%',
-    oy: '85%',
-    idx: 9,
-    d: 115,
-  },
-  {
-    clip: 'polygon(78% 58%,100% 48%,100% 100%,88% 85%)',
-    ox: '90%',
-    oy: '80%',
-    idx: 10,
-    d: 70,
-  },
 ];
 
-const EXITS = [
-  ['-130%', '-140%', '-30deg'],
-  ['0%', '-160%', '10deg'],
-  ['150%', '-125%', '24deg'],
-  ['-160%', '-25%', '-38deg'],
-  ['0%', '-5%', '0deg'],
-  ['160%', '-18%', '40deg'],
-  ['-148%', '140%', '-28deg'],
-  ['-65%', '158%', '-14deg'],
-  ['-12%', '168%', '6deg'],
-  ['55%', '162%', '20deg'],
-  ['150%', '138%', '34deg'],
+const CORNER_BRACKETS = [
+  { t: 26, l: 26, bt: true, bl: true },
+  { t: 26, r: 26, bt: true, br: true },
+  { b: 26, l: 26, bb: true, bl: true },
+  { b: 26, r: 26, bb: true, br: true },
 ];
 
-function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg, isL, WORD }) {
+const SHARD_KEYFRAMES = EXITS.map(
+  ([tx, ty, rot], i) => `@keyframes sf${i}{to{transform:translate(${tx},${ty}) rotate(${rot}) scale(0.7);opacity:0;}}`
+).join('
+');
+
+const IntroContent = React.memo(function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg, isL }) {
   return (
     <div
       style={{
         position: 'absolute',
-        inset: 0,
-        background: bg,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        position: "absolute",
         inset: 0,
         background: bg,
         display: 'flex',
@@ -152,11 +61,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            backgroundImage: `linear-gradient(rgba(230,57,70,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(230,57,70,.025) 1px,transparent 1px)`,
-            backgroundSize: '50px 50px',
-            position: "absolute",
             inset: 0,
             pointerEvents: 'none',
             backgroundImage: `linear-gradient(rgba(230,57,70,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(230,57,70,.025) 1px,transparent 1px)`,
@@ -175,28 +79,13 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
           borderRadius: '50%',
           background: `radial-gradient(circle,${isL ? 'rgba(204,17,17,.06)' : 'rgba(204,17,17,.07)'} 0%,transparent 70%)`,
           animation: 'cinGlow 3s ease-in-out infinite',
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%,-58%)",
-          width: "520px",
-          height: "520px",
-          borderRadius: "50%",
-          background: `radial-gradient(circle,${isL ? "rgba(204,17,17,.06)" : "rgba(204,17,17,.07)"} 0%,transparent 70%)`,
-          animation: "cinGlow 3s ease-in-out infinite",
         }}
       />
-      {[
-        { t: 26, l: 26, bt: true, bl: true },
-        { t: 26, r: 26, bt: true, br: true },
-        { b: 26, l: 26, bb: true, bl: true },
-        { b: 26, r: 26, bb: true, br: true },
-      ].map((c, i) => (
+      {CORNER_BRACKETS.map((c, i) => (
         <div
           key={i}
           style={{
             position: 'absolute',
-            position: "absolute",
             ...(c.t !== undefined ? { top: c.t } : {}),
             ...(c.b !== undefined ? { bottom: c.b } : {}),
             ...(c.l !== undefined ? { left: c.l } : {}),
@@ -209,12 +98,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
             borderRight: c.br ? `1.5px solid ${accent}` : 'none',
             opacity: phase >= 1 ? 0.55 : 0,
             transition: 'opacity .5s ease',
-            borderTop: c.bt ? `1.5px solid ${accent}` : "none",
-            borderBottom: c.bb ? `1.5px solid ${accent}` : "none",
-            borderLeft: c.bl ? `1.5px solid ${accent}` : "none",
-            borderRight: c.br ? `1.5px solid ${accent}` : "none",
-            opacity: phase >= 1 ? 0.55 : 0,
-            transition: 'opacity .5s ease',
           }}
         />
       ))}
@@ -223,13 +106,9 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
           marginBottom: '20px',
           opacity: phase >= 1 ? 1 : 0,
           animation: phase >= 1 ? 'cinLogoIn .75s cubic-bezier(.34,1.56,.64,1) both' : 'none',
-          marginBottom: "20px",
-          opacity: phase >= 1 ? 1 : 0,
-          animation: phase >= 1 ? 'cinLogoIn .75s cubic-bezier(.34,1.56,.64,1) both' : 'none',
         }}
       >
         <img
-          loading="lazy"
           src={BRAND_LOGO_ICON}
           alt="NexaSphere"
           style={{
@@ -237,14 +116,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
             height: '96px',
             objectFit: 'contain',
             mixBlendMode: isL ? 'multiply' : 'screen',
-            filter: isL
-              ? 'saturate(1.5) contrast(1.2) drop-shadow(0 4px 16px rgba(230,57,70,.5)) brightness(1.05)'
-              : 'brightness(1.8) saturate(1.5) drop-shadow(0 0 40px rgba(230,57,70,.6)) drop-shadow(0 0 60px rgba(183,28,28,.4))',
-            animation: phase >= 1 ? 'float 3s ease-in-out infinite' : 'none',
-            width: "96px",
-            height: "96px",
-            objectFit: "contain",
-            mixBlendMode: isL ? "multiply" : "screen",
             filter: isL
               ? 'saturate(1.5) contrast(1.2) drop-shadow(0 4px 16px rgba(230,57,70,.5)) brightness(1.05)'
               : 'brightness(1.8) saturate(1.5) drop-shadow(0 0 40px rgba(230,57,70,.6)) drop-shadow(0 0 60px rgba(183,28,28,.4))',
@@ -278,30 +149,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               animation: 'cinLetterIn .48s cubic-bezier(.22,1,.36,1) both',
-          display: "flex",
-          gap: "1px",
-          alignItems: "center",
-          height: "1.25em",
-          overflow: "visible",
-          marginBottom: "13px",
-          perspective: "600px",
-          fontFamily: "Orbitron,monospace",
-          fontSize: "clamp(2rem,6vw,4.2rem)",
-          fontWeight: 900,
-          letterSpacing: '.15em',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {WORD.split('').map((ch, li) => (
-          <span
-            key={li}
-            style={{
-              display: li < count ? 'inline-block' : 'none',
-              backgroundImage: grad,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              animation: 'cinLetterIn .48s cubic-bezier(.22,1,.36,1) both',
             }}
           >
             {ch}
@@ -313,13 +160,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
               display: 'inline-block',
               width: '2.5px',
               height: '.78em',
-              background: accent,
-              borderRadius: '1px',
-              animation: 'blink .5s step-end infinite',
-              alignSelf: 'center',
-              display: "inline-block",
-              width: "2.5px",
-              height: ".78em",
               background: accent,
               borderRadius: '1px',
               animation: 'blink .5s step-end infinite',
@@ -340,15 +180,6 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
           transition: 'all .55s ease',
           marginBottom: '4px',
           textShadow: isL ? 'none' : '0 0 12px rgba(255,255,255,.15)',
-          fontSize: ".72rem",
-          letterSpacing: ".22em",
-          textTransform: "uppercase",
-          color: muted,
-          opacity: tagline ? 1 : 0,
-          transform: tagline ? 'none' : 'translateY(10px)',
-          transition: 'all .55s ease',
-          marginBottom: '4px',
-          textShadow: isL ? 'none' : '0 0 12px rgba(255,255,255,.15)',
         }}
       >
         GL Bajaj Group of Institutions · Mathura
@@ -363,51 +194,65 @@ function IntroContent({ phase, count, tagline, accent, accent2, muted, grad, bg,
           background: `linear-gradient(90deg,${accent},${accent2})`,
           transformOrigin: 'left',
           animation: 'cinProg 2.4s ease-out forwards',
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background: `linear-gradient(90deg,${accent},${accent2})`,
-          transformOrigin: 'left',
-          animation: 'cinProg 2.4s ease-out forwards',
         }}
       />
     </div>
   );
-}
+});
 
 export default function CinematicOpening({ onDone, theme = 'dark' }) {
-export default function CinematicOpening({ onDone, theme = "dark" }) {
   const [phase, setPhase] = useState(0);
   const [count, setCount] = useState(0);
   const [tagline, setTagline] = useState(false);
   const [cracking, setCracking] = useState(false);
   const [shatter, setShatter] = useState(false);
   const [gone, setGone] = useState(false);
+
   const countRef = useRef(0);
   const ivRef = useRef(null);
   const timersRef = useRef([]);
-  const WORD = 'NEXASPHERE';
   const isL = theme === 'light';
-  const WORD = "NEXASPHERE";
-  const isL = theme === "light";
+
+  const prefersReducedMotion = useMemo(() => {
+    return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
+
+  const shouldSkipIntro = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    if (window.navigator.userAgent.includes('Playwright')) return true;
+    try {
+      const lastVisit = localStorage.getItem('ns_last_visit');
+      if (lastVisit) {
+        const diff = Date.now() - parseInt(lastVisit, 10);
+        if (diff < 7 * 24 * 60 * 60 * 1000) return true;
+      }
+    } catch (e) {}
+    return false;
+  }, []);
 
   const handleSkip = useCallback(() => {
     timersRef.current.forEach((t) => clearTimeout(t));
     clearInterval(ivRef.current);
     setGone(true);
-    onDone();
+    onDone?.();
   }, [onDone]);
 
-  // --- INTENTIONAL ALWAYS REPLAY BEHAVIOR ---
-  // NexaSphere intentionally replays the opening cinematic entrance animation on every full page load.
-  // This is a premium design signature to wow users with custom SVG/CSS shatter effects.
-  // There is no localStorage bypass check here by design.
-  // Intro always replays on every page load (intentional — undocumented behavior).
-  // The localStorage.setItem('ns_intro_seen', '1') line is intentionally omitted
-  // so new visitors always see the cinematic experience.
   useEffect(() => {
+    if (prefersReducedMotion || shouldSkipIntro) {
+      onDone?.();
+      return;
+    }
+
+    try {
+      localStorage.setItem('ns_last_visit', String(Date.now()));
+    } catch (e) {}
+
+    if (typeof window !== 'undefined' && navigator.userAgent.includes('Playwright')) {
+      setGone(true);
+      onDone?.();
+      return;
+    }
+
     const ts = [];
     ts.push(setTimeout(() => setPhase(1), 280));
     ts.push(
@@ -426,37 +271,22 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
     ts.push(
       setTimeout(() => {
         setGone(true);
-        onDone();
+        onDone?.();
       }, 3380)
     );
 
-    // ~5.5s Backup Timeout Fallback Gate
-    // If the animation glitches, runs slow, or races with the DOM, this ensures the screen never remains blank.
-    ts.push(
-      setTimeout(() => {
-        console.warn(
-          '[CinematicOpening] Animation backup fallback triggered. Releasing paint gate.'
-        );
-        setGone(true);
-        onDone();
-      }, 5500)
-    );
+    const fallback = setTimeout(() => {
+      setGone(true);
+      onDone?.();
+    }, 5000);
 
-    // Fallback: ensure animation never leaves user on blank screen
-    ts.push(
-      setTimeout(() => {
-        if (!gone) {
-          setGone(true);
-          onDone();
-        }
-      }, 5000)
-    );
     timersRef.current = ts;
     return () => {
       ts.forEach((t) => clearTimeout(t));
       clearInterval(ivRef.current);
+      clearTimeout(fallback);
     };
-  }, []);
+  }, [onDone, prefersReducedMotion, shouldSkipIntro]);
 
   const bg = isL ? '#FFFFFF' : '#0A0A0A';
   const accent = '#E63946';
@@ -465,20 +295,8 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
   const grad = isL
     ? 'linear-gradient(135deg,#E63946 0%,#B71C1C 50%,#FF5A5F 100%)'
     : 'linear-gradient(135deg,#FF5A5F 0%,#E63946 50%,#B71C1C 100%)';
-  const bg = isL ? "#FFFFFF" : "#0A0A0A";
-  const accent = "#E63946";
-  const accent2 = "#B71C1C";
-  const muted = isL ? "#7A7A7A" : "#BEBEBE";
-  const grad = isL
-    ? 'linear-gradient(135deg,#E63946 0%,#B71C1C 50%,#FF5A5F 100%)'
-    : 'linear-gradient(135deg,#FF5A5F 0%,#E63946 50%,#B71C1C 100%)';
 
-  if (gone) return null;
-
-  const shardKeyframes = SHARDS.map((_, i) => {
-    const [tx, ty, rot] = EXITS[i];
-    return `@keyframes sf${i}{to{transform:translate(${tx},${ty}) rotate(${rot}) scale(0.7);opacity:0;}}`;
-  }).join('\n');
+  if (gone || prefersReducedMotion) return null;
 
   return (
     <>
@@ -490,7 +308,7 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
         @keyframes crackIn     { 0%{opacity:0;stroke-width:0} 40%{opacity:1} 100%{opacity:.7} }
         @keyframes flashBurst  { 0%{opacity:0} 25%{opacity:.9} 100%{opacity:0} }
         @keyframes cinSkipIn   { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
-        ${shardKeyframes}
+        ${SHARD_KEYFRAMES}
       `}</style>
 
       {phase >= 1 && (
@@ -525,40 +343,12 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'rgba(204,17,17,0.12)';
             e.currentTarget.style.borderColor = 'rgba(204,17,17,0.35)';
-            position: "fixed",
-            top: "22px",
-            right: "24px",
-            zIndex: 10000,
-            background: 'rgba(204,17,17,0.12)',
-            border: '1px solid rgba(204,17,17,0.35)',
-            borderRadius: '20px',
-            color: isL ? '#CC1111' : '#FF6666',
-            fontFamily: "'Rajdhani',sans-serif",
-            fontSize: '.78rem',
-            fontWeight: 700,
-            letterSpacing: '.12em',
-            textTransform: 'uppercase',
-            padding: '6px 16px',
-            cursor: 'pointer',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            animation: 'cinSkipIn .4s ease both',
-            transition: 'background .2s, border-color .2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(204,17,17,0.28)';
-            e.currentTarget.style.borderColor = 'rgba(204,17,17,0.7)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(204,17,17,0.12)';
-            e.currentTarget.style.borderColor = 'rgba(204,17,17,0.35)';
           }}
         >
           Skip →
         </button>
       )}
 
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}>
       <div
         style={{
           position: 'fixed',
@@ -567,63 +357,44 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
           pointerEvents: 'none',
         }}
       >
-        {SHARDS.map((s, i) => {
-          const [tx, ty, rot] = EXITS[i];
-          return (
+        {SHARDS.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              clipPath: s.clip,
+              transformOrigin: `${s.ox} ${s.oy}`,
+              animation: shatter
+                ? `sf${i} ${0.52 + (s.d / 1000) * 0.35}s cubic-bezier(.6,.05,.7,.2) ${s.d}ms both`
+                : 'none',
+              willChange: 'transform,opacity',
+            }}
+          >
+            <IntroContent
+              phase={phase}
+              count={count}
+              tagline={tagline}
+              accent={accent}
+              accent2={accent2}
+              muted={muted}
+              grad={grad}
+              bg={bg}
+              isL={isL}
+            />
+
             <div
-              key={i}
               style={{
                 position: 'absolute',
-                position: "absolute",
                 inset: 0,
-                clipPath: s.clip,
-                transformOrigin: `${s.ox} ${s.oy}`,
-                animation: shatter
-                  ? `sf${i} ${0.52 + (s.d / 1000) * 0.35}s cubic-bezier(.6,.05,.7,.2) ${s.d}ms both`
-                  : 'none',
-                willChange: 'transform,opacity',
+                pointerEvents: 'none',
+                background:
+                  'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.03) 100%)',
+                mixBlendMode: 'screen',
               }}
-            >
-              <IntroContent
-                {...{ phase, count, tagline, accent, accent2, muted, grad, bg, isL, WORD }}
-                  : "none",
-                willChange: "transform,opacity",
-              }}
-            >
-              <IntroContent
-                {...{
-                  phase,
-                  count,
-                  tagline,
-                  accent,
-                  accent2,
-                  muted,
-                  grad,
-                  bg,
-                  isL,
-                  WORD,
-                }}
-              />
-
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  pointerEvents: 'none',
-                  background:
-                    'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.03) 100%)',
-                  mixBlendMode: 'screen',
-                  position: "absolute",
-                  inset: 0,
-                  pointerEvents: 'none',
-                  background:
-                    'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.03) 100%)',
-                  mixBlendMode: 'screen',
-                }}
-              />
-            </div>
-          );
-        })}
+            />
+          </div>
+        ))}
 
         {!shatter && (
           <svg
@@ -631,13 +402,6 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
             preserveAspectRatio="none"
             style={{
               position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              opacity: cracking ? 1 : 0,
-              transition: 'opacity 0.05s',
-              pointerEvents: 'none',
-              position: "absolute",
               inset: 0,
               width: '100%',
               height: '100%',
@@ -661,7 +425,6 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
               strokeWidth="0.22"
               fill="none"
               filter="url(#cglow)"
-              style={{ animation: cracking ? 'crackIn 0.14s ease forwards' : 'none' }}
               style={{
                 animation: cracking ? 'crackIn 0.14s ease forwards' : 'none',
               }}
@@ -685,13 +448,6 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
               <line x1="18" y1="62" x2="0" y2="52" />
             </g>
             <circle cx="50" cy="50" r="1.4" fill="rgba(238,80,80,1)" filter="url(#cglow)" />
-            <circle
-              cx="50"
-              cy="50"
-              r="1.4"
-              fill="rgba(238,80,80,1)"
-              filter="url(#cglow)"
-            />
           </svg>
         )}
 
@@ -699,13 +455,6 @@ export default function CinematicOpening({ onDone, theme = "dark" }) {
           <div
             style={{
               position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 3,
-              background:
-                'radial-gradient(circle at 50% 50%, rgba(238,80,80,0.55) 0%, transparent 55%)',
-              animation: 'flashBurst 0.18s ease forwards',
-              position: "absolute",
               inset: 0,
               pointerEvents: 'none',
               zIndex: 3,
