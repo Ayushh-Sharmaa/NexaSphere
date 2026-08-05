@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Copy project files
-        uses: actions/checkout@v4 # This grabs your code so the tool can look at it
+        uses: actions/checkout@v7 # This grabs your code so the tool can look at it
 
       - name: Check markdown formatting
         uses: davidanson/markdownlint-cli2-action@v24 # This is the official community tool

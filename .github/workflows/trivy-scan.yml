@@ -13,7 +13,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build an image from Dockerfile
         run: docker build -t nexasphere/test-image:${{ github.sha }} .
@@ -28,7 +28,7 @@ jobs:
           exit-code: '1'
 
       - name: Upload Trivy scan results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: trivy-vulnerability-report

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Run Socket Security Scan
         uses: socketdev/setup-socket@v1
@@ -39,8 +39,8 @@ jobs:
     # Only run for Renovate PRs to gate the automerge
     if: github.actor == 'renovate[bot]'
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 18
       - run: npm ci

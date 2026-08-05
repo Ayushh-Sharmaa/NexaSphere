@@ -70,7 +70,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Build Docker image from server/Dockerfile
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Build Docker image from Dockerfile
         run: |
           if [ -f server/Dockerfile ]; then
