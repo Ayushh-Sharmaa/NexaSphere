@@ -78,9 +78,6 @@ export default function Cursor() {
       const opacity = s.visible ? (s.hovering ? 0.95 : 0.82) : 0;
 
       if (orbRef.current) {
-        orbRef.current.style.left = s.ox + 'px';
-        orbRef.current.style.top = fy + 'px';
-        orbRef.current.style.transform = `translate(-50%,-50%) scale(${scale})`;
         orbRef.current.style.opacity = opacity;
       }
       if (trailRef.current) {
