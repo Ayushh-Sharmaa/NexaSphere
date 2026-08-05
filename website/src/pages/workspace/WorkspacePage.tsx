@@ -84,7 +84,6 @@ export default function WorkspacePage({ roomId, onBack }: WorkspacePageProps) {
     if (user.initials !== initials) {
       setUser((prev) => ({ ...prev, initials }));
     }
-    console.log(`Collaborative Workspace joined: ${roomId} as ${user.name}`);
     return () => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
