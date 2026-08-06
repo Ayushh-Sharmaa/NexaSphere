@@ -1,3 +1,5 @@
+import CommandMenu from './components/CommandMenu';
+import { useAdminShortcuts } from './hooks/useAdminShortcuts';
 import React, { Suspense } from 'react';
 import RateLimitMonitor from './pages/dashboard/RateLimitMonitor';
 const AuditLogViewer = React.lazy(() => import('./pages/dashboard/AuditLogViewer'));
@@ -80,7 +82,17 @@ function RequireAuth() {
   return isVerified ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
+
 function DashboardLayout() {
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = React.useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = React.useState(false);
+
+  useAdminShortcuts({
+    onOpenCommandMenu: () => setIsCommandMenuOpen(true),
+    onToggleShortcutsHelp: () => setIsShortcutsHelpOpen(prev => !prev),
+  });
+
+
   return (
     <div className="app-layout">
       <OfflineBanner />
@@ -96,6 +108,8 @@ function DashboardLayout() {
       <MobileBottomNav />
       <Toast />
       <OnboardingTour />
+      <CommandMenu isOpen={isCommandMenuOpen} onClose={() => setIsCommandMenuOpen(false)} />
+      <CommandMenu isOpen={isShortcutsHelpOpen} onClose={() => setIsShortcutsHelpOpen(false)} isHelpMode={true} />
     </div>
   );
 }
