@@ -685,24 +685,39 @@ class GamificationService {
   }
 
   async getLeaderboard(filter = 'all') {
-    const MOCK_LEADERBOARD = [
-      { rank: 1, name: 'Alex Johnson', xp: 2850, level: 8, avatar: '👨‍💻', streak: 12 },
-      { rank: 2, name: 'Sarah Chen', xp: 2420, level: 7, avatar: '👩‍💻', streak: 7 },
-      { rank: 3, name: 'Mike Ross', xp: 2100, level: 7, avatar: '👨‍💼', streak: 4 },
-      { rank: 4, name: 'Emma Watson', xp: 1850, level: 6, avatar: '👩‍🎓', streak: 2 },
-      { rank: 5, name: 'David Kim', xp: 1520, level: 6, avatar: '👨‍🔬', streak: 0 },
+    const DEMO_LEADERBOARD = [
+      {
+        rank: 1,
+        name: 'Alex Johnson',
+        xp: 2850,
+        level: 8,
+        avatar: '👨‍💻',
+        streak: 12,
+        isSample: true,
+      },
+      { rank: 2, name: 'Sarah Chen', xp: 2420, level: 7, avatar: '👩‍💻', streak: 7, isSample: true },
+      { rank: 3, name: 'Mike Ross', xp: 2100, level: 7, avatar: '👨‍💼', streak: 4, isSample: true },
+      { rank: 4, name: 'Emma Watson', xp: 1850, level: 6, avatar: '👩‍🎓', streak: 2, isSample: true },
+      { rank: 5, name: 'David Kim', xp: 1520, level: 6, avatar: '👨‍🔬', streak: 0, isSample: true },
     ];
 
+    const allowDemo =
+      String(import.meta?.env?.VITE_USE_DEMO_LEADERBOARD || '')
+        .trim()
+        .toLowerCase() === 'true';
+
+    const demoOrEmpty = () => (allowDemo ? DEMO_LEADERBOARD : []);
+
     const base = getApiBase();
-    if (!base) return MOCK_LEADERBOARD;
+    if (!base) return demoOrEmpty();
 
     try {
       const res = await fetch(
         `${base}/api/dashboard/leaderboard?filter=${encodeURIComponent(filter)}`
       );
-      if (!res.ok) return MOCK_LEADERBOARD;
+      if (!res.ok) return demoOrEmpty();
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) return MOCK_LEADERBOARD;
+      if (!Array.isArray(data) || data.length === 0) return [];
       // Map backend UserProfileEntity shape to leaderboard display shape
       return data.map((user, i) => ({
         id: user.id || user.user_id || user.email || `leaderboard-${i + 1}`,
@@ -716,7 +731,7 @@ class GamificationService {
         badges: user.badges || [],
       }));
     } catch {
-      return MOCK_LEADERBOARD;
+      return demoOrEmpty();
     }
   }
 

@@ -41,12 +41,22 @@ export default function Leaderboard({ users, currentUserId, timeframe, setTimefr
 
       {/* Leaderboard List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {(!users || users.length === 0) && (
+          <p style={{ color: 'var(--t2)', margin: '8px 0 0' }}>
+            No leaderboard data available right now.
+          </p>
+        )}
+        {users?.some((u) => u.isSample) && (
+          <p style={{ color: '#f59e0b', margin: '0 0 8px', fontSize: '0.85rem' }}>
+            Sample data — not live rankings.
+          </p>
+        )}
         {users?.map((user, index) => {
           const isMe = user.id === currentUserId;
 
           return (
             <div
-              key={user.id}
+              key={user.id || user.rank || index}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -64,7 +74,8 @@ export default function Leaderboard({ users, currentUserId, timeframe, setTimefr
                 }}
               >
                 {index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : `#${index + 1} `}
-                {user.username} {isMe && '(You)'}
+                {user.username || user.name} {isMe && '(You)'}
+                {user.isSample ? ' (sample)' : ''}
               </span>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                 {user.streak > 0 && (
