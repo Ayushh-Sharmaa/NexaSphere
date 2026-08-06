@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { exportToPDF } from '../../utils/exportPDF';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 
@@ -213,17 +214,39 @@ export default function AuditLogViewer() {
     fetchLogs(1);
   };
 
-  const handleExport = async () => {
-    const params = new URLSearchParams({ page: 1, limit: 1000 });
-    if (action) params.set('action', action);
-    if (adminId) params.set('adminId', adminId);
-    if (startDate) params.set('startDate', startDate);
-    if (endDate) params.set('endDate', endDate);
-    const res = await fetch(`${API_BASE}/api/admin/audit-logs?${params}`, {
-      credentials: 'include',
-    });
+  const handleExportCSV = async () => {
+    const url = new URL(`${API_BASE}/api/admin/audit-logs`);
+    url.searchParams.set('limit', 1000);
+    if (adminId) url.searchParams.set('adminId', adminId);
+    if (action) url.searchParams.set('action', action);
+    if (startDate) url.searchParams.set('startDate', startDate);
+    if (endDate) url.searchParams.set('endDate', endDate);
+
+    const res = await fetch(url.toString(), { credentials: 'include' });
     const data = await res.json();
     exportCSV(data.logs ?? []);
+  };
+
+  const handleExportPDF = async () => {
+    const url = new URL(`${API_BASE}/api/admin/audit-logs`);
+    url.searchParams.set('limit', 1000);
+    if (adminId) url.searchParams.set('adminId', adminId);
+    if (action) url.searchParams.set('action', action);
+    if (startDate) url.searchParams.set('startDate', startDate);
+    if (endDate) url.searchParams.set('endDate', endDate);
+
+    const res = await fetch(url.toString(), { credentials: 'include' });
+    const data = await res.json();
+    const logs = data.logs ?? [];
+    
+    const columns = ['Timestamp', 'Admin ID', 'Action', 'IP Address'];
+    const rows = logs.map((l) => [
+      new Date(l.timestamp).toLocaleString(),
+      l.admin_id,
+      l.action,
+      l.ip_address || '-',
+    ]);
+    exportToPDF(columns, rows, `audit-logs-${Date.now()}`);
   };
 
   return (
@@ -236,12 +259,20 @@ export default function AuditLogViewer() {
             Admin activity trail — {total.toLocaleString()} total records
           </p>
         </div>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
-        >
-          ↓ Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
