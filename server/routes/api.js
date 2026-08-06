@@ -1,3 +1,4 @@
+import adminSearchRoutes from './adminSearchRoutes.js';
 import { Router } from 'express';
 import { throttleMiddleware } from '../middleware/throttleMiddleware.js';
 import settingsRouter from './settingsRoutes.js';
@@ -648,4 +649,5 @@ router.use('/api/analytics', requireStudentAuth, platformAnalyticsRoutes);
 router.use('/api/budget', adminAuthMiddleware.requireAdmin, budgetRoutes);
 router.use('/api/webhooks', googleFormsWebhookRoutes);
 router.use("/notification-campaigns", notificationCampaignRoutes);
+router.use('/admin/search', adminSearchRoutes);
 export default router;
