@@ -15,6 +15,7 @@ import * as Y from 'yjs';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { getRedisClient } from '../utils/redis.js';
 import { waitingRoomService } from '../services/waitingRoomService.js';
+import { setupChatSocketHandlers } from '../controllers/chatController.js';
 import { Server } from "socket.io";
 import logger from "../utils/logger.js";
 import { getAdminSession } from "../repositories/adminSessionsRepository.js";
@@ -1403,6 +1404,8 @@ export function _onConnection(socket) {
   socket.on('error', (error) => {
     logger.error('Socket error', { error: error.message, socketId: socket.id });
   });
+
+  setupChatSocketHandlers(socket, io);
 }
 
 export function getIO() {
