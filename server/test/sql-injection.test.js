@@ -16,7 +16,6 @@ setWithDbOverride(async (fn) => {
       executedQueries.push({ sql: sql.trim().replace(/\s+/g, ' '), params });
       return { rows: [], rowCount: 0 };
     },
-    }
   };
   return fn(mockClient);
 });
