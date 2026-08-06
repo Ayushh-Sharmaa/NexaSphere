@@ -67,10 +67,6 @@ test('sqlInjectionGuard still blocks real injection payloads', async (t) => {
   const maliciousInputs = [
     '1 OR 1=1',
     "status = 'draft' OR 1=1",
-test('sqlInjectionGuard still blocks real injection payloads', async (t) => {
-  const maliciousInputs = [
-    '1 OR 1=1',
-    "status = 'draft' OR 1=1",
     "'; DROP TABLE users; --",
     "SELECT * FROM users WHERE 1=1; WAITFOR DELAY '0:0:5'",
     'UNION SELECT * FROM INFORMATION_SCHEMA.TABLES',
