@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set
 from uuid import UUID
@@ -60,10 +61,12 @@ class PortfolioResponse(BaseModel):
 class PortfoliosListResponse(BaseModel):
     portfolios: List[PortfolioResponse]
     total: int
+    available: bool = True
+    source: str = "database"
 
 
 # ──────────────────────────────────────────────
-# Mock fallback data
+# Development fixture data (opt-in only)
 # ──────────────────────────────────────────────
 
 MOCK_PORTFOLIOS = [
@@ -93,6 +96,14 @@ MOCK_PORTFOLIOS = [
 ]
 
 
+def _fixtures_allowed() -> bool:
+    return os.getenv("ALLOW_PORTFOLIO_FIXTURES", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
 def _db_available() -> bool:
     """Quick connectivity check without creating a full session."""
     try:
@@ -100,7 +111,7 @@ def _db_available() -> bool:
             conn.execute(text("SELECT 1"))
         return True
     except (OperationalError, ProgrammingError) as e:
-        logger.warning("Database unavailable — falling back to mock data: %s", e)
+        logger.warning("Database unavailable for portfolios: %s", e)
         return False
 
 
@@ -111,17 +122,36 @@ def _db_available() -> bool:
 
 @router.get("", response_model=PortfoliosListResponse)
 async def list_portfolios(db: Session = Depends(get_db)):
-    """Return all member portfolios. Falls back to mock data if DB is down."""
+    """Return all member portfolios. Never disguises fixture data as live members."""
     if not _db_available():
-        return PortfoliosListResponse(portfolios=MOCK_PORTFOLIOS, total=len(MOCK_PORTFOLIOS))
+        if _fixtures_allowed():
+            return PortfoliosListResponse(
+                portfolios=MOCK_PORTFOLIOS,
+                total=len(MOCK_PORTFOLIOS),
+                available=True,
+                source="fixtures",
+            )
+        return PortfoliosListResponse(
+            portfolios=[],
+            total=0,
+            available=False,
+            source="unavailable",
+        )
 
     records = db.query(MemberPortfolio).all()
     if not records:
-        return PortfoliosListResponse(portfolios=[], total=0)
+        return PortfoliosListResponse(
+            portfolios=[],
+            total=0,
+            available=True,
+            source="database",
+        )
 
     return PortfoliosListResponse(
         portfolios=[PortfolioResponse.model_validate(r) for r in records],
         total=len(records),
+        available=True,
+        source="database",
     )
 
 
