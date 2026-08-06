@@ -2,10 +2,12 @@
 // Reads VITE_API_BASE from the environment; defaults to an empty string
 // (same-origin) when not set.
 
-const BASE_URL = (import.meta.env?.VITE_API_BASE ?? '').replace(/\/$/, '');
+import { TOKEN_KEY } from "../constants/authConstants";
+
+const BASE_URL = (import.meta.env?.VITE_API_BASE ?? "").replace(/\/$/, "");
 
 function getAuthHeader() {
-  const token = localStorage.getItem('admin_token');
+  const token = localStorage.getItem(TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -22,7 +24,7 @@ async function request(method, url, { data, params } = {}) {
   const options = {
     method,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...getAuthHeader(),
     },
   };
@@ -34,7 +36,9 @@ async function request(method, url, { data, params } = {}) {
   const response = await fetch(fullUrl, options);
 
   if (!response.ok) {
-    const error = new Error(`Request failed: ${response.status} ${response.statusText}`);
+    const error = new Error(
+      `Request failed: ${response.status} ${response.statusText}`
+    );
     error.response = { status: response.status, data: null };
     try {
       error.response.data = await response.json();
@@ -49,11 +53,11 @@ async function request(method, url, { data, params } = {}) {
 }
 
 const axiosInstance = {
-  get: (url, config) => request('GET', url, config),
-  post: (url, data, config) => request('POST', url, { ...config, data }),
-  put: (url, data, config) => request('PUT', url, { ...config, data }),
-  patch: (url, data, config) => request('PATCH', url, { ...config, data }),
-  delete: (url, config) => request('DELETE', url, config),
+  get: (url, config) => request("GET", url, config),
+  post: (url, data, config) => request("POST", url, { ...config, data }),
+  put: (url, data, config) => request("PUT", url, { ...config, data }),
+  patch: (url, data, config) => request("PATCH", url, { ...config, data }),
+  delete: (url, config) => request("DELETE", url, config),
 };
 
 export default axiosInstance;
