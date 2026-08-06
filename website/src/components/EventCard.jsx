@@ -35,19 +35,6 @@ const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstFor
         onClick={() => onClick(id)}
         style={{ cursor: 'pointer' }}
       >
-
-const EventCard = React.memo(function EventCard({ event, onClick, id }) {
-  const [shareOpen, setShareOpen] = useState(false);
-
-  function handleShareClick(e) {
-    e.stopPropagation(); // don't trigger the card's onClick
-    setShareOpen(true);
-  }
-
-  return (
-    <>
-      <div className="event-card" onClick={() => onClick(id)} style={{ cursor: 'pointer' }}>
-        <h3>{event.title}</h3>
         <h3>{event.title || event.name}</h3>
         <p>{event.date}</p>
         <p>{event.description}</p>
