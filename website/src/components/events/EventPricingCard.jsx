@@ -80,9 +80,6 @@ export default function EventPricingCard({ eventId, onRegister }) {
 
       {friendlyReasons.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
-          {friendlyReasons.map((reason) => (
-            <span
-              key={reason}
           {friendlyReasons.map((reason, idx) => (
             <span
               key={reason}

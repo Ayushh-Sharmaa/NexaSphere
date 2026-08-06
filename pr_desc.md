@@ -1,33 +1,20 @@
-## Description
+Fixes #1484, Fixes #1485, Fixes #1486, Fixes #1493, Fixes #1499, Fixes #1504
 
-This PR addresses issue #1615 by implementing automated scheduled report generation, archiving, and email delivery to administrators. It refactors the generic report-generation task into two specific, schedule-configurable tasks: Daily Attendance and Weekly Analytics.
+### Description
+This PR resolves a batch of 6 issues related to UI responsiveness, accessibility, backend integrations, and bug fixes across the NexaSphere platform.
 
-## Linked Issue
+### Changes Made
+- **[A11y] Issue #1484 (Mobile Nav Accessibility):** Added ESC key handlers, `aria-expanded`, and `aria-controls` for proper screen reader support and keyboard navigation in `Navbar.jsx`.
+- **[UI/UX] Issue #1485 (Tablet Event Card Responsiveness):** Adjusted CSS in `components.css` to fix layout scaling and image overflow for `.timeline-card` and `.event-card` at tablet breakpoints (768px-1024px). Removed duplicate component definition in `EventCard.jsx`.
+- **[A11y] Issue #1486 (Dark Mode Contrast):** Updated `--t2` and `--t3` color variables in `themes.css` and improved footer text contrast in `components.css` to meet WCAG AA standards.
+- **[Feature] Issue #1493 (Collaboration Team Chat):** Created `TeamChat.jsx` frontend component and integrated real-time Socket.IO chat on the backend in `chatController.js` and `socket.js`. Added a `team_messages` Prisma migration.
+- **[Bugfix] Issue #1499 (Event Form Hangs):** Handled idempotency keys securely using `sessionStorage` in `EventDetailPage.jsx` to prevent duplicate submissions on refresh. Added a 10s timeout to `apiClient` and gracefully handled offline requests.
+- **[Feature] Issue #1504 (CSV Export):** Implemented client-side CSV export functionality in `EventAttendanceChart.jsx` for admins to export event attendance data directly from the browser.
 
-Closes #1615
-
-## Type of Change
-
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [x] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-
-## Changes Made
-
-- **Task Configs (`server/services/schedulerService.js`):** Substituted the generic `report-generation` task with two precise tasks: `daily-attendance-report` (cron: `0 18 * * *`) and `weekly-analytics-report` (cron: `0 9 * * 1`), which natively support individual cron reconfiguration via the scheduler's REST endpoints.
-- **Reporting Queries & Archival:** Both reports dynamically calculate relevant metrics from the `events` and `student_users` tables. A new `scheduled_reports` table is utilized to permanently archive the structured JSON report data for historical reference and audits.
-- **Email Delivery:** Integrated the platform's standard `sendEmail` utility, formatting the JSON output securely via the `generic` email template, and routing it to `admin@nexasphere.com`.
-
-## Testing Performed
-
-- Locally verified Node.js syntax checks via `node --check` against the scheduling components.
-- Confirmed the newly introduced scheduled tasks properly execute their SQL aggregations, initialize the archival database table correctly if it doesn't exist, and invoke `sendEmail`.
-
-## Checklist
-
-- [x] My code follows the style guidelines of this project
-- [x] I have performed a self-review of my own code
-- [x] I have commented my code, particularly in hard-to-understand areas
-- [x] My changes generate no new warnings
-- [x] New and existing unit tests pass locally with my changes
+### Verification
+- Tested keyboard navigation and screen readers on the Mobile Navbar.
+- Verified tablet resolution renders event cards gracefully without overflow.
+- Confirmed Dark Mode colors pass contrast ratio checkers.
+- Tested Socket.IO team chat for real-time broadcasting.
+- Verified Event Registration form idempotency and timeout.
+- Successfully exported CSVs from the Admin dashboard.

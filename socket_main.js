@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Socket.IO Configuration
  * Handles WebSocket connections for real-time updates
  */
@@ -15,7 +15,6 @@ import * as Y from 'yjs';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { getRedisClient } from '../utils/redis.js';
 import { waitingRoomService } from '../services/waitingRoomService.js';
-import { setupChatSocketHandlers } from '../controllers/chatController.js';
 import { Server } from "socket.io";
 import logger from "../utils/logger.js";
 import { getAdminSession } from "../repositories/adminSessionsRepository.js";
@@ -267,7 +266,8 @@ export function stopSocketValidation() {
 /**
  * Parse Bearer token from auth header
  */
-// ── Heartbeat / stale-connection detection ──────────────────────────────────
+=======
+// ΓöÇΓöÇ Heartbeat / stale-connection detection ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 // Sockets that drop without a clean close (e.g. network failure, mobile sleep)
 // leave their entries in connectedUsers and workspaceRoomMembers forever.
 // A periodic ping-pong cycle marks each socket as "awaiting pong" and forcibly
@@ -296,6 +296,24 @@ export function resolveSocketCorsOrigin(env = process.env) {
   return 'http://localhost:5173';
 }
 export function initializeSocketIO(httpServer) {
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : [process.env.FRONTEND_URL || "http://localhost:5173"];
+
+export function initializeSocketIO(httpServer) {
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : [process.env.FRONTEND_URL || "http://localhost:5173"];
+
+export function initializeSocketIO(httpServer) {
+  io = new Server(httpServer, {
+    cors: {
+      origin: resolveSocketCorsOrigin(),
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
   const allowedOrigins = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',')
         .map((o) => o.trim())
@@ -322,6 +340,13 @@ export function initializeSocketIO(httpServer) {
       logger.error('Failed to configure Socket.IO Redis adapter:', err);
       logger.info('Socket.IO falling back to in-memory adapter.');
     }
+  } else {
+    logger.info('Socket.IO using in-memory adapter (REDIS_URL not set).');
+  if (process.env.NODE_ENV !== 'test') {
+    const pubClient = getRedisClient();
+    const subClient = pubClient.duplicate();
+    subClient.on('error', (err) => {
+      logger.error('Redis subscription client connection error:', err);
   if (process.env.REDIS_URL) {
     const pubClient = getRedisClient();
     const subClient = pubClient.duplicate();
@@ -424,22 +449,28 @@ export function _onConnection(socket) {
 
   let identifyCount = 0;
 
+  socket.on('user:identify', (userData) => {
+    identifyCount++;
+    if (identifyCount > 3) {
+      logger.warn('Socket identification flood detected, forcing disconnect', {
+  // Store connected user
   socket.on("user:identify", (userData) => {
     // 1. Enforce Per-Socket Identification Rate Limiting
     identifyCount++;
     if (identifyCount > 3) {
       logger.warn("Socket identification flood detected, forcing disconnect", {
+      logger.warn('Socket identification flood detected, forcing disconnect', {
         socketId: socket.id,
       });
       socket.disconnect(true);
       return;
     }
 
+    if (!userData || typeof userData !== 'object') {
+      logger.warn('Invalid user identification payload type rejected', { socketId: socket.id });
     // 2. Defensive Payload Structure & Type Validation
     if (!userData || typeof userData !== "object") {
       logger.warn("Invalid user identification payload type rejected", {
-        socketId: socket.id,
-      });
       return;
     }
 
@@ -510,6 +541,33 @@ export function _onConnection(socket) {
   socket.on('room:join', (roomName) => {
     if (typeof roomName !== 'string') {
       logger.warn('Socket room:join payload must be a string', { socketId: socket.id });
+    logger.info("User identified successfully", {
+      userId: String(userId),
+      socketId: socket.id,
+    });
+  });
+
+  // Approved public-facing rooms that standard users can join
+  const ALLOWED_PUBLIC_ROOMS = [
+    "notifications-room",
+    "events-room",
+    "admin-room",
+  ];
+  const MAX_ROOMS_PER_SOCKET = 10;
+
+    logger.info("User identified", {
+      userId: userData.userId,
+      socketId: socket.id,
+    });
+  });
+
+  // Approved public-facing rooms that standard users can join
+  const ALLOWED_PUBLIC_ROOMS = [
+    "notifications-room",
+    "events-room",
+    "admin-room",
+  ];
+  const MAX_ROOMS_PER_SOCKET = 10;
 
   // Join notification room
   socket.on("room:join", (roomName) => {
@@ -631,7 +689,7 @@ export function _onConnection(socket) {
       return;
     }
 
-    // 4. Idempotency — skip if already a member to prevent phantom user entries
+    // 4. Idempotency ΓÇö skip if already a member to prevent phantom user entries
     if (workspaceRoomMembers.get(roomId)?.has(socket.id)) {
       return;
     }
@@ -753,7 +811,7 @@ export function _onConnection(socket) {
   });
 
   socket.on('workspace_update', (data) => {
-  // Workspace synchronization events — only relay if sender is a room member
+  // Workspace synchronization events ΓÇö only relay if sender is a room member
   socket.on("workspace_update", (data) => {
     const { roomId, ...payload } = data;
     if (roomId && _isWorkspaceMember(roomId, socket.id)) {
@@ -865,7 +923,7 @@ export function _onConnection(socket) {
     const newVersion = currentVersion + 1;
     workspaceVersions.set(roomId, newVersion);
 
-    // Persist best-effort — DB may be unavailable during local dev
+    // Persist best-effort ΓÇö DB may be unavailable during local dev
     saveWorkspaceDocument(roomId, content, newVersion).catch(() => {});
 
     socket.to(roomId).emit('document_change', { content, version: newVersion });
@@ -1299,7 +1357,7 @@ export function _onConnection(socket) {
     waitingRoomService.sendMessage(eventId, message);
   });
 
-  // ── Heartbeat pong handler ─────────────────────────────────────────────────
+  // ΓöÇΓöÇ Heartbeat pong handler ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   // The server sends a 'ping' event periodically (see startHeartbeat).
   // Clients must respond with 'pong'.  If no pong arrives before the next
   // heartbeat tick the socket is forcibly disconnected, releasing all memory.
@@ -1345,8 +1403,6 @@ export function _onConnection(socket) {
   socket.on('error', (error) => {
     logger.error('Socket error', { error: error.message, socketId: socket.id });
   });
-
-  setupChatSocketHandlers(socket, io);
 }
 
 export function getIO() {
@@ -1496,7 +1552,7 @@ export function _setIOForTests(mockIo) {
  *
  * On disconnect the existing handler removes the socket from connectedUsers,
  * workspaceRoomMembers, and joinRoomAttempts, so no manual cleanup is needed
- * here — the disconnect event does all the work.
+ * here ΓÇö the disconnect event does all the work.
  */
 export function startHeartbeat() {
   if (heartbeatInterval) clearInterval(heartbeatInterval);
@@ -1506,7 +1562,7 @@ export function startHeartbeat() {
 
     io.sockets.sockets.forEach((socket) => {
       if (!socket._heartbeatAlive) {
-        // Did not respond to last ping — evict immediately.
+        // Did not respond to last ping ΓÇö evict immediately.
         logger.warn('Evicting unresponsive socket (missed heartbeat pong)', {
           socketId: socket.id,
         });

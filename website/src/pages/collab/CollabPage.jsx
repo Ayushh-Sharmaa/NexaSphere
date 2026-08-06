@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import TeamChat from './TeamChat';
 
-export default function CollabPage({ onBack }) {
+export default function CollabPage({ onBack, user }) {
   const [activeTab, setActiveTab] = useState('find-team'); // 'find-team', 'skill-swap'
   const [teams, setTeams] = useState([]);
   const [search, setSearch] = useState('');
@@ -60,15 +61,6 @@ export default function CollabPage({ onBack }) {
   );
 
   return (
-    <div className="collab-page" style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Collaboration</h1>
-      <p>Collaborative workspace features coming soon.</p>
-      {onBack && (
-        <button onClick={onBack} className="btn btn-secondary" style={{ marginTop: '1rem' }}>
-          ← Back
-        </button>
-      )}
-  return (
     <div
       style={{
         padding: '3rem 2rem',
@@ -79,21 +71,23 @@ export default function CollabPage({ onBack }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        <button
-          onClick={onBack}
-          style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: 'var(--text-muted, #999)',
-            padding: '0.6rem 1.2rem',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            transition: 'all 0.2s',
-          }}
-        >
-          ← Back
-        </button>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-muted, #999)',
+              padding: '0.6rem 1.2rem',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              transition: 'all 0.2s',
+            }}
+          >
+            ← Back
+          </button>
+        )}
       </div>
 
       <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -122,55 +116,8 @@ export default function CollabPage({ onBack }) {
           marginTop: '2rem',
         }}
       >
-        {/* Card 1 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>👥 Team Formation</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Find partners matching your skillset or search for projects looking for contributors.
-          </p>
-        </div>
-
-        {/* Card 2 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>⚡ Real-time Workspace</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Launch shared editor instances with CRDT-backed real-time document syncing.
-          </p>
-        </div>
-
-        {/* Card 3 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>🎨 Live Whiteboard</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Brainstorm visually with teams using our integrated, collaborative sketching canvases.
-          </p>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <TeamChat teamId="global-collab" user={user || { id: 'test-user', name: 'Developer' }} />
         </div>
       </div>
     </div>
