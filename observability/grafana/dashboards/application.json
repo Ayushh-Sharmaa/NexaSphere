@@ -1,7 +1,10 @@
 {
   "uid": "nexa-application",
   "title": "Application",
-  "tags": ["nexasphere", "application"],
+  "tags": [
+    "nexasphere",
+    "application"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -11,7 +14,12 @@
       "id": 1,
       "title": "Requests by Status",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "sum(rate(http_requests_total{job=\"nexasphere-api\"}[5m])) by (status)",
@@ -19,17 +27,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "sum(rate(http_requests_total{job=\"nexasphere-api\"}[5m])) by (status)",
-        "legendFormat": "{{status}}",
-        "refId": "A"
-      }]
     },
     {
       "id": 2,
       "title": "Requests by Method",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "sum(rate(http_requests_total{job=\"nexasphere-api\"}[5m])) by (method)",
@@ -37,17 +45,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "sum(rate(http_requests_total{job=\"nexasphere-api\"}[5m])) by (method)",
-        "legendFormat": "{{method}}",
-        "refId": "A"
-      }]
     },
     {
       "id": 3,
       "title": "Latency by Route (p95)",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"nexasphere-api\"}[5m])) by (le, route))",
@@ -55,17 +63,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"nexasphere-api\"}[5m])) by (le, route))",
-        "legendFormat": "{{route}}",
-        "refId": "A"
-      }]
     },
     {
       "id": 4,
       "title": "5xx Errors by Route",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
       "targets": [
         {
           "expr": "sum(rate(http_errors_total{job=\"nexasphere-api\"}[5m])) by (route)",
@@ -73,11 +81,6 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "sum(rate(http_errors_total{job=\"nexasphere-api\"}[5m])) by (route)",
-        "legendFormat": "{{route}}",
-        "refId": "A"
-      }]
     }
   ]
 }

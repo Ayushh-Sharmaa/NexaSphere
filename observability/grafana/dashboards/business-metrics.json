@@ -1,7 +1,10 @@
 {
   "uid": "nexa-business",
   "title": "Business Metrics",
-  "tags": ["nexasphere", "business"],
+  "tags": [
+    "nexasphere",
+    "business"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -11,14 +14,29 @@
       "id": 1,
       "title": "Active Users Online",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
-      "targets": [{ "expr": "nexasphere_active_users_online", "refId": "A" }]
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "nexasphere_active_users_online",
+          "refId": "A"
+        }
+      ]
     },
     {
       "id": 2,
       "title": "Events Registered (rate/min)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "rate(nexasphere_events_registered_total[5m]) * 60",
@@ -26,17 +44,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "rate(nexasphere_events_registered_total[5m]) * 60",
-        "legendFormat": "registrations/min",
-        "refId": "A"
-      }]
     },
     {
       "id": 3,
       "title": "Events Created (rate/min)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "rate(nexasphere_events_created_total[5m]) * 60",
@@ -44,17 +62,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "rate(nexasphere_events_created_total[5m]) * 60",
-        "legendFormat": "created/min",
-        "refId": "A"
-      }]
     },
     {
       "id": 4,
       "title": "Page Load p95",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, sum(rate(nexasphere_page_load_seconds_bucket[5m])) by (le))",
@@ -62,11 +80,6 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "histogram_quantile(0.95, sum(rate(nexasphere_page_load_seconds_bucket[5m])) by (le))",
-        "legendFormat": "p95",
-        "refId": "A"
-      }]
     }
   ]
 }

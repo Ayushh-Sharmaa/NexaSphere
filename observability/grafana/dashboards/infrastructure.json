@@ -1,7 +1,10 @@
 {
   "uid": "nexa-infrastructure",
   "title": "Infrastructure",
-  "tags": ["nexasphere", "infrastructure"],
+  "tags": [
+    "nexasphere",
+    "infrastructure"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -11,7 +14,12 @@
       "id": 1,
       "title": "CPU Usage %",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
@@ -19,17 +27,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-        "legendFormat": "CPU",
-        "refId": "A"
-      }]
     },
     {
       "id": 2,
       "title": "Memory Usage",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
@@ -37,17 +45,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-        "legendFormat": "memory used ratio",
-        "refId": "A"
-      }]
     },
     {
       "id": 3,
       "title": "Disk Usage",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "1 - (node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"})",
@@ -55,17 +63,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "1 - (node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"})",
-        "legendFormat": "{{mountpoint}}",
-        "refId": "A"
-      }]
     },
     {
       "id": 4,
       "title": "Network I/O",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "rate(node_network_receive_bytes_total[5m])",
@@ -77,15 +85,18 @@
           "legendFormat": "tx {{device}}",
           "refId": "B"
         }
-        { "expr": "rate(node_network_receive_bytes_total[5m])", "legendFormat": "rx {{device}}", "refId": "A" },
-        { "expr": "rate(node_network_transmit_bytes_total[5m])", "legendFormat": "tx {{device}}", "refId": "B" }
       ]
     },
     {
       "id": 5,
       "title": "Redis Memory",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
       "targets": [
         {
           "expr": "redis_memory_used_bytes",
@@ -93,11 +104,6 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "redis_memory_used_bytes",
-        "legendFormat": "used",
-        "refId": "A"
-      }]
     }
   ]
 }

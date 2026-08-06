@@ -1,7 +1,10 @@
 {
   "uid": "nexa-database",
   "title": "Database",
-  "tags": ["nexasphere", "database"],
+  "tags": [
+    "nexasphere",
+    "database"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -11,22 +14,46 @@
       "id": 1,
       "title": "Database Up",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-      "targets": [{ "expr": "nexasphere_database_up", "refId": "A" }],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "nexasphere_database_up",
+          "refId": "A"
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "mappings": [
-            { "type": "value", "options": { "0": { "text": "DOWN" }, "1": { "text": "UP" } } }
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
           ]
         }
       }
-      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN" }, "1": { "text": "UP" } } }] } }
     },
     {
       "id": 2,
       "title": "Pool Connections",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
       "targets": [
         {
           "expr": "pg_pool_connections",
@@ -34,17 +61,17 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "pg_pool_connections",
-        "legendFormat": "{{state}}",
-        "refId": "A"
-      }]
     },
     {
       "id": 3,
       "title": "Waiting Connections",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
       "targets": [
         {
           "expr": "pg_pool_connections{state=\"waiting\"}",
@@ -52,20 +79,28 @@
           "refId": "A"
         }
       ]
-      "targets": [{
-        "expr": "pg_pool_connections{state=\"waiting\"}",
-        "legendFormat": "waiting",
-        "refId": "A"
-      }]
     },
     {
       "id": 4,
       "title": "Cache Hit/Miss Rate",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
       "targets": [
-        { "expr": "rate(redis_cache_hits_total[5m])", "legendFormat": "hits/s", "refId": "A" },
-        { "expr": "rate(redis_cache_misses_total[5m])", "legendFormat": "misses/s", "refId": "B" }
+        {
+          "expr": "rate(redis_cache_hits_total[5m])",
+          "legendFormat": "hits/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(redis_cache_misses_total[5m])",
+          "legendFormat": "misses/s",
+          "refId": "B"
+        }
       ]
     }
   ]
