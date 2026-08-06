@@ -3,7 +3,7 @@
  * Displays registration trends over time using Recharts
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -103,7 +103,7 @@ export default function RegistrationTrendsChart({
       ) : chartData && chartData.length > 0 ? (
         <ResponsiveContainer width="100%" height={350}>
           {chartType === 'line' && (
-            <LineChart data={chartData}>
+            <LineChart data={useMemo(() => chartData, [chartData])}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
@@ -129,7 +129,7 @@ export default function RegistrationTrendsChart({
           )}
 
           {chartType === 'area' && (
-            <AreaChart data={chartData}>
+            <AreaChart data={useMemo(() => chartData, [chartData])}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
@@ -151,7 +151,7 @@ export default function RegistrationTrendsChart({
           )}
 
           {chartType === 'bar' && (
-            <BarChart data={chartData}>
+            <BarChart data={useMemo(() => chartData, [chartData])}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />

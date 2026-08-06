@@ -1,11 +1,15 @@
-/**
- * Analytics API Service
- * Handles API calls to analytics endpoints
- */
+﻿import os
+import re
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+filepath = r'admin-dashboard/src/services/analyticsAPI.js'
+with open(filepath, 'r', encoding='utf-8') as f:
+    content = f.read()
 
+# I will replace the methods: getAllEventsMetrics, getEventMetrics, getRegistrationTrends, getHourlyTrends, getRecentRegistrations, getCheckInStats
+# Let's just do a blanket regex replacement for all methods that do fetch().
+# Actually, since I have multi_replace_file_content tool, I can just write the whole file with a python script or replace parts.
 
+replacement = '''
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const apiCache = new Map();
 
@@ -85,3 +89,9 @@ const analyticsAPI = {
     });
   },
 };
+'''
+
+content = re.sub(r'const analyticsAPI = {.*', replacement, content, flags=re.DOTALL)
+
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(content)

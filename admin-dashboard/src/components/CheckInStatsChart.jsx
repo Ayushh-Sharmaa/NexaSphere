@@ -3,7 +3,7 @@
  * Displays check-in status breakdown with pie/doughnut chart
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 export default function CheckInStatsChart({ stats }) {
