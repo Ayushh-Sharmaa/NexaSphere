@@ -1,27 +1,27 @@
-import { useState, useEffect, useMemo } from 'react';
-import { api, eventEmitter, EVENTS } from '../services/api';
-import { Skeleton } from '../components/Skeleton';
+import { useState, useEffect, useMemo } from "react";
+import { api, eventEmitter, EVENTS } from "../services/api";
+import { Skeleton } from "../components/Skeleton";
 
 const STATUS_COLORS = {
-  pending: { bg: 'rgba(255,193,7,0.15)', color: '#f59e0b' },
-  approved: { bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
-  rejected: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+  pending: { bg: "rgba(255,193,7,0.15)", color: "#f59e0b" },
+  approved: { bg: "rgba(16,185,129,0.15)", color: "#10b981" },
+  rejected: { bg: "rgba(239,68,68,0.15)", color: "#ef4444" },
 };
 
 const CATEGORY_LABELS = {
-  study_material: 'Study Material',
-  project_template: 'Project Template',
-  notes: 'Notes',
-  past_papers: 'Past Papers',
-  recorded_sessions: 'Recorded Sessions',
-  other: 'Other',
+  study_material: "Study Material",
+  project_template: "Project Template",
+  notes: "Notes",
+  past_papers: "Past Papers",
+  recorded_sessions: "Recorded Sessions",
+  other: "Other",
 };
 
 export function ResourcesManager() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
 
@@ -31,7 +31,7 @@ export function ResourcesManager() {
       const data = await api.resources.getAll();
       setResources(Array.isArray(data?.resources) ? data.resources : []);
     } catch (err) {
-      console.error('Failed to load resources:', err);
+      console.error("Failed to load resources:", err);
     } finally {
       setLoading(false);
     }
@@ -48,8 +48,8 @@ export function ResourcesManager() {
       result = result.filter(
         (r) =>
           r.title?.toLowerCase().includes(q) ||
-          (r.description || '').toLowerCase().includes(q) ||
-          (r.uploadedBy || '').toLowerCase().includes(q)
+          (r.description || "").toLowerCase().includes(q) ||
+          (r.uploadedBy || "").toLowerCase().includes(q)
       );
     }
     if (statusFilter) {
@@ -61,14 +61,16 @@ export function ResourcesManager() {
   const handleModerate = async (id, status) => {
     try {
       await api.resources.moderate(id, status);
-      setResources((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+      setResources((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      );
       eventEmitter.emit(EVENTS.NOTIFY, {
-        type: 'success',
+        type: "success",
         message: `Resource ${status}`,
       });
     } catch (err) {
       eventEmitter.emit(EVENTS.NOTIFY, {
-        type: 'error',
+        type: "error",
         message: err.message,
       });
     }
@@ -81,8 +83,8 @@ export function ResourcesManager() {
       setResources((prev) => prev.filter((r) => r.id !== id));
       setDeleteTarget(null);
       eventEmitter.emit(EVENTS.NOTIFY, {
-        type: 'success',
-        message: 'Resource deleted',
+        type: "success",
+        message: "Resource deleted",
       });
     } catch (err) {
       setDeleteError(err.message);
@@ -98,20 +100,27 @@ export function ResourcesManager() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+        }}
+      >
         <input
           type="text"
           placeholder="Search by title, description, or uploader..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="input"
-          style={{ flex: 1, minWidth: '200px', padding: '10px 14px' }}
+          style={{ flex: 1, minWidth: "200px", padding: "10px 14px" }}
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="input"
-          style={{ padding: '10px 14px' }}
+          style={{ padding: "10px 14px" }}
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
@@ -121,22 +130,25 @@ export function ResourcesManager() {
       </div>
 
       {loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="list-item">
-              <div className="list-item-left" style={{ width: '100%', gap: '12px' }}>
+              <div
+                className="list-item-left"
+                style={{ width: "100%", gap: "12px" }}
+              >
                 <Skeleton height={40} width={40} rounded />
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <Skeleton height={16} width="38%" />
-                  <div style={{ marginTop: '8px' }}>
+                  <div style={{ marginTop: "8px" }}>
                     <Skeleton height={12} width="68%" />
                   </div>
-                  <div style={{ marginTop: '8px' }}>
+                  <div style={{ marginTop: "8px" }}>
                     <Skeleton height={12} width="82%" />
                   </div>
                 </div>
               </div>
-              <div className="list-item-right" style={{ minWidth: '260px' }}>
+              <div className="list-item-right" style={{ minWidth: "260px" }}>
                 <Skeleton height={28} width={72} />
                 <Skeleton height={28} width={80} />
                 <Skeleton height={28} width={72} />
@@ -147,8 +159,10 @@ export function ResourcesManager() {
       )}
 
       {!loading && filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888' }}>
-          <p style={{ fontSize: '1.1rem' }}>No resources found</p>
+        <div
+          style={{ textAlign: "center", padding: "60px 20px", color: "#888" }}
+        >
+          <p style={{ fontSize: "1.1rem" }}>No resources found</p>
         </div>
       )}
 
@@ -161,44 +175,45 @@ export function ResourcesManager() {
                 <div className="list-item-left">
                   <div
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '8px',
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "8px",
                       background: sc.bg,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.2rem',
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.2rem",
                       flexShrink: 0,
                     }}
                   >
-                    {resource.fileType?.includes('pdf')
-                      ? '📕'
-                      : resource.fileType?.includes('zip')
-                        ? '📦'
-                        : resource.fileType?.includes('video')
-                          ? '🎬'
-                          : '📄'}
+                    {resource.fileType?.includes("pdf")
+                      ? "📕"
+                      : resource.fileType?.includes("zip")
+                        ? "📦"
+                        : resource.fileType?.includes("video")
+                          ? "🎬"
+                          : "📄"}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div className="list-item-title" title={resource.title}>
                       {resource.title}
                     </div>
                     <div className="list-item-meta">
-                      {CATEGORY_LABELS[resource.category] || resource.category} ·{' '}
-                      {resource.uploadedBy || 'Anonymous'} · ⬇ {resource.downloads || 0} · 👍{' '}
+                      {CATEGORY_LABELS[resource.category] || resource.category}{" "}
+                      · {resource.uploadedBy || "Anonymous"} · ⬇{" "}
+                      {resource.downloads || 0} · 👍{" "}
                       {resource.votes?.length || 0}
                     </div>
                     {resource.description && (
                       <div
                         style={{
-                          fontSize: '0.78rem',
-                          color: '#999',
-                          marginTop: '4px',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          maxWidth: '400px',
+                          fontSize: "0.78rem",
+                          color: "#999",
+                          marginTop: "4px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "400px",
                         }}
                       >
                         {resource.description}
@@ -209,30 +224,30 @@ export function ResourcesManager() {
                 <div className="list-item-right">
                   <span
                     style={{
-                      padding: '3px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.72rem',
+                      padding: "3px 10px",
+                      borderRadius: "12px",
+                      fontSize: "0.72rem",
                       fontWeight: 500,
                       background: sc.bg,
                       color: sc.color,
-                      textTransform: 'capitalize',
+                      textTransform: "capitalize",
                     }}
                   >
                     {resource.status}
                   </span>
 
-                  {resource.status === 'pending' && (
+                  {resource.status === "pending" && (
                     <>
                       <button
                         className="btn btn-sm btn-success"
-                        onClick={() => handleModerate(resource.id, 'approved')}
+                        onClick={() => handleModerate(resource.id, "approved")}
                         title="Approve"
                       >
                         Approve
                       </button>
                       <button
                         className="btn btn-sm btn-danger"
-                        onClick={() => handleModerate(resource.id, 'rejected')}
+                        onClick={() => handleModerate(resource.id, "rejected")}
                         title="Reject"
                       >
                         Reject
@@ -258,7 +273,7 @@ export function ResourcesManager() {
         <div
           className="modal-overlay"
           onKeyDown={(e) => {
-            if (e.key === 'Escape') {
+            if (e.key === "Escape") {
               setDeleteTarget(null);
               setDeleteError(null);
             }
@@ -284,7 +299,10 @@ export function ResourcesManager() {
               >
                 Cancel
               </button>
-              <button className="btn btn-danger" onClick={() => handleDelete(deleteTarget.id)}>
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDelete(deleteTarget.id)}
+              >
                 Delete
               </button>
             </div>

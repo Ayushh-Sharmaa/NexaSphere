@@ -2,12 +2,10 @@
 // Reads VITE_API_BASE from the environment; defaults to an empty string
 // (same-origin) when not set.
 
-import { TOKEN_KEY } from "../constants/authConstants";
-
 const BASE_URL = (import.meta.env?.VITE_API_BASE ?? "").replace(/\/$/, "");
 
 function getAuthHeader() {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem("admin_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 

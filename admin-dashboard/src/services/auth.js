@@ -166,13 +166,16 @@ export const auth = {
   },
 
   async logout() {
-    const token = this.getToken();
-    // Fire-and-forget logout request to invalidate the server session.
-    if (token && !this.isOfflineMode()) {
-      fetch(`${API_BASE}/api/admin/logout`, {
-        method: "POST",
-        credentials: "include",
-      }).catch(() => {});
+    // Invalidate server session (cookie auth) unless offline mock mode.
+    if (!this.isOfflineMode()) {
+      try {
+        await fetch(`${API_BASE}/api/admin/logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch {
+        // Ignore network errors during logout
+      }
     }
 
     _email = null;
@@ -235,9 +238,6 @@ export const auth = {
   },
 
   async verifySession() {
-    const token = this.getToken();
-    if (!token && !this.isOfflineMode()) return false;
-
     // Offline sessions are always considered valid locally
     if (this.isOfflineMode()) return true;
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Granular Role-Based Access Control (RBAC) Permission Matrix
@@ -6,24 +6,15 @@ import React from 'react';
  */
 export const PERMISSION_MATRIX = {
   SUPER_ADMIN: [
-    'system_metrics',
-    'rate_limit_monitor',
-    'user_management',
-    'audit_logs',
-    'settings',
+    "system_metrics",
+    "rate_limit_monitor",
+    "user_management",
+    "audit_logs",
+    "settings",
   ],
-  ADMIN: [
-    'system_metrics',
-    'rate_limit_monitor',
-    'user_management',
-  ],
-  AUDITOR: [
-    'system_metrics',
-    'audit_logs',
-  ],
-  VIEWER: [
-    'system_metrics',
-  ],
+  ADMIN: ["system_metrics", "rate_limit_monitor", "user_management"],
+  AUDITOR: ["system_metrics", "audit_logs"],
+  VIEWER: ["system_metrics"],
 };
 
 /**
@@ -38,13 +29,23 @@ export function hasPermission(role, routeKey) {
 /**
  * PermissionGuard component wrapping sub-route components.
  */
-export default function PermissionGuard({ role, routeKey, children, fallback = null }) {
+export default function PermissionGuard({
+  role,
+  routeKey,
+  children,
+  fallback = null,
+}) {
   if (!hasPermission(role, routeKey)) {
-    return fallback || (
-      <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-center">
-        <h3 className="font-bold text-lg">Access Denied</h3>
-        <p className="text-sm mt-1">Your role ({role || 'Guest'}) does not have permission to view this section.</p>
-      </div>
+    return (
+      fallback || (
+        <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-center">
+          <h3 className="font-bold text-lg">Access Denied</h3>
+          <p className="text-sm mt-1">
+            Your role ({role || "Guest"}) does not have permission to view this
+            section.
+          </p>
+        </div>
+      )
     );
   }
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-export function HelpTooltip({ content, position = 'top' }) {
+export function HelpTooltip({ content, position = "top" }) {
   const [visible, setVisible] = useState(false);
 
   return (
@@ -22,7 +22,9 @@ export function HelpTooltip({ content, position = 'top' }) {
       {visible && (
         <span className={`ns-help-tooltip ns-help-tooltip-${position}`}>
           {content}
-          <span className={`ns-help-tooltip-arrow ns-help-tooltip-arrow-${position}`} />
+          <span
+            className={`ns-help-tooltip-arrow ns-help-tooltip-arrow-${position}`}
+          />
         </span>
       )}
     </span>

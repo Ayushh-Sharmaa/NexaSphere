@@ -3,8 +3,15 @@
  * Displays check-in status breakdown with pie/doughnut chart
  */
 
-import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import React from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 
 export default function CheckInStatsChart({ stats }) {
   if (!stats || Object.keys(stats).length === 0) {
@@ -28,15 +35,15 @@ export default function CheckInStatsChart({ stats }) {
   }));
 
   const COLORS = {
-    checked_in: 'var(--chart-success)',
-    registered: 'var(--chart-warning)',
-    cancelled: 'var(--chart-danger)',
-    no_show: 'var(--chart-text)',
+    checked_in: "var(--chart-success)",
+    registered: "var(--chart-warning)",
+    cancelled: "var(--chart-danger)",
+    no_show: "var(--chart-text)",
   };
 
   const getStatusColor = (status) => {
-    const statusKey = status.toLowerCase().replace(/\s+/g, '_');
-    return COLORS[statusKey] || 'var(--chart-primary)';
+    const statusKey = status.toLowerCase().replace(/\s+/g, "_");
+    return COLORS[statusKey] || "var(--chart-primary)";
   };
 
   const CustomTooltip = ({ active, payload }) => {
