@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { EVENTS } from '../services/eventEmitter';
-import { useEventListener } from './useEventListener';
+import { useCallback, useEffect, useRef } from "react";
+import { EVENTS } from "../services/eventEmitter";
+import { useEventListener } from "./useEventListener";
 
 export function useLogoutAwareInterval(callback, delay, enabled = true) {
   const intervalRef = useRef(null);

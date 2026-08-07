@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { api } from '../services/api';
-import { eventEmitter, EVENTS } from '../services/eventEmitter';
-import { useEventListener } from '../hooks/useEventListener';
+import { useState, useEffect } from "react";
+import { api } from "../services/api";
+import { eventEmitter, EVENTS } from "../services/eventEmitter";
+import { useEventListener } from "../hooks/useEventListener";
 
 export function ImpersonationBanner() {
   const [impersonating, setImpersonating] = useState(null);
@@ -15,7 +15,9 @@ export function ImpersonationBanner() {
       .catch(() => {});
   }, []);
 
-  useEventListener(EVENTS.IMPERSONATION_STARTED, (e) => setImpersonating(e.user));
+  useEventListener(EVENTS.IMPERSONATION_STARTED, (e) =>
+    setImpersonating(e.user)
+  );
   useEventListener(EVENTS.IMPERSONATION_STOPPED, () => setImpersonating(null));
 
   if (!impersonating) return null;
@@ -29,7 +31,8 @@ export function ImpersonationBanner() {
   return (
     <div className="impersonation-banner">
       <span>
-        You are viewing as <strong>{impersonating.display_name || impersonating.username}</strong>
+        You are viewing as{" "}
+        <strong>{impersonating.display_name || impersonating.username}</strong>
       </span>
       <button className="btn btn-sm btn-outline" onClick={stop}>
         Stop Impersonating

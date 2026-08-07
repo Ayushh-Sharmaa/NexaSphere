@@ -9,14 +9,24 @@
  * @returns {string}
  */
 function escapeCsvCell(value) {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) return "";
   let str = String(value);
   // Guard against CSV formula injection
-  if (str.startsWith('=') || str.startsWith('+') || str.startsWith('-') || str.startsWith('@')) {
+  if (
+    str.startsWith("=") ||
+    str.startsWith("+") ||
+    str.startsWith("-") ||
+    str.startsWith("@")
+  ) {
     str = "'" + str;
   }
   // Wrap in quotes if the value contains comma, quote, or newline
-  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+  if (
+    str.includes(",") ||
+    str.includes('"') ||
+    str.includes("\n") ||
+    str.includes("\r")
+  ) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
   return str;
@@ -30,16 +40,16 @@ function escapeCsvCell(value) {
  * @returns {string} CSV content with BOM for Excel compatibility
  */
 export function exportToCSV(data, headers, keys) {
-  if (!data || data.length === 0) return '';
+  if (!data || data.length === 0) return "";
   const cols = keys || headers;
 
-  const headerRow = headers.map(escapeCsvCell).join(',');
-  const rows = data.map(row =>
-    cols.map(col => escapeCsvCell(row[col])).join(',')
+  const headerRow = headers.map(escapeCsvCell).join(",");
+  const rows = data.map((row) =>
+    cols.map((col) => escapeCsvCell(row[col])).join(",")
   );
 
   // BOM + header + rows
-  return '\uFEFF' + [headerRow, ...rows].join('\n');
+  return "\uFEFF" + [headerRow, ...rows].join("\n");
 }
 
 /**
@@ -47,13 +57,13 @@ export function exportToCSV(data, headers, keys) {
  * @param {string} csvContent
  * @param {string} filename
  */
-export function downloadCSV(csvContent, filename = 'export.csv') {
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+export function downloadCSV(csvContent, filename = "export.csv") {
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
-  a.style.display = 'none';
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

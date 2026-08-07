@@ -1,5 +1,5 @@
-import React from 'react';
-import { auth } from '../services/auth';
+import React from "react";
+import { auth } from "../services/auth";
 
 export function PermissionGuard({ requiredScope, children, fallback = null }) {
   const scopes = auth.getScopes();
