@@ -21,28 +21,21 @@ export function ActivityEventsManager() {
   const [selected, setSelected] = useState(ACTIVITIES[0].key);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteError, setDeleteError] = useState('');
-  const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState("");
+  const [error, setError] = useState("");
 
   const loadEvents = useCallback(async (key) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const data = await api.activityEvents.getAll(key);
       setEvents(data?.events ?? []);
     } catch (e) {
-    setError(null);
-    try {
-      const data = await api.activityEvents.getAll(key);
-      setEvents(data?.events ?? []);
-    } catch (err) {
-      setError(err.message);
       setEvents([]);
-      setError(e.message || 'Failed to load activity events.');
+      setError(e.message || "Failed to load activity events.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +60,6 @@ export function ActivityEventsManager() {
     EVENTS.ACTIVITY_EVENT_DELETED,
     useCallback(
       ({ activityKey, eventId }) => {
-        if (activityKey === selected) setEvents((prev) => prev.filter((e) => e.id !== eventId));
         if (activityKey === selected)
           setEvents((prev) => prev.filter((e) => e.id !== eventId));
       },
@@ -78,16 +70,13 @@ export function ActivityEventsManager() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const eventId = deleteTarget.id;
-  const handleDelete = async (eventId) => {
-    if (!confirm("Delete this activity event?")) return;
     setDeleting(eventId);
-    setDeleteError('');
+    setDeleteError("");
     try {
       await api.activityEvents.delete(selected, eventId);
       setDeleteTarget(null);
     } catch {
-      setDeleteError('Failed to delete activity event. Please try again.');
-      // Notification is handled by api.js
+      setDeleteError("Failed to delete activity event. Please try again.");
     } finally {
       setDeleting(null);
     }
@@ -124,9 +113,6 @@ export function ActivityEventsManager() {
       )}
 
       {loading && <Skeleton height={64} count={3} />}
-      {error && (
-        <div className="page-error">Failed to load activities: {error}</div>
-      )}
 
       {error && <div className="page-error">{error}</div>}
 
@@ -152,7 +138,7 @@ export function ActivityEventsManager() {
                   className="btn-icon danger"
                   onClick={() => {
                     setDeleteTarget(event);
-                    setDeleteError('');
+                    setDeleteError("");
                   }}
                   disabled={deleting === event.id}
                   aria-label="Delete activity event"
@@ -193,8 +179,8 @@ export function ActivityEventsManager() {
             {deleteError && <div className="page-error">{deleteError}</div>}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
+                display: "flex",
+                justifyContent: "flex-end",
                 gap: 10,
                 marginTop: 20,
               }}
@@ -211,7 +197,7 @@ export function ActivityEventsManager() {
                 onClick={handleDelete}
                 disabled={deleting === deleteTarget.id}
               >
-                {deleting === deleteTarget.id ? 'Deleting...' : 'Delete Event'}
+                {deleting === deleteTarget.id ? "Deleting..." : "Delete Event"}
               </button>
             </div>
           </div>
