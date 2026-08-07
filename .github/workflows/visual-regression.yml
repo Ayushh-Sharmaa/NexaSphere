@@ -18,13 +18,8 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Install website dependencies
-        run: npm ci
-        working-directory: website
-
-      - name: Install admin-dashboard dependencies
-        run: npm ci
-        working-directory: admin-dashboard
+      - name: Install Playwright test runner at repo root
+        run: npm install --no-save --no-package-lock @playwright/test@^1.61.0
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit

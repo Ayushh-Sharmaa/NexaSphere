@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "NexaSphere — GL Bajaj Tech Community Platform. Monorepo containing the website, admin dashboard, and server.",
+  "description": "NexaSphere \u2014 GL Bajaj Tech Community Platform. Monorepo containing the website, admin dashboard, and server.",
   "workspaces": [
     "website",
     "admin-dashboard"
@@ -31,7 +31,6 @@
     "lint:migrations": "node scripts/prisma-lint.js",
     "build:wasm": "cd wasm/data_parser && wasm-pack build --target web --out-dir ../../src/wasm/pkg",
     "lint": "eslint website/src --ext .js,.jsx",
-    "lint:migrations": "node scripts/prisma-lint.js",
     "lint:fix": "eslint website/src --ext .js,.jsx --fix",
     "format": "prettier --write \"website/src/**/*.{js,jsx,css}\" \"admin-dashboard/src/**/*.{js,jsx,css}\"",
     "format:check": "prettier --check \"website/src/**/*.{js,jsx,css}\" \"admin-dashboard/src/**/*.{js,jsx,css}\"",
@@ -51,7 +50,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.6",
     "prettier": "^3.8.3",
-    "prisma": "^6.4.0"
+    "prisma": "^6.4.0",
+    "@playwright/test": "^1.61.0"
   },
   "optionalDependencies": {
     "@rolldown/binding-linux-arm64-gnu": "1.0.3",

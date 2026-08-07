@@ -167,10 +167,13 @@ jobs:
     if: always() && github.event_name == 'pull_request'
 
     permissions:
+      issues: write
       pull-requests: write
 
     steps:
       - name: Post PR Summary
+        # Fork PRs often lack comment write access; don't fail CI for that.
+        continue-on-error: true
         uses: actions/github-script@v9
         with:
           script: |
