@@ -34,6 +34,8 @@ for (const file of files) {
         "${conditions.join(",
         "${sets.join(",
         "${fields.join(",
+        "${setClauses.join(",
+        "${placeholders}",
         "${column}",
         "${extraClause}",
         "${k}",
