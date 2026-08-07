@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { api } from '../services/api';
-import { eventEmitter, EVENTS } from '../services/eventEmitter';
+import { useState, useEffect, useCallback } from "react";
+import { api } from "../services/api";
+import { eventEmitter, EVENTS } from "../services/eventEmitter";
 
 export function ImpersonationManager() {
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [impersonating, setImpersonating] = useState(null);
 
   const refreshStatus = useCallback(async () => {
@@ -30,7 +30,7 @@ export function ImpersonationManager() {
       setImpersonating(r.user);
       eventEmitter.emit(EVENTS.IMPERSONATION_STARTED, { user: r.user });
     } catch (e) {
-      eventEmitter.emit(EVENTS.NOTIFY, { type: 'error', message: e.message });
+      eventEmitter.emit(EVENTS.NOTIFY, { type: "error", message: e.message });
     }
   };
 
@@ -40,7 +40,7 @@ export function ImpersonationManager() {
       setImpersonating(null);
       eventEmitter.emit(EVENTS.IMPERSONATION_STOPPED);
     } catch (e) {
-      eventEmitter.emit(EVENTS.NOTIFY, { type: 'error', message: e.message });
+      eventEmitter.emit(EVENTS.NOTIFY, { type: "error", message: e.message });
     }
   };
 
@@ -55,9 +55,15 @@ export function ImpersonationManager() {
       <h2>User Impersonation</h2>
       {impersonating && (
         <div className="alert alert-warning">
-          Currently viewing as{' '}
-          <strong>{impersonating.display_name || impersonating.username}</strong>
-          <button className="btn btn-sm btn-outline" style={{ marginLeft: 12 }} onClick={stop}>
+          Currently viewing as{" "}
+          <strong>
+            {impersonating.display_name || impersonating.username}
+          </strong>
+          <button
+            className="btn btn-sm btn-outline"
+            style={{ marginLeft: 12 }}
+            onClick={stop}
+          >
             Stop Impersonating
           </button>
         </div>
@@ -83,10 +89,13 @@ export function ImpersonationManager() {
           {filtered.map((u) => (
             <tr key={u.id}>
               <td>{u.username}</td>
-              <td>{u.display_name || '-'}</td>
+              <td>{u.display_name || "-"}</td>
               <td>{u.email}</td>
               <td>
-                <button className="btn btn-sm btn-primary" onClick={() => start(u)}>
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => start(u)}
+                >
                   Impersonate
                 </button>
               </td>
@@ -94,7 +103,10 @@ export function ImpersonationManager() {
           ))}
           {filtered.length === 0 && (
             <tr>
-              <td colSpan={4} style={{ textAlign: 'center', padding: 32, color: '#888' }}>
+              <td
+                colSpan={4}
+                style={{ textAlign: "center", padding: 32, color: "#888" }}
+              >
                 No users found
               </td>
             </tr>

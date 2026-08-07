@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 // ErrorBoundary class component to catch rendering errors gracefully
 class ErrorBoundary extends Component {
@@ -12,25 +12,34 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("DataTable Error Boundary caught an error:", error, errorInfo);
+    console.error(
+      "DataTable Error Boundary caught an error:",
+      error,
+      errorInfo
+    );
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          padding: '24px',
-          border: '1px solid #fee2e2',
-          borderRadius: '8px',
-          backgroundColor: '#fef2f2',
-          color: '#991b1b',
-          fontFamily: 'system-ui, sans-serif'
-        }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
+        <div
+          style={{
+            padding: "24px",
+            border: "1px solid #fee2e2",
+            borderRadius: "8px",
+            backgroundColor: "#fef2f2",
+            color: "#991b1b",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        >
+          <h3
+            style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}
+          >
             Failed to render table data
           </h3>
-          <p style={{ margin: 0, fontSize: '14px', opacity: 0.9 }}>
-            {this.state.error?.message || "An unexpected rendering error occurred."}
+          <p style={{ margin: 0, fontSize: "14px", opacity: 0.9 }}>
+            {this.state.error?.message ||
+              "An unexpected rendering error occurred."}
           </p>
         </div>
       );
@@ -40,26 +49,37 @@ class ErrorBoundary extends Component {
 }
 
 // Inner DataTable component that renders the actual table
-function DataTableContent({ data, columns = [], emptyMessage = "No data available." }) {
+function DataTableContent({
+  data,
+  columns = [],
+  emptyMessage = "No data available.",
+}) {
   const rows = Array.isArray(data) ? data : [];
 
   if (rows.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '48px 24px',
-        border: '1px dashed #e2e8f0',
-        borderRadius: '8px',
-        backgroundColor: '#f8fafc',
-        color: '#64748b',
-        textAlign: 'center',
-        fontFamily: 'system-ui, sans-serif'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 24px",
+          border: "1px dashed #e2e8f0",
+          borderRadius: "8px",
+          backgroundColor: "#f8fafc",
+          color: "#64748b",
+          textAlign: "center",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
         <svg
-          style={{ width: '48px', height: '48px', marginBottom: '16px', color: '#cbd5e1' }}
+          style={{
+            width: "48px",
+            height: "48px",
+            marginBottom: "16px",
+            color: "#cbd5e1",
+          }}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -71,41 +91,49 @@ function DataTableContent({ data, columns = [], emptyMessage = "No data availabl
             d="M4 6h16M4 10h16M4 14h16M4 18h16"
           />
         </svg>
-        <p style={{ margin: 0, fontSize: '15px', fontWeight: '500' }}>{emptyMessage}</p>
+        <p style={{ margin: 0, fontSize: "15px", fontWeight: "500" }}>
+          {emptyMessage}
+        </p>
       </div>
     );
   }
 
   return (
-    <div style={{
-      width: '100%',
-      overflowX: 'auto',
-      border: '1px solid #e2e8f0',
-      borderRadius: '8px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
-      backgroundColor: '#ffffff',
-      fontFamily: 'system-ui, sans-serif'
-    }}>
-      <table style={{
-        width: '100%',
-        borderCollapse: 'collapse',
-        textAlign: 'left',
-        fontSize: '14px',
-        color: '#334155'
-      }}>
+    <div
+      style={{
+        width: "100%",
+        overflowX: "auto",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
+        backgroundColor: "#ffffff",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          textAlign: "left",
+          fontSize: "14px",
+          color: "#334155",
+        }}
+      >
         <thead>
-          <tr style={{
-            borderBottom: '1px solid #e2e8f0',
-            backgroundColor: '#f8fafc',
-            fontWeight: '600',
-            color: '#475569'
-          }}>
+          <tr
+            style={{
+              borderBottom: "1px solid #e2e8f0",
+              backgroundColor: "#f8fafc",
+              fontWeight: "600",
+              color: "#475569",
+            }}
+          >
             {columns.map((col, idx) => (
               <th
                 key={col.key || idx}
                 style={{
-                  padding: '12px 16px',
-                  whiteSpace: 'nowrap'
+                  padding: "12px 16px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {col.header}
@@ -118,17 +146,22 @@ function DataTableContent({ data, columns = [], emptyMessage = "No data availabl
             <tr
               key={row.id || row._id || rowIdx}
               style={{
-                borderBottom: rowIdx === rows.length - 1 ? 'none' : '1px solid #f1f5f9',
-                transition: 'background-color 0.15s ease'
+                borderBottom:
+                  rowIdx === rows.length - 1 ? "none" : "1px solid #f1f5f9",
+                transition: "background-color 0.15s ease",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#f8fafc";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               {columns.map((col, colIdx) => (
                 <td
                   key={col.key || colIdx}
                   style={{
-                    padding: '12px 16px'
+                    padding: "12px 16px",
                   }}
                 >
                   {col.render ? col.render(row, rowIdx) : row[col.key]}

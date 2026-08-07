@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'pt', label: 'Português', flag: '🇵🇹' },
-  { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "hi", label: "हिन्दी", flag: "🇮🇳" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "pt", label: "Português", flag: "🇵🇹" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
 ];
 
 export default function LanguageSelector() {
@@ -28,8 +28,8 @@ export default function LanguageSelector() {
         setOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSelect = useCallback(
@@ -43,7 +43,7 @@ export default function LanguageSelector() {
 
   const handleKeyDown = (e) => {
     if (!open) {
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();
         setOpen(true);
         setFocusIdx(LANGUAGES.findIndex((l) => l.code === current.code));
@@ -51,19 +51,19 @@ export default function LanguageSelector() {
       return;
     }
     switch (e.key) {
-      case 'Escape':
+      case "Escape":
         setOpen(false);
         break;
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
         setFocusIdx((prev) => (prev < LANGUAGES.length - 1 ? prev + 1 : 0));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         setFocusIdx((prev) => (prev > 0 ? prev - 1 : LANGUAGES.length - 1));
         break;
-      case 'Enter':
-      case ' ':
+      case "Enter":
+      case " ":
         e.preventDefault();
         if (focusIdx >= 0 && focusIdx < LANGUAGES.length) {
           handleSelect(LANGUAGES[focusIdx].code);
@@ -74,15 +74,16 @@ export default function LanguageSelector() {
     }
   };
 
-  const activeId = focusIdx >= 0 ? `lang-option-${LANGUAGES[focusIdx].code}` : undefined;
+  const activeId =
+    focusIdx >= 0 ? `lang-option-${LANGUAGES[focusIdx].code}` : undefined;
 
   return (
     <div
       ref={ref}
-      style={{ position: 'relative', display: 'inline-block' }}
+      style={{ position: "relative", display: "inline-block" }}
       role="combobox"
       aria-expanded={open}
-      aria-controls={open ? 'language-listbox' : undefined}
+      aria-controls={open ? "language-listbox" : undefined}
       aria-haspopup="listbox"
       aria-activedescendant={activeId}
       onKeyDown={handleKeyDown}
@@ -93,28 +94,28 @@ export default function LanguageSelector() {
         aria-label="Select language"
         tabIndex={-1}
         style={{
-          background: 'transparent',
-          border: '1px solid var(--bdr, #333)',
-          borderRadius: '8px',
-          padding: '4px 10px',
-          cursor: 'pointer',
-          color: 'var(--text-primary, #fff)',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          transition: 'background 0.2s',
+          background: "transparent",
+          border: "1px solid var(--bdr, #333)",
+          borderRadius: "8px",
+          padding: "4px 10px",
+          cursor: "pointer",
+          color: "var(--text-primary, #fff)",
+          fontSize: "0.85rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          transition: "background 0.2s",
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.background = 'var(--bdr, #333)';
+          e.currentTarget.style.background = "var(--bdr, #333)";
         }}
         onMouseOut={(e) => {
-          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.background = "transparent";
         }}
       >
         <span>{current.flag}</span>
         <span>{current.code.toUpperCase()}</span>
-        <span style={{ fontSize: '0.6rem', opacity: 0.7 }}>▼</span>
+        <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>▼</span>
       </button>
 
       {open && (
@@ -123,18 +124,18 @@ export default function LanguageSelector() {
           role="listbox"
           aria-label="Language options"
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 6px)',
+            position: "absolute",
+            top: "calc(100% + 6px)",
             right: 0,
-            background: 'var(--bg-secondary, #1a1a2e)',
-            border: '1px solid var(--bdr, #333)',
-            borderRadius: '10px',
-            padding: '4px',
+            background: "var(--bg-secondary, #1a1a2e)",
+            border: "1px solid var(--bdr, #333)",
+            borderRadius: "10px",
+            padding: "4px",
             margin: 0,
-            listStyle: 'none',
-            minWidth: '160px',
+            listStyle: "none",
+            minWidth: "160px",
             zIndex: 9999,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
           }}
         >
           {LANGUAGES.map((lang, idx) => {
@@ -148,21 +149,21 @@ export default function LanguageSelector() {
                 aria-selected={isSelected}
                 onClick={() => handleSelect(lang.code)}
                 style={{
-                  padding: '8px 12px',
-                  cursor: 'pointer',
-                  borderRadius: '7px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  fontSize: '0.875rem',
-                  color: isSelected ? '#E63946' : 'var(--text-primary, #fff)',
+                  padding: "8px 12px",
+                  cursor: "pointer",
+                  borderRadius: "7px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "0.875rem",
+                  color: isSelected ? "#E63946" : "var(--text-primary, #fff)",
                   background: isActive
-                    ? 'rgba(255,255,255,0.08)'
+                    ? "rgba(255,255,255,0.08)"
                     : isSelected
-                      ? 'rgba(230,57,70,0.1)'
-                      : 'transparent',
+                      ? "rgba(230,57,70,0.1)"
+                      : "transparent",
                   fontWeight: isSelected ? 600 : 400,
-                  transition: 'background 0.15s',
+                  transition: "background 0.15s",
                 }}
                 onMouseOver={() => setFocusIdx(idx)}
               >

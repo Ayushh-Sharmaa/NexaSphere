@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function PricingAnalyticsPage() {
   const [analytics, setAnalytics] = useState([]);
@@ -23,14 +23,22 @@ export default function PricingAnalyticsPage() {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <div className="p-6 text-gray-500">Loading pricing analytics...</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-gray-500">Loading pricing analytics...</div>
+    );
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
 
-  const totalRevenueUplift = analytics.reduce((sum, item) => sum + item.revenueUplift, 0);
+  const totalRevenueUplift = analytics.reduce(
+    (sum, item) => sum + item.revenueUplift,
+    0
+  );
 
   return (
     <div className="p-6 max-w-6xl mx-auto font-sans">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Dynamic Pricing Analytics</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+        Dynamic Pricing Analytics
+      </h1>
 
       <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8 shadow-sm">
         <h2 className="text-sm font-semibold text-green-700 uppercase tracking-wide">
@@ -66,27 +74,41 @@ export default function PricingAnalyticsPage() {
               </tr>
             ) : (
               analytics.map((item) => (
-                <tr key={item.eventId} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-4 font-medium text-gray-800">{item.eventId}</td>
+                <tr
+                  key={item.eventId}
+                  className="border-b border-gray-100 hover:bg-gray-50"
+                >
+                  <td className="p-4 font-medium text-gray-800">
+                    {item.eventId}
+                  </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <div className="w-16 bg-gray-200 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${item.capacityUtilization > 80 ? 'bg-green-500' : item.capacityUtilization < 20 ? 'bg-red-400' : 'bg-blue-500'}`}
-                          style={{ width: `${Math.min(100, item.capacityUtilization)}%` }}
+                          className={`h-2 rounded-full ${item.capacityUtilization > 80 ? "bg-green-500" : item.capacityUtilization < 20 ? "bg-red-400" : "bg-blue-500"}`}
+                          style={{
+                            width: `${Math.min(100, item.capacityUtilization)}%`,
+                          }}
                         />
                       </div>
-                      <span className="text-xs text-gray-500">{item.capacityUtilization}%</span>
+                      <span className="text-xs text-gray-500">
+                        {item.capacityUtilization}%
+                      </span>
                     </div>
                   </td>
                   <td className="p-4 text-gray-600">₹{item.basePrice}</td>
-                  <td className="p-4 font-semibold text-indigo-600">₹{item.currentPrice}</td>
+                  <td className="p-4 font-semibold text-indigo-600">
+                    ₹{item.currentPrice}
+                  </td>
                   <td className="p-4 text-gray-600">{item.registrations}</td>
-                  <td className="p-4 text-gray-600">₹{item.baselineRevenue.toLocaleString()}</td>
+                  <td className="p-4 text-gray-600">
+                    ₹{item.baselineRevenue.toLocaleString()}
+                  </td>
                   <td
-                    className={`p-4 font-bold text-right ${item.revenueUplift >= 0 ? 'text-green-600' : 'text-red-500'}`}
+                    className={`p-4 font-bold text-right ${item.revenueUplift >= 0 ? "text-green-600" : "text-red-500"}`}
                   >
-                    {item.revenueUplift >= 0 ? '+' : ''}₹{item.revenueUplift.toLocaleString()}
+                    {item.revenueUplift >= 0 ? "+" : ""}₹
+                    {item.revenueUplift.toLocaleString()}
                   </td>
                 </tr>
               ))
