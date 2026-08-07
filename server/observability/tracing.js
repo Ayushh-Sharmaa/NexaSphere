@@ -2,64 +2,43 @@
  * OpenTelemetry tracing initialization and helpers.
  */
 
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { SEMRESATTRS_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { trace, context, propagation } from '@opentelemetry/api';
-import logger from '../utils/logger.js';
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { resourceFromAttributes } from "@opentelemetry/resources";
+import { SEMRESATTRS_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import { trace, context, propagation } from "@opentelemetry/api";
 
-const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'nexasphere-api';
-const OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
-import { Resource } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { trace, context, propagation } from '@opentelemetry/api';
-
-const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'nexasphere-api';
+const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || "nexasphere-api";
 const OTLP_ENDPOINT =
-  process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
+  process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4318/v1/traces";
 
 let sdk = null;
-let shutdownHookRegistered = false;
 
 export function initTracing() {
-  if (process.env.OTEL_ENABLED === 'false') {
+  if (process.env.OTEL_ENABLED === "false") {
     return null;
-  }
-
-  if (sdk) {
-    return sdk;
   }
 
   const exporter = new OTLPTraceExporter({ url: OTLP_ENDPOINT });
 
   sdk = new NodeSDK({
     resource: resourceFromAttributes({
-    resource: new Resource({
-      [ATTR_SERVICE_NAME]: SERVICE_NAME,
+      [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
     }),
     traceExporter: exporter,
     instrumentations: [
       getNodeAutoInstrumentations({
-        '@opentelemetry/instrumentation-fs': { enabled: false },
+        "@opentelemetry/instrumentation-fs": { enabled: false },
       }),
     ],
   });
 
   sdk.start();
 
-  process.on('SIGTERM', () => {
-    sdk?.shutdown().catch((err) => logger.error('OpenTelemetry SDK shutdown failed', { err }));
+  process.on("SIGTERM", () => {
     sdk?.shutdown().catch(() => {});
   });
-  if (!shutdownHookRegistered) {
-    process.on('SIGTERM', () => {
-      sdk?.shutdown().catch(() => {});
-      sdk = null;
-    });
-    shutdownHookRegistered = true;
-  }
 
   return sdk;
 }
@@ -68,8 +47,7 @@ export function getActiveTraceId() {
   const span = trace.getSpan(context.active());
   if (!span) return null;
   const ctx = span.spanContext();
-  return ctx.traceId && ctx.traceId !== '00000000000000000000000000000000' ? ctx.traceId : null;
-  return ctx.traceId && ctx.traceId !== '00000000000000000000000000000000'
+  return ctx.traceId && ctx.traceId !== "00000000000000000000000000000000"
     ? ctx.traceId
     : null;
 }

@@ -282,10 +282,7 @@ export default function RoadmapsPage({ onBack }) {
                 </h4>
                 <ul className="concepts-pill-list">
                   {selectedNode.concepts.map((concept, idx) => (
-                    <li
-                      key={`concept-${selectedNode.id}-${idx}`}
-                      className="concept-badge-pill"
-                    >
+                    <li key={`concept-${selectedNode.id}-${idx}`} className="concept-badge-pill">
                       {concept}
                     </li>
                   ))}

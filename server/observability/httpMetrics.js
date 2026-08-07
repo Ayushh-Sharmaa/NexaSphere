@@ -2,24 +2,30 @@
  * Express middleware for Prometheus HTTP metrics.
  */
 
-import logger from '../utils/logger.js';
-import { httpRequestsTotal, httpRequestDuration, httpErrorsTotal } from './metrics.js';
+import logger from "../utils/logger.js";
 import {
   httpRequestsTotal,
   httpRequestDuration,
   httpErrorsTotal,
-} from './metrics.js';
+} from "./metrics.js";
 
-const SLOW_REQUEST_THRESHOLD = parseInt(process.env.SLOW_REQUEST_THRESHOLD || '1000', 10);
-const PERFORMANCE_ENABLED = process.env.ENABLE_PERFORMANCE_MONITORING !== 'false';
+const SLOW_REQUEST_THRESHOLD = parseInt(
+  process.env.SLOW_REQUEST_THRESHOLD || "1000",
+  10
+);
+const PERFORMANCE_ENABLED =
+  process.env.ENABLE_PERFORMANCE_MONITORING !== "false";
 
 function normalizeRoute(req) {
   if (req.route?.path) {
-    const base = req.baseUrl || '';
-    const path = typeof req.route.path === 'string' ? req.route.path : req.route.path.join('|');
+    const base = req.baseUrl || "";
+    const path =
+      typeof req.route.path === "string"
+        ? req.route.path
+        : req.route.path.join("|");
     return `${base}${path}`;
   }
-  return req.path || 'unknown';
+  return req.path || "unknown";
 }
 
 export function httpMetricsMiddleware(req, res, next) {
@@ -29,7 +35,7 @@ export function httpMetricsMiddleware(req, res, next) {
 
   const start = process.hrtime.bigint();
 
-  res.on('finish', () => {
+  res.on("finish", () => {
     const durationSec = Number(process.hrtime.bigint() - start) / 1e9;
     const durationMs = durationSec * 1000;
     const method = req.method;
@@ -45,7 +51,7 @@ export function httpMetricsMiddleware(req, res, next) {
     }
 
     if (durationMs > SLOW_REQUEST_THRESHOLD) {
-      logger.warn('Slow request detected', {
+      logger.warn("Slow request detected", {
         method,
         route,
         status: res.statusCode,
@@ -54,8 +60,8 @@ export function httpMetricsMiddleware(req, res, next) {
       });
     }
 
-    if ((process.env.LOG_FORMAT || '').toLowerCase() === 'json') {
-      logger.http('HTTP request', {
+    if ((process.env.LOG_FORMAT || "").toLowerCase() === "json") {
+      logger.http("HTTP request", {
         method,
         route,
         status: res.statusCode,

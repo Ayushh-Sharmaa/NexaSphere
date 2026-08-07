@@ -1,44 +1,42 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * API Analytics Service
  * Mock implementation for Platform-Wide API Usage Analytics & Developer Portal
  */
 
-import crypto from 'crypto';
-
 const apiKeys = [
   {
     id: 1,
-    name: 'Default API Key',
-    key: 'NSX_123456789',
+    name: "Default API Key",
+    key: "NSX_123456789",
     createdAt: new Date().toISOString(),
-    status: 'Active',
+    status: "Active",
   },
 ];
 
 const announcements = [
   {
     id: 1,
-    title: 'API v2 Released',
-    message: 'New API version is now available.',
+    title: "API v2 Released",
+    message: "New API version is now available.",
     date: new Date().toISOString(),
   },
 ];
 
 const changelog = [
   {
-    version: 'v2.0.0',
-    changes: ['Added analytics endpoints', 'Improved performance'],
+    version: "v2.0.0",
+    changes: ["Added analytics endpoints", "Improved performance"],
   },
 ];
 
-const versions = ['v1', 'v2'];
+const versions = ["v1", "v2"];
 
 const dashboard = {
   totalRequests: 105432,
-  averageResponseTime: '180 ms',
-  errorRate: '0.8%',
+  averageResponseTime: "180 ms",
+  errorRate: "0.8%",
 };
 
 const requestAnalytics = {
@@ -48,9 +46,9 @@ const requestAnalytics = {
 };
 
 const responseTimes = {
-  average: '180 ms',
-  fastest: '40 ms',
-  slowest: '910 ms',
+  average: "180 ms",
+  fastest: "40 ms",
+  slowest: "910 ms",
 };
 
 const errorAnalytics = {
@@ -60,14 +58,14 @@ const errorAnalytics = {
 };
 
 const documentation = {
-  title: 'NexaSphere API Documentation',
-  version: 'v2',
+  title: "NexaSphere API Documentation",
+  version: "v2",
 };
 
 const sdkDocs = {
-  javascript: '/docs/sdk/javascript',
-  python: '/docs/sdk/python',
-  java: '/docs/sdk/java',
+  javascript: "/docs/sdk/javascript",
+  python: "/docs/sdk/python",
+  java: "/docs/sdk/java",
 };
 
 const rateLimits = {
@@ -77,13 +75,13 @@ const rateLimits = {
 
 const sandbox = {
   enabled: true,
-  endpoint: '/sandbox',
+  endpoint: "/sandbox",
 };
 
 // Dashboard
 const getDashboard = async () => ({
   ...dashboard,
-  activeKeys: apiKeys.filter((k) => k.status === 'Active').length,
+  activeKeys: apiKeys.filter((k) => k.status === "Active").length,
 });
 
 // Request Analytics
@@ -112,13 +110,14 @@ const getApiKeys = async () => apiKeys;
 
 // Generate API Key
 const generateApiKey = async (data) => {
-  const nextId = apiKeys.length > 0 ? Math.max(...apiKeys.map((k) => k.id)) + 1 : 1;
-  const secureRandomString = crypto.randomBytes(16).toString('hex');
+  const nextId =
+    apiKeys.length > 0 ? Math.max(...apiKeys.map((k) => k.id)) + 1 : 1;
+  const secureRandomString = crypto.randomBytes(16).toString("hex");
   const key = {
     id: apiKeys.length + 1,
-    name: data.name || 'New API Key',
+    name: data.name || "New API Key",
     key: `NSX_${crypto.randomUUID()}`,
-    status: 'Active',
+    status: "Active",
     createdAt: new Date().toISOString(),
   };
 
@@ -132,7 +131,7 @@ const revokeApiKey = async (id) => {
 
   if (!key) return null;
 
-  key.status = 'Revoked';
+  key.status = "Revoked";
   return key;
 };
 

@@ -5,12 +5,6 @@ import {
   SUPABASE_URL,
   SUPABASE_SERVICE_KEY,
 } from "../storage/supabaseClient.js";
-import {
-  supabaseRequest,
-  HAS_SUPABASE,
-  SUPABASE_URL,
-  SUPABASE_SERVICE_KEY,
-} from "../storage/supabaseClient.js";
 import { tracedFetch } from "../config/appContext.js";
 import { readContent, writeContent } from "../storage/contentFileStore.js";
 import { runWithFileLock } from "../storage/contentFileStore.js";
@@ -58,7 +52,6 @@ export async function supabasePaginatedRequest(pathname, page, limit) {
       rows = [];
     }
   }
-  const rows = text ? JSON.parse(text) : [];
   // Content-Range format from PostgREST: "0-19/150" or "*/0" when empty
   const contentRange = res.headers.get("content-range") || "";
   const totalMatch = contentRange.match(/\/(\d+)$/);
@@ -129,24 +122,6 @@ export function normalizePhone(value) {
   return String(value || "").replace(/[^\d]/g, "");
 }
 
-export async function isDuplicateCoreTeamMember(name, email, phone) {
-  const n = String(name || "")
-    .trim()
-    .toLowerCase();
-  const e = String(email || "")
-    .trim()
-    .toLowerCase();
-  const p = normalizePhone(phone);
-
-  const members = await listCoreTeamStore();
-  return members.some(
-    (m) =>
-      m.name.toLowerCase() === n &&
-      m.email.toLowerCase() === e &&
-      normalizePhone(m.whatsapp) === p
-  );
-}
-
 export async function listEventsStore({ page = 1, limit = 20 } = {}) {
   if (HAS_SUPABASE) {
     const { rows, total } = await supabasePaginatedRequest(
@@ -193,9 +168,6 @@ const ALLOWED_EVENT_FIELDS = [
   "image_url",
   "registration_link",
   "capacity",
-  "is_hybrid",
-  "video_link",
-  "location",
   "registered_count",
   "price",
   "created_at",
@@ -222,10 +194,6 @@ export async function createEventStore(event) {
       status: event.status,
       icon: event.icon,
       tags: event.tags,
-      capacity: event.capacity,
-      is_hybrid: event.isHybrid,
-      video_link: event.videoLink,
-      location: event.location,
     };
 
     let row;
@@ -251,10 +219,6 @@ export async function createEventStore(event) {
       status: row.status,
       icon: row.icon || "Pin",
       tags: Array.isArray(row.tags) ? row.tags : [],
-      capacity: row.capacity,
-      isHybrid: row.is_hybrid,
-      videoLink: row.video_link,
-      location: row.location,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     });
@@ -286,10 +250,6 @@ export async function updateEventStore(id, patch) {
           status: patch.status,
           icon: patch.icon,
           tags: patch.tags,
-          capacity: patch.capacity,
-          is_hybrid: patch.isHybrid,
-          video_link: patch.videoLink,
-          location: patch.location,
           updated_at: new Date().toISOString(),
         },
       }
@@ -304,10 +264,6 @@ export async function updateEventStore(id, patch) {
       status: row.status,
       icon: row.icon || "Pin",
       tags: Array.isArray(row.tags) ? row.tags : [],
-      capacity: row.capacity,
-      isHybrid: row.is_hybrid,
-      videoLink: row.video_link,
-      location: row.location,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     });

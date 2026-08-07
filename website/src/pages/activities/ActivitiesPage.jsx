@@ -383,8 +383,6 @@ export default function ActivitiesPage({ onNavigate, onBack }) {
       return;
     }
 
-
-
     const obs = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {

@@ -1,19 +1,15 @@
-import crypto from 'crypto';
-import { trace, context, SpanStatusCode } from '@opentelemetry/api';
-import { appContext } from '../config/appContext.js';
+import crypto from "crypto";
+import { trace, context, SpanStatusCode } from "@opentelemetry/api";
+import { appContext } from "../config/appContext.js";
 
 export const activeTraces = new Map();
-const tracer = trace.getTracer('nexasphere-api');
+const tracer = trace.getTracer("nexasphere-api");
 
 export function tracingMiddleware(req, res, next) {
-  const reqId = req.headers['X-Correlation-ID'] || crypto.randomUUID();
-const tracer = trace.getTracer('nexasphere-api');
-
-export function tracingMiddleware(req, res, next) {
-  const reqId = req.headers['x-request-id'] || crypto.randomUUID();
+  const reqId = req.headers["x-request-id"] || crypto.randomUUID();
 
   req.reqId = reqId;
-  res.setHeader('X-Correlation-ID', reqId);
+  res.setHeader("X-Request-ID", reqId);
 
   const traceEntry = {
     reqId,
@@ -28,10 +24,10 @@ export function tracingMiddleware(req, res, next) {
 
   const span = tracer.startSpan(`${req.method} ${req.path}`, {
     attributes: {
-      'http.method': req.method,
-      'http.url': req.originalUrl || req.url,
-      'http.route': req.path,
-      'nexasphere.request_id': reqId,
+      "http.method": req.method,
+      "http.url": req.originalUrl || req.url,
+      "http.route": req.path,
+      "nexasphere.request_id": reqId,
     },
   });
 
@@ -39,7 +35,6 @@ export function tracingMiddleware(req, res, next) {
 
   context.with(spanContext, () => {
     const store = { reqId, traceEntry };
-    const store = { reqId };
     const activeSpan = trace.getSpan(context.active());
     if (activeSpan) {
       const sc = activeSpan.spanContext();
@@ -47,7 +42,7 @@ export function tracingMiddleware(req, res, next) {
     }
 
     appContext.run(store, () => {
-      res.on('finish', () => {
+      res.on("finish", () => {
         traceEntry.duration = Date.now() - traceEntry.startTime;
         // Bounded memory protection
         if (activeTraces.size > 500) {
@@ -55,7 +50,7 @@ export function tracingMiddleware(req, res, next) {
           activeTraces.delete(oldestKey);
         }
 
-        span.setAttribute('http.status_code', res.statusCode);
+        span.setAttribute("http.status_code", res.statusCode);
         if (res.statusCode >= 500) {
           span.setStatus({ code: SpanStatusCode.ERROR });
         } else {

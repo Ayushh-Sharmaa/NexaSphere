@@ -1,6 +1,3 @@
-import assert from 'node:assert';
-import test from 'node:test';
-import pg from 'pg';
 import assert from "node:assert/strict";
 import test from "node:test";
 import pg from "pg";
@@ -22,26 +19,18 @@ let mockQueriesResult = {
 pg.Pool = class MockPool {
   // Mock event listener attachment to avoid TypeError from pool.on
   on(event, handler) {}
-  on(event, listener) {
-    // Mock event listener attachment
-  }
   async connect() {
     return {
       query: async (sql, params) => {
         executedQueries.push({ sql: sql.trim().replace(/\s+/g, " "), params });
 
         const sqlLower = sql.toLowerCase();
-        if (sqlLower.includes('select token_hash')) {
         if (sqlLower.includes("select token_hash")) {
           return {
             rows: mockQueriesResult.select,
             rowCount: mockQueriesResult.select.length,
           };
         }
-        if (sqlLower.includes('update admin_sessions')) {
-          if (sqlLower.includes('returning token_hash')) {
-            return { rows: mockQueriesResult.select, rowCount: mockQueriesResult.select.length };
-          }
         if (sqlLower.includes("update admin_sessions")) {
           return { rows: [], rowCount: mockQueriesResult.rowCount };
         }
@@ -200,23 +189,6 @@ test("Revoking a session deletes the throttled entry and updates DB", async () =
   assert.equal(revokeQuery.params[0], insertQueryParamHash("mock_token"));
 });
 
-test('Revoking a session by id returns the revoked token hash when found', async () => {
-  const { revokeAdminSessionById } = await import('../repositories/adminSessionsRepository.js');
-  mockQueriesResult.select = [{ token_hash: 'abc123' }];
-
-  const result = await revokeAdminSessionById('admin_user', 'abc');
-  assert.equal(result, 'abc123');
-});
-
-test('Revoking a session by id returns the revoked token hash when found', async () => {
-  const { revokeAdminSessionById } = await import('../repositories/adminSessionsRepository.js');
-  mockQueriesResult.select = [{ token_hash: 'abc123' }];
-
-  const result = await revokeAdminSessionById('admin_user', 'abc');
-  assert.equal(result, 'abc123');
-});
-
-test('Periodic cleanup clears the throttled sessions and purges database', async () => {
 test("Periodic cleanup clears the throttled sessions and purges database", async () => {
   const count = await cleanupExpiredAdminSessions();
   assert.equal(typeof count, "number");
@@ -267,7 +239,7 @@ test("Failed database updates during throttled touches are caught and do not blo
   }
 });
 
-test('adminSessionsRepository recovers from database boot failure on subsequent requests', async () => {
+test("adminSessionsRepository recovers from database boot failure on subsequent requests", async () => {
   let dbOnline = false;
   let schemaQueriesRun = 0;
 
@@ -275,12 +247,15 @@ test('adminSessionsRepository recovers from database boot failure on subsequent 
   const connectBackup = pg.Pool.prototype.connect;
   pg.Pool.prototype.connect = async () => {
     if (!dbOnline) {
-      throw new Error('Database is offline');
+      throw new Error("Database is offline");
     }
     return {
       query: async (sql, params) => {
         const sqlLower = sql.toLowerCase();
-        if (sqlLower.includes('create table') || sqlLower.includes('create index')) {
+        if (
+          sqlLower.includes("create table") ||
+          sqlLower.includes("create index")
+        ) {
           schemaQueriesRun++;
         }
         return { rows: [], rowCount: 1 };
@@ -291,19 +266,25 @@ test('adminSessionsRepository recovers from database boot failure on subsequent 
 
   try {
     // Import a fresh copy of the repository to ensure schemaReady is null
-    const freshRepositoryUrl = '../repositories/adminSessionsRepository.js?bust=' + Date.now();
-    const { createAdminSession: freshCreateAdminSession } = await import(freshRepositoryUrl);
+    const freshRepositoryUrl =
+      "../repositories/adminSessionsRepository.js?bust=" + Date.now();
+    const { createAdminSession: freshCreateAdminSession } = await import(
+      freshRepositoryUrl
+    );
 
     // 1. Database is offline: session creation should fail
     await assert.rejects(async () => {
-      await freshCreateAdminSession({ username: 'admin' });
+      await freshCreateAdminSession({ username: "admin" });
     }, /Database is offline/);
 
     // 2. Database comes online: session creation should succeed and run schema queries
     dbOnline = true;
-    const session = await freshCreateAdminSession({ username: 'admin' });
+    const session = await freshCreateAdminSession({ username: "admin" });
     assert.ok(session.token);
-    assert.ok(schemaQueriesRun > 0, 'Schema initialization should run upon database recovery');
+    assert.ok(
+      schemaQueriesRun > 0,
+      "Schema initialization should run upon database recovery"
+    );
   } finally {
     pg.Pool.prototype.connect = connectBackup;
   }

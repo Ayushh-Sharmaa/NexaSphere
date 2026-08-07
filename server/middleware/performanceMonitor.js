@@ -1,9 +1,10 @@
-import logger from '../utils/logger.js';
-import { captureMessage, addBreadcrumb } from '../utils/sentry.js';
+/**
+ * Performance Monitoring Middleware
+ * Tracks response times, error rates, and other metrics
+ */
 
-import logger from '../utils/logger.js';
-import { captureMessage, addBreadcrumb } from '../utils/sentry.js';
-import { recordSlowQuery } from '../utils/queryLogger.js';
+import logger from "../utils/logger.js";
+import { captureMessage, addBreadcrumb } from "../utils/sentry.js";
 
 /**
  * Simple time-windowed metrics tracker
@@ -16,35 +17,43 @@ class TimeWindowMetrics {
     this.lastReset = Date.now();
   }
 
-  _prune() {
-    const now = Date.now();
-    this.buckets = this.buckets.filter((b) => now - b.timestamp <= this.windowSizeMs);
-  }
-
   addRequest(durationMs, isError = false) {
     const now = Date.now();
+    // Reset if window has passed
     if (now - this.lastReset > this.windowSizeMs) {
       this.buckets = [];
       this.lastReset = now;
     }
-    this.buckets.push({ durationMs, isError, timestamp: now });
+    this.buckets.push({
+      durationMs,
+      isError,
+      timestamp: now,
+    });
   }
 
   getCount() {
-    this._prune();
+    const now = Date.now();
+    this.buckets = this.buckets.filter(
+      (b) => now - b.timestamp <= this.windowSizeMs
+    );
     return this.buckets.length;
   }
+
   getErrorCount() {
-    this._prune();
+    const now = Date.now();
+    this.buckets = this.buckets.filter(
+      (b) => now - b.timestamp <= this.windowSizeMs
+    );
     return this.buckets.filter((b) => b.isError).length;
   }
+
   getTotalTime() {
-    this._prune();
+    const now = Date.now();
+    this.buckets = this.buckets.filter(
+      (b) => now - b.timestamp <= this.windowSizeMs
+    );
     return this.buckets.reduce((sum, b) => sum + b.durationMs, 0);
   }
-  getCount() { this._prune(); return this.buckets.length; }
-  getErrorCount() { this._prune(); return this.buckets.filter((b) => b.isError).length; }
-  getTotalTime() { this._prune(); return this.buckets.reduce((sum, b) => sum + b.durationMs, 0); }
 
   getAverageTime() {
     const count = this.getCount();
@@ -55,18 +64,6 @@ class TimeWindowMetrics {
     const count = this.getCount();
     return count > 0 ? (this.getErrorCount() / count) * 100 : 0;
   }
-
-  getPercentiles() {
-    this._prune();
-    const sorted = [...this.buckets].sort((a, b) => a.durationMs - b.durationMs);
-    const len = sorted.length;
-    if (len === 0) return { p50: 0, p95: 0, p99: 0 };
-    return {
-      p50: sorted[Math.floor(len * 0.5)].durationMs,
-      p95: sorted[Math.floor(len * 0.95)].durationMs,
-      p99: sorted[Math.floor(len * 0.99)].durationMs,
-    };
-  }
 }
 
 /**
@@ -76,7 +73,9 @@ class EndpointMetrics {
   constructor() {
     this.fiveMin = new TimeWindowMetrics({ windowSizeMs: 5 * 60 * 1000 });
     this.oneHour = new TimeWindowMetrics({ windowSizeMs: 60 * 60 * 1000 });
-    this.twentyFourHour = new TimeWindowMetrics({ windowSizeMs: 24 * 60 * 60 * 1000 });
+    this.twentyFourHour = new TimeWindowMetrics({
+      windowSizeMs: 24 * 60 * 60 * 1000,
+    });
   }
 
   addRequest(durationMs, isError = false) {
@@ -88,13 +87,13 @@ class EndpointMetrics {
   getMetrics(window) {
     let metrics;
     switch (window) {
-      case '5min':
+      case "5min":
         metrics = this.fiveMin;
         break;
-      case '1hr':
+      case "1hr":
         metrics = this.oneHour;
         break;
-      case '24hr':
+      case "24hr":
         metrics = this.twentyFourHour;
         break;
       default:
@@ -106,7 +105,6 @@ class EndpointMetrics {
       totalTime: metrics.getTotalTime(),
       avgTime: metrics.getAverageTime(),
       errorRate: metrics.getErrorRate(),
-      ...metrics.getPercentiles(),
     };
   }
 }
@@ -128,18 +126,19 @@ function parsePositiveInteger(val, defaultVal) {
 }
 
 function normalizePathPattern(path) {
-  if (!path || typeof path !== 'string') return 'unknown';
-  const segments = path.split('/').map((segment) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidRegex.test(segment)) return ':id';
+  if (!path || typeof path !== "string") return "unknown";
+  const segments = path.split("/").map((segment) => {
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(segment)) return ":id";
     const mongoIdRegex = /^[0-9a-f]{24}$/i;
-    if (mongoIdRegex.test(segment)) return ':id';
+    if (mongoIdRegex.test(segment)) return ":id";
     const numericRegex = /^\d+$/;
-    if (numericRegex.test(segment)) return ':id';
+    if (numericRegex.test(segment)) return ":id";
     return segment;
   });
-  let result = segments.join('/');
-  if (result.length > 1 && result.endsWith('/')) {
+  let result = segments.join("/");
+  if (result.length > 1 && result.endsWith("/")) {
     result = result.slice(0, -1);
   }
   return result;
@@ -147,10 +146,10 @@ function normalizePathPattern(path) {
 
 function getRoutePath(req) {
   if (req.route) {
-    if (typeof req.route.path === 'string') {
+    if (typeof req.route.path === "string") {
       return req.route.path;
     } else if (Array.isArray(req.route.path)) {
-      return req.route.path.join('|');
+      return req.route.path.join("|");
     } else if (req.route.path instanceof RegExp) {
       return req.route.path.toString();
     }
@@ -158,7 +157,7 @@ function getRoutePath(req) {
   return normalizePathPattern(req.path);
 }
 
-const RES_SEND_WRAPPED = Symbol('performanceMonitor.sendWrapped');
+const RES_SEND_WRAPPED = Symbol("performanceMonitor.sendWrapped");
 
 function isAlreadyWrapped(res) {
   return res[RES_SEND_WRAPPED] === true;
@@ -190,23 +189,12 @@ const performanceMonitor = (req, res, next) => {
   const startTime = Date.now();
 
   const originalSend = res.send;
-const metrics = {
-  endpoints: {},
-  errorRate: 0,
-  totalRequests: 0,
-  totalErrors: 0,
-};
-
-const performanceMonitor = (req, res, next) => {
-  const startTime = Date.now();
-  const originalSend = res.send;
-
   res.send = function (data) {
     const duration = Date.now() - startTime;
     const statusCode = res.statusCode;
 
     const routePath = getRoutePath(req);
-    const baseUrl = req.baseUrl || '';
+    const baseUrl = req.baseUrl || "";
     const fullPath = `${baseUrl}${routePath}`;
     const endpoint = `${req.method} ${normalizePathPattern(fullPath)}`;
 
@@ -214,75 +202,11 @@ const performanceMonitor = (req, res, next) => {
 
     if (!endpointMetrics.has(endpoint)) {
       endpointMetrics.set(endpoint, new EndpointMetrics());
-    metrics.totalRequests++;
-    if (statusCode >= 400) {
-      metrics.totalErrors++;
     }
     const metrics = endpointMetrics.get(endpoint);
 
     const isError = statusCode >= 400;
     metrics.addRequest(duration, isError);
-
-    if (!metrics.endpoints[endpoint]) {
-      metrics.endpoints[endpoint] = {
-        count: 0,
-        totalTime: 0,
-        errors: 0,
-        avgTime: 0,
-        maxTime: 0,
-        minTime: Infinity,
-      };
-    }
-
-    const endpointMetrics = metrics.endpoints[endpoint];
-    endpointMetrics.count++;
-    endpointMetrics.totalTime += duration;
-    endpointMetrics.avgTime = endpointMetrics.totalTime / endpointMetrics.count;
-    endpointMetrics.maxTime = Math.max(endpointMetrics.maxTime, duration);
-    endpointMetrics.minTime = Math.min(endpointMetrics.minTime, duration);
-
-    if (statusCode >= 400) {
-      endpointMetrics.errors++;
-    }
-
-    metrics.errorRate = (metrics.totalErrors / metrics.totalRequests) * 100;
-
-    if (duration > 1000) {
-      logger.warn('Slow Request Detected', {
-        endpoint,
-        duration,
-        status: statusCode,
-      });
-
-      addBreadcrumb({
-        category: 'performance',
-        message: `Slow request: ${endpoint} took ${duration}ms`,
-        level: 'warning',
-        data: { duration, endpoint, status: statusCode },
-      });
-
-      if (duration > 5000) {
-        captureMessage(`Critical slow request: ${endpoint} took ${duration}ms`, 'warning', {
-          tags: { type: 'performance', endpoint },
-          extra: { duration, statusCode },
-        });
-      }
-    }
-
-    logger.http('HTTP Response', {
-      method: req.method,
-      url: req.originalUrl,
-      status: statusCode,
-      duration: `${duration}ms`,
-      userId: req.adminSession?.username || req.user?.id,
-    });
-
-    addBreadcrumb({
-      category: 'http',
-      message: `${req.method} ${req.path} - ${statusCode}`,
-      level: statusCode >= 400 ? 'error' : 'info',
-      data: { duration, statusCode, method: req.method, path: req.path },
-    });
 
     return originalSend.call(this, data);
   };
@@ -304,19 +228,22 @@ const recordDbQueryMetric = (queryText, durationMs, error = null) => {
     dbQueryMetrics.slowQueriesCount += 1;
   }
 
-  const rawText = typeof queryText === 'string' ? queryText : queryText?.text || 'unknown';
-  const normalizedQuery = rawText.trim().replace(/\s+/g, ' ').slice(0, 100);
+  const rawText =
+    typeof queryText === "string" ? queryText : queryText?.text || "unknown";
+  const normalizedQuery = rawText.trim().replace(/\s+/g, " ").slice(0, 100);
 
   if (!dbQueryMetrics.queries[normalizedQuery]) {
-    dbQueryMetrics.queries[normalizedQuery] = { count: 0, totalDuration: 0, errors: 0 };
+    dbQueryMetrics.queries[normalizedQuery] = {
+      count: 0,
+      totalDuration: 0,
+      errors: 0,
+    };
   }
   dbQueryMetrics.queries[normalizedQuery].count += 1;
   dbQueryMetrics.queries[normalizedQuery].totalDuration += durationMs;
   if (error) {
     dbQueryMetrics.queries[normalizedQuery].errors += 1;
   }
-
-  recordSlowQuery(queryText, durationMs, { error: error?.message });
 };
 
 const registrationsHistory = [];
@@ -327,7 +254,10 @@ const trackRegistration = () => {
 
 const getRegistrationsPerMinute = () => {
   const oneMinuteAgo = Date.now() - 60000;
-  while (registrationsHistory.length > 0 && registrationsHistory[0] < oneMinuteAgo) {
+  while (
+    registrationsHistory.length > 0 &&
+    registrationsHistory[0] < oneMinuteAgo
+  ) {
     registrationsHistory.shift();
   }
   return registrationsHistory.length;
@@ -348,26 +278,12 @@ const getMetrics = () => {
     customMetrics: {
       registrationsPerMinute: getRegistrationsPerMinute(),
     },
-const getMetrics = () => {
-  return {
-    totalRequests: metrics.totalRequests,
-    totalErrors: metrics.totalErrors,
-    errorRate: metrics.errorRate.toFixed(2) + '%',
-    endpoints: Object.entries(metrics.endpoints).map(([endpoint, data]) => ({
-      endpoint,
-      count: data.count,
-      avgTime: data.avgTime.toFixed(2) + 'ms',
-      maxTime: data.maxTime + 'ms',
-      minTime: data.minTime === Infinity ? 0 : data.minTime + 'ms',
-      errorCount: data.errors,
-      errorRate: ((data.errors / data.count) * 100).toFixed(2) + '%',
-    })),
   };
   endpointMetrics.forEach((metrics, endpoint) => {
     result.endpoints[endpoint] = {
-      '5min': metrics.getMetrics('5min'),
-      '1hr': metrics.getMetrics('1hr'),
-      '24hr': metrics.getMetrics('24hr'),
+      "5min": metrics.getMetrics("5min"),
+      "1hr": metrics.getMetrics("1hr"),
+      "24hr": metrics.getMetrics("24hr"),
     };
   });
   return result;
@@ -385,60 +301,34 @@ const resetMetrics = () => {
 const checkErrorRateThreshold = (threshold = 5) => {
   let exceeded = false;
   endpointMetrics.forEach((metrics) => {
-    const fiveMinMetrics = metrics.getMetrics('5min');
+    const fiveMinMetrics = metrics.getMetrics("5min");
     if (fiveMinMetrics.errorRate > threshold) {
       exceeded = true;
     }
   });
 
   if (exceeded) {
-    captureMessage(`Alert: Error rate exceeded ${threshold}% in last 5 minutes!`, 'error', {
-      tags: { type: 'performance', alert: 'error_rate' },
-  if (metrics.errorRate > threshold) {
-    captureMessage(`Alert: Error rate exceeded ${threshold}%! Current: ${metrics.errorRate.toFixed(2)}%`, 'error', {
-      tags: { type: 'performance', alert: 'error_rate' },
-      extra: { errorRate: metrics.errorRate, totalRequests: metrics.totalRequests },
-    });
-
-    logger.error('Error Rate Threshold Exceeded', {
+    captureMessage(
+      `Alert: Error rate exceeded ${threshold}% in last 5 minutes!`,
+      "error",
+      {
+        tags: { type: "performance", alert: "error_rate" },
+      }
+    );
+    logger.error("Error Rate Threshold Exceeded", {
       threshold,
-      current: metrics.errorRate,
-      totalRequests: metrics.totalRequests,
-      totalErrors: metrics.totalErrors,
+      window: "5min",
     });
-    logger.error('Error Rate Threshold Exceeded', { threshold, window: '5min' });
     return true;
   }
   return false;
 };
-
-function getHealthStatus() {
-  const fiveMinErrors = Array.from(endpointMetrics.values()).reduce(
-    (sum, m) => sum + m.fiveMin.getErrorCount(),
-    0
-  );
-  const fiveMinTotal = Array.from(endpointMetrics.values()).reduce(
-    (sum, m) => sum + m.fiveMin.getCount(),
-    0
-  );
-  const fiveMinErrors = Array.from(endpointMetrics.values())
-    .reduce((sum, m) => sum + m.fiveMin.getErrorCount(), 0);
-  const fiveMinTotal = Array.from(endpointMetrics.values())
-    .reduce((sum, m) => sum + m.fiveMin.getCount(), 0);
-  const errorRate = fiveMinTotal > 0 ? (fiveMinErrors / fiveMinTotal) * 100 : 0;
-
-  if (errorRate > 10) return 'critical';
-  if (errorRate > 5) return 'degraded';
-  if (errorRate > 1) return 'warning';
-  return 'healthy';
-}
 
 export {
   performanceMonitor,
   getMetrics,
   resetMetrics,
   checkErrorRateThreshold,
-  getHealthStatus,
   recordDbQueryMetric,
   trackRegistration,
   getRegistrationsPerMinute,

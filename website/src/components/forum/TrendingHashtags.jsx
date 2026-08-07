@@ -14,7 +14,9 @@ const TrendingHashtags = () => {
     const token = localStorage.getItem('token');
     const u = localStorage.getItem('user');
     if (token && u) {
-      try { setUser(JSON.parse(u)); } catch (e) {}
+      try {
+        setUser(JSON.parse(u));
+      } catch (e) {}
     }
 
     const fetchTrending = async () => {
@@ -22,7 +24,7 @@ const TrendingHashtags = () => {
         setLoading(true);
         const res = await apiClient.get('/hashtags/trending');
         setHashtags(res.hashtags || []);
-        
+
         if (token) {
           const followRes = await apiClient.get('/hashtags/following');
           setFollowing(new Set(followRes.tags || []));
@@ -39,12 +41,12 @@ const TrendingHashtags = () => {
   }, []);
 
   const toggleFollow = async (tag) => {
-    if (!user) return alert("Please log in to follow hashtags");
+    if (!user) return alert('Please log in to follow hashtags');
 
     const isFollowing = following.has(tag);
-    
+
     // Optimistic UI update
-    setFollowing(prev => {
+    setFollowing((prev) => {
       const next = new Set(prev);
       if (isFollowing) next.delete(tag);
       else next.add(tag);
@@ -60,7 +62,7 @@ const TrendingHashtags = () => {
     } catch (err) {
       console.error(err);
       // Revert on error
-      setFollowing(prev => {
+      setFollowing((prev) => {
         const next = new Set(prev);
         if (isFollowing) next.add(tag);
         else next.delete(tag);
@@ -81,16 +83,13 @@ const TrendingHashtags = () => {
       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
         <span>🔥</span> Trending Hashtags
       </h3>
-      
+
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      
+
       <div className="space-y-4">
         {hashtags.map(({ tag, usage_count }) => (
           <div key={tag} className="flex items-center justify-between group">
-            <Link 
-              to={`/search?q=%23${tag}&type=all`}
-              className="flex-1"
-            >
+            <Link to={`/search?q=%23${tag}&type=all`} className="flex-1">
               <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                 #{tag}
               </div>
@@ -98,7 +97,7 @@ const TrendingHashtags = () => {
                 {usage_count} {usage_count === 1 ? 'post' : 'posts'}
               </div>
             </Link>
-            
+
             <button
               onClick={() => toggleFollow(tag)}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${

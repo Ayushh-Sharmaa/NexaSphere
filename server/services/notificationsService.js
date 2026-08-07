@@ -416,4 +416,8 @@ class NotificationsService {
   }
 }
 
-export default new NotificationsService();
+const notificationsServiceSingleton = new NotificationsService();
+export async function addNotification(userId, data) {
+  return notificationsServiceSingleton.addNotification(userId, data);
+}
+export default notificationsServiceSingleton;

@@ -31,31 +31,3 @@ export function recordFailedActivityAuth(ip) {
 export function clearActivityAuthAttempts(ip) {
   failedActivityAuthAttempts.delete(ip);
 }
-
-import {
-  timingSafeStringEqual,
-  normalizePhone,
-  listCoreTeamStore,
-} from '../../repositories/contentStore.js';
-import { timingSafeStringEqual, normalizePhone, listCoreTeamStore } from '../../repositories/contentStore.js';
-
-export async function canManageActivityEvent({ name, email, phone, password }) {
-  const expectedPassword = process.env.ADMIN_EVENT_PASSWORD;
-  // Use constant-time comparison to prevent timing-based password recovery.
-  if (!timingSafeStringEqual(String(password ?? ''), expectedPassword)) {
-    return false;
-  }
-  const n = String(name || '')
-    .trim()
-    .toLowerCase();
-  const e = String(email || '')
-    .trim()
-    .toLowerCase();
-  const p = normalizePhone(phone);
-
-  const members = await listCoreTeamStore();
-  return members.some(
-    (m) =>
-      m.name.toLowerCase() === n && m.email.toLowerCase() === e && normalizePhone(m.whatsapp) === p
-  );
-}

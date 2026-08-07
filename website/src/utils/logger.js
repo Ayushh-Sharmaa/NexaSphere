@@ -14,7 +14,7 @@ const logger = {
     if (!isProduction) {
       console.debug(...args);
     }
-  }
+  },
 };
 
 export default logger;
