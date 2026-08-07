@@ -1,24 +1,24 @@
-import { useState, useCallback } from 'react';
-import { api } from '../services/api';
-import { useSponsorships } from '../hooks/useSponsorships';
-import { useEventListener } from '../hooks/useEventListener';
-import { EVENTS } from '../services/eventEmitter';
-import { SponsorshipForm } from '../components/SponsorshipForm';
-import { Skeleton } from '../components/Skeleton';
-import { AdminIcon } from '../components/AdminIcon';
+import { useState, useCallback } from "react";
+import { api } from "../services/api";
+import { useSponsorships } from "../hooks/useSponsorships";
+import { useEventListener } from "../hooks/useEventListener";
+import { EVENTS } from "../services/eventEmitter";
+import { SponsorshipForm } from "../components/SponsorshipForm";
+import { Skeleton } from "../components/Skeleton";
+import { AdminIcon } from "../components/AdminIcon";
 
 const TIER_COLORS = {
-  platinum: { bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
-  gold: { bg: 'rgba(251,191,36,0.15)', color: '#fbbf24' },
-  silver: { bg: 'rgba(156,163,175,0.15)', color: '#9ca3af' },
-  bronze: { bg: 'rgba(205,127,50,0.15)', color: '#cd7f32' },
-  custom: { bg: 'rgba(59,130,246,0.15)', color: '#3b82f6' },
+  platinum: { bg: "rgba(168,85,247,0.15)", color: "#a855f7" },
+  gold: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
+  silver: { bg: "rgba(156,163,175,0.15)", color: "#9ca3af" },
+  bronze: { bg: "rgba(205,127,50,0.15)", color: "#cd7f32" },
+  custom: { bg: "rgba(59,130,246,0.15)", color: "#3b82f6" },
 };
 
 const STATUS_COLORS = {
-  active: '#22c55e',
-  expired: '#6b7280',
-  pending: '#f59e0b',
+  active: "#22c55e",
+  expired: "#6b7280",
+  pending: "#f59e0b",
 };
 
 export function SponsorshipsManager() {
@@ -27,7 +27,7 @@ export function SponsorshipsManager() {
   const [editingSponsor, setEditingSponsor] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteError, setDeleteError] = useState('');
+  const [deleteError, setDeleteError] = useState("");
 
   useEventListener(
     EVENTS.SPONSOR_CREATED,
@@ -57,12 +57,12 @@ export function SponsorshipsManager() {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
     setDeleting(id);
-    setDeleteError('');
+    setDeleteError("");
     try {
       await api.sponsorships.delete(id);
       setDeleteTarget(null);
     } catch {
-      setDeleteError('Failed to delete sponsor. Please try again.');
+      setDeleteError("Failed to delete sponsor. Please try again.");
     } finally {
       setDeleting(null);
     }
@@ -91,11 +91,15 @@ export function SponsorshipsManager() {
       )}
 
       {loading && <Skeleton height={72} count={4} />}
-      {error && <div className="page-error">Failed to load sponsors: {error}</div>}
+      {error && (
+        <div className="page-error">Failed to load sponsors: {error}</div>
+      )}
 
       {!loading && !error && (
         <div className="list">
-          {sponsors.length === 0 && <div className="empty-state">No sponsors yet. Add one!</div>}
+          {sponsors.length === 0 && (
+            <div className="empty-state">No sponsors yet. Add one!</div>
+          )}
           {sponsors.map((sponsor) => {
             const tc = TIER_COLORS[sponsor.tier] || TIER_COLORS.bronze;
             return (
@@ -111,11 +115,11 @@ export function SponsorshipsManager() {
                         <span
                           style={{
                             marginLeft: 8,
-                            padding: '1px 6px',
+                            padding: "1px 6px",
                             borderRadius: 8,
-                            background: 'rgba(251,191,36,0.15)',
-                            color: '#fbbf24',
-                            fontSize: '0.65rem',
+                            background: "rgba(251,191,36,0.15)",
+                            color: "#fbbf24",
+                            fontSize: "0.65rem",
                             fontWeight: 600,
                           }}
                         >
@@ -126,19 +130,20 @@ export function SponsorshipsManager() {
                     <div className="item-meta">
                       <span
                         style={{
-                          padding: '1px 6px',
+                          padding: "1px 6px",
                           borderRadius: 4,
                           background: tc.bg,
                           color: tc.color,
-                          fontSize: '0.7rem',
+                          fontSize: "0.7rem",
                           fontWeight: 600,
-                          textTransform: 'capitalize',
+                          textTransform: "capitalize",
                         }}
                       >
                         {sponsor.tier}
                       </span>
                       {sponsor.contactPerson && ` · ${sponsor.contactPerson}`}
-                      {sponsor.agreementEnd && ` · Ends ${sponsor.agreementEnd}`}
+                      {sponsor.agreementEnd &&
+                        ` · Ends ${sponsor.agreementEnd}`}
                     </div>
                   </div>
                 </div>
@@ -146,7 +151,7 @@ export function SponsorshipsManager() {
                   <span
                     className="status-badge"
                     style={{
-                      background: STATUS_COLORS[sponsor.status] || '#6b7280',
+                      background: STATUS_COLORS[sponsor.status] || "#6b7280",
                     }}
                   >
                     {sponsor.status}
@@ -162,12 +167,16 @@ export function SponsorshipsManager() {
                     className="btn-icon danger"
                     onClick={() => {
                       setDeleteTarget(sponsor);
-                      setDeleteError('');
+                      setDeleteError("");
                     }}
                     disabled={deleting === sponsor.id}
                     aria-label="Delete sponsor"
                   >
-                    {deleting === sponsor.id ? '...' : <AdminIcon name="Trash" size={16} />}
+                    {deleting === sponsor.id ? (
+                      "..."
+                    ) : (
+                      <AdminIcon name="Trash" size={16} />
+                    )}
                   </button>
                 </div>
               </div>
@@ -198,7 +207,14 @@ export function SponsorshipsManager() {
               This will permanently remove "{deleteTarget.companyName}".
             </p>
             {deleteError && <div className="page-error">{deleteError}</div>}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                marginTop: 20,
+              }}
+            >
               <button
                 className="btn-secondary"
                 onClick={() => setDeleteTarget(null)}
@@ -211,7 +227,9 @@ export function SponsorshipsManager() {
                 onClick={handleDelete}
                 disabled={deleting === deleteTarget.id}
               >
-                {deleting === deleteTarget.id ? 'Deleting...' : 'Delete Sponsor'}
+                {deleting === deleteTarget.id
+                  ? "Deleting..."
+                  : "Delete Sponsor"}
               </button>
             </div>
           </div>

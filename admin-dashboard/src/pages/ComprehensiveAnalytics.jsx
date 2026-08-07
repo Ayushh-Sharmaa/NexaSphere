@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -8,8 +8,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { CustomReportBuilder } from '../components/analytics/CustomReportBuilder';
+} from "recharts";
+import { CustomReportBuilder } from "../components/analytics/CustomReportBuilder";
 
 export function ComprehensiveAnalytics() {
   const [summary, setSummary] = useState(null);
@@ -21,14 +21,17 @@ export function ComprehensiveAnalytics() {
     async function fetchAnalytics() {
       try {
         const [summaryRes, userRes, funnelRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/summary`, {
-            credentials: 'include',
-          }),
+          fetch(
+            `${import.meta.env.VITE_API_BASE}/api/admin/analytics/summary`,
+            {
+              credentials: "include",
+            }
+          ),
           fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/users`, {
-            credentials: 'include',
+            credentials: "include",
           }),
           fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/funnel`, {
-            credentials: 'include',
+            credentials: "include",
           }),
         ]);
 
@@ -40,7 +43,7 @@ export function ComprehensiveAnalytics() {
         setUserAnalytics(userData.analytics);
         setFunnel(funnelData.funnel);
       } catch (err) {
-        console.error('Failed to load comprehensive analytics', err);
+        console.error("Failed to load comprehensive analytics", err);
       } finally {
         setLoading(false);
       }
@@ -48,8 +51,10 @@ export function ComprehensiveAnalytics() {
 
     async function loadFeedbackInsights() {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/feedback`);
-        if (!res.ok) throw new Error('Feedback endpoint unavailable');
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE}/api/feedback`
+        );
+        if (!res.ok) throw new Error("Feedback endpoint unavailable");
         const data = await res.json();
         const entries = Array.isArray(data)
           ? data
@@ -59,21 +64,21 @@ export function ComprehensiveAnalytics() {
         const fallback = [
           {
             id: 1,
-            text: 'Great speaker but poor venue and the room was too hot.',
-            suggestions: 'Increase AC.',
-            date: '2025-05-01',
+            text: "Great speaker but poor venue and the room was too hot.",
+            suggestions: "Increase AC.",
+            date: "2025-05-01",
           },
           {
             id: 2,
-            text: 'The content was informative and the timing was perfect.',
-            suggestions: 'Keep the same structure.',
-            date: '2025-05-02',
+            text: "The content was informative and the timing was perfect.",
+            suggestions: "Keep the same structure.",
+            date: "2025-05-02",
           },
           {
             id: 3,
-            text: 'Food was disappointing and the organization felt rushed.',
-            suggestions: 'Improve catering.',
-            date: '2025-05-03',
+            text: "Food was disappointing and the organization felt rushed.",
+            suggestions: "Improve catering.",
+            date: "2025-05-03",
           },
         ];
         setFeedbackReport(buildFeedbackAnalyticsReport(fallback));
@@ -82,7 +87,10 @@ export function ComprehensiveAnalytics() {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <div className="p-8 text-gray-500">Loading Analytics Dashboard...</div>;
+  if (loading)
+    return (
+      <div className="p-8 text-gray-500">Loading Analytics Dashboard...</div>
+    );
 
   return (
     <div className="page bg-gray-50 text-gray-900 min-h-screen">
@@ -91,13 +99,13 @@ export function ComprehensiveAnalytics() {
         <a
           href="/dashboard/analytics/funnel"
           style={{
-            background: '#6366f1',
-            color: '#fff',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            textDecoration: 'none',
+            background: "#6366f1",
+            color: "#fff",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            textDecoration: "none",
             fontWeight: 600,
-            fontSize: '0.875rem',
+            fontSize: "0.875rem",
           }}
         >
           🔍 Funnel Analysis
@@ -106,8 +114,16 @@ export function ComprehensiveAnalytics() {
 
       {/* Overview Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <MetricCard title="Active Users" value={summary?.activeUsers || 0} trend="+12%" />
-        <MetricCard title="Events This Month" value={summary?.eventsThisMonth || 0} trend="+3%" />
+        <MetricCard
+          title="Active Users"
+          value={summary?.activeUsers || 0}
+          trend="+12%"
+        />
+        <MetricCard
+          title="Events This Month"
+          value={summary?.eventsThisMonth || 0}
+          trend="+3%"
+        />
         <MetricCard
           title="Total Registrations"
           value={summary?.totalRegistrations || 0}
@@ -121,11 +137,15 @@ export function ComprehensiveAnalytics() {
         />
       </div>
 
-      {activeTab === 'overview' && (
+      {activeTab === "overview" && (
         <>
           {/* Overview Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <MetricCard title="Active Users" value={summary?.activeUsers || 0} trend="+12%" />
+            <MetricCard
+              title="Active Users"
+              value={summary?.activeUsers || 0}
+              trend="+12%"
+            />
             <MetricCard
               title="Events This Month"
               value={summary?.eventsThisMonth || 0}
@@ -157,13 +177,18 @@ export function ComprehensiveAnalytics() {
                       vertical={false}
                       stroke="var(--chart-grid)"
                     />
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={10} minTickGap={30} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 12 }}
+                      tickMargin={10}
+                      minTickGap={30}
+                    />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
-                        borderRadius: '8px',
-                        border: 'none',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                       }}
                     />
                     <Line
@@ -222,14 +247,17 @@ export function ComprehensiveAnalytics() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(feedbackReport.summary.sentimentPercentages).map(
-                      ([label, value]) => (
-                        <div key={label} className="bg-gray-50 p-3 rounded border">
-                          <p className="text-sm text-gray-500">{label}</p>
-                          <p className="text-lg font-semibold">{value}%</p>
-                        </div>
-                      )
-                    )}
+                    {Object.entries(
+                      feedbackReport.summary.sentimentPercentages
+                    ).map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="bg-gray-50 p-3 rounded border"
+                      >
+                        <p className="text-sm text-gray-500">{label}</p>
+                        <p className="text-lg font-semibold">{value}%</p>
+                      </div>
+                    ))}
                   </div>
                   <div className="bg-gray-50 p-3 rounded border">
                     <h4 className="font-semibold mb-2">Aspect Ratings</h4>
@@ -238,7 +266,9 @@ export function ComprehensiveAnalytics() {
                         ([aspect, value]) => (
                           <div key={aspect} className="flex justify-between">
                             <span>{aspect}</span>
-                            <span className="font-medium">{value.sentiment}</span>
+                            <span className="font-medium">
+                              {value.sentiment}
+                            </span>
                           </div>
                         )
                       )}
@@ -250,18 +280,22 @@ export function ComprehensiveAnalytics() {
                   <div className="bg-gray-50 p-3 rounded border">
                     <h4 className="font-semibold mb-2">Top Themes</h4>
                     <div className="flex flex-wrap gap-2">
-                      {feedbackReport.summary.topThemes.slice(0, 6).map((theme) => (
-                        <span
-                          key={theme.theme}
-                          className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-sm"
-                        >
-                          {theme.theme} ({theme.count})
-                        </span>
-                      ))}
+                      {feedbackReport.summary.topThemes
+                        .slice(0, 6)
+                        .map((theme) => (
+                          <span
+                            key={theme.theme}
+                            className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-sm"
+                          >
+                            {theme.theme} ({theme.count})
+                          </span>
+                        ))}
                     </div>
                   </div>
                   <div className="bg-gray-50 p-3 rounded border">
-                    <h4 className="font-semibold mb-2">Actionable Suggestions</h4>
+                    <h4 className="font-semibold mb-2">
+                      Actionable Suggestions
+                    </h4>
                     <ul className="space-y-2 text-sm">
                       {feedbackReport.summary.suggestions.map((suggestion) => (
                         <li key={suggestion.topic} className="leading-5">
@@ -288,10 +322,14 @@ export function ComprehensiveAnalytics() {
 function MetricCard({ title, value, trend, negative }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-      <h4 className="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-2">{title}</h4>
+      <h4 className="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-2">
+        {title}
+      </h4>
       <div className="flex items-end justify-between">
         <div className="text-3xl font-extrabold text-gray-900">{value}</div>
-        <div className={`text-sm font-bold ${negative ? 'text-red-500' : 'text-green-500'}`}>
+        <div
+          className={`text-sm font-bold ${negative ? "text-red-500" : "text-green-500"}`}
+        >
           {trend}
         </div>
       </div>

@@ -1,9 +1,9 @@
 // pages/EventsList.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usePaginationParams } from '../hooks/usePaginationParams';
-import Pagination from '../components/Pagination';
-import axiosInstance from '../api/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { usePaginationParams } from "../hooks/usePaginationParams";
+import Pagination from "../components/Pagination";
+import axiosInstance from "../api/axiosInstance";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,7 +19,7 @@ export default function EventsList() {
   const [events, setEvents] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const { page, setPage, resetPage } = usePaginationParams();
 
@@ -28,14 +28,16 @@ export default function EventsList() {
     setLoading(true);
 
     axiosInstance
-      .get(`/admin/events?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`)
+      .get(
+        `/admin/events?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`
+      )
       .then(({ data }) => {
         if (!cancelled) {
           setEvents(data.events || []);
           setTotalItems(data.total || 0);
         }
       })
-      .catch((err) => console.error('Failed to fetch events:', err))
+      .catch((err) => console.error("Failed to fetch events:", err))
       .finally(() => !cancelled && setLoading(false));
 
     return () => {
@@ -49,7 +51,7 @@ export default function EventsList() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: "24px" }}>
       <h1>Events</h1>
 
       {/* Search */}
@@ -59,12 +61,12 @@ export default function EventsList() {
         value={search}
         onChange={handleSearch}
         style={{
-          marginBottom: '16px',
-          padding: '8px 12px',
-          borderRadius: '6px',
-          border: '1px solid #d1d5db',
-          width: '300px',
-          fontSize: '0.9rem',
+          marginBottom: "16px",
+          padding: "8px 12px",
+          borderRadius: "6px",
+          border: "1px solid #d1d5db",
+          width: "300px",
+          fontSize: "0.9rem",
         }}
       />
 
@@ -74,9 +76,9 @@ export default function EventsList() {
       ) : events.length === 0 ? (
         <p>No events found.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ backgroundColor: '#f3f4f6' }}>
+            <tr style={{ backgroundColor: "#f3f4f6" }}>
               <th style={thStyle}>#</th>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Date</th>
@@ -86,11 +88,11 @@ export default function EventsList() {
           </thead>
           <tbody>
             {events.map((event, idx) => (
-              <tr key={event.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+              <tr key={event.id} style={{ borderBottom: "1px solid #e5e7eb" }}>
                 <td style={tdStyle}>{(page - 1) * ITEMS_PER_PAGE + idx + 1}</td>
                 <td style={tdStyle}>{event.name}</td>
-                <td style={tdStyle}>{event.date || '—'}</td>
-                <td style={tdStyle}>{event.status || '—'}</td>
+                <td style={tdStyle}>{event.date || "—"}</td>
+                <td style={tdStyle}>{event.status || "—"}</td>
                 <td style={tdStyle}>
                   <button
                     onClick={() => navigate(`/admin/events/${event.id}`)}
@@ -106,7 +108,7 @@ export default function EventsList() {
       )}
 
       {/* Pagination */}
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: "20px" }}>
         <Pagination totalItems={totalItems} itemsPerPage={ITEMS_PER_PAGE} />
       </div>
     </div>
@@ -114,25 +116,25 @@ export default function EventsList() {
 }
 
 const thStyle = {
-  padding: '10px 14px',
-  textAlign: 'left',
-  fontSize: '0.85rem',
+  padding: "10px 14px",
+  textAlign: "left",
+  fontSize: "0.85rem",
   fontWeight: 600,
-  color: '#374151',
+  color: "#374151",
 };
 
 const tdStyle = {
-  padding: '10px 14px',
-  fontSize: '0.9rem',
-  color: '#4b5563',
+  padding: "10px 14px",
+  fontSize: "0.9rem",
+  color: "#4b5563",
 };
 
 const actionBtnStyle = {
-  padding: '4px 12px',
-  borderRadius: '4px',
-  border: '1px solid #4f46e5',
-  backgroundColor: 'transparent',
-  color: '#4f46e5',
-  cursor: 'pointer',
-  fontSize: '0.85rem',
+  padding: "4px 12px",
+  borderRadius: "4px",
+  border: "1px solid #4f46e5",
+  backgroundColor: "transparent",
+  color: "#4f46e5",
+  cursor: "pointer",
+  fontSize: "0.85rem",
 };

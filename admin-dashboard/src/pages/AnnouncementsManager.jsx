@@ -1,32 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
-import { api } from '../services/api';
-import { useEventListener } from '../hooks/useEventListener';
-import { EVENTS } from '../services/eventEmitter';
-import { Skeleton } from '../components/Skeleton';
-import { AdminIcon } from '../components/AdminIcon';
+import { useState, useEffect, useCallback } from "react";
+import { api } from "../services/api";
+import { useEventListener } from "../hooks/useEventListener";
+import { EVENTS } from "../services/eventEmitter";
+import { Skeleton } from "../components/Skeleton";
+import { AdminIcon } from "../components/AdminIcon";
 
 export function AnnouncementsManager() {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Filtering states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Form states
   const [showForm, setShowForm] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('general');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("general");
   const [pinned, setPinned] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
 
   // Delete states
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(null);
-  const [deleteError, setDeleteError] = useState('');
+  const [deleteError, setDeleteError] = useState("");
 
   const fetchAnnouncements = useCallback(() => {
     setLoading(true);
@@ -59,7 +59,9 @@ export function AnnouncementsManager() {
   useEventListener(
     EVENTS.ANNOUNCEMENT_UPDATED,
     useCallback((updatedAnn) => {
-      setAnnouncements((prev) => prev.map((a) => (a.id === updatedAnn.id ? updatedAnn : a)));
+      setAnnouncements((prev) =>
+        prev.map((a) => (a.id === updatedAnn.id ? updatedAnn : a))
+      );
       closeForm();
     }, [])
   );
@@ -73,43 +75,43 @@ export function AnnouncementsManager() {
 
   const openCreateForm = () => {
     setEditingAnnouncement(null);
-    setTitle('');
-    setContent('');
-    setCategory('general');
+    setTitle("");
+    setContent("");
+    setCategory("general");
     setPinned(false);
-    setFormError('');
+    setFormError("");
     setShowForm(true);
   };
 
   const openEditForm = (ann) => {
     setEditingAnnouncement(ann);
-    setTitle(ann.title || '');
-    setContent(ann.content || '');
-    setCategory(ann.category || 'general');
+    setTitle(ann.title || "");
+    setContent(ann.content || "");
+    setCategory(ann.category || "general");
     setPinned(ann.pinned || false);
-    setFormError('');
+    setFormError("");
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setEditingAnnouncement(null);
-    setTitle('');
-    setContent('');
-    setCategory('general');
+    setTitle("");
+    setContent("");
+    setCategory("general");
     setPinned(false);
-    setFormError('');
+    setFormError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setFormError('Please fill out all required fields.');
+      setFormError("Please fill out all required fields.");
       return;
     }
 
     setSaving(true);
-    setFormError('');
+    setFormError("");
 
     const announcementData = {
       title: title.trim(),
@@ -120,7 +122,10 @@ export function AnnouncementsManager() {
 
     try {
       if (editingAnnouncement) {
-        await api.announcements.update(editingAnnouncement.id, announcementData);
+        await api.announcements.update(
+          editingAnnouncement.id,
+          announcementData
+        );
         // Force refresh if online mode handles it asynchronously
         fetchAnnouncements();
       } else {
@@ -128,7 +133,9 @@ export function AnnouncementsManager() {
         fetchAnnouncements();
       }
     } catch (err) {
-      setFormError(err.message || 'Failed to save announcement. Please try again.');
+      setFormError(
+        err.message || "Failed to save announcement. Please try again."
+      );
     } finally {
       setSaving(false);
     }
@@ -138,13 +145,13 @@ export function AnnouncementsManager() {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
     setDeleting(id);
-    setDeleteError('');
+    setDeleteError("");
     try {
       await api.announcements.delete(id);
       setDeleteTarget(null);
       fetchAnnouncements();
     } catch (err) {
-      setDeleteError('Failed to delete announcement. Please try again.');
+      setDeleteError("Failed to delete announcement. Please try again.");
     } finally {
       setDeleting(null);
     }
@@ -156,7 +163,8 @@ export function AnnouncementsManager() {
       const matchesSearch =
         ann.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ann.content?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || ann.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "all" || ann.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -169,14 +177,14 @@ export function AnnouncementsManager() {
 
   const getCategoryColor = (cat) => {
     switch (cat) {
-      case 'alert':
-        return { bg: 'rgba(239, 68, 68, 0.15)', color: '#EF4444' };
-      case 'event':
-        return { bg: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' };
-      case 'update':
-        return { bg: 'rgba(16, 185, 129, 0.15)', color: '#10B981' };
+      case "alert":
+        return { bg: "rgba(239, 68, 68, 0.15)", color: "#EF4444" };
+      case "event":
+        return { bg: "rgba(59, 130, 246, 0.15)", color: "#3B82F6" };
+      case "update":
+        return { bg: "rgba(16, 185, 129, 0.15)", color: "#10B981" };
       default:
-        return { bg: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' };
+        return { bg: "rgba(245, 158, 11, 0.15)", color: "#F59E0B" };
     }
   };
 
@@ -186,7 +194,8 @@ export function AnnouncementsManager() {
         <div>
           <h2 className="page-title">Announcements & Notifications</h2>
           <p className="page-subtitle">
-            Publish club announcements, event updates, alerts, and system notices.
+            Publish club announcements, event updates, alerts, and system
+            notices.
           </p>
         </div>
         <button className="btn-primary" onClick={openCreateForm}>
@@ -197,32 +206,33 @@ export function AnnouncementsManager() {
       {/* ── Search and Filter Controls ── */}
       <div
         style={{
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '24px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          display: "flex",
+          gap: "12px",
+          marginBottom: "24px",
+          flexWrap: "wrap",
+          alignItems: "center",
         }}
       >
-        <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
+        <div style={{ position: "relative", flex: "1", minWidth: "240px" }}>
           <input
             type="text"
             className="input-field"
             placeholder="Search announcements..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '36px', margin: 0 }}
+            style={{ paddingLeft: "36px", margin: 0 }}
           />
           <div
             style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
               opacity: 0.5,
             }}
           >
-            <AdminIcon name="Calendar" size={16} /> {/* Placeholder icon search helper */}
+            <AdminIcon name="Calendar" size={16} />{" "}
+            {/* Placeholder icon search helper */}
           </div>
         </div>
 
@@ -230,7 +240,7 @@ export function AnnouncementsManager() {
           className="input-field"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          style={{ width: '180px', margin: 0 }}
+          style={{ width: "180px", margin: 0 }}
         >
           <option value="all">All Categories</option>
           <option value="general">General</option>
@@ -242,23 +252,35 @@ export function AnnouncementsManager() {
 
       {/* ── Form Modal ── */}
       {showForm && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="form-title">
-          <div className="modal" style={{ maxWidth: '600px', width: '100%' }}>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="form-title"
+        >
+          <div className="modal" style={{ maxWidth: "600px", width: "100%" }}>
             <div className="modal-header">
               <h3 id="form-title">
-                {editingAnnouncement ? 'Edit Announcement' : 'New Announcement'}
+                {editingAnnouncement ? "Edit Announcement" : "New Announcement"}
               </h3>
-              <button className="modal-close" onClick={closeForm} aria-label="Close">
+              <button
+                className="modal-close"
+                onClick={closeForm}
+                aria-label="Close"
+              >
                 <AdminIcon name="X" size={16} />
               </button>
             </div>
 
             <form
               onSubmit={handleSubmit}
-              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
             >
               {formError && (
-                <div className="page-error" style={{ padding: '10px', borderRadius: '4px' }}>
+                <div
+                  className="page-error"
+                  style={{ padding: "10px", borderRadius: "4px" }}
+                >
                   {formError}
                 </div>
               )}
@@ -278,8 +300,8 @@ export function AnnouncementsManager() {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '180px' }}>
+              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: "180px" }}>
                   <label className="input-label" htmlFor="category">
                     Category
                   </label>
@@ -297,16 +319,24 @@ export function AnnouncementsManager() {
                 </div>
 
                 <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '24px' }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "24px",
+                  }}
                 >
                   <input
                     type="checkbox"
                     id="pinned"
                     checked={pinned}
                     onChange={(e) => setPinned(e.target.checked)}
-                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                    style={{ cursor: "pointer", width: "18px", height: "18px" }}
                   />
-                  <label htmlFor="pinned" style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  <label
+                    htmlFor="pinned"
+                    style={{ cursor: "pointer", userSelect: "none" }}
+                  >
                     Pin to top of feed
                   </label>
                 </div>
@@ -322,17 +352,17 @@ export function AnnouncementsManager() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Describe your announcement in detail..."
-                  style={{ minHeight: '150px', resize: 'vertical' }}
+                  style={{ minHeight: "150px", resize: "vertical" }}
                   required
                 />
               </div>
 
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '10px',
-                  marginTop: '12px',
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "12px",
                 }}
               >
                 <button
@@ -345,10 +375,10 @@ export function AnnouncementsManager() {
                 </button>
                 <button type="submit" className="btn-primary" disabled={saving}>
                   {saving
-                    ? 'Saving...'
+                    ? "Saving..."
                     : editingAnnouncement
-                      ? 'Save Changes'
-                      : 'Publish Announcement'}
+                      ? "Save Changes"
+                      : "Publish Announcement"}
                 </button>
               </div>
             </form>
@@ -360,11 +390,14 @@ export function AnnouncementsManager() {
       {loading && <Skeleton height={120} count={3} />}
 
       {!loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {filteredAnnouncements.length === 0 && (
             <div
               className="empty-state"
-              style={{ padding: '48px 0', border: '1px dashed rgba(255,255,255,0.06)' }}
+              style={{
+                padding: "48px 0",
+                border: "1px dashed rgba(255,255,255,0.06)",
+              }}
             >
               No announcements match your search filters.
             </div>
@@ -377,33 +410,38 @@ export function AnnouncementsManager() {
                 key={ann.id}
                 className="team-card"
                 style={{
-                  flexDirection: 'column',
-                  alignItems: 'stretch',
-                  padding: '20px',
-                  position: 'relative',
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  padding: "20px",
+                  position: "relative",
                   borderLeft: ann.pinned
-                    ? '3px solid var(--admin-accent, #CC1111)'
-                    : '3px solid transparent',
+                    ? "3px solid var(--admin-accent, #CC1111)"
+                    : "3px solid transparent",
                 }}
               >
                 <div
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '16px',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "16px",
                   }}
                 >
                   <div
-                    style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "8px",
+                      alignItems: "center",
+                    }}
                   >
                     <span
                       style={{
-                        fontSize: '0.7rem',
-                        fontWeight: 'bold',
-                        padding: '3px 8px',
-                        borderRadius: '12px',
-                        textTransform: 'uppercase',
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        padding: "3px 8px",
+                        borderRadius: "12px",
+                        textTransform: "uppercase",
                         backgroundColor: colors.bg,
                         color: colors.color,
                       }}
@@ -414,15 +452,15 @@ export function AnnouncementsManager() {
                     {ann.pinned && (
                       <span
                         style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
-                          padding: '3px 8px',
-                          borderRadius: '12px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          backgroundColor: 'rgba(204, 17, 17, 0.15)',
-                          color: 'var(--admin-accent, #CC1111)',
+                          fontSize: "0.7rem",
+                          fontWeight: "bold",
+                          padding: "3px 8px",
+                          borderRadius: "12px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          backgroundColor: "rgba(204, 17, 17, 0.15)",
+                          color: "var(--admin-accent, #CC1111)",
                         }}
                       >
                         <AdminIcon name="Pin" size={10} />
@@ -430,18 +468,23 @@ export function AnnouncementsManager() {
                       </span>
                     )}
 
-                    <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, #888)' }}>
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "var(--admin-text-muted, #888)",
+                      }}
+                    >
                       {new Date(ann.createdAt).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ display: "flex", gap: "6px" }}>
                     <button
                       className="btn-icon"
                       onClick={() => openEditForm(ann)}
@@ -461,10 +504,10 @@ export function AnnouncementsManager() {
 
                 <h3
                   style={{
-                    fontSize: '1.2rem',
-                    marginTop: '12px',
-                    marginBottom: '8px',
-                    color: '#fff',
+                    fontSize: "1.2rem",
+                    marginTop: "12px",
+                    marginBottom: "8px",
+                    color: "#fff",
                   }}
                 >
                   {ann.title}
@@ -472,10 +515,10 @@ export function AnnouncementsManager() {
 
                 <p
                   style={{
-                    fontSize: '0.9rem',
-                    color: 'var(--admin-text-muted, #bbb)',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap',
+                    fontSize: "0.9rem",
+                    color: "var(--admin-text-muted, #bbb)",
+                    lineHeight: "1.5",
+                    whiteSpace: "pre-wrap",
                   }}
                 >
                   {ann.content}
@@ -507,18 +550,18 @@ export function AnnouncementsManager() {
             </div>
 
             <p className="page-subtitle" style={{ marginBottom: 16 }}>
-              Are you sure you want to permanently delete "{deleteTarget.title}"? This action is
-              irreversible.
+              Are you sure you want to permanently delete "{deleteTarget.title}
+              "? This action is irreversible.
             </p>
 
             {deleteError && <div className="page-error">{deleteError}</div>}
 
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '10px',
-                marginTop: '20px',
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+                marginTop: "20px",
               }}
             >
               <button
@@ -533,7 +576,9 @@ export function AnnouncementsManager() {
                 onClick={handleDelete}
                 disabled={deleting === deleteTarget.id}
               >
-                {deleting === deleteTarget.id ? 'Deleting...' : 'Delete Announcement'}
+                {deleting === deleteTarget.id
+                  ? "Deleting..."
+                  : "Delete Announcement"}
               </button>
             </div>
           </div>

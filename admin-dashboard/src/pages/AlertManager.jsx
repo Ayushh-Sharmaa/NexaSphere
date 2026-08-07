@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { api } from '../services/api';
+import { useState, useEffect } from "react";
+import { api } from "../services/api";
 
 export function AlertManager() {
   const [rules, setRules] = useState([]);
@@ -20,7 +20,11 @@ export function AlertManager() {
     api.alerts
       .updateRule(rule.id, { enabled: !rule.enabled })
       .then(() => {
-        setRules(rules.map((r) => (r.id === rule.id ? { ...r, enabled: !r.enabled } : r)));
+        setRules(
+          rules.map((r) =>
+            r.id === rule.id ? { ...r, enabled: !r.enabled } : r
+          )
+        );
       })
       .catch(() => {});
   };
@@ -35,7 +39,8 @@ export function AlertManager() {
               ? {
                   ...e,
                   status,
-                  resolvedAt: status === 'resolved' ? new Date().toISOString() : null,
+                  resolvedAt:
+                    status === "resolved" ? new Date().toISOString() : null,
                 }
               : e
           )
@@ -49,7 +54,7 @@ export function AlertManager() {
       <h2 className="section-title">Alert Configuration</h2>
 
       <div className="card" style={{ marginBottom: 24 }}>
-        <h3 style={{ margin: '0 0 12' }}>Alert Rules</h3>
+        <h3 style={{ margin: "0 0 12" }}>Alert Rules</h3>
         <table className="admin-table">
           <thead>
             <tr>
@@ -73,18 +78,18 @@ export function AlertManager() {
                 </td>
                 <td>
                   <span
-                    className={`badge ${r.severity === 'Critical' ? 'badge-danger' : r.severity === 'Warning' ? 'badge-warning' : 'badge-info'}`}
+                    className={`badge ${r.severity === "Critical" ? "badge-danger" : r.severity === "Warning" ? "badge-warning" : "badge-info"}`}
                   >
                     {r.severity}
                   </span>
                 </td>
-                <td>{r.channels.join(', ')}</td>
+                <td>{r.channels.join(", ")}</td>
                 <td>
                   <button
-                    className={`btn btn-sm ${r.enabled ? 'btn-success' : 'btn-secondary'}`}
+                    className={`btn btn-sm ${r.enabled ? "btn-success" : "btn-secondary"}`}
                     onClick={() => toggleRule(r)}
                   >
-                    {r.enabled ? 'Active' : 'Disabled'}
+                    {r.enabled ? "Active" : "Disabled"}
                   </button>
                 </td>
               </tr>
@@ -94,7 +99,7 @@ export function AlertManager() {
       </div>
 
       <div className="card">
-        <h3 style={{ margin: '0 0 12' }}>Alert History</h3>
+        <h3 style={{ margin: "0 0 12" }}>Alert History</h3>
         <table className="admin-table">
           <thead>
             <tr>
@@ -108,7 +113,10 @@ export function AlertManager() {
           <tbody>
             {events.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', color: 'var(--t2)' }}>
+                <td
+                  colSpan={5}
+                  style={{ textAlign: "center", color: "var(--t2)" }}
+                >
                   No alerts yet.
                 </td>
               </tr>
@@ -121,32 +129,32 @@ export function AlertManager() {
                 <td>{e.message}</td>
                 <td>
                   <span
-                    className={`badge ${e.severity === 'Critical' ? 'badge-danger' : 'badge-warning'}`}
+                    className={`badge ${e.severity === "Critical" ? "badge-danger" : "badge-warning"}`}
                   >
                     {e.severity}
                   </span>
                 </td>
                 <td>
                   <span
-                    className={`badge ${e.status === 'triggered' ? 'badge-danger' : e.status === 'acknowledged' ? 'badge-warning' : 'badge-success'}`}
+                    className={`badge ${e.status === "triggered" ? "badge-danger" : e.status === "acknowledged" ? "badge-warning" : "badge-success"}`}
                   >
                     {e.status}
                   </span>
                 </td>
                 <td>
-                  {e.status === 'triggered' && (
+                  {e.status === "triggered" && (
                     <button
                       className="btn btn-sm btn-primary"
-                      onClick={() => updateStatus(e.id, 'acknowledged')}
+                      onClick={() => updateStatus(e.id, "acknowledged")}
                       style={{ marginRight: 4 }}
                     >
                       Acknowledge
                     </button>
                   )}
-                  {e.status !== 'resolved' && (
+                  {e.status !== "resolved" && (
                     <button
                       className="btn btn-sm btn-secondary"
-                      onClick={() => updateStatus(e.id, 'resolved')}
+                      onClick={() => updateStatus(e.id, "resolved")}
                     >
                       Resolve
                     </button>

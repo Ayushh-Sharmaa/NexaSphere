@@ -5,27 +5,27 @@
  * Three tabs: Schedule Config | Report Archive | Manual Trigger
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 
-const API = '/api/admin/reports';
+const API = "/api/admin/reports";
 
 const REPORT_TYPES = [
-  { value: 'daily_attendance', label: 'Daily Attendance' },
-  { value: 'weekly_analytics', label: 'Weekly Analytics' },
+  { value: "daily_attendance", label: "Daily Attendance" },
+  { value: "weekly_analytics", label: "Weekly Analytics" },
 ];
 
 const CRON_PRESETS = [
-  { label: 'Every day at 7:00 AM', value: '0 7 * * *' },
-  { label: 'Every Monday at 8:00 AM', value: '0 8 * * 1' },
-  { label: 'Every hour', value: '0 * * * *' },
-  { label: 'Every Sunday at midnight', value: '0 0 * * 0' },
-  { label: 'Custom…', value: 'custom' },
+  { label: "Every day at 7:00 AM", value: "0 7 * * *" },
+  { label: "Every Monday at 8:00 AM", value: "0 8 * * 1" },
+  { label: "Every hour", value: "0 * * * *" },
+  { label: "Every Sunday at midnight", value: "0 0 * * 0" },
+  { label: "Custom…", value: "custom" },
 ];
 
 function cronHumanReadable(expr) {
   const preset = CRON_PRESETS.find((p) => p.value === expr);
-  return preset && preset.value !== 'custom' ? preset.label : expr;
+  return preset && preset.value !== "custom" ? preset.label : expr;
 }
 
 // ─── Schedule Config Tab ──────────────────────────────────────────────────────
@@ -33,17 +33,17 @@ function cronHumanReadable(expr) {
 function ScheduleTab() {
   const [configs, setConfigs] = useState([]);
   const [form, setForm] = useState({
-    reportType: 'daily_attendance',
-    cronPreset: '0 7 * * *',
-    cronExpression: '0 7 * * *',
-    recipients: '',
-    format: 'csv',
+    reportType: "daily_attendance",
+    cronPreset: "0 7 * * *",
+    cronExpression: "0 7 * * *",
+    recipients: "",
+    format: "csv",
     enabled: true,
   });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const showToast = (msg, type = 'success') => {
+  const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
@@ -53,8 +53,8 @@ function ScheduleTab() {
   }, []);
 
   function handlePresetChange(val) {
-    if (val === 'custom') {
-      setForm((f) => ({ ...f, cronPreset: 'custom' }));
+    if (val === "custom") {
+      setForm((f) => ({ ...f, cronPreset: "custom" }));
     } else {
       setForm((f) => ({ ...f, cronPreset: val, cronExpression: val }));
     }
@@ -64,7 +64,7 @@ function ScheduleTab() {
     setSaving(true);
     try {
       const recipients = form.recipients
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       await axios.post(`${API}/schedule`, {
@@ -74,11 +74,11 @@ function ScheduleTab() {
         format: form.format,
         enabled: form.enabled,
       });
-      showToast('Schedule saved');
+      showToast("Schedule saved");
       const { data } = await axios.get(`${API}/schedule`);
       setConfigs(data.configs);
     } catch (e) {
-      showToast(e.response?.data?.error || 'Save failed', 'error');
+      showToast(e.response?.data?.error || "Save failed", "error");
     } finally {
       setSaving(false);
     }
@@ -92,23 +92,32 @@ function ScheduleTab() {
           Active Schedules
         </h3>
         {configs.length === 0 ? (
-          <p className="text-sm text-gray-400">No schedules configured yet — using defaults.</p>
+          <p className="text-sm text-gray-400">
+            No schedules configured yet — using defaults.
+          </p>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 uppercase text-xs">
                 <tr>
-                  {['Report', 'Schedule', 'Format', 'Recipients', 'Status'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left">
-                      {h}
-                    </th>
-                  ))}
+                  {["Report", "Schedule", "Format", "Recipients", "Status"].map(
+                    (h) => (
+                      <th key={h} className="px-4 py-3 text-left">
+                        {h}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {configs.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="px-4 py-3 font-medium">{c.reportType.replace(/_/g, ' ')}</td>
+                  <tr
+                    key={c.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
+                    <td className="px-4 py-3 font-medium">
+                      {c.reportType.replace(/_/g, " ")}
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs">
                       {c.cronExpression}
                       <span className="ml-2 text-gray-400">
@@ -117,15 +126,17 @@ function ScheduleTab() {
                     </td>
                     <td className="px-4 py-3 uppercase text-xs">{c.format}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
-                      {JSON.parse(c.recipients).join(', ')}
+                      {JSON.parse(c.recipients).join(", ")}
                     </td>
                     <td className="px-4 py-3">
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          c.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                          c.enabled
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-500"
                         }`}
                       >
-                        {c.enabled ? 'Active' : 'Disabled'}
+                        {c.enabled ? "Active" : "Disabled"}
                       </span>
                     </td>
                   </tr>
@@ -148,7 +159,9 @@ function ScheduleTab() {
             </label>
             <select
               value={form.reportType}
-              onChange={(e) => setForm((f) => ({ ...f, reportType: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, reportType: e.target.value }))
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100"
             >
               {REPORT_TYPES.map((t) => (
@@ -176,7 +189,7 @@ function ScheduleTab() {
             </select>
           </div>
 
-          {form.cronPreset === 'custom' && (
+          {form.cronPreset === "custom" && (
             <div>
               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                 Cron Expression
@@ -185,7 +198,9 @@ function ScheduleTab() {
                 type="text"
                 placeholder="e.g. 0 9 * * 1-5"
                 value={form.cronExpression}
-                onChange={(e) => setForm((f) => ({ ...f, cronExpression: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, cronExpression: e.target.value }))
+                }
                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100 font-mono"
               />
             </div>
@@ -199,7 +214,9 @@ function ScheduleTab() {
               type="text"
               placeholder="admin@example.com, ops@example.com"
               value={form.recipients}
-              onChange={(e) => setForm((f) => ({ ...f, recipients: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, recipients: e.target.value }))
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
@@ -210,7 +227,9 @@ function ScheduleTab() {
             </label>
             <select
               value={form.format}
-              onChange={(e) => setForm((f) => ({ ...f, format: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, format: e.target.value }))
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="csv">CSV</option>
@@ -223,10 +242,15 @@ function ScheduleTab() {
               type="checkbox"
               id="enabled"
               checked={form.enabled}
-              onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, enabled: e.target.checked }))
+              }
               className="w-4 h-4 accent-blue-600"
             />
-            <label htmlFor="enabled" className="text-sm text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="enabled"
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
               Enable this schedule
             </label>
           </div>
@@ -237,14 +261,14 @@ function ScheduleTab() {
           disabled={saving}
           className="mt-5 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40"
         >
-          {saving ? 'Saving…' : 'Save Schedule'}
+          {saving ? "Saving…" : "Save Schedule"}
         </button>
       </div>
 
       {toast && (
         <div
           className={`fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg text-sm font-medium text-white z-50 ${
-            toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'
+            toast.type === "error" ? "bg-red-600" : "bg-green-600"
           }`}
         >
           {toast.msg}
@@ -260,7 +284,7 @@ function ArchiveTab() {
   const [reports, setReports] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState("");
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
@@ -281,7 +305,11 @@ function ArchiveTab() {
   }, [load]);
 
   function handleDownload(id, filename) {
-    window.open(`${API}/archive/${id}/download`, '_blank', 'noopener,noreferrer');
+    window.open(
+      `${API}/archive/${id}/download`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   }
 
   return (
@@ -303,7 +331,7 @@ function ArchiveTab() {
           ))}
         </select>
         <span className="text-sm text-gray-400">
-          {total} report{total !== 1 ? 's' : ''}
+          {total} report{total !== 1 ? "s" : ""}
         </span>
       </div>
 
@@ -314,7 +342,7 @@ function ArchiveTab() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 uppercase text-xs">
               <tr>
-                {['Type', 'Generated At', 'Summary', 'Download'].map((h) => (
+                {["Type", "Generated At", "Summary", "Download"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left">
                     {h}
                   </th>
@@ -323,15 +351,18 @@ function ArchiveTab() {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {reports.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <tr
+                  key={r.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                >
                   <td className="px-4 py-3 font-medium capitalize">
-                    {r.reportType.replace(/_/g, ' ')}
+                    {r.reportType.replace(/_/g, " ")}
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                     {new Date(r.generatedAt).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
-                    {r.summary.split('\n')[0]}
+                    {r.summary.split("\n")[0]}
                   </td>
                   <td className="px-4 py-3">
                     <button
@@ -345,7 +376,10 @@ function ArchiveTab() {
               ))}
               {reports.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
+                  <td
+                    colSpan={4}
+                    className="px-4 py-8 text-center text-gray-400"
+                  >
                     No archived reports yet
                   </td>
                 </tr>
@@ -385,7 +419,7 @@ function ArchiveTab() {
 // ─── Manual Trigger Tab ───────────────────────────────────────────────────────
 
 function TriggerTab() {
-  const [type, setType] = useState('daily_attendance');
+  const [type, setType] = useState("daily_attendance");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -398,7 +432,7 @@ function TriggerTab() {
       const { data } = await axios.post(`${API}/generate`, { type });
       setResult(data.report);
     } catch (e) {
-      setError(e.response?.data?.error || 'Failed to generate report');
+      setError(e.response?.data?.error || "Failed to generate report");
     } finally {
       setLoading(false);
     }
@@ -407,8 +441,8 @@ function TriggerTab() {
   return (
     <div className="max-w-md space-y-5">
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Manually trigger a report outside its scheduled time. The report will be generated,
-        archived, and emailed to configured recipients immediately.
+        Manually trigger a report outside its scheduled time. The report will be
+        generated, archived, and emailed to configured recipients immediately.
       </p>
 
       <div>
@@ -433,7 +467,7 @@ function TriggerTab() {
         disabled={loading}
         className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40"
       >
-        {loading ? 'Generating…' : '▶ Generate Now'}
+        {loading ? "Generating…" : "▶ Generate Now"}
       </button>
 
       {result && (
@@ -441,8 +475,12 @@ function TriggerTab() {
           <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
             ✅ Report generated
           </p>
-          <p className="text-xs text-green-600 dark:text-green-400">{result.filename}</p>
-          <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">{result.summary}</p>
+          <p className="text-xs text-green-600 dark:text-green-400">
+            {result.filename}
+          </p>
+          <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">
+            {result.summary}
+          </p>
         </div>
       )}
 
@@ -457,15 +495,17 @@ function TriggerTab() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const TABS = ['Schedule Config', 'Report Archive', 'Manual Trigger'];
+const TABS = ["Schedule Config", "Report Archive", "Manual Trigger"];
 
 export default function ScheduledReports() {
-  const [activeTab, setActiveTab] = useState('Schedule Config');
+  const [activeTab, setActiveTab] = useState("Schedule Config");
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Scheduled Reports</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Scheduled Reports
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           Configure, view, and manually trigger automated report generation
         </p>
@@ -479,8 +519,8 @@ export default function ScheduledReports() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab
-                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               }`}
             >
               {tab}
@@ -490,9 +530,9 @@ export default function ScheduledReports() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        {activeTab === 'Schedule Config' && <ScheduleTab />}
-        {activeTab === 'Report Archive' && <ArchiveTab />}
-        {activeTab === 'Manual Trigger' && <TriggerTab />}
+        {activeTab === "Schedule Config" && <ScheduleTab />}
+        {activeTab === "Report Archive" && <ArchiveTab />}
+        {activeTab === "Manual Trigger" && <TriggerTab />}
       </div>
     </div>
   );
