@@ -3,7 +3,7 @@
  * Displays key metrics in card format with animations
  */
 
-import React from 'react';
+import React from "react";
 
 export default function LiveMetricsCards({ metrics }) {
   if (!metrics) {
@@ -12,39 +12,39 @@ export default function LiveMetricsCards({ metrics }) {
 
   const cards = [
     {
-      title: 'Total Registrations',
+      title: "Total Registrations",
       value: metrics.totalRegistrations,
-      icon: '📝',
-      color: 'blue',
-      description: 'All registrations',
+      icon: "📝",
+      color: "blue",
+      description: "All registrations",
     },
     {
-      title: 'Checked In',
+      title: "Checked In",
       value: metrics.checkedIn,
-      icon: '✅',
-      color: 'green',
-      description: 'On-site attendees',
+      icon: "✅",
+      color: "green",
+      description: "On-site attendees",
     },
     {
-      title: 'Pending Check-in',
+      title: "Pending Check-in",
       value: metrics.pendingCheckIn,
-      icon: '⏳',
-      color: 'orange',
-      description: 'Not yet checked in',
+      icon: "⏳",
+      color: "orange",
+      description: "Not yet checked in",
     },
     {
-      title: 'Available Seats',
+      title: "Available Seats",
       value: metrics.availableSeats,
-      icon: '🪑',
-      color: 'purple',
-      description: `Capacity: ${metrics.maxAttendees || 'Unlimited'}`,
+      icon: "🪑",
+      color: "purple",
+      description: `Capacity: ${metrics.maxAttendees || "Unlimited"}`,
     },
     {
-      title: 'Occupancy Rate',
+      title: "Occupancy Rate",
       value: `${metrics.occupancyRate}%`,
-      icon: '📊',
-      color: 'teal',
-      description: 'Venue capacity usage',
+      icon: "📊",
+      color: "teal",
+      description: "Venue capacity usage",
     },
   ];
 

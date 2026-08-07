@@ -1,18 +1,18 @@
-import { useState, useCallback } from 'react';
-import { api } from '../services/api';
-import { useEvents } from '../hooks/useEvents';
-import { useEventListener } from '../hooks/useEventListener';
-import { EVENTS } from '../services/eventEmitter';
-import { EventForm } from '../components/EventForm';
-import { Skeleton } from '../components/Skeleton';
-import { AdminIcon } from '../components/AdminIcon';
-import { HelpTooltip } from '../components/HelpTooltip';
+import { useState, useCallback } from "react";
+import { api } from "../services/api";
+import { useEvents } from "../hooks/useEvents";
+import { useEventListener } from "../hooks/useEventListener";
+import { EVENTS } from "../services/eventEmitter";
+import { EventForm } from "../components/EventForm";
+import { Skeleton } from "../components/Skeleton";
+import { AdminIcon } from "../components/AdminIcon";
+import { HelpTooltip } from "../components/HelpTooltip";
 
 const STATUS_COLORS = {
-  upcoming: '#3b82f6',
-  ongoing: '#22c55e',
-  completed: '#6b7280',
-  cancelled: '#ef4444',
+  upcoming: "#3b82f6",
+  ongoing: "#22c55e",
+  completed: "#6b7280",
+  cancelled: "#ef4444",
 };
 
 export function EventsManager() {
@@ -21,7 +21,7 @@ export function EventsManager() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteError, setDeleteError] = useState('');
+  const [deleteError, setDeleteError] = useState("");
 
   // After any change, reload from server to stay in sync
   useEventListener(
@@ -52,12 +52,12 @@ export function EventsManager() {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
     setDeleting(id);
-    setDeleteError('');
+    setDeleteError("");
     try {
       await api.events.delete(id);
       setDeleteTarget(null);
     } catch {
-      setDeleteError('Failed to delete event. Please try again.');
+      setDeleteError("Failed to delete event. Please try again.");
     } finally {
       setDeleting(null);
     }
@@ -75,7 +75,7 @@ export function EventsManager() {
   return (
     <div className="page">
       <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <h2 className="page-title" style={{ margin: 0 }}>
             Events
           </h2>
@@ -89,19 +89,25 @@ export function EventsManager() {
         </button>
       </div>
 
-      {(showForm || editingEvent) && <EventForm event={editingEvent} onClose={closeForm} />}
+      {(showForm || editingEvent) && (
+        <EventForm event={editingEvent} onClose={closeForm} />
+      )}
 
       {loading && <Skeleton height={72} count={4} />}
-      {error && <div className="page-error">Failed to load events: {error}</div>}
+      {error && (
+        <div className="page-error">Failed to load events: {error}</div>
+      )}
 
       {!loading && !error && (
         <div className="list">
-          {events.length === 0 && <div className="empty-state">No events yet. Add one!</div>}
+          {events.length === 0 && (
+            <div className="empty-state">No events yet. Add one!</div>
+          )}
           {events.map((event) => (
             <div key={event.id} className="list-item">
               <div className="list-item-left">
                 <span className="item-icon">
-                  <AdminIcon name={event.icon || 'Calendar'} size={22} />
+                  <AdminIcon name={event.icon || "Calendar"} size={22} />
                 </span>
                 <div>
                   <div className="item-name">{event.name}</div>
@@ -111,11 +117,11 @@ export function EventsManager() {
                       <span
                         style={{
                           marginLeft: 6,
-                          padding: '1px 6px',
+                          padding: "1px 6px",
                           borderRadius: 8,
-                          background: 'var(--c2a)',
-                          color: 'var(--c2)',
-                          fontSize: '0.7rem',
+                          background: "var(--c2a)",
+                          color: "var(--c2)",
+                          fontSize: "0.7rem",
                           fontWeight: 600,
                         }}
                       >
@@ -130,7 +136,7 @@ export function EventsManager() {
                 <span
                   className="status-badge"
                   style={{
-                    background: STATUS_COLORS[event.status] || '#6b7280',
+                    background: STATUS_COLORS[event.status] || "#6b7280",
                   }}
                 >
                   {event.status}
@@ -146,12 +152,16 @@ export function EventsManager() {
                   className="btn-icon danger"
                   onClick={() => {
                     setDeleteTarget(event);
-                    setDeleteError('');
+                    setDeleteError("");
                   }}
                   disabled={deleting === event.id}
                   aria-label="Delete event"
                 >
-                  {deleting === event.id ? '...' : <AdminIcon name="Trash" size={16} />}
+                  {deleting === event.id ? (
+                    "..."
+                  ) : (
+                    <AdminIcon name="Trash" size={16} />
+                  )}
                 </button>
               </div>
             </div>
@@ -183,8 +193,8 @@ export function EventsManager() {
             {deleteError && <div className="page-error">{deleteError}</div>}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
+                display: "flex",
+                justifyContent: "flex-end",
                 gap: 10,
                 marginTop: 20,
               }}
@@ -201,7 +211,7 @@ export function EventsManager() {
                 onClick={handleDelete}
                 disabled={deleting === deleteTarget.id}
               >
-                {deleting === deleteTarget.id ? 'Deleting...' : 'Delete Event'}
+                {deleting === deleteTarget.id ? "Deleting..." : "Delete Event"}
               </button>
             </div>
           </div>

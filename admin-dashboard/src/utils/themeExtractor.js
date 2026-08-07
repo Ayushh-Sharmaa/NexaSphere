@@ -1,34 +1,34 @@
 const stopWords = new Set([
-  'the',
-  'and',
-  'but',
-  'was',
-  'were',
-  'for',
-  'with',
-  'very',
-  'too',
-  'this',
-  'that',
-  'into',
-  'room',
-  'event',
-  'it',
-  'a',
-  'an',
-  'of',
-  'to',
-  'on',
-  'in',
-  'is',
-  'are',
-  'our',
+  "the",
+  "and",
+  "but",
+  "was",
+  "were",
+  "for",
+  "with",
+  "very",
+  "too",
+  "this",
+  "that",
+  "into",
+  "room",
+  "event",
+  "it",
+  "a",
+  "an",
+  "of",
+  "to",
+  "on",
+  "in",
+  "is",
+  "are",
+  "our",
 ]);
 
-export function extractThemes(text = '') {
+export function extractThemes(text = "") {
   const words = text
     .toLowerCase()
-    .replace(/[^a-z\s]/g, ' ')
+    .replace(/[^a-z\s]/g, " ")
     .split(/\s+/)
     .filter(Boolean)
     .filter((word) => !stopWords.has(word));
