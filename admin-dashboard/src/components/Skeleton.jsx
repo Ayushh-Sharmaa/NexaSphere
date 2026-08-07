@@ -1,6 +1,6 @@
 export function Skeleton({
   height = 48,
-  width = '100%',
+  width = "100%",
   count = 1,
   rounded = false,
   animate = true,
@@ -11,12 +11,12 @@ export function Skeleton({
       {Array.from({ length: safeCount }).map((_, i) => (
         <div
           key={i}
-          className={`skeleton${animate ? ' skeleton-shimmer' : ''}${rounded ? ' skeleton-rounded' : ''}`}
+          className={`skeleton${animate ? " skeleton-shimmer" : ""}${rounded ? " skeleton-rounded" : ""}`}
           style={{
             height,
             width,
-            marginBottom: i < safeCount - 1 ? '8px' : 0,
-            borderRadius: rounded ? '50%' : undefined,
+            marginBottom: i < safeCount - 1 ? "8px" : 0,
+            borderRadius: rounded ? "50%" : undefined,
           }}
           aria-hidden="true"
           role="presentation"
@@ -26,17 +26,17 @@ export function Skeleton({
   );
 }
 
-export function SkeletonText({ lines = 3, animate = true, width = '100%' }) {
+export function SkeletonText({ lines = 3, animate = true, width = "100%" }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className={`skeleton${animate ? ' skeleton-shimmer' : ''}`}
+          className={`skeleton${animate ? " skeleton-shimmer" : ""}`}
           style={{
             height: 14,
-            width: i === lines - 1 ? '60%' : width,
-            borderRadius: '4px',
+            width: i === lines - 1 ? "60%" : width,
+            borderRadius: "4px",
           }}
           aria-hidden="true"
           role="presentation"

@@ -1,9 +1,9 @@
 // admin-dashboard/src/hooks/useAdminStats.js
 // Custom hook that fetches platform stats from GET /api/admin/stats
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787";
 
 export function useAdminStats() {
   const [stats, setStats] = useState(null);
@@ -19,7 +19,7 @@ export function useAdminStats() {
         setError(null);
 
         const response = await fetch(`${API_BASE}/api/admin/stats`, {
-          credentials: 'include', // send session cookie for auth
+          credentials: "include", // send session cookie for auth
         });
 
         if (!response.ok) {

@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react';
-import { adminSecurity } from '../services/auth';
-import { AdminIcon } from '../components/AdminIcon';
+import { useEffect, useState } from "react";
+import { adminSecurity } from "../services/auth";
+import { AdminIcon } from "../components/AdminIcon";
 
 function formatDate(value) {
-  if (!value) return 'Unknown';
+  if (!value) return "Unknown";
   return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    dateStyle: "medium",
+    timeStyle: "short",
   }).format(new Date(value));
 }
 
 export function SecurityCenter() {
   const [overview, setOverview] = useState({ sessions: [], loginHistory: [] });
   const [auditLogs, setAuditLogs] = useState([]);
-  const [search, setSearch] = useState('');
-  const [error, setError] = useState('');
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    setError('');
+    setError("");
     setLoading(true);
     try {
       const [securityData, auditData] = await Promise.all([
@@ -44,7 +44,7 @@ export function SecurityCenter() {
       await adminSecurity.revokeSession(sessionId);
       await load();
     } catch (err) {
-      setError(err.message || 'Failed to revoke session');
+      setError(err.message || "Failed to revoke session");
     }
   };
 
@@ -54,7 +54,7 @@ export function SecurityCenter() {
       await adminSecurity.logoutOtherSessions();
       await load();
     } catch (err) {
-      setError(err.message || 'Failed to logout other sessions');
+      setError(err.message || "Failed to logout other sessions");
     }
   };
 
@@ -89,13 +89,15 @@ export function SecurityCenter() {
                 </div>
                 <div className="security-row-main">
                   <div className="item-name">
-                    {session.metadata?.device || 'Unknown device'}
-                    {session.current && <span className="status-tag success">Current</span>}
+                    {session.metadata?.device || "Unknown device"}
+                    {session.current && (
+                      <span className="status-tag success">Current</span>
+                    )}
                   </div>
                   <div className="item-meta">
-                    {session.metadata?.ip || 'Unknown IP'} -{' '}
-                    {session.metadata?.location || 'Unknown location'} - Last active{' '}
-                    {formatDate(session.lastSeenAt)}
+                    {session.metadata?.ip || "Unknown IP"} -{" "}
+                    {session.metadata?.location || "Unknown location"} - Last
+                    active {formatDate(session.lastSeenAt)}
                   </div>
                 </div>
                 <button
@@ -107,7 +109,9 @@ export function SecurityCenter() {
                 </button>
               </div>
             ))}
-            {!overview.sessions.length && <div className="empty-state">No active sessions</div>}
+            {!overview.sessions.length && (
+              <div className="empty-state">No active sessions</div>
+            )}
           </div>
         )}
       </section>
@@ -120,20 +124,25 @@ export function SecurityCenter() {
           {overview.loginHistory.map((login) => (
             <div className="security-row" key={login.id}>
               <div className="item-icon">
-                <AdminIcon name={login.suspicious ? 'Target' : 'Clock'} />
+                <AdminIcon name={login.suspicious ? "Target" : "Clock"} />
               </div>
               <div className="security-row-main">
                 <div className="item-name">
                   {login.device}
-                  {login.suspicious && <span className="status-tag info">Suspicious</span>}
+                  {login.suspicious && (
+                    <span className="status-tag info">Suspicious</span>
+                  )}
                 </div>
                 <div className="item-meta">
-                  {login.ipAddress} - {login.location} - {formatDate(login.createdAt)}
+                  {login.ipAddress} - {login.location} -{" "}
+                  {formatDate(login.createdAt)}
                 </div>
               </div>
             </div>
           ))}
-          {!overview.loginHistory.length && <div className="empty-state">No login history</div>}
+          {!overview.loginHistory.length && (
+            <div className="empty-state">No login history</div>
+          )}
         </div>
       </section>
 
@@ -150,7 +159,10 @@ export function SecurityCenter() {
             <button className="btn-secondary" onClick={load}>
               Search
             </button>
-            <a className="btn-secondary" href={adminSecurity.getAuditExportUrl(search)}>
+            <a
+              className="btn-secondary"
+              href={adminSecurity.getAuditExportUrl(search)}
+            >
               Export CSV
             </a>
           </div>
@@ -171,7 +183,7 @@ export function SecurityCenter() {
                   <td>{formatDate(log.timestamp)}</td>
                   <td>{log.adminId}</td>
                   <td>{log.action}</td>
-                  <td>{log.ipAddress || 'Unknown'}</td>
+                  <td>{log.ipAddress || "Unknown"}</td>
                 </tr>
               ))}
               {!auditLogs.length && (
