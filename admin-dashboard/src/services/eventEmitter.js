@@ -62,49 +62,49 @@ class EventEmitter {
 export const eventEmitter = new EventEmitter();
 
 export const EVENTS = {
-  EVENT_CREATED: 'event:created',
+  EVENT_CREATED: "event:created",
 
-  EVENT_UPDATED: 'event:updated',
+  EVENT_UPDATED: "event:updated",
 
-  EVENT_DELETED: 'event:deleted',
+  EVENT_DELETED: "event:deleted",
 
-  ACTIVITY_EVENT_CREATED: 'activity-event:created',
+  ACTIVITY_EVENT_CREATED: "activity-event:created",
 
-  ACTIVITY_EVENT_DELETED: 'activity-event:deleted',
+  ACTIVITY_EVENT_DELETED: "activity-event:deleted",
 
-  CORE_TEAM_MEMBER_ADDED: 'core-team:added',
+  CORE_TEAM_MEMBER_ADDED: "core-team:added",
 
-  CORE_TEAM_MEMBER_UPDATED: 'core-team:updated',
+  CORE_TEAM_MEMBER_UPDATED: "core-team:updated",
 
-  CORE_TEAM_MEMBER_REMOVED: 'core-team:removed',
+  CORE_TEAM_MEMBER_REMOVED: "core-team:removed",
 
-  AUTH_TOKEN_EXPIRED: 'auth:token-expired',
-  AUTH_LOGOUT: 'auth:logout',
+  AUTH_TOKEN_EXPIRED: "auth:token-expired",
+  AUTH_LOGOUT: "auth:logout",
 
-  NOTIFY: 'notify',
+  NOTIFY: "notify",
 
-  ANNOUNCEMENT_CREATED: 'announcement:created',
+  ANNOUNCEMENT_CREATED: "announcement:created",
 
-  ANNOUNCEMENT_UPDATED: 'announcement:updated',
+  ANNOUNCEMENT_UPDATED: "announcement:updated",
 
-  ANNOUNCEMENT_DELETED: 'announcement:deleted',
+  ANNOUNCEMENT_DELETED: "announcement:deleted",
 
-  WAITING_ROOM_UPDATED: 'waiting-room:updated',
+  WAITING_ROOM_UPDATED: "waiting-room:updated",
 
   // RBAC events
-  ROLE_CREATED: 'role:created',
-  ROLE_UPDATED: 'role:updated',
-  ROLE_DELETED: 'role:deleted',
-  ROLE_ASSIGNED: 'role:assigned',
-  ROLE_REVOKED: 'role:revoked',
+  ROLE_CREATED: "role:created",
+  ROLE_UPDATED: "role:updated",
+  ROLE_DELETED: "role:deleted",
+  ROLE_ASSIGNED: "role:assigned",
+  ROLE_REVOKED: "role:revoked",
 
   // Offline / reconnect events
-  CACHE_STALE: 'cache:stale',
+  CACHE_STALE: "cache:stale",
 
-  OFFLINE_MODE: 'offline:enabled',
+  OFFLINE_MODE: "offline:enabled",
 
-  ONLINE_RECONNECTED: 'online:reconnected',
+  ONLINE_RECONNECTED: "online:reconnected",
 
-  QA_UPDATED: 'qa:updated',
-  POLL_UPDATED: 'poll:updated',
+  QA_UPDATED: "qa:updated",
+  POLL_UPDATED: "poll:updated",
 };

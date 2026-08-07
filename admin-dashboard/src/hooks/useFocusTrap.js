@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -20,12 +20,12 @@ export function useFocusTrap(active, onEscape) {
     }, 50);
 
     function handleKeyDown(e) {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.stopPropagation();
         onEscape?.();
         return;
       }
-      if (e.key !== 'Tab' || !ref.current) return;
+      if (e.key !== "Tab" || !ref.current) return;
       const focusable = ref.current.querySelectorAll(FOCUSABLE);
       if (focusable.length === 0) return;
 
@@ -45,11 +45,11 @@ export function useFocusTrap(active, onEscape) {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       clearTimeout(timer);
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
       if (previous.current && previous.current.focus) {
         previous.current.focus();
       }

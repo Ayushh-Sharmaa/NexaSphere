@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import api from '../services/api';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import api from "../services/api";
 
 const EventFeedbackAnalytics = () => {
   const { eventId } = useParams();
@@ -15,10 +15,12 @@ const EventFeedbackAnalytics = () => {
           api.get(`/api/feedback/analytics/${eventId}`),
           api.get(`/api/feedback/${eventId}`),
         ]);
-        if (analyticsRes.data.success) setAnalytics(analyticsRes.data.analytics);
-        if (feedbacksRes.data.success) setFeedbacks(feedbacksRes.data.feedbacks);
+        if (analyticsRes.data.success)
+          setAnalytics(analyticsRes.data.analytics);
+        if (feedbacksRes.data.success)
+          setFeedbacks(feedbacksRes.data.feedbacks);
       } catch (error) {
-        console.error('Failed to fetch feedback:', error);
+        console.error("Failed to fetch feedback:", error);
       } finally {
         setLoading(false);
       }
@@ -43,9 +45,15 @@ const EventFeedbackAnalytics = () => {
           </div>
           <div className="p-4 border rounded shadow">
             <h3 className="text-lg font-semibold">Sentiment</h3>
-            <p className="text-sm">Positive: {analytics.sentiments?.positive || 0}</p>
-            <p className="text-sm">Neutral: {analytics.sentiments?.neutral || 0}</p>
-            <p className="text-sm">Negative: {analytics.sentiments?.negative || 0}</p>
+            <p className="text-sm">
+              Positive: {analytics.sentiments?.positive || 0}
+            </p>
+            <p className="text-sm">
+              Neutral: {analytics.sentiments?.neutral || 0}
+            </p>
+            <p className="text-sm">
+              Negative: {analytics.sentiments?.negative || 0}
+            </p>
           </div>
         </div>
       )}
@@ -58,10 +66,10 @@ const EventFeedbackAnalytics = () => {
               <strong>Rating:</strong> {f.ratingOverall}
             </p>
             <p>
-              <strong>Suggestions:</strong> {f.suggestions || 'N/A'}
+              <strong>Suggestions:</strong> {f.suggestions || "N/A"}
             </p>
             <p>
-              <strong>Best Parts:</strong> {f.bestParts || 'N/A'}
+              <strong>Best Parts:</strong> {f.bestParts || "N/A"}
             </p>
             <p>
               <strong>Sentiment:</strong> {f.sentiment}
