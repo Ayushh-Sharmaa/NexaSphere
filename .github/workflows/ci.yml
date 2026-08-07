@@ -161,13 +161,36 @@ jobs:
       - admin-dashboard
       - server
 
-    if: always() && github.event_name == 'pull_request'
+    if: always()
 
     permissions:
       pull-requests: write
 
     steps:
+      - name: Generate Job Summary
+        run: |
+          echo "## CI Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### Overall Status" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.website.result }}" == "success" && "${{ needs.admin-dashboard.result }}" == "success" && "${{ needs.server.result }}" == "success" ]]; then
+            echo "✅ **SUCCESS** - All checks passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **FAILURE** - One or more jobs failed." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Details" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Format | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Website Build | ${{ needs.website.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Admin Dashboard | ${{ needs.admin-dashboard.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Server Tests | ${{ needs.server.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- **Website dist**: [Download from workflow runs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Coverage**: [Download from workflow runs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
       - name: Post PR Summary
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
