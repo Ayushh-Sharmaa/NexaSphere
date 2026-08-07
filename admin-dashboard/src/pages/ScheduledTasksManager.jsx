@@ -12,51 +12,54 @@
  *  - Auto-refresh every 30 s
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import { AdminIcon } from '../components/AdminIcon';
-import { useLogoutAwareInterval } from '../hooks/useLogoutAwareInterval';
-import { useToast } from '../hooks/useToast';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AdminIcon } from "../components/AdminIcon";
+import { useToast } from "../hooks/useToast";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = import.meta.env.VITE_API_URL || "";
 const REFRESH_MS = 30_000;
 
 const CATEGORY_COLORS = {
-  email: '#3b82f6',
-  analytics: '#8b5cf6',
-  system: '#6b7280',
-  reports: '#f59e0b',
-  users: '#10b981',
-  certificates: '#ec4899',
+  email: "#3b82f6",
+  analytics: "#8b5cf6",
+  system: "#6b7280",
+  reports: "#f59e0b",
+  users: "#10b981",
+  certificates: "#ec4899",
 };
 
 const STATUS_COLORS = {
-  success: '#22c55e',
-  failed: '#ef4444',
-  running: '#f59e0b',
-  pending: '#6b7280',
+  success: "#22c55e",
+  failed: "#ef4444",
+  running: "#f59e0b",
+  pending: "#6b7280",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmtDate(d) {
-  if (!d) return '—';
+  if (!d) return "—";
   return new Date(d).toLocaleString();
 }
 
 function fmtDuration(ms) {
-  if (ms == null) return '—';
+  if (ms == null) return "—";
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
 function statusBadge(status) {
-  const color = STATUS_COLORS[status] ?? '#6b7280';
+  const color = STATUS_COLORS[status] ?? "#6b7280";
   return (
     <span
       className="status-badge"
-      style={{ background: color + '22', color, border: `1px solid ${color}44` }}
+      style={{
+        background: color + "22",
+        color,
+        border: `1px solid ${color}44`,
+      }}
     >
       {status}
     </span>
@@ -68,7 +71,7 @@ function statusBadge(status) {
 function StatCard({ icon, label, value, color }) {
   return (
     <div className="stat-card">
-      <div className="stat-icon" style={{ color: color || 'var(--red)' }}>
+      <div className="stat-icon" style={{ color: color || "var(--red)" }}>
         <AdminIcon name={icon} size={22} aria-hidden="true" />
       </div>
       <div>
@@ -89,7 +92,7 @@ function HistoryPanel({ taskId, onClose }) {
         const res = await fetch(
           `${API_BASE}/api/admin/scheduled-tasks/${taskId}/history?limit=20`,
           {
-            credentials: 'include',
+            credentials: "include",
           }
         );
         const data = await res.json();
@@ -103,11 +106,20 @@ function HistoryPanel({ taskId, onClose }) {
   }, [taskId]);
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Execution History">
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Execution History"
+    >
       <div className="modal" style={{ maxWidth: 620 }}>
         <div className="modal-header">
           <h3>Execution History</h3>
-          <button className="modal-close" onClick={onClose} aria-label="Close history">
+          <button
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Close history"
+          >
             <AdminIcon name="X" size={18} />
           </button>
         </div>
@@ -115,25 +127,28 @@ function HistoryPanel({ taskId, onClose }) {
         {loading && <div className="skeleton" style={{ height: 120 }} />}
 
         {!loading && history.length === 0 && (
-          <p className="empty-state" style={{ padding: '24px 0' }}>
+          <p className="empty-state" style={{ padding: "24px 0" }}>
             No executions recorded yet.
           </p>
         )}
 
         {!loading && history.length > 0 && (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="tasks-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              className="tasks-table"
+              style={{ width: "100%", borderCollapse: "collapse" }}
+            >
               <thead>
                 <tr>
-                  {['Started At', 'Duration', 'Status', 'Error'].map((h) => (
+                  {["Started At", "Duration", "Status", "Error"].map((h) => (
                     <th
                       key={h}
                       style={{
-                        textAlign: 'left',
-                        padding: '8px 10px',
+                        textAlign: "left",
+                        padding: "8px 10px",
                         fontSize: 11,
-                        color: 'var(--text2)',
-                        borderBottom: '1px solid var(--border)',
+                        color: "var(--text2)",
+                        borderBottom: "1px solid var(--border)",
                       }}
                     >
                       {h}
@@ -143,24 +158,31 @@ function HistoryPanel({ taskId, onClose }) {
               </thead>
               <tbody>
                 {history.map((row, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '8px 10px', fontSize: 12 }}>{fmtDate(row.startedAt)}</td>
-                    <td style={{ padding: '8px 10px', fontSize: 12 }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: "1px solid var(--border)" }}
+                  >
+                    <td style={{ padding: "8px 10px", fontSize: 12 }}>
+                      {fmtDate(row.startedAt)}
+                    </td>
+                    <td style={{ padding: "8px 10px", fontSize: 12 }}>
                       {fmtDuration(row.durationMs)}
                     </td>
-                    <td style={{ padding: '8px 10px' }}>{statusBadge(row.status)}</td>
+                    <td style={{ padding: "8px 10px" }}>
+                      {statusBadge(row.status)}
+                    </td>
                     <td
                       style={{
-                        padding: '8px 10px',
+                        padding: "8px 10px",
                         fontSize: 12,
-                        color: 'var(--text2)',
+                        color: "var(--text2)",
                         maxWidth: 200,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {row.error || '—'}
+                      {row.error || "—"}
                     </td>
                   </tr>
                 ))}
@@ -176,27 +198,36 @@ function HistoryPanel({ taskId, onClose }) {
 function CronEditorModal({ task, onSave, onClose }) {
   const [cron, setCron] = useState(task.cron);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   async function handleSave() {
     setSaving(true);
-    setError('');
+    setError("");
     try {
       await onSave(task.id, cron);
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to update schedule');
+      setError(err.message || "Failed to update schedule");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit Schedule">
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Edit Schedule"
+    >
       <div className="modal">
         <div className="modal-header">
           <h3>Edit Schedule — {task.name}</h3>
-          <button className="modal-close" onClick={onClose} aria-label="Close editor">
+          <button
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Close editor"
+          >
             <AdminIcon name="X" size={18} />
           </button>
         </div>
@@ -209,9 +240,9 @@ function CronEditorModal({ task, onSave, onClose }) {
               value={cron}
               onChange={(e) => setCron(e.target.value)}
               placeholder="e.g. 0 8 * * *"
-              style={{ fontFamily: 'monospace' }}
+              style={{ fontFamily: "monospace" }}
             />
-            <span style={{ fontSize: 11, color: 'var(--text2)', marginTop: 4 }}>
+            <span style={{ fontSize: 11, color: "var(--text2)", marginTop: 4 }}>
               Fields: minute hour day-of-month month day-of-week
             </span>
           </div>
@@ -219,11 +250,19 @@ function CronEditorModal({ task, onSave, onClose }) {
           {error && <div className="form-error">{error}</div>}
 
           <div className="form-actions">
-            <button className="btn-secondary" onClick={onClose} disabled={saving}>
+            <button
+              className="btn-secondary"
+              onClick={onClose}
+              disabled={saving}
+            >
               Cancel
             </button>
-            <button className="btn-primary" onClick={handleSave} disabled={saving || !cron.trim()}>
-              {saving ? 'Saving…' : 'Save Schedule'}
+            <button
+              className="btn-primary"
+              onClick={handleSave}
+              disabled={saving || !cron.trim()}
+            >
+              {saving ? "Saving…" : "Save Schedule"}
             </button>
           </div>
         </div>
@@ -234,33 +273,37 @@ function CronEditorModal({ task, onSave, onClose }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ScheduledTasksManager() {
+export function ScheduledTasksManager() {
   const { showToast } = useToast();
 
   const [tasks, setTasks] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const [filter, setFilter] = useState('all'); // all | category
-  const [searchQuery, setSearch] = useState('');
+  const [filter, setFilter] = useState("all"); // all | category
+  const [searchQuery, setSearch] = useState("");
   const [historyTask, setHistoryTask] = useState(null); // task id or null
   const [editCronTask, setEditCron] = useState(null); // task object or null
   const [triggering, setTriggering] = useState({}); // taskId → bool
+
+  const intervalRef = useRef(null);
 
   // ── Data fetch ─────────────────────────────────────────────────────────────
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/scheduled-tasks`, { credentials: 'include' });
+      const res = await fetch(`${API_BASE}/api/admin/scheduled-tasks`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setTasks(data.tasks || []);
       setStats(data.stats || null);
-      setError('');
+      setError("");
     } catch (err) {
-      if (!silent) setError(err.message || 'Failed to load tasks');
+      if (!silent) setError(err.message || "Failed to load tasks");
     } finally {
       if (!silent) setLoading(false);
     }
@@ -268,19 +311,17 @@ export default function ScheduledTasksManager() {
 
   useEffect(() => {
     load();
+    intervalRef.current = setInterval(() => load(true), REFRESH_MS);
+    return () => clearInterval(intervalRef.current);
   }, [load]);
-
-  const refreshTasks = useCallback(() => load(true), [load]);
-
-  useLogoutAwareInterval(refreshTasks, REFRESH_MS);
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
   async function patchTask(taskId, body) {
     const res = await fetch(`${API_BASE}/api/admin/scheduled-tasks/${taskId}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
@@ -294,34 +335,40 @@ export default function ScheduledTasksManager() {
     try {
       const updated = await patchTask(task.id, { enabled: !task.enabled });
       setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
-      showToast(`Task "${task.name}" ${updated.enabled ? 'enabled' : 'disabled'}`, 'success');
+      showToast(
+        `Task "${task.name}" ${updated.enabled ? "enabled" : "disabled"}`,
+        "success"
+      );
     } catch (err) {
-      showToast(err.message, 'error');
+      showToast(err.message, "error");
     }
   }
 
   async function saveCron(taskId, cron) {
     const updated = await patchTask(taskId, { cron });
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
-    showToast('Schedule updated', 'success');
+    showToast("Schedule updated", "success");
   }
 
   async function triggerNow(task) {
     setTriggering((p) => ({ ...p, [task.id]: true }));
     try {
-      const res = await fetch(`${API_BASE}/api/admin/scheduled-tasks/${task.id}/run`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const res = await fetch(
+        `${API_BASE}/api/admin/scheduled-tasks/${task.id}/run`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `HTTP ${res.status}`);
       }
       const data = await res.json();
       setTasks((prev) => prev.map((t) => (t.id === task.id ? data.task : t)));
-      showToast(`"${task.name}" executed successfully`, 'success');
+      showToast(`"${task.name}" executed successfully`, "success");
     } catch (err) {
-      showToast(err.message, 'error');
+      showToast(err.message, "error");
     } finally {
       setTriggering((p) => ({ ...p, [task.id]: false }));
     }
@@ -329,11 +376,12 @@ export default function ScheduledTasksManager() {
 
   // ── Filter / search ────────────────────────────────────────────────────────
 
-  const categories = [...new Set(tasks.map((t) => t.category))].sort((a, b) => a - b);
+  const categories = [...new Set(tasks.map((t) => t.category))].sort();
 
   const filtered = tasks.filter((t) => {
-    const matchCat = filter === 'all' || t.category === filter;
-    const matchQ = !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCat = filter === "all" || t.category === filter;
+    const matchQ =
+      !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchQ;
   });
 
@@ -345,13 +393,15 @@ export default function ScheduledTasksManager() {
       <div className="page-header">
         <div className="header-info">
           <h1 className="page-title">Scheduled Tasks</h1>
-          <p className="page-subtitle">Monitor, enable/disable, and trigger background jobs</p>
+          <p className="page-subtitle">
+            Monitor, enable/disable, and trigger background jobs
+          </p>
         </div>
         <button
           className="btn-secondary"
           onClick={() => load()}
           aria-label="Refresh tasks"
-          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ display: "flex", alignItems: "center", gap: 6 }}
         >
           <AdminIcon name="RefreshCw" size={14} />
           Refresh
@@ -364,13 +414,35 @@ export default function ScheduledTasksManager() {
       {stats && (
         <div
           className="stats-grid"
-          style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', marginBottom: 28 }}
+          style={{
+            gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))",
+            marginBottom: 28,
+          }}
         >
           <StatCard icon="List" label="Total Tasks" value={stats.totalTasks} />
-          <StatCard icon="CheckCircle" label="Enabled" value={stats.enabledTasks} color="#22c55e" />
-          <StatCard icon="XCircle" label="Disabled" value={stats.disabledTasks} color="#6b7280" />
-          <StatCard icon="Loader" label="Running Now" value={stats.runningTasks} color="#f59e0b" />
-          <StatCard icon="BarChart" label="Total Runs" value={stats.totalRuns} />
+          <StatCard
+            icon="CheckCircle"
+            label="Enabled"
+            value={stats.enabledTasks}
+            color="#22c55e"
+          />
+          <StatCard
+            icon="XCircle"
+            label="Disabled"
+            value={stats.disabledTasks}
+            color="#6b7280"
+          />
+          <StatCard
+            icon="Loader"
+            label="Running Now"
+            value={stats.runningTasks}
+            color="#f59e0b"
+          />
+          <StatCard
+            icon="BarChart"
+            label="Total Runs"
+            value={stats.totalRuns}
+          />
           <StatCard
             icon="AlertTriangle"
             label="Failures"
@@ -383,28 +455,32 @@ export default function ScheduledTasksManager() {
             value={`${stats.successRate}%`}
             color="#22c55e"
           />
-          <StatCard icon="Clock" label="Avg Duration" value={fmtDuration(stats.avgDurationMs)} />
+          <StatCard
+            icon="Clock"
+            label="Avg Duration"
+            value={fmtDuration(stats.avgDurationMs)}
+          />
         </div>
       )}
 
       {/* Filters */}
       <div
         style={{
-          display: 'flex',
+          display: "flex",
           gap: 12,
           marginBottom: 20,
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          flexWrap: "wrap",
+          alignItems: "center",
         }}
       >
         <input
           className="search-input"
           style={{
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            color: 'var(--text)',
-            padding: '7px 12px',
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius)",
+            color: "var(--text)",
+            padding: "7px 12px",
             fontSize: 13,
             width: 220,
           }}
@@ -415,21 +491,21 @@ export default function ScheduledTasksManager() {
         />
         <div className="tabs" style={{ margin: 0 }}>
           <button
-            className={`tab${filter === 'all' ? ' active' : ''}`}
-            onClick={() => setFilter('all')}
+            className={`tab${filter === "all" ? " active" : ""}`}
+            onClick={() => setFilter("all")}
           >
             All
           </button>
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`tab${filter === cat ? ' active' : ''}`}
+              className={`tab${filter === cat ? " active" : ""}`}
               onClick={() => setFilter(cat)}
               style={
                 filter === cat
                   ? {
-                      background: CATEGORY_COLORS[cat] || 'var(--red)',
-                      borderColor: CATEGORY_COLORS[cat] || 'var(--red)',
+                      background: CATEGORY_COLORS[cat] || "var(--red)",
+                      borderColor: CATEGORY_COLORS[cat] || "var(--red)",
                     }
                   : {}
               }
@@ -452,42 +528,56 @@ export default function ScheduledTasksManager() {
       ) : (
         <div className="list">
           {filtered.map((task) => {
-            const catColor = CATEGORY_COLORS[task.category] || '#6b7280';
+            const catColor = CATEGORY_COLORS[task.category] || "#6b7280";
             const isTriggering = triggering[task.id];
             return (
               <div
                 key={task.id}
                 className="list-item"
-                style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}
+                style={{
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  gap: 12,
+                }}
               >
                 {/* Top row */}
                 <div
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                     gap: 12,
-                    flexWrap: 'wrap',
+                    flexWrap: "wrap",
                   }}
                 >
-                  <div className="list-item-left" style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    className="list-item-left"
+                    style={{ flex: 1, minWidth: 0 }}
+                  >
                     <div className="item-icon" style={{ color: catColor }}>
                       <AdminIcon name="Clock" size={18} aria-hidden="true" />
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div
                         className="item-name"
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          flexWrap: "wrap",
+                        }}
                       >
                         {task.name}
-                        {task.running && statusBadge('running')}
-                        {!task.running && task.lastStatus && statusBadge(task.lastStatus)}
+                        {task.running && statusBadge("running")}
+                        {!task.running &&
+                          task.lastStatus &&
+                          statusBadge(task.lastStatus)}
                         <span
                           style={{
                             fontSize: 10,
-                            padding: '1px 7px',
+                            padding: "1px 7px",
                             borderRadius: 20,
-                            background: catColor + '22',
+                            background: catColor + "22",
                             color: catColor,
                             fontWeight: 600,
                           }}
@@ -506,15 +596,19 @@ export default function ScheduledTasksManager() {
                       className={`btn-secondary`}
                       style={{
                         fontSize: 11,
-                        padding: '4px 10px',
-                        background: task.enabled ? 'rgba(34,197,94,0.08)' : 'transparent',
-                        borderColor: task.enabled ? '#22c55e' : 'var(--border)',
-                        color: task.enabled ? '#22c55e' : 'var(--text2)',
+                        padding: "4px 10px",
+                        background: task.enabled
+                          ? "rgba(34,197,94,0.08)"
+                          : "transparent",
+                        borderColor: task.enabled ? "#22c55e" : "var(--border)",
+                        color: task.enabled ? "#22c55e" : "var(--text2)",
                       }}
                       onClick={() => toggleEnabled(task)}
-                      title={task.enabled ? 'Click to disable' : 'Click to enable'}
+                      title={
+                        task.enabled ? "Click to disable" : "Click to enable"
+                      }
                     >
-                      {task.enabled ? 'Enabled' : 'Disabled'}
+                      {task.enabled ? "Enabled" : "Disabled"}
                     </button>
 
                     {/* Edit cron */}
@@ -532,7 +626,7 @@ export default function ScheduledTasksManager() {
                       title="Run now"
                       disabled={isTriggering || task.running}
                       onClick={() => triggerNow(task)}
-                      style={{ color: 'var(--red)' }}
+                      style={{ color: "var(--red)" }}
                     >
                       {isTriggering ? (
                         <AdminIcon name="Loader" size={15} />
@@ -555,21 +649,21 @@ export default function ScheduledTasksManager() {
                 {/* Bottom meta row */}
                 <div
                   style={{
-                    display: 'flex',
+                    display: "flex",
                     gap: 24,
-                    flexWrap: 'wrap',
+                    flexWrap: "wrap",
                     fontSize: 11,
-                    color: 'var(--text2)',
+                    color: "var(--text2)",
                     paddingLeft: 34,
                   }}
                 >
                   <span>
-                    <strong>Cron:</strong>{' '}
+                    <strong>Cron:</strong>{" "}
                     <code
                       style={{
-                        fontFamily: 'monospace',
-                        background: 'var(--surface2)',
-                        padding: '1px 6px',
+                        fontFamily: "monospace",
+                        background: "var(--surface2)",
+                        padding: "1px 6px",
                         borderRadius: 4,
                       }}
                     >
@@ -583,7 +677,8 @@ export default function ScheduledTasksManager() {
                     <strong>Last Run:</strong> {fmtDate(task.lastRun)}
                   </span>
                   <span>
-                    <strong>Last Duration:</strong> {fmtDuration(task.lastDurationMs)}
+                    <strong>Last Duration:</strong>{" "}
+                    {fmtDuration(task.lastDurationMs)}
                   </span>
                   <span>
                     <strong>History:</strong> {task.historyCount} runs recorded
@@ -596,12 +691,19 @@ export default function ScheduledTasksManager() {
       )}
 
       {/* Modals */}
-      {historyTask && <HistoryPanel taskId={historyTask} onClose={() => setHistoryTask(null)} />}
+      {historyTask && (
+        <HistoryPanel
+          taskId={historyTask}
+          onClose={() => setHistoryTask(null)}
+        />
+      )}
       {editCronTask && (
-        <CronEditorModal task={editCronTask} onSave={saveCron} onClose={() => setEditCron(null)} />
+        <CronEditorModal
+          task={editCronTask}
+          onSave={saveCron}
+          onClose={() => setEditCron(null)}
+        />
       )}
     </div>
   );
 }
-
-export default ScheduledTasksManager;
