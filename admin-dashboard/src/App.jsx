@@ -128,7 +128,6 @@ function DashboardLayout() {
     </div>
   );
 }
-import { BrowserRouter } from "react-router-dom";
 import DashboardIndex from "./DashboardIndex";
 
 export default function App() {
