@@ -22,13 +22,10 @@ export const smartFormsRepository = {
       return rows;
     });
   },
-  
+
   async getFormById(formId) {
     return withDb(async (client) => {
-      const { rows } = await client.query(
-        `select * from smart_forms where id = $1`,
-        [formId]
-      );
+      const { rows } = await client.query(`select * from smart_forms where id = $1`, [formId]);
       return rows[0] || null;
     });
   },
@@ -49,7 +46,7 @@ export const smartFormsRepository = {
           patch.title,
           patch.type,
           patch.schema ? JSON.stringify(patch.schema) : null,
-          patch.isActive
+          patch.isActive,
         ]
       );
       return rows[0];
@@ -90,7 +87,7 @@ export const smartFormsRepository = {
       return rows;
     });
   },
-  
+
   async updateResponseStatus(responseId, status) {
     return withDb(async (client) => {
       const { rows } = await client.query(
@@ -100,26 +97,26 @@ export const smartFormsRepository = {
       return rows[0];
     });
   },
-  
+
   async getAnalytics(formId) {
     return withDb(async (client) => {
       const { rows: responses } = await client.query(
         `select answers from smart_form_responses where form_id = $1`,
         [formId]
       );
-      
+
       const { rows: formRows } = await client.query(
         `select schema from smart_forms where id = $1`,
         [formId]
       );
-      
+
       if (!formRows.length) return null;
-      
-      return { 
+
+      return {
         schema: formRows[0].schema,
-        totalResponses: responses.length, 
-        responses: responses.map(r => r.answers) 
+        totalResponses: responses.length,
+        responses: responses.map((r) => r.answers),
       };
     });
-  }
+  },
 };

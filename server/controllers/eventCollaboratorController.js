@@ -16,20 +16,20 @@ export const eventCollaboratorController = {
         can_edit: true,
         can_delete: false,
         can_view_attendance: true,
-        can_message: true
+        can_message: true,
       };
 
       const collaborator = await eventCollaboratorRepository.inviteCollaborator({
         event_id,
         email,
         role,
-        permissions: JSON.stringify(finalPermissions)
+        permissions: JSON.stringify(finalPermissions),
       });
 
       // Send invitation email
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const acceptUrl = `${frontendUrl}/events/${event_id}/collaborate?email=${encodeURIComponent(email)}`;
-      
+
       await sendEmail({
         to: email,
         subject: `You've been invited to co-organize an event on NexaSphere`,
@@ -38,8 +38,8 @@ export const eventCollaboratorController = {
           title: 'Event Collaboration Invitation',
           body: `You have been invited as a ${role || 'co-organizer'}. Click below to accept your invitation.`,
           actionText: 'Accept Invitation',
-          actionUrl: acceptUrl
-        }
+          actionUrl: acceptUrl,
+        },
       });
 
       return res.status(201).json({ collaborator });
@@ -112,13 +112,20 @@ export const eventCollaboratorController = {
       }
 
       // Verify the sender is a collaborator
-      const collaborator = await eventCollaboratorRepository.getCollaborator(event_id, sender_email);
-      
+      const collaborator = await eventCollaboratorRepository.getCollaborator(
+        event_id,
+        sender_email
+      );
+
       // We will allow admins or the main organizer to also message, but for simplicity assuming the user is verified by auth middleware
       // and we just require them to either be a collaborator or the request is made by admin/organizer.
       // Here we just insert the message.
-      
-      const newMessage = await eventCollaboratorRepository.addMessage(event_id, sender_email, message);
+
+      const newMessage = await eventCollaboratorRepository.addMessage(
+        event_id,
+        sender_email,
+        message
+      );
       return res.status(201).json({ message: newMessage });
     } catch (error) {
       console.error('Error adding message:', error);
@@ -135,5 +142,5 @@ export const eventCollaboratorController = {
       console.error('Error getting messages:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 };

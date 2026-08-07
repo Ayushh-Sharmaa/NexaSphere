@@ -113,7 +113,13 @@ export const trackClick = wrapAsync(async (req, res) => {
 export const createTemplate = wrapAsync(async (req, res) => {
   const { name, subject, htmlContent, category } = req.body;
   if (!name || !htmlContent) {
-    return sendError(req, res, 'Template name and HTML content are required', 400, 'VALIDATION_ERROR');
+    return sendError(
+      req,
+      res,
+      'Template name and HTML content are required',
+      400,
+      'VALIDATION_ERROR'
+    );
   }
 
   const template = await emailCampaignService.createTemplate(

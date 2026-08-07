@@ -13,7 +13,12 @@ import {
 
 const router = Router();
 
-router.post('/budgets', validate(createBudgetSchema), auth('admin'), financialController.createBudget);
+router.post(
+  '/budgets',
+  validate(createBudgetSchema),
+  auth('admin'),
+  financialController.createBudget
+);
 router.get('/budgets', auth('student'), financialController.getBudgets);
 router.get(
   '/budgets/utilization',
@@ -21,16 +26,41 @@ router.get(
   financialController.getBudgetsUtilizationReport
 );
 router.get('/budgets/:budgetId', auth('student'), financialController.getBudgetById);
-router.put('/budgets/:budgetId', validate(updateBudgetSchema), auth('admin'), financialController.updateBudget);
+router.put(
+  '/budgets/:budgetId',
+  validate(updateBudgetSchema),
+  auth('admin'),
+  financialController.updateBudget
+);
 router.delete('/budgets/:budgetId', auth('admin'), financialController.deleteBudget);
-router.post('/budgets/:budgetId/clone', validate(cloneBudgetSchema), auth('admin'), financialController.cloneBudget);
+router.post(
+  '/budgets/:budgetId/clone',
+  validate(cloneBudgetSchema),
+  auth('admin'),
+  financialController.cloneBudget
+);
 
-router.post('/budgets/:budgetId/expenses', validate(createExpenseSchema), auth('admin'), financialController.createExpense);
+router.post(
+  '/budgets/:budgetId/expenses',
+  validate(createExpenseSchema),
+  auth('admin'),
+  financialController.createExpense
+);
 router.get('/budgets/:budgetId/expenses', auth('student'), financialController.getExpenses);
-router.put('/expenses/:expenseId', validate(updateExpenseSchema), auth('admin'), financialController.updateExpense);
+router.put(
+  '/expenses/:expenseId',
+  validate(updateExpenseSchema),
+  auth('admin'),
+  financialController.updateExpense
+);
 router.delete('/expenses/:expenseId', auth('admin'), financialController.deleteExpense);
 
-router.post('/budgets/:budgetId/revenues', validate(createRevenueSchema), auth('admin'), financialController.createRevenue);
+router.post(
+  '/budgets/:budgetId/revenues',
+  validate(createRevenueSchema),
+  auth('admin'),
+  financialController.createRevenue
+);
 router.get('/budgets/:budgetId/revenues', auth('student'), financialController.getRevenues);
 router.delete('/revenues/:revenueId', auth('admin'), financialController.deleteRevenue);
 

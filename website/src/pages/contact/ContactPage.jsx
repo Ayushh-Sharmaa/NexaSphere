@@ -426,7 +426,10 @@ function MessageCTA() {
 
   useEffect(() => {
     if (!copied && !copyError) return;
-    const timer = setTimeout(() => { setCopied(false); setCopyError(false); }, 2200);
+    const timer = setTimeout(() => {
+      setCopied(false);
+      setCopyError(false);
+    }, 2200);
     return () => clearTimeout(timer);
   }, [copied, copyError]);
 
@@ -443,7 +446,10 @@ function MessageCTA() {
       .then(() => {
         setCopied(true);
         setCopyError(false);
-        copyTimeoutRef.current = setTimeout(() => { setCopied(false); setCopyError(false); }, 2200);
+        copyTimeoutRef.current = setTimeout(() => {
+          setCopied(false);
+          setCopyError(false);
+        }, 2200);
       })
       .catch((err) => {
         console.error('Failed to copy to clipboard', err);

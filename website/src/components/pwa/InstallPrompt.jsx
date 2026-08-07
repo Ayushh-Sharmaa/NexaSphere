@@ -30,7 +30,7 @@ export default function InstallPrompt() {
     let openCount = 1;
     try {
       if (localStorage.getItem(DISMISSED_KEY) === 'true') return;
-      openCount = parseInt(localStorage.getItem(OPEN_COUNT_KEY) || '0', 10) + 1;
+      openCount = parseInt(localStorage.getItem(OPEN_COUNT_KEY, 10) || '0', 10) + 1;
       localStorage.setItem(OPEN_COUNT_KEY, String(openCount));
     } catch {
       // Storage unavailable — proceed without persisting state.

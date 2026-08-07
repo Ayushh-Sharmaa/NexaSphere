@@ -40,9 +40,9 @@ exports.up = (pgm) => {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
-    }
+    },
   });
-  
+
   pgm.createIndex('event_survey_templates', 'event_id', { unique: true });
 
   pgm.createTable('event_survey_responses', {
@@ -69,7 +69,7 @@ exports.up = (pgm) => {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
-    }
+    },
   });
 
   pgm.createIndex('event_survey_responses', 'event_id');

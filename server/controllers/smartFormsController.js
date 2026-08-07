@@ -4,13 +4,13 @@ export const createForm = async (req, res) => {
   try {
     const { eventId } = req.params;
     const { title, type, schema } = req.body;
-    
+
     if (!title || !type || !schema) {
       return res.status(400).json({ error: 'title, type, and schema are required' });
     }
 
     const form = await smartFormsRepository.createForm(eventId, title, type, schema);
-    
+
     if (req.adminSession) {
       req.auditLog = {
         action: 'smart_forms.create',
@@ -19,7 +19,7 @@ export const createForm = async (req, res) => {
         details: { eventId, title, type },
       };
     }
-    
+
     return res.status(201).json(form);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -51,9 +51,9 @@ export const updateForm = async (req, res) => {
   try {
     const { formId } = req.params;
     const patch = req.body;
-    
+
     const form = await smartFormsRepository.updateForm(formId, patch);
-    
+
     if (req.adminSession) {
       req.auditLog = {
         action: 'smart_forms.update',
@@ -62,7 +62,7 @@ export const updateForm = async (req, res) => {
         details: { patch },
       };
     }
-    
+
     return res.json(form);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -73,7 +73,7 @@ export const deleteForm = async (req, res) => {
   try {
     const { formId } = req.params;
     await smartFormsRepository.deleteForm(formId);
-    
+
     if (req.adminSession) {
       req.auditLog = {
         action: 'smart_forms.delete',
@@ -82,7 +82,7 @@ export const deleteForm = async (req, res) => {
         details: {},
       };
     }
-    
+
     return res.status(204).end();
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -117,9 +117,9 @@ export const updateResponseStatus = async (req, res) => {
   try {
     const { responseId } = req.params;
     const { status } = req.body;
-    
+
     if (!status) return res.status(400).json({ error: 'status is required' });
-    
+
     const response = await smartFormsRepository.updateResponseStatus(responseId, status);
     return res.json(response);
   } catch (err) {

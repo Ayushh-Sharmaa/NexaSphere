@@ -648,4 +648,7 @@ router.use('/api/analytics', requireStudentAuth, platformAnalyticsRoutes);
 router.use('/api/budget', adminAuthMiddleware.requireAdmin, budgetRoutes);
 router.use('/api/webhooks', googleFormsWebhookRoutes);
 router.use("/notification-campaigns", notificationCampaignRoutes);
+import hashtagsRouter from './hashtags.js';
+router.use('/api/hashtags', hashtagsRouter);
+
 export default router;

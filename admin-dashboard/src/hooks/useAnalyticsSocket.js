@@ -1,12 +1,17 @@
 /**
  * Hook for Socket.IO analytics integration
- * Manages real-time connection and data updates
+ * Manages real-time connection and data updates.
+ * Uses the shared admin socket client for connection management.
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import io from 'socket.io-client';
-
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001';
+import { useEffect, useState, useCallback, useRef } from "react";
+import {
+  getSocket,
+  on,
+  off,
+  emit,
+  isConnected as checkConnected,
+} from "../services/socketClient";
 
 /**
  * Hook to manage analytics WebSocket connection
@@ -16,40 +21,31 @@ export function useAnalyticsSocket() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (socketRef.current) return;
+    // Initialize the shared admin socket if not already connected
+    if (!socketRef.current || !checkConnected()) {
+      socketRef.current = getSocket();
+    }
 
-    const socket = io(SOCKET_URL, {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
-    });
+    if (!socketRef.current) return;
 
-    socket.on('connect', () => {
-      console.log('Socket connected:', socket.id);
-      setIsConnected(true);
-    });
+    const socket = socketRef.current;
 
-    socket.on('disconnect', () => {
-      console.log('Socket disconnected');
-      setIsConnected(false);
-    });
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
 
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
-    });
+    on("connect", handleConnect);
+    on("disconnect", handleDisconnect);
 
-    socketRef.current = socket;
+    // Set initial state
+    setIsConnected(socket.connected);
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      off("connect", handleConnect);
+      off("disconnect", handleDisconnect);
     };
-  }, []);
+  }, [eventId]);
 
-  return socketRef.current;
+  return { analytics, connected };
 }
 
 /**
@@ -71,11 +67,11 @@ export function useEventAnalytics(eventId) {
     setLoading(true);
 
     // Subscribe to the event
-    socket.emit('analytics:subscribe', eventId);
+    emit("analytics:subscribe", eventId);
 
     // Request current data
-    socket.emit('analytics:request:metrics', eventId);
-    socket.emit('analytics:request:trends', { eventId, timeWindow: '7 days' });
+    emit("analytics:request:metrics", eventId);
+    emit("analytics:request:trends", { eventId, timeWindow: "7 days" });
 
     // Listen for updates
     const handleMetricsUpdate = (data) => {
@@ -100,14 +96,16 @@ export function useEventAnalytics(eventId) {
 
     const handleRecentRegistration = (data) => {
       if (data.eventId === eventId) {
-        setRecentRegistrations((prev) => [data.registration, ...prev].slice(0, 20));
+        setRecentRegistrations((prev) =>
+          [data.registration, ...prev].slice(0, 20)
+        );
       }
     };
 
     const handleCheckIn = (data) => {
       if (data.eventId === eventId) {
         // Update metrics to reflect check-in
-        socket.emit('analytics:request:metrics', eventId);
+        emit("analytics:request:metrics", eventId);
       }
     };
 
@@ -118,21 +116,21 @@ export function useEventAnalytics(eventId) {
       }
     };
 
-    socket.on('analytics:metrics:update', handleMetricsUpdate);
-    socket.on('analytics:metrics:current', handleMetricsCurrent);
-    socket.on('analytics:trends:current', handleTrendsCurrent);
-    socket.on('analytics:registration:new', handleRecentRegistration);
-    socket.on('analytics:checkin:new', handleCheckIn);
-    socket.on('analytics:error', handleError);
+    on("analytics:metrics:update", handleMetricsUpdate);
+    on("analytics:metrics:current", handleMetricsCurrent);
+    on("analytics:trends:current", handleTrendsCurrent);
+    on("analytics:registration:new", handleRecentRegistration);
+    on("analytics:checkin:new", handleCheckIn);
+    on("analytics:error", handleError);
 
     return () => {
-      socket.off('analytics:metrics:update', handleMetricsUpdate);
-      socket.off('analytics:metrics:current', handleMetricsCurrent);
-      socket.off('analytics:trends:current', handleTrendsCurrent);
-      socket.off('analytics:registration:new', handleRecentRegistration);
-      socket.off('analytics:checkin:new', handleCheckIn);
-      socket.off('analytics:error', handleError);
-      socket.emit('analytics:unsubscribe', eventId);
+      off("analytics:metrics:update", handleMetricsUpdate);
+      off("analytics:metrics:current", handleMetricsCurrent);
+      off("analytics:trends:current", handleTrendsCurrent);
+      off("analytics:registration:new", handleRecentRegistration);
+      off("analytics:checkin:new", handleCheckIn);
+      off("analytics:error", handleError);
+      emit("analytics:unsubscribe", eventId);
     };
   }, [socket, eventId]);
 

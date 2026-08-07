@@ -21,33 +21,42 @@ describe('Webhook System Integration Tests', () => {
 
   test('createWebhook validates HTTPS requirement', async () => {
     await assert.rejects(
-      webhookService.createWebhook({
-        name: 'Insecure Webhook',
-        url: 'http://example.com/webhook',
-        events: ['event.created'],
-      }, dummyUser),
+      webhookService.createWebhook(
+        {
+          name: 'Insecure Webhook',
+          url: 'http://example.com/webhook',
+          events: ['event.created'],
+        },
+        dummyUser
+      ),
       /Webhook URL must use HTTPS/
     );
   });
 
   test('createWebhook validates that at least one event type is selected', async () => {
     await assert.rejects(
-      webhookService.createWebhook({
-        name: 'Empty Events Webhook',
-        url: 'https://example.com/webhook',
-        events: [],
-      }, dummyUser),
+      webhookService.createWebhook(
+        {
+          name: 'Empty Events Webhook',
+          url: 'https://example.com/webhook',
+          events: [],
+        },
+        dummyUser
+      ),
       /At least one event type must be selected/
     );
   });
 
   test('createWebhook validates event types', async () => {
     await assert.rejects(
-      webhookService.createWebhook({
-        name: 'Invalid Event Webhook',
-        url: 'https://example.com/webhook',
-        events: ['invalid.event.name'],
-      }, dummyUser),
+      webhookService.createWebhook(
+        {
+          name: 'Invalid Event Webhook',
+          url: 'https://example.com/webhook',
+          events: ['invalid.event.name'],
+        },
+        dummyUser
+      ),
       /Invalid event types/
     );
   });
@@ -55,8 +64,11 @@ describe('Webhook System Integration Tests', () => {
   test('verifySignature correctly matches HMAC-SHA256 signature', () => {
     const secret = 'super-secret-key';
     const payload = { event: 'test', data: { ok: true } };
-    const signature = crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex');
-    
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(JSON.stringify(payload))
+      .digest('hex');
+
     const isValid = webhookDeliveryService.verifySignature(secret, payload, signature);
     assert.strictEqual(isValid, true);
   });

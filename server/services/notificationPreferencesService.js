@@ -26,29 +26,54 @@ export async function shouldDeliver(
   const map = {};
   for (const p of prefs || []) map[p.category] = p;
 
-  const categoryPref = map[category] || map['global'] || null;
+  const categoryPref = map[category] || null;
   const globalPref = map['global'] || null;
 
-  // If critical, deliver unless explicitly disabled in category
-  const effective = categoryPref || {};
+  // Resolve preference with global fallback
+  const getEffectivePref = (key, defaultValue) => {
+    if (categoryPref && categoryPref[key] !== undefined) {
+      return categoryPref[key];
+    }
+    if (globalPref && globalPref[key] !== undefined) {
+      return globalPref[key];
+    }
+    return defaultValue;
+  };
 
-  // Channel check
+  const pushEnabled = getEffectivePref('push', true);
+  const emailEnabled = getEffectivePref('email', true);
+  const smsEnabled = getEffectivePref('sms', true);
+
   const channelEnabled = (() => {
-    if (channel === 'push') return effective.push ?? true;
-    if (channel === 'email') return effective.email ?? true;
-    if (channel === 'sms') return effective.sms ?? true;
+    if (channel === 'push') return pushEnabled;
+    if (channel === 'email') return emailEnabled;
+    if (channel === 'sms') return smsEnabled;
     return true;
   })();
 
-  if (!channelEnabled && !isCritical) return { deliver: false, reason: 'channel_disabled' };
+  // If critical, deliver unless explicitly disabled in category
+  const isExplicitlyDisabled = (() => {
+    if (channel === 'push') return categoryPref && categoryPref.push === false;
+    if (channel === 'email') return categoryPref && categoryPref.email === false;
+    if (channel === 'sms') return categoryPref && categoryPref.sms === false;
+    return false;
+  })();
 
-  // DND check (global or per-user)
-  const dnd = effective.dnd === true || (globalPref && globalPref.dnd === true);
+  if (isExplicitlyDisabled) {
+    return { deliver: false, reason: 'channel_disabled' };
+  }
+
+  if (!channelEnabled && !isCritical) {
+    return { deliver: false, reason: 'channel_disabled' };
+  }
+
+  // DND check
+  const dnd = getEffectivePref('dnd', false);
   if (dnd && !isCritical) return { deliver: false, reason: 'dnd' };
 
   // Quiet hours
-  const qs = effective.quiet_start || (globalPref && globalPref.quiet_start) || null;
-  const qe = effective.quiet_end || (globalPref && globalPref.quiet_end) || null;
+  const qs = getEffectivePref('quiet_start', null);
+  const qe = getEffectivePref('quiet_end', null);
   const qStart = timeToMinutes(qs);
   const qEnd = timeToMinutes(qe);
   if (qStart !== null && qEnd !== null && !isCritical) {
@@ -57,8 +82,8 @@ export async function shouldDeliver(
     if (within) return { deliver: false, reason: 'quiet_hours' };
   }
 
-  // Frequency: immediate vs digest — note: digest handling is handled elsewhere
-  const freq = effective.frequency || (globalPref && globalPref.frequency) || 'immediate';
+  // Frequency
+  const freq = getEffectivePref('frequency', 'immediate');
 
   return { deliver: true, frequency: String(freq || 'immediate') };
 }

@@ -4,7 +4,7 @@ import { useBlocker } from 'react-router-dom';
 /**
  * A custom hook to warn users of unsaved changes before leaving a dirty form.
  * Handles both browser refresh/close (beforeunload) and React Router navigation.
- * 
+ *
  * @param {boolean} isDirty - Whether the form has unsaved changes.
  */
 export function useUnsavedChangesWarning(isDirty) {

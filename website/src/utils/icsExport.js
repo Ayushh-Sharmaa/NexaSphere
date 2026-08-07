@@ -1,6 +1,6 @@
 export function downloadICS(event) {
   const startDate = new Date(event.date || Date.now());
-  if (isNaN(startDate.getTime())) {
+  if (Number.isNaN(startDate.getTime())) {
     console.error('Invalid event date for ICS export.');
     return;
   }

@@ -7,6 +7,4 @@ export const updateTaskSchema = z
   })
   .strict();
 
-export const triggerTaskSchema = z
-  .object({})
-  .strict();
+export const triggerTaskSchema = z.object({}).strict();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { buildUrl } from '../../utils/runtimeConfig';
+import { buildUrl, getApiBase } from '../../utils/runtimeConfig';
 
 // Validates a date value before formatting — avoids rendering literal
 // "Invalid Date" text when the API returns a null or malformed timestamp.
@@ -9,7 +9,6 @@ function formatCampaignDate(value) {
   if (Number.isNaN(d.getTime())) return 'Unknown';
   return d.toLocaleDateString();
 }
-import { buildUrl, getApiBase } from '../../utils/runtimeConfig';
 
 const pageStyle = {
   minHeight: '100vh',
@@ -684,7 +683,10 @@ export default function EmailCampaignsPage() {
             aria-labelledby="create-campaign-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="create-campaign-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="create-campaign-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Create Campaign
             </h3>
 
@@ -780,7 +782,10 @@ export default function EmailCampaignsPage() {
             aria-labelledby="create-template-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="create-template-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="create-template-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Create Template
             </h3>
 
@@ -862,7 +867,10 @@ export default function EmailCampaignsPage() {
             aria-labelledby="create-trigger-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="create-trigger-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="create-trigger-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Create Automation Trigger
             </h3>
 
@@ -920,7 +928,10 @@ export default function EmailCampaignsPage() {
             aria-labelledby="campaign-performance-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="campaign-performance-title" style={{ margin: '0 0 12px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="campaign-performance-title"
+              style={{ margin: '0 0 12px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Campaign Performance
             </h3>
             <p style={{ margin: '0 0 20px 0', color: 'var(--text-secondary, #94a3b8)' }}>

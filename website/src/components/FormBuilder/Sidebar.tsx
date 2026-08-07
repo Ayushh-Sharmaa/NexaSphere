@@ -17,7 +17,7 @@ export const Sidebar = ({ onAddField }) => {
     <div className="w-64 bg-white border-r border-gray-200 p-4 h-full">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">Form Elements</h3>
       <div className="space-y-2">
-        {fieldTypes.map(field => (
+        {fieldTypes.map((field) => (
           <button
             key={field.type}
             onClick={() => onAddField(field.type)}

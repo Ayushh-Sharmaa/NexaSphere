@@ -43,8 +43,9 @@ class DraftRecoveryService {
     draft.content = content;
     draft.updatedAt = new Date();
 
+    const nextVersion = draft.versions.length > 0 ? Math.max(...draft.versions.map((v) => v.version)) + 1 : 1;
     draft.versions.push({
-      version: draft.versions.length + 1,
+      version: nextVersion,
       content,
       savedAt: new Date(),
     });
@@ -62,12 +63,24 @@ class DraftRecoveryService {
     return true;
   }
 
-  restoreDraft(id) {
+  restoreDraft(id, versionNumber) {
     const draft = this.getDraft(id);
 
-    if (!draft) return null;
+    if (!draft || !draft.versions.length) return null;
 
-    return draft.versions[draft.versions.length - 1];
+    let targetVersion;
+    if (versionNumber !== undefined && versionNumber !== null) {
+      targetVersion = draft.versions.find((v) => v.version === Number(versionNumber));
+    } else {
+      targetVersion = draft.versions[draft.versions.length - 1];
+    }
+
+    if (!targetVersion) return null;
+
+    draft.content = targetVersion.content;
+    draft.updatedAt = new Date();
+
+    return draft;
   }
 
   versionHistory(id) {

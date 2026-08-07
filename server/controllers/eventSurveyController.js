@@ -17,13 +17,13 @@ export const setTemplate = async (req, res) => {
   try {
     const { eventId } = req.params;
     const { questions } = req.body;
-    
+
     if (!Array.isArray(questions)) {
       return res.status(400).json({ error: 'questions must be an array' });
     }
 
     const template = await eventSurveyRepository.upsertTemplate(eventId, questions);
-    
+
     if (req.adminSession) {
       req.auditLog = {
         action: 'event_survey.set_template',
@@ -32,7 +32,7 @@ export const setTemplate = async (req, res) => {
         details: { questions },
       };
     }
-    
+
     return res.json(template);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -60,11 +60,11 @@ export const getAnalytics = async (req, res) => {
   try {
     const { eventId } = req.params;
     const analytics = await eventSurveyRepository.getAnalytics(eventId);
-    
+
     if (!analytics) {
       return res.status(404).json({ error: 'Analytics not available' });
     }
-    
+
     return res.json(analytics);
   } catch (err) {
     return res.status(500).json({ error: err.message });

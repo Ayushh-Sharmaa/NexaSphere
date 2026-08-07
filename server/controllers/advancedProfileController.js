@@ -76,7 +76,7 @@ export async function getAdvancedProfile(req, res) {
           skillKey: r.skill_key,
           computedLevel: Number(r.computed_level),
           selfLevel: Number(r.self_level),
-          quizScore: r.quiz_score !== null ? Number(r.quiz_score) : null,
+          quizScore: r.quiz_score != null && !isNaN(Number(r.quiz_score)) ? Number(r.quiz_score) : null,
           endorsementScore: Number(r.endorsement_score),
           eventAttendanceScore: Number(r.event_attendance_score),
         });

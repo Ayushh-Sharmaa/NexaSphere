@@ -1,4 +1,4 @@
-import { withDb } from './db.js';
+import { withDb } from "./db.js";
 
 function mapRow(row) {
   return {
@@ -34,7 +34,13 @@ function mapRow(row) {
 }
 
 export const notificationsRepository = {
-  async list({ userId = 'global', limit = 100, offset = 0, tab = 'all', q = null } = {}) {
+  async list({
+    userId = "global",
+    limit = 100,
+    offset = 0,
+    tab = "all",
+    q = null,
+  } = {}) {
     return withDb(async (client) => {
       // Tabs:
       // - all: all non-archived
@@ -43,19 +49,23 @@ export const notificationsRepository = {
       const conditions = [`user_id = $1`, `archived_at is null`];
       const params = [userId];
 
-      if (tab === 'unread') conditions.push('is_read = false');
+      if (tab === "unread") conditions.push("is_read = false");
 
       if (q && String(q).trim()) {
         params.push(`%${String(q).trim()}%`);
-        conditions.push(`(title ILIKE $${params.length} OR message ILIKE $${params.length})`);
+        conditions.push(
+          `(title ILIKE $${params.length} OR message ILIKE $${params.length})`
+        );
       }
 
-      const where = conditions.length ? `where ${conditions.join(' and ')}` : '';
+      const where = conditions.length
+        ? `where ${conditions.join(" and ")}`
+        : "";
 
       const orderBy =
-        tab === 'priority'
-          ? 'order by priority_score desc, created_at desc'
-          : 'order by created_at desc';
+        tab === "priority"
+          ? "order by priority_score desc, created_at desc"
+          : "order by created_at desc";
 
       params.push(limit);
       params.push(offset);
@@ -113,7 +123,17 @@ export const notificationsRepository = {
   async markAsRead(userId, id) {
     return withDb(async (client) => {
       const { rowCount } = await client.query(
-        'update notifications set is_read = true where user_id = $1 and id = $2',
+        "update notifications set is_read = true where user_id = $1 and id = $2",
+        [userId, id]
+      );
+      return rowCount > 0;
+    });
+  },
+
+  async markAsUnread(userId, id) {
+    return withDb(async (client) => {
+      const { rowCount } = await client.query(
+        "update notifications set is_read = false where user_id = $1 and id = $2",
         [userId, id]
       );
       return rowCount > 0;
@@ -123,7 +143,7 @@ export const notificationsRepository = {
   async markAllAsRead(userId) {
     return withDb(async (client) => {
       await client.query(
-        'update notifications set is_read = true where user_id = $1 and is_read = false',
+        "update notifications set is_read = true where user_id = $1 and is_read = false",
         [userId]
       );
     });
@@ -132,7 +152,7 @@ export const notificationsRepository = {
   async remove(userId, id) {
     return withDb(async (client) => {
       const { rowCount } = await client.query(
-        'delete from notifications where user_id = $1 and id = $2',
+        "delete from notifications where user_id = $1 and id = $2",
         [userId, id]
       );
       return rowCount > 0;
@@ -141,7 +161,9 @@ export const notificationsRepository = {
 
   async clearAll(userId) {
     return withDb(async (client) => {
-      await client.query('delete from notifications where user_id = $1', [userId]);
+      await client.query("delete from notifications where user_id = $1", [
+        userId,
+      ]);
     });
   },
 
@@ -150,7 +172,7 @@ export const notificationsRepository = {
     return withDb(async (client) => {
       const safeIds = ids.filter(Boolean);
       if (!safeIds.length) return [];
-      const placeholders = safeIds.map((_, i) => `$${i + 2}`).join(',');
+      const placeholders = safeIds.map((_, i) => `$${i + 2}`).join(",");
       const { rows } = await client.query(
         `select * from notifications where user_id = $1 and id in (${placeholders}) and archived_at is null`,
         [userId, ...safeIds]
@@ -162,7 +184,7 @@ export const notificationsRepository = {
   async markUnread(userId, id) {
     return withDb(async (client) => {
       const { rowCount } = await client.query(
-        'update notifications set is_read = false where user_id = $1 and id = $2',
+        "update notifications set is_read = false where user_id = $1 and id = $2",
         [userId, id]
       );
       return rowCount > 0;
@@ -172,7 +194,7 @@ export const notificationsRepository = {
   async snooze(userId, id, snoozedUntil) {
     return withDb(async (client) => {
       const { rowCount } = await client.query(
-        'update notifications set snoozed_until = $1 where user_id = $2 and id = $3',
+        "update notifications set snoozed_until = $1 where user_id = $2 and id = $3",
         [snoozedUntil, userId, id]
       );
       return rowCount > 0;
@@ -182,7 +204,7 @@ export const notificationsRepository = {
   async archive(userId, ids = []) {
     if (!Array.isArray(ids) || !ids.length) return { archived: 0 };
     return withDb(async (client) => {
-      const placeholders = ids.map((_, i) => `$${i + 2}`).join(',');
+      const placeholders = ids.map((_, i) => `$${i + 2}`).join(",");
       const { rowCount } = await client.query(
         `update notifications set archived_at = NOW() where user_id = $1 and id in (${placeholders}) and archived_at is null`,
         [userId, ...ids]
@@ -194,18 +216,18 @@ export const notificationsRepository = {
   async bulk(userId, { ids = [], action } = {}) {
     if (!Array.isArray(ids) || !ids.length) return { updated: 0 };
     return withDb(async (client) => {
-      const placeholders = ids.map((_, i) => `$${i + 2}`).join(',');
-      let sql = '';
-      if (action === 'mark_read') {
+      const placeholders = ids.map((_, i) => `$${i + 2}`).join(",");
+      let sql = "";
+      if (action === "mark_read") {
         sql = `update notifications set is_read = true where user_id = $1 and id in (${placeholders})`;
-      } else if (action === 'mark_unread') {
+      } else if (action === "mark_unread") {
         sql = `update notifications set is_read = false where user_id = $1 and id in (${placeholders})`;
-      } else if (action === 'archive') {
+      } else if (action === "archive") {
         sql = `update notifications set archived_at = NOW() where user_id = $1 and id in (${placeholders}) and archived_at is null`;
-      } else if (action === 'clear_snooze') {
+      } else if (action === "clear_snooze") {
         sql = `update notifications set snoozed_until = NULL where user_id = $1 and id in (${placeholders})`;
       } else {
-        throw new Error('Invalid bulk action');
+        throw new Error("Invalid bulk action");
       }
       const { rowCount } = await client.query(sql, [userId, ...ids]);
       return { updated: rowCount };
@@ -215,7 +237,7 @@ export const notificationsRepository = {
   async deleteExpired() {
     return withDb(async (client) => {
       const { rowCount } = await client.query(
-        'delete from notifications where expires_at <= now()'
+        "delete from notifications where expires_at <= now()"
       );
       return rowCount;
     });

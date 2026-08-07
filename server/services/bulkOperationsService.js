@@ -353,7 +353,7 @@ class BulkOperationsService {
                 },
               });
             } catch (emailErr) {
-              console.error(`Failed to send welcome email to ${user.email}:`, emailErr.message);
+              logger.error({ userEmail: user.email, err: emailErr.message }, 'Failed to send welcome email during bulk import');
             }
 
             oldState.push({ type: 'insert', table: 'users', key: id, data: null });
@@ -388,7 +388,7 @@ class BulkOperationsService {
         },
       });
     } catch (emailErr) {
-      console.error('Failed to send import status email:', emailErr.message);
+      logger.error({ err: emailErr.message }, 'Failed to send bulk import status email');
     }
 
     this.updateJobProgress(

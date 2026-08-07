@@ -6,7 +6,11 @@
 import express from 'express';
 const router = express.Router();
 import { validate } from '../middleware/validate.js';
-import { rumMetricSchema, keyRotationSchema, testErrorSchema } from '../validators/routes/monitoringSchemas.js';
+import {
+  rumMetricSchema,
+  keyRotationSchema,
+  testErrorSchema,
+} from '../validators/routes/monitoringSchemas.js';
 import { getMetrics } from '../middleware/performanceMonitor.js';
 import {
   getErrorStats,

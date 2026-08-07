@@ -9,7 +9,8 @@ export const amaThreads = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ayush',
     },
     date: '2026-07-05T10:00:00Z',
-    description: 'Join me for an AMA where I share my journey from open-source contributor to a full-time Software Engineer. Ask me anything about GSSoC, resumes, or interview prep!',
+    description:
+      'Join me for an AMA where I share my journey from open-source contributor to a full-time Software Engineer. Ask me anything about GSSoC, resumes, or interview prep!',
     tags: ['GSSoC', 'Career', 'Open Source'],
     questionsCount: 4,
     questions: [
@@ -23,7 +24,8 @@ export const amaThreads = [
         upvotes: 12,
         createdAt: '2026-07-01T14:30:00Z',
         reply: {
-          content: 'The most challenging part was definitely getting started with large codebases. My advice is to start with documentation or "good first issues" to build confidence before tackling complex features.',
+          content:
+            'The most challenging part was definitely getting started with large codebases. My advice is to start with documentation or "good first issues" to build confidence before tackling complex features.',
           createdAt: '2026-07-01T16:00:00Z',
         },
       },
@@ -48,7 +50,8 @@ export const amaThreads = [
         upvotes: 24,
         createdAt: '2026-07-02T09:15:00Z',
         reply: {
-          content: 'Absolutely! It gave me a lot to talk about during the behavioral rounds, and my experience with large-scale architecture reviews during OSS translated well to the system design rounds.',
+          content:
+            'Absolutely! It gave me a lot to talk about during the behavioral rounds, and my experience with large-scale architecture reviews during OSS translated well to the system design rounds.',
           createdAt: '2026-07-02T11:20:00Z',
         },
       },
@@ -62,12 +65,12 @@ export const amaThreads = [
         upvotes: 5,
         createdAt: '2026-07-02T12:05:00Z',
         reply: null,
-      }
+      },
     ],
   },
   {
     id: 'ama-2',
-    topic: "Transitioning from Frontend Developer to DevOps Engineer",
+    topic: 'Transitioning from Frontend Developer to DevOps Engineer',
     status: 'upcoming',
     mentor: {
       name: 'Rohan Verma',
@@ -75,7 +78,8 @@ export const amaThreads = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rohan',
     },
     date: '2026-07-15T14:00:00Z',
-    description: 'I made the switch from writing React components to managing Kubernetes clusters. If you are curious about infrastructure as code, cloud architectures, or DevOps culture, leave your questions here!',
+    description:
+      'I made the switch from writing React components to managing Kubernetes clusters. If you are curious about infrastructure as code, cloud architectures, or DevOps culture, leave your questions here!',
     tags: ['DevOps', 'Career Transition', 'AWS'],
     questionsCount: 1,
     questions: [
@@ -89,12 +93,12 @@ export const amaThreads = [
         upvotes: 15,
         createdAt: '2026-07-02T10:00:00Z',
         reply: null,
-      }
+      },
     ],
   },
   {
     id: 'ama-3',
-    topic: "Mastering System Design for SDE-2 Roles",
+    topic: 'Mastering System Design for SDE-2 Roles',
     status: 'archived',
     mentor: {
       name: 'Neha Gupta',
@@ -102,7 +106,8 @@ export const amaThreads = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Neha',
     },
     date: '2026-06-10T18:00:00Z',
-    description: 'We discussed common system design patterns, how to approach scalable architectures, and what interviewers look for in mid-level engineering roles.',
+    description:
+      'We discussed common system design patterns, how to approach scalable architectures, and what interviewers look for in mid-level engineering roles.',
     tags: ['System Design', 'Interviews', 'Senior Roles'],
     questionsCount: 2,
     questions: [
@@ -116,9 +121,10 @@ export const amaThreads = [
         upvotes: 32,
         createdAt: '2026-06-10T17:30:00Z',
         reply: {
-          content: 'We heavily use cursor-based pagination rather than offset-based. Offset-based pagination gets very slow with large datasets because the database still has to scan through all previous rows.',
+          content:
+            'We heavily use cursor-based pagination rather than offset-based. Offset-based pagination gets very slow with large datasets because the database still has to scan through all previous rows.',
           createdAt: '2026-06-10T18:15:00Z',
-        }
+        },
       },
       {
         id: 'q2',
@@ -130,10 +136,11 @@ export const amaThreads = [
         upvotes: 18,
         createdAt: '2026-06-10T17:45:00Z',
         reply: {
-          content: 'Idempotency. Ensuring an API can be called multiple times without changing the result beyond the initial application is critical for robust distributed systems, especially when dealing with network retries.',
+          content:
+            'Idempotency. Ensuring an API can be called multiple times without changing the result beyond the initial application is critical for robust distributed systems, especially when dealing with network retries.',
           createdAt: '2026-06-10T18:40:00Z',
-        }
-      }
+        },
+      },
     ],
-  }
+  },
 ];

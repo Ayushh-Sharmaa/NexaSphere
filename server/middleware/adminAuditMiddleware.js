@@ -171,7 +171,7 @@ export const attachOldState = (fetcher) => async (req, res, next) => {
   try {
     req.oldState = await fetcher(req);
   } catch (err) {
-    console.warn('[Audit] Failed to fetch old state:', err.message);
+    logger.warn({ err: err.message }, 'Failed to fetch old state for audit');
   }
   next();
 };

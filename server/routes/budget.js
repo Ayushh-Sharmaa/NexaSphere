@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import * as budgetController from '../controllers/budgetController.js';
+import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 
 const router = Router();
+
+router.use(requireStudentAuth);
 
 // Budget CRUD
 router.get('/', budgetController.getAllBudgets);

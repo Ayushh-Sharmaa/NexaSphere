@@ -1,4 +1,4 @@
-const reportingCenterService = require("../services/reportingCenterService");
+const reportingCenterService = require('../services/reportingCenterService');
 
 // Get All Reports
 const getReports = async (req, res) => {
@@ -12,7 +12,7 @@ const getReports = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch reports.",
+      message: 'Failed to fetch reports.',
       error: error.message,
     });
   }
@@ -25,13 +25,13 @@ const exportData = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Data exported successfully.",
+      message: 'Data exported successfully.',
       data: report,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to export data.",
+      message: 'Failed to export data.',
       error: error.message,
     });
   }
@@ -44,13 +44,13 @@ const scheduleReport = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Report scheduled successfully.",
+      message: 'Report scheduled successfully.',
       data: schedule,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to schedule report.",
+      message: 'Failed to schedule report.',
       error: error.message,
     });
   }
@@ -63,13 +63,13 @@ const generateCustomReport = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Custom report generated successfully.",
+      message: 'Custom report generated successfully.',
       data: report,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to generate custom report.",
+      message: 'Failed to generate custom report.',
       error: error.message,
     });
   }
@@ -82,13 +82,13 @@ const saveTemplate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Template saved successfully.",
+      message: 'Template saved successfully.',
       data: template,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to save template.",
+      message: 'Failed to save template.',
       error: error.message,
     });
   }
@@ -106,7 +106,7 @@ const getTemplates = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch templates.",
+      message: 'Failed to fetch templates.',
       error: error.message,
     });
   }
@@ -119,13 +119,13 @@ const emailReport = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Report emailed successfully.",
+      message: 'Report emailed successfully.',
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to email report.",
+      message: 'Failed to email report.',
       error: error.message,
     });
   }
@@ -143,7 +143,7 @@ const getDashboardSummary = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch dashboard summary.",
+      message: 'Failed to fetch dashboard summary.',
       error: error.message,
     });
   }
@@ -161,7 +161,7 @@ const getReportHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch report history.",
+      message: 'Failed to fetch report history.',
       error: error.message,
     });
   }
@@ -179,7 +179,7 @@ const getAuditLogs = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch audit logs.",
+      message: 'Failed to fetch audit logs.',
       error: error.message,
     });
   }
@@ -197,7 +197,7 @@ const filterReports = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to filter reports.",
+      message: 'Failed to filter reports.',
       error: error.message,
     });
   }
@@ -215,7 +215,7 @@ const getPermissions = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch permissions.",
+      message: 'Failed to fetch permissions.',
       error: error.message,
     });
   }

@@ -4,27 +4,13 @@ import { getApiBase } from '../../utils/runtimeConfig';
 // XP Values for different actions
 export const XP_VALUES = {
   ATTEND_EVENT: 50,
-  EVENT_ATTENDANCE: 50, // alias for dashboard/tests
   ORGANIZE_EVENT: 200,
   COMPLETE_MENTORSHIP: 500,
   ADD_PORTFOLIO_PROJECT: 100,
-  CONTENT_CREATION: 100, // alias for dashboard
-  GIVE_FEEDBACK: 25,
-  FEEDBACK_GIVEN: 25, // alias for dashboard
-  HELP_SOMEONE: 30, // Answered a question
+  HELP_SOMEONE: 30,
   DAILY_STREAK: 20,
-  SHARE_EVENT: 15,
   LEARNING_PATH_COMPLETE: 1000,
-  COMMENT_POSTED: 5, // for dashboard/tests
-  REFERRAL: 100, // for dashboard
-  SKILL_VERIFIED: 200, // XP for verifying a skill
-  ORGANIZE_EVENT: 200,
-  COMPLETE_MENTORSHIP: 500,
-  ADD_PORTFOLIO_PROJECT: 100,
-  GIVE_FEEDBACK: 25,
-  HELP_SOMEONE: 30, // Answered a question
-  DAILY_STREAK: 20,
-  EVENT_REGISTRATION: 10,
+  SKILL_VERIFIED: 200,
   FIRST_BLOG_POST: 50,
   LEARN_NEW_TECH: 40,
   SKILL_ASSESSMENT: 100,
@@ -32,16 +18,14 @@ export const XP_VALUES = {
   HACKATHON_WIN: 1000,
   SPEAKER: 500,
   BETA_TESTER: 100,
-  COMMENT_POSTED: 5,
   SHARE_EVENT: 15,
-
-  // Legacy/Test compatibility keys
   EVENT_ATTENDANCE: 50,
   EVENT_REGISTRATION: 20,
   COMMENT_POSTED: 5,
   REFERRAL: 100,
   CONTENT_CREATION: 75,
   FEEDBACK_GIVEN: 15,
+  GIVE_FEEDBACK: 25,
 };
 
 // Achievement tiers and requirements
@@ -275,15 +259,6 @@ export const ACHIEVEMENTS = {
     xpReward: 2000,
     requirement: { type: 'specific_path_complete', path: 'DevOps' },
   },
-  FIRST_COMMENT: {
-    id: 'first_comment',
-    title: 'Voice Your Thoughts',
-    description: 'Post your first comment',
-    icon: '💬',
-    tier: 'bronze',
-    xpReward: 25,
-    requirement: { type: 'comments', count: 1 },
-  },
 };
 
 // Level thresholds
@@ -441,7 +416,6 @@ class GamificationService {
     this.userData.last_actions[action] = timestamp;
 
     switch (action) {
-      case 'EVENT_ATTENDANCE':
       case 'ATTEND_EVENT':
       case 'EVENT_ATTENDANCE':
         stats.events_attended++;
@@ -458,18 +432,14 @@ class GamificationService {
       case 'COMMENT_POSTED':
         stats.comments++;
         break;
-      case 'CONTENT_CREATION':
       case 'ADD_PORTFOLIO_PROJECT':
       case 'CONTENT_CREATION':
         stats.content_created++;
         break;
-      case 'FEEDBACK_GIVEN':
       case 'GIVE_FEEDBACK':
       case 'FEEDBACK_GIVEN':
         stats.content_created++;
-        break;
-      case 'GIVE_FEEDBACK':
-        stats.feedback++;
+        stats.feedback = (stats.feedback || 0) + 1;
         break;
       case 'MAKE_CONNECTION':
         stats.connections++;

@@ -45,6 +45,21 @@ export const RoadmapBuilderContext = createContext<RoadmapBuilderContextType | u
 
 const LOCAL_STORAGE_KEY = 'ns-interactive-roadmap-workspace';
 
+const defaultNodes: RoadmapNode[] = [
+  {
+    id: 'node-1',
+    title: 'Getting Started',
+    description:
+      'This is your first learning node. Drag me around, double click or click "Edit" to configure!',
+    x: 200,
+    y: 150,
+    status: 'Not Started',
+    notes: '- Learn the basics\n- Customize this node',
+    resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
+    prerequisites: [],
+  },
+];
+
 export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [nodes, setNodesState] = useState<RoadmapNode[]>([]);
   const [roadmapTitle, setRoadmapTitleState] = useState<string>('My Custom Path');
@@ -72,25 +87,6 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       } else {
         // Load a default node if canvas is empty on first load
-        const defaultNodes: RoadmapNode[] = [
-          {
-            id: 'node-1',
-            title: 'Getting Started',
-            id: 'node-1',
-            title: 'Getting Started',
-            description:
-              'This is your first learning node. Drag me around, double click or click "Edit" to configure!',
-            x: 200,
-            y: 150,
-            status: 'Not Started',
-            notes: '- Learn the basics\n- Customize this node',
-            resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
-            status: 'Not Started',
-            notes: '- Learn the basics\n- Customize this node',
-            resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
-            prerequisites: [],
-          },
-        ];
         setNodesState(defaultNodes);
       }
     } catch (e) {
@@ -240,7 +236,7 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
   const resetRoadmap = useCallback(() => {
     setRoadmapTitleState('New Learning Path');
     setRoadmapDescriptionState('Custom learning flow created on NexaSphere.');
-    setNodesState([]);
+    setNodesState(defaultNodes);
     setSelectedNodeId(null);
     setActiveNodeId(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);

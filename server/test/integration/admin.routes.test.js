@@ -32,7 +32,7 @@ mock.module('../../utils/dataIntegrityValidator.js', {
     detectCorruption: () => ({ corrupted: false, tables: [] }),
     generateRecoveryRecommendation: () => ({ actionable: false, steps: [] }),
     createRecoveryAuditLog: () => ({ logs: [], total: 0 }),
-  }
+  },
 });
 
 // Mock readOnlyMode — used by read-only-* endpoints
@@ -42,7 +42,7 @@ mock.module('../../routes/readOnlyMode.js', {
     deactivateReadOnlyMode: () => ({ enabled: false, deactivatedAt: new Date().toISOString() }),
     getReadOnlyStatus: () => ({ enabled: false, reason: null }),
     createIncidentLog: () => ({ incidents: [], total: 0 }),
-  }
+  },
 });
 
 // Mock serviceStatus — used by service-* endpoints
@@ -53,7 +53,7 @@ mock.module('../../utils/serviceStatus.js', {
     getMaintenanceSchedule: () => ({ scheduled: [] }),
     getHistoricalUptime: () => ({ uptime: 99.9, period: '30d' }),
     getSubscriberNotifications: () => ({ subscribers: [] }),
-  }
+  },
 });
 
 // Mock consistencyVerifier — used by consistency-* endpoints
@@ -64,7 +64,7 @@ mock.module('../../utils/consistencyVerifier.js', {
     detectConflicts: () => ({ conflicts: [] }),
     generateIntegrityReport: () => ({ passed: true, score: 100 }),
     getConsistencyAlerts: () => ({ alerts: [] }),
-  }
+  },
 });
 
 // Mock configApproval — used by config-review endpoint
@@ -73,7 +73,7 @@ mock.module('../../utils/configApproval.js', {
     validateConfigChange: (body) => ({ valid: true, errors: [] }),
     createChangeHistory: (body) => ({ entries: [{ change: body }] }),
     rollbackConfig: (body) => ({ needed: false }),
-  }
+  },
 });
 
 // Mock financialService — used by revenue report endpoint
@@ -86,7 +86,7 @@ mock.module('../../services/financialService.js', {
         breakdown: { registrations: 30000, sponsorships: 15000, other: 5000 },
       }),
     },
-  }
+  },
 });
 
 // Mock supabaseClient — used at module level for HAS_SUPABASE check
@@ -96,34 +96,39 @@ mock.module('../../storage/supabaseClient.js', {
       execute: async () => [],
     },
     HAS_SUPABASE: false,
-  }
+  },
 });
 
 // Mock circuitBreaker — used for membershipBreaker
 mock.module('../../utils/circuitBreaker.js', {
   exports: {
     CircuitBreaker: class MockCircuitBreaker {
-      constructor(fn, opts) { this.fn = fn; this.opts = opts; }
-      async execute(...args) { return this.fn(...args); }
+      constructor(fn, opts) {
+        this.fn = fn;
+        this.opts = opts;
+      }
+      async execute(...args) {
+        return this.fn(...args);
+      }
     },
     circuitBreakerRegistry: {
       register: (name, breaker) => breaker,
     },
-  }
+  },
 });
 
 // Mock appContext — used for tracedFetch
 mock.module('../../config/appContext.js', {
   exports: {
     tracedFetch: async (url, opts) => ({ status: 200, ok: true, json: async () => ({}) }),
-  }
+  },
 });
 
 // Mock rateLimiter to pass through
 mock.module('../../middleware/rateLimiter.js', {
   exports: {
     apiRateLimiter: (req, res, next) => next(),
-  }
+  },
 });
 
 // Mock adminAuthMiddleware — provide requireAdmin that checks req.adminSession
@@ -136,15 +141,16 @@ mock.module('../../middleware/adminAuthMiddleware.js', {
         }
         next();
       },
-      getSecurityOverview: (req, res) => res.json({
-        activeSessions: 3,
-        recentLogins: [],
-        securityScore: 85,
-      }),
+      getSecurityOverview: (req, res) =>
+        res.json({
+          activeSessions: 3,
+          recentLogins: [],
+          securityScore: 85,
+        }),
       revokeSession: (req, res) => res.json({ success: true, revoked: req.params.sessionId }),
       logoutOtherSessions: (req, res) => res.json({ success: true, remaining: 1 }),
     },
-  }
+  },
 });
 
 // ---------------------------------------------------------------------------
@@ -350,16 +356,12 @@ describe('Admin Routes', () => {
 
   describe('SSO Invite Validation', () => {
     it('POST /api/admin/sso-invite with no email returns 400', async () => {
-      const res = await request(withAuth())
-        .post('/api/admin/sso-invite')
-        .send({});
+      const res = await request(withAuth()).post('/api/admin/sso-invite').send({});
       assert.equal(res.status, 400);
     });
 
     it('POST /api/admin/sso-invite with empty email returns 400', async () => {
-      const res = await request(withAuth())
-        .post('/api/admin/sso-invite')
-        .send({ email: '' });
+      const res = await request(withAuth()).post('/api/admin/sso-invite').send({ email: '' });
       assert.equal(res.status, 400);
     });
 

@@ -16,9 +16,8 @@ import { ExpressAdapter } from '@bull-board/express';
 import fs, { promises as fsp } from 'fs';
 import { body, validationResult } from 'express-validator';
 import { EventEmitter } from 'events';
-import cors from 'cors';
 import { google } from 'googleapis';
-import { promises as fs } from 'fs';
+import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
@@ -110,6 +109,8 @@ import * as studentAuthController from './controllers/studentAuthController.js';
 import * as forumController from './controllers/forumController.js';
 import { requireStudentAuth } from './middleware/studentAuthMiddleware.js';
 import { loadPersistedPushSubscriptions } from './routes/notifications.js';
+import { studentAuthService } from './services/studentAuthService.js';
+import { getAdminSession } from './repositories/adminSessionsRepository.js';
 import * as mentorshipController from './controllers/mentorshipController.js';
 import { xssSanitizer } from './middleware/xssSanitizer.js';
 import { tierRateLimiter } from './middleware/tierRateLimiter.js';
@@ -190,6 +191,18 @@ import { portfolioRepository } from './repositories/portfolioRepository.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CONTENT_FILE = path.join(__dirname, 'data', 'content.json');
+
+const REQUIRED_ENV_VARS = ['CORS_ORIGIN', 'ADMIN_EVENT_PASSWORD'];
+
+function validateEnvironment() {
+  const missing = REQUIRED_ENV_VARS.filter((env) => !process.env[env]);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  console.log('Environment validation passed');
+}
 
 validateEnvironment();
 
@@ -467,11 +480,12 @@ if (useStructuredHttpLog) {
 app.use(apiLogger);
 app.use(performanceMonitor);
 app.use(cookieParser());
+app.use(sessionMiddleware);
 
 // Verify Redis URL protocol in production
 const redisSessionUrl = process.env.REDIS_URL || '';
 if (process.env.NODE_ENV === 'production' && !redisSessionUrl.startsWith('rediss://')) {
-  console.warn('Security Warning: Redis URL should use rediss:// for TLS in production.');
+  logger.warn('Redis TLS security warning: URL should use rediss:// for production');
 }
 // Reuse the existing getRedisClient if possible, else create a new one
 let sessionClient = getRedisClient();
@@ -503,11 +517,7 @@ app.use((req, res, next) => {
     req.session.ip &&
     req.session.ip !== (req.ip || req.connection?.remoteAddress)
   ) {
-    console.warn(
-      '[Session] Suspicious activity: Session accessed from different IP. Original:',
-      req.session.ip,
-      'New:',
-      req.ip || req.connection?.remoteAddress
+    logger.warn({ originalIp: req.session.ip, newIp: req.ip || req.connection?.remoteAddress, sessionId: req.sessionID }, 'Suspicious activity: session accessed from different IP');
   next();
 });
 // Idle timeout middleware (30 mins)
@@ -516,7 +526,7 @@ app.use((req, res, next) => {
     if (req.session.lastActive && now - req.session.lastActive > 30 * 60 * 1000) {
       logger.info('[Session] Destroying idle session:', req.sessionID);
       req.session.destroy((err) => {
-        if (err) console.error('[Session] Error destroying idle session:', err);
+        if (err) logger.error({ err: err.message }, 'Error destroying idle session');
         return res.status(401).json({ error: 'Session expired due to inactivity' });
       return;
     req.session.lastActive = now;
@@ -705,11 +715,11 @@ function validateMagicBytes(filepath, mimeType) {
 
 async function ensureContentFile() {
   const dir = path.dirname(CONTENT_FILE);
-  await fs.mkdir(dir, { recursive: true });
+  await fsp.mkdir(dir, { recursive: true });
   try {
-    await fs.access(CONTENT_FILE);
+    await fsp.access(CONTENT_FILE);
   } catch {
-    await fs.writeFile(CONTENT_FILE, JSON.stringify(defaultContent, null, 2), 'utf8');
+    await fsp.writeFile(CONTENT_FILE, JSON.stringify(defaultContent, null, 2), 'utf8');
   }
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -1355,13 +1365,27 @@ app.get('/api/content/core-team', async (req, res) => {
   }
 });
 
-app.get('/api/admin/core-team', adminAuth, async (req, res) => {
-  try {
-    return res.json(await listCoreTeamStore());
-  } catch (e) {
-    return res.status(500).json({ error: e?.message || 'Failed to load core team' });
-  }
-});
+// Admin Team Management
+app.get(
+  '/api/admin/core-team',
+  adminAuthMiddleware.requireScope('settings:admin'),
+  coreTeamController.adminListCoreTeamMembers
+);
+app.post(
+  '/api/admin/core-team',
+  adminAuthMiddleware.requireScope('settings:admin'),
+  coreTeamController.adminAddCoreTeamMember
+);
+app.put(
+  '/api/admin/core-team/:id',
+  adminAuthMiddleware.requireScope('settings:admin'),
+  coreTeamController.adminUpdateCoreTeamMember
+);
+app.delete(
+  '/api/admin/core-team/:id',
+  adminAuthMiddleware.requireScope('settings:admin'),
+  coreTeamController.adminDeleteCoreTeamMember
+);
 
 app.post('/api/admin/core-team', adminAuth, async (req, res) => {
   try {
@@ -1436,7 +1460,7 @@ app.get('/api/admin/membership', adminAuth, async (req, res) => {
     const data = await response.json();
     return res.json({ responses: data.responses || [] });
   } catch (err) {
-    console.error('[Membership] Failed to fetch responses:', err.message);
+    logger.error({ err: err.message }, 'Failed to fetch membership responses');
     return res.status(500).json({ error: 'Failed to fetch membership responses' });
   }
 });
@@ -1457,7 +1481,7 @@ async function handleForm(formType, req, res) {
       const verifyUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/verify?email=${encodeURIComponent(req.body.collegeEmail)}`;
       await sendWelcomeVerificationEmail(req.body.collegeEmail, req.body.fullName, verifyUrl);
     } catch (emailErr) {
-      console.error('[Form Handler] Failed to send welcome email:', emailErr);
+      logger.error({ err: emailErr }, 'Failed to send welcome email in form handler');
       // We don't fail the whole request if email fails, but we log it.
     }
 
@@ -1466,7 +1490,7 @@ async function handleForm(formType, req, res) {
       broadcastSSEEvent('registration', { formType, fullName: payload.fullName, timestamp: new Date().toISOString() });
       emitToRoom(getRoom('admin'), 'admin:new-registration', { formType, userName: payload.fullName, timestamp: new Date() });
     } catch (realtimeErr) {
-      console.error('[Form Handler] Failed to broadcast real-time updates:', realtimeErr);
+      logger.error({ err: realtimeErr }, 'Failed to broadcast real-time updates in form handler');
     }
 
     return res.json({ ok: true });
@@ -1561,7 +1585,7 @@ app.post('/api/notifications/unsubscribe', (req, res) => {
 // Server-side notifications API (simple in-memory store)
 import notificationsService from './services/notificationsService.js';
 
-app.get('/api/notifications', (req, res) => {
+app.get('/api/notifications', adminAuth, notificationRateLimiter, (req, res) => {
   try {
     // If user id provided via query or auth, use that; otherwise global
     const userId = req.query.userId || 'global';
@@ -1572,22 +1596,240 @@ app.get('/api/notifications', (req, res) => {
   }
 });
 
-app.post('/api/notifications/mark-read', (req, res) => {
-  try {
-    const { id, userId } = req.body || {};
-    if (!id) return res.status(400).json({ error: 'id required' });
-    const uid = userId || 'global';
-    const ok = notificationsService.markAsRead(uid, id);
-    return res.json({ success: ok });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+const validatePushSubscription = [
+  body('subscription').isObject().withMessage('subscription must be an object'),
+  body('subscription.endpoint')
+    .isURL()
+    .withMessage('endpoint must be a valid URL')
+    .isLength({ max: 2048 }),
+  body('subscription.keys').isObject().withMessage('keys must be an object'),
+  body('subscription.keys.p256dh')
+    .isString()
+    .isLength({ max: 256 })
+    .withMessage('p256dh must be a string up to 256 chars'),
+  body('subscription.keys.auth')
+    .isString()
+    .isLength({ max: 128 })
+    .withMessage('auth must be a string up to 128 chars'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ error: 'Invalid subscription payload', details: errors.array() });
+    }
+
+    const {
+      endpoint,
+      keys: { p256dh, auth },
+    } = req.body.subscription;
+    req.body.subscription = { endpoint, keys: { p256dh, auth } };
+
+    next();
+  },
+];
+
+app.post(
+  '/api/notifications/subscribe',
+  adminAuth,
+  notificationRateLimiter,
+  validatePushSubscription,
+  async (req, res) => {
+    try {
+      const { subscription } = req.body;
+      if (subscription) {
+        pushSubscriptions.add(JSON.stringify(subscription));
+        if (pushSubscriptions.size > 10000) {
+          const oldest = pushSubscriptions.values().next().value;
+          pushSubscriptions.delete(oldest);
+        }
+        await persistPushSubscription(subscription);
+      }
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
-});
-function requireNotificationPrefAuth(req, res, next) {
-  adminAuthMiddleware.requireAdmin(req, res, (err) => {
-    if (!err && req.adminSession) {
+);
+
+app.post(
+  '/api/notifications/unsubscribe',
+  adminAuth,
+  notificationRateLimiter,
+  validatePushSubscription,
+  async (req, res) => {
+    try {
+      const { subscription } = req.body;
+      if (subscription) {
+        pushSubscriptions.delete(JSON.stringify(subscription));
+        await removePersistedPushSubscription(subscription);
+      }
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+function parsePositiveInt(value, fallback) {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+const ADMIN_IDLE_TIMEOUT_MS = parsePositiveInt(process.env.ADMIN_IDLE_TIMEOUT_MS, 30 * 60 * 1000);
+
+function resolveSession(req) {
+  return (
+    req.cookies?.ns_admin_token ||
+    (req.headers.cookie
+      ? req.headers.cookie.split(';').reduce((acc, c) => {
+          const [k, v] = c.trim().split('=');
+          return k === 'ns_admin_token' ? v : acc;
+        }, null)
+      : null) ||
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.slice(7).trim()
+      : '')
+  );
+}
+
+function sessionMiddleware(req, res, next) {
+  const token = resolveSession(req);
+  if (!token) {
+    return next();
+  }
+  getAdminSession(token)
+    .then((session) => {
+      if (!session) {
+        return next();
+      }
+      const lastSeen = session.last_seen_at ? new Date(session.last_seen_at).getTime() : 0;
+      if (lastSeen && Date.now() - lastSeen > ADMIN_IDLE_TIMEOUT_MS) {
+        return next();
+      }
+      req.adminSession = session;
+      next();
+    })
+    .catch(() => next());
+}
+
+function requireNotificationAuth(req, res, next) {
+  if (req.adminSession) {
+    return next();
+  }
+  requireStudentAuth(req, res, (err) => {
+    if (!err && req.studentUser) {
       return next();
     }
+    return res.status(401).json({ error: 'Unauthorized: Authentication required' });
+  });
+}
+
+app.post(
+  '/api/notifications/mark-read',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      const { id, userId } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id required' });
+      let uid = userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (userId && userId !== studentId) {
+          return res
+            .status(403)
+            .json({ error: 'Forbidden: Cannot modify other users notifications' });
+        }
+        uid = studentId;
+      }
+      const ok = await notificationsService.markAsRead(uid, id);
+      return res.json({ success: ok });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+app.post(
+  '/api/notifications/mark-all-read',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      const { userId } = req.body || {};
+      let uid = userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (userId && userId !== studentId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        uid = studentId;
+      }
+      await notificationsService.markAllAsRead(uid);
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+    requireStudentAuth(req, res, (err2) => {
+      if (!err2 && req.studentUser) {
+        return next();
+      }
+      return res.status(401).json({ error: 'Unauthorized: Authentication required' });
+    });
+  });
+}
+
+app.post(
+  '/api/notifications/mark-read',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      const { id, userId } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id required' });
+      let uid = userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (userId && userId !== studentId) {
+          return res
+            .status(403)
+            .json({ error: 'Forbidden: Cannot modify other users notifications' });
+        }
+        uid = studentId;
+      }
+      const ok = await notificationsService.markAsRead(uid, id);
+      return res.json({ success: ok });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+app.post(
+  '/api/notifications/mark-all-read',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      const { userId } = req.body || {};
+      let uid = userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (userId && userId !== studentId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        uid = studentId;
+      }
+      await notificationsService.markAllAsRead(uid);
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
     requireStudentAuth(req, res, (err2) => {
       if (err2 || !req.studentUser) {
         return res.status(401).json({ error: 'Unauthorized: Authentication required' });
@@ -1604,37 +1846,51 @@ function requireNotificationPrefAuth(req, res, next) {
   });
 }
 
-app.post('/api/notifications/mark-all-read', (req, res) => {
-  try {
-    const { userId } = req.body || {};
-    notificationsService.markAllAsRead(userId || 'global');
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+app.delete(
+  '/api/notifications/:id',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      let uid = req.query.userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (req.query.userId && req.query.userId !== studentId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        uid = studentId;
+      }
+      const removed = await notificationsService.removeNotification(uid, id);
+      if (!removed) return res.status(404).json({ error: 'Notification not found' });
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
-});
+);
 
-app.delete('/api/notifications/:id', (req, res) => {
-  try {
-    const id = req.params.id;
-    const userId = req.query.userId || 'global';
-    notificationsService.removeNotification(userId, id);
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+app.delete(
+  '/api/notifications',
+  requireNotificationAuth,
+  notificationRateLimiter,
+  async (req, res) => {
+    try {
+      let uid = req.query.userId || 'global';
+      if (req.studentUser) {
+        const studentId = req.studentUser.sub || req.studentUser.id;
+        if (req.query.userId && req.query.userId !== studentId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        uid = studentId;
+      }
+      await notificationsService.clearAll(uid);
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
-});
-
-// Delete all notifications for a user (or global)
-app.delete('/api/notifications', (req, res) => {
-  try {
-    const userId = req.query.userId || 'global';
-    notificationsService.clearAll(userId);
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
+);
 
 // Create notification (admin/testing)
 app.post('/api/notifications', (req, res) => {
@@ -1661,7 +1917,7 @@ app.get('/api/portfolio/:username', async (req, res) => {
     }
     return res.json(portfolio);
   } catch (err) {
-    console.error('Error fetching portfolio:', err);
+    logger.error({ err: err.message }, 'Error fetching portfolio');
     return res.status(500).json({ error: err.message || 'Internal server error' });
     return res.status(500).json({ error: err.message });
   }
@@ -1717,7 +1973,7 @@ app.put('/api/portfolio', portfolioRateLimiter, async (req, res) => {
     const saved = await portfolioRepository.createOrUpdate(body);
     return res.json({ ok: true, portfolio: saved });
   } catch (err) {
-    console.error('Error saving portfolio:', err);
+    logger.error({ err: err.message }, 'Error saving portfolio');
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 });
@@ -1802,77 +2058,33 @@ addSentryErrorHandler(app);
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {
-  console.error('[Process] Unhandled rejection:', reason instanceof Error ? reason.message : reason);
+  logger.error({ reason: reason instanceof Error ? reason.message : String(reason) }, '[Process] Unhandled rejection');
 });
 
+process.on('uncaughtException', (err) => {
+  console.error('[Process] Uncaught exception:', err instanceof Error ? err.message : err);
+  if (err && err.stack) console.error(err.stack);
+  process.exit(1);
+});
 
 const port = Number(process.env.PORT || 8787);
-if (!process.env.VERCEL) {
-  const boot = HAS_SUPABASE ? Promise.resolve() : ensureContentFile();
-  boot.then(() => {
-    const server = app.listen(port, () => {
-      // eslint-disable-next-line no-console
 let server;
 
 if (process.env.NODE_ENV !== 'test') {
   if (!process.env.VERCEL) {
-    const boot = HAS_SUPABASE
-      ? Promise.all([studentUsersRepository.ensureSchema(), slackRepository.ensureSchema()])
-      : ensureContentFile();
+    const boot = HAS_SUPABASE ? studentUsersRepository.ensureSchema() : ensureContentFile();
     boot.then(() => {
-      loadPersistedPushSubscriptions();
-      slackIntegrationService.init();
       server = app.listen(port, () => {
-        logger.info(`NexaSphere server listening on http://localhost:${port}`);
-        schedulerService.init();
+        console.log(`NexaSphere server listening on http://localhost:${port}`);
       });
-      server.on('error', (err) => {
-        console.error('SERVER LISTEN ERROR:', err.code, err.message);
-      });
-      initializeSocketIO(server);
     });
   } else {
     loadPersistedPushSubscriptions();
-    slackIntegrationService.init();
     server = app.listen(port, () => {
-      logger.info(`NexaSphere server listening on http://localhost:${port}`);
-      schedulerService.init();
-      startWebhookRetryProcessor();
+      console.log(`NexaSphere server listening on http://localhost:${port}`);
     });
     initializeSocketIO(server);
-  });
-} else {
-  // Vercel/Render style deployments rely on the platform to start the server.
-  const server = app.listen(port, () => {
-    // eslint-disable-next-line no-console
-    console.log(`NexaSphere server listening on http://localhost:${port}`);
-  });
-  initializeSocketIO(server);
+  }
 }
 
 export default app;
-// Set up middleware
-app.use(helmet());
-app.use(securityMiddleware);
-
-// Define routes
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-// Start the server
-const port = process.env.PORT || 8787;
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
-
-// Error handling
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception:', err);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled rejection:', reason);
-  process.exit(1);
-});

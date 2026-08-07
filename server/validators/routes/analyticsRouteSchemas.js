@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 export const customFunnelSchema = z
   .object({
-    steps: z
-      .array(z.string().trim().min(1))
-      .min(2, 'At least 2 funnel steps are required'),
+    steps: z.array(z.string().trim().min(1)).min(2, 'At least 2 funnel steps are required'),
   })
   .strict();
 

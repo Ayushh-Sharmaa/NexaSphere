@@ -167,7 +167,6 @@ export default function JoinRequestModal({ team, onClose, onSubmit }) {
               &times;
             </button>
           </div>
-          <p style={{ margin: '8px 0 0 0', color: 'var(--c1)', fontSize: '0.9rem' }}>
           <p
             id="modal-description"
             style={{ margin: '8px 0 0 0', color: 'var(--c1)', fontSize: '0.9rem' }}

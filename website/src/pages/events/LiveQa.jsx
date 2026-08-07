@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { initializeSocket, on, off } from '../../utils/socketClient';
+import { MentionTextarea } from '../../components/common/MentionTextarea';
 
 const SORT_OPTIONS = ['upvotes', 'recent', 'unanswered'];
 
@@ -236,7 +237,7 @@ export default function LiveQa({ eventId: propEventId, onBack }) {
       {activeTab === 'qa' && (
         <>
           <form onSubmit={handleAsk} style={{ ...styles.card, marginBottom: '20px' }}>
-            <textarea
+            <MentionTextarea
               style={{
                 ...styles.input,
                 minHeight: '60px',
@@ -245,7 +246,7 @@ export default function LiveQa({ eventId: propEventId, onBack }) {
               }}
               placeholder="Ask a question…"
               value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
+              onChange={setQuestionText}
             />
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               <input

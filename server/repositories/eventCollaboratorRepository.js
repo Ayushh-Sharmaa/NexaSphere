@@ -11,7 +11,13 @@ export const eventCollaboratorRepository = {
            permissions = EXCLUDED.permissions,
            updated_at = NOW()
          RETURNING *`,
-        [event_id, email, role || 'co-organizer', permissions || '{"can_edit": true, "can_delete": false, "can_view_attendance": true, "can_message": true}']
+        [
+          event_id,
+          email,
+          role || 'co-organizer',
+          permissions ||
+            '{"can_edit": true, "can_delete": false, "can_view_attendance": true, "can_message": true}',
+        ]
       );
       return rows[0];
     });
@@ -19,14 +25,20 @@ export const eventCollaboratorRepository = {
 
   async getCollaboratorsForEvent(event_id) {
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM event_collaborators WHERE event_id = $1 ORDER BY created_at DESC', [event_id]);
+      const { rows } = await client.query(
+        'SELECT * FROM event_collaborators WHERE event_id = $1 ORDER BY created_at DESC',
+        [event_id]
+      );
       return rows;
     });
   },
 
   async getCollaborator(event_id, email) {
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM event_collaborators WHERE event_id = $1 AND email = $2 LIMIT 1', [event_id, email]);
+      const { rows } = await client.query(
+        'SELECT * FROM event_collaborators WHERE event_id = $1 AND email = $2 LIMIT 1',
+        [event_id, email]
+      );
       return rows[0] || null;
     });
   },
@@ -71,5 +83,5 @@ export const eventCollaboratorRepository = {
       );
       return rows;
     });
-  }
+  },
 };

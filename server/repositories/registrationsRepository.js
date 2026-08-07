@@ -1,12 +1,12 @@
-import { withDb } from './db.js';
-import { HAS_SUPABASE } from '../storage/supabaseClient.js';
+import { withDb } from "./db.js";
+import { HAS_SUPABASE } from "../storage/supabaseClient.js";
 
 export const registrationsRepository = {
   async findByEventId(eventId) {
     if (!HAS_SUPABASE) return [];
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM event_registrations WHERE event_id = $1 ORDER BY created_at ASC',
+        "SELECT * FROM event_registrations WHERE event_id = $1 ORDER BY created_at ASC",
         [eventId]
       );
       return rows;
@@ -17,7 +17,7 @@ export const registrationsRepository = {
     if (!HAS_SUPABASE || !eventIds || eventIds.length === 0) return [];
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM event_registrations WHERE event_id = ANY($1) ORDER BY created_at ASC',
+        "SELECT * FROM event_registrations WHERE event_id = ANY($1) ORDER BY created_at ASC",
         [eventIds]
       );
       return rows;
@@ -28,7 +28,7 @@ export const registrationsRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM event_registrations WHERE email = $1 AND event_id = $2 LIMIT 1',
+        "SELECT * FROM event_registrations WHERE email = $1 AND event_id = $2 LIMIT 1",
         [email, eventId]
       );
       return rows[0] || null;
@@ -45,12 +45,13 @@ export const registrationsRepository = {
     teamSize,
     customFields,
     waitlist,
+    attendanceMode,
   }) {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        `INSERT INTO event_registrations (event_id, full_name, email, department, year, team_name, team_size, custom_fields, waitlist, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `INSERT INTO event_registrations (event_id, full_name, email, department, year, team_name, team_size, custom_fields, waitlist, status, attendance_mode)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
          ON CONFLICT (event_id, email) DO UPDATE SET
            full_name = EXCLUDED.full_name,
            department = EXCLUDED.department,
@@ -59,7 +60,8 @@ export const registrationsRepository = {
            team_size = EXCLUDED.team_size,
            custom_fields = EXCLUDED.custom_fields,
            waitlist = EXCLUDED.waitlist,
-           status = EXCLUDED.status
+           status = EXCLUDED.status,
+           attendance_mode = EXCLUDED.attendance_mode
          RETURNING *`,
         [
           eventId,
@@ -71,7 +73,8 @@ export const registrationsRepository = {
           teamSize || null,
           customFields ? JSON.stringify(customFields) : null,
           waitlist || false,
-          waitlist ? 'waitlisted' : 'confirmed',
+          waitlist ? "waitlisted" : "confirmed",
+          attendanceMode || "in_person",
         ]
       );
       return rows[0];
@@ -82,7 +85,7 @@ export const registrationsRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'UPDATE event_registrations SET status = $1 WHERE id = $2 RETURNING *',
+        "UPDATE event_registrations SET status = $1 WHERE id = $2 RETURNING *",
         [status, id]
       );
       return rows[0] || null;
@@ -94,7 +97,6 @@ export const registrationsRepository = {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `UPDATE event_registrations SET status = 'pending_confirmation', waitlist = false, waitlist_status = 'pending'
-        `UPDATE event_registrations SET status = 'confirmed', waitlist = false
          WHERE id = (
            SELECT id FROM event_registrations
            WHERE event_id = $1 AND waitlist = true AND status = 'waitlisted'
@@ -122,7 +124,7 @@ export const registrationsRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM event_registrations WHERE ticket_token = $1 LIMIT 1',
+        "SELECT * FROM event_registrations WHERE ticket_token = $1 LIMIT 1",
         [token]
       );
       return rows[0] || null;
@@ -133,7 +135,7 @@ export const registrationsRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'UPDATE event_registrations SET ticket_token = $1 WHERE id = $2 RETURNING *',
+        "UPDATE event_registrations SET ticket_token = $1 WHERE id = $2 RETURNING *",
         [token, id]
       );
       return rows[0];
@@ -141,7 +143,8 @@ export const registrationsRepository = {
   },
 
   async getRegistrationStats(eventId) {
-    if (!HAS_SUPABASE) return { total: 0, confirmed: 0, waitlisted: 0, attended: 0 };
+    if (!HAS_SUPABASE)
+      return { total: 0, confirmed: 0, waitlisted: 0, attended: 0 };
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT

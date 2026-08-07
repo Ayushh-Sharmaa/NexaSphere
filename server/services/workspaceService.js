@@ -6,8 +6,8 @@
 const workspaces = [
   {
     id: 1,
-    name: "Coding Club Workspace",
-    description: "Workspace for Coding Club members",
+    name: 'Coding Club Workspace',
+    description: 'Workspace for Coding Club members',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -25,13 +25,13 @@ const timeline = [];
 const getAllWorkspaces = async () => workspaces;
 
 // Get Workspace By ID
-const getWorkspaceById = async (id) =>
-  workspaces.find((workspace) => workspace.id === Number(id));
+const getWorkspaceById = async (id) => workspaces.find((workspace) => workspace.id === Number(id));
 
 // Create Workspace
 const createWorkspace = async (data) => {
+  const nextId = workspaces.length > 0 ? Math.max(...workspaces.map((w) => w.id)) + 1 : 1;
   const workspace = {
-    id: workspaces.length + 1,
+    id: nextId,
     createdAt: new Date().toISOString(),
     ...data,
   };
@@ -42,9 +42,7 @@ const createWorkspace = async (data) => {
 
 // Update Workspace
 const updateWorkspace = async (id, data) => {
-  const index = workspaces.findIndex(
-    (workspace) => workspace.id === Number(id)
-  );
+  const index = workspaces.findIndex((workspace) => workspace.id === Number(id));
 
   if (index === -1) return null;
 
@@ -59,21 +57,36 @@ const updateWorkspace = async (id, data) => {
 
 // Delete Workspace
 const deleteWorkspace = async (id) => {
-  const index = workspaces.findIndex(
-    (workspace) => workspace.id === Number(id)
-  );
+  const index = workspaces.findIndex((workspace) => workspace.id === Number(id));
 
   if (index === -1) return null;
+
+  const filterOut = (arr) => {
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (arr[i].workspaceId === numId) {
+        arr.splice(i, 1);
+      }
+    }
+  };
+
+  filterOut(documents);
+  filterOut(discussions);
+  filterOut(tasks);
+  filterOut(meetingNotes);
+  filterOut(polls);
+  filterOut(announcements);
 
   return workspaces.splice(index, 1)[0];
 };
 
 // Documents
-const getDocuments = async () => documents;
+const getDocuments = async (workspaceId) =>
+  workspaceId ? documents.filter((d) => d.workspaceId === Number(workspaceId)) : documents;
 
 const uploadDocument = async (workspaceId, data) => {
+  const nextId = documents.length > 0 ? Math.max(...documents.map((d) => d.id)) + 1 : 1;
   const document = {
-    id: documents.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
     uploadedAt: new Date().toISOString(),
     ...data,
@@ -84,11 +97,13 @@ const uploadDocument = async (workspaceId, data) => {
 };
 
 // Discussions
-const getDiscussions = async () => discussions;
+const getDiscussions = async (workspaceId) =>
+  workspaceId ? discussions.filter((d) => d.workspaceId === Number(workspaceId)) : discussions;
 
 const addDiscussion = async (workspaceId, data) => {
+  const nextId = discussions.length > 0 ? Math.max(...discussions.map((d) => d.id)) + 1 : 1;
   const discussion = {
-    id: discussions.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
     createdAt: new Date().toISOString(),
     ...data,
@@ -103,18 +118,19 @@ const getCalendar = async (workspaceId) => ({
   workspaceId: Number(workspaceId),
   events: [
     {
-      title: "Weekly Team Meeting",
-      date: "2026-07-15",
+      title: 'Weekly Team Meeting',
+      date: '2026-07-15',
     },
   ],
 });
 
 // Tasks
 const createTask = async (workspaceId, data) => {
+  const nextId = tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
   const task = {
-    id: tasks.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
-    status: "Pending",
+    status: 'Pending',
     createdAt: new Date().toISOString(),
     ...data,
   };
@@ -123,12 +139,14 @@ const createTask = async (workspaceId, data) => {
   return task;
 };
 
-const getTasks = async () => tasks;
+const getTasks = async (workspaceId) =>
+  workspaceId ? tasks.filter((t) => t.workspaceId === Number(workspaceId)) : tasks;
 
 // Meeting Notes
 const addMeetingNotes = async (workspaceId, data) => {
+  const nextId = meetingNotes.length > 0 ? Math.max(...meetingNotes.map((m) => m.id)) + 1 : 1;
   const notes = {
-    id: meetingNotes.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
     createdAt: new Date().toISOString(),
     ...data,
@@ -140,8 +158,9 @@ const addMeetingNotes = async (workspaceId, data) => {
 
 // Polls
 const createPoll = async (workspaceId, data) => {
+  const nextId = polls.length > 0 ? Math.max(...polls.map((p) => p.id)) + 1 : 1;
   const poll = {
-    id: polls.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
     createdAt: new Date().toISOString(),
     ...data,
@@ -153,8 +172,9 @@ const createPoll = async (workspaceId, data) => {
 
 // Announcements
 const createAnnouncement = async (workspaceId, data) => {
+  const nextId = announcements.length > 0 ? Math.max(...announcements.map((a) => a.id)) + 1 : 1;
   const announcement = {
-    id: announcements.length + 1,
+    id: nextId,
     workspaceId: Number(workspaceId),
     createdAt: new Date().toISOString(),
     ...data,
@@ -171,15 +191,18 @@ const getTimeline = async () => timeline;
 const getBookmarks = async () => bookmarks;
 
 // Analytics
-const getAnalytics = async (workspaceId) => ({
-  workspaceId: Number(workspaceId),
-  members: 25,
-  documents: documents.length,
-  discussions: discussions.length,
-  tasks: tasks.length,
-  polls: polls.length,
-  announcements: announcements.length,
-});
+const getAnalytics = async (workspaceId) => {
+  const numId = Number(workspaceId);
+  return {
+    workspaceId: numId,
+    members: 25,
+    documents: documents.filter((d) => d.workspaceId === numId).length,
+    discussions: discussions.filter((d) => d.workspaceId === numId).length,
+    tasks: tasks.filter((t) => t.workspaceId === numId).length,
+    polls: polls.filter((p) => p.workspaceId === numId).length,
+    announcements: announcements.filter((a) => a.workspaceId === numId).length,
+  };
+};
 
 module.exports = {
   getAllWorkspaces,

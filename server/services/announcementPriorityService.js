@@ -19,25 +19,30 @@ export const announcementPriorityService = {
           new Date(announcement.expiresAt) > now
       )
       .sort((a, b) => {
-        if (a.pinned !== b.pinned) {
-          return b.pinned - a.pinned;
+        const isAPinned = Boolean(a.pinned === true || a.pinned === 'true');
+        const isBPinned = Boolean(b.pinned === true || b.pinned === 'true');
+
+        if (isAPinned !== isBPinned) {
+          return isBPinned ? 1 : -1;
         }
 
-        if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        const getPriorityScore = (p) => {
+          if (!p) return 1;
+          const normalized = String(p).trim();
+          const capitalized = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
+          return priorityOrder[capitalized] || 1;
+        };
+
+        const scoreA = getPriorityScore(a.priority);
+        const scoreB = getPriorityScore(b.priority);
+
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA;
         }
 
-        return new Date(b.createdAt) - new Date(a.createdAt);
-          return (
-            priorityOrder[b.priority] -
-            priorityOrder[a.priority]
-          );
-        }
-
-        return (
-          new Date(b.createdAt) -
-          new Date(a.createdAt)
-        );
+        const timeA = new Date(a.createdAt || 0).getTime();
+        const timeB = new Date(b.createdAt || 0).getTime();
+        return timeB - timeA;
       });
   },
 

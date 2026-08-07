@@ -4,6 +4,10 @@
 > Built by students, for students — featuring events, activities, team management, portfolios, and more.
 
 [![CI](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/ci.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/ci.yml)
+[![Docker Build](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/docker-ci.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/docker-ci.yml)
+[![Security Scanning](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/security-scan.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/security-scan.yml)
+[![CodeQL Analysis](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/codeql.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/codeql.yml)
+[![Production Deployment](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/production-deployment.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/production-deployment.yml)
 [![Lint Markdown](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/lint-markdown.yml/badge.svg)](https://github.com/Ayushh-Sharmaa/NexaSphere/actions/workflows/lint-markdown.yml)
 [![License](https://img.shields.io/github/license/Ayushh-Sharmaa/NexaSphere)](LICENSE)
 
@@ -682,11 +686,12 @@ Deep-dive references live in the [`/docs`](docs/) directory:
 | [docs/deployment.md](docs/deployment.md)                   | Full deployment guide (Vercel / Render / Docker) |
 | [docs/database-backups.md](docs/database-backups.md)       | Database backup & restore procedures             |
 | [docs/DATABASE_MIGRATIONS.md](docs/DATABASE_MIGRATIONS.md) | Running & writing DB migrations                  |
-| [Swagger API Docs](http://localhost:8787/api-docs) | Interactive API documentation (run server first) |
+| [Swagger API Docs](http://localhost:8787/api-docs)         | Interactive API documentation (run server first) |
 
 ---
 
 ## Future Improvments
+
 - [x] API Swagger documentation — available at `/api-docs` when server is running
 
 ## 👥 Contributors
@@ -709,3 +714,29 @@ Thanks to all contributors ❤️
 [MIT](LICENSE) © NexaSphere Core Team
 ADMIN_EMAIL=your_admin_email
 ADMIN_PASSWORD=your_secure_password
+
+## Troubleshooting
+
+### Installation fails
+- Ensure you are using the supported Node.js version.
+- Run `npm install` or `npm ci`.
+- Delete `node_modules` and reinstall dependencies if necessary.
+
+### Environment variables not loading
+- Verify that a `.env` file exists.
+- Ensure all required variables are defined.
+- Restart the development server after making changes.
+
+## FAQ
+
+### How do I start the project?
+Run:
+
+```bash
+npm install
+npm run dev
+```
+
+### How do I report a bug?
+Please open a GitHub issue with reproduction steps and relevant logs.
+

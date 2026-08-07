@@ -6,12 +6,12 @@
 const maintenanceList = [
   {
     id: 1,
-    title: "Database Upgrade",
-    description: "Scheduled database maintenance.",
-    startTime: "2026-07-20T01:00:00Z",
-    endTime: "2026-07-20T03:00:00Z",
-    status: "Scheduled",
-    services: ["Authentication", "Events"],
+    title: 'Database Upgrade',
+    description: 'Scheduled database maintenance.',
+    startTime: '2026-07-20T01:00:00Z',
+    endTime: '2026-07-20T03:00:00Z',
+    status: 'Scheduled',
+    services: ['Authentication', 'Events'],
   },
 ];
 
@@ -19,30 +19,29 @@ const history = [];
 
 const notifications = [];
 
-const serviceImpact = [
-  "Authentication",
-  "Events",
-  "Portfolio",
-  "Notifications",
-];
+const serviceImpact = ['Authentication', 'Events', 'Portfolio', 'Notifications'];
 
 const banner = {
   active: false,
-  message: "No scheduled maintenance.",
+  message: 'No scheduled maintenance.',
 };
 
 // Get All
 const getAllMaintenance = async () => maintenanceList;
 
 // Get By ID
-const getMaintenanceById = async (id) =>
-  maintenanceList.find((item) => item.id === Number(id));
+const getMaintenanceById = async (id) => maintenanceList.find((item) => item.id === Number(id));
 
 // Create
 const createMaintenance = async (data) => {
+  if (data.startTime && data.endTime && new Date(data.startTime) >= new Date(data.endTime)) {
+    throw new Error('Invalid maintenance window: startTime must be before endTime');
+  }
+
+  const nextId = maintenanceList.length > 0 ? Math.max(...maintenanceList.map((m) => m.id)) + 1 : 1;
   const maintenance = {
     id: maintenanceList.length + 1,
-    status: "Scheduled",
+    status: 'Scheduled',
     createdAt: new Date().toISOString(),
     ...data,
   };
@@ -53,11 +52,15 @@ const createMaintenance = async (data) => {
 
 // Update
 const updateMaintenance = async (id, data) => {
-  const index = maintenanceList.findIndex(
-    (item) => item.id === Number(id)
-  );
+  const index = maintenanceList.findIndex((item) => item.id === Number(id));
 
   if (index === -1) return null;
+
+  const startTime = data.startTime || maintenanceList[index].startTime;
+  const endTime = data.endTime || maintenanceList[index].endTime;
+  if (startTime && endTime && new Date(startTime) >= new Date(endTime)) {
+    throw new Error('Invalid maintenance window: startTime must be before endTime');
+  }
 
   maintenanceList[index] = {
     ...maintenanceList[index],
@@ -70,9 +73,7 @@ const updateMaintenance = async (id, data) => {
 
 // Delete
 const deleteMaintenance = async (id) => {
-  const index = maintenanceList.findIndex(
-    (item) => item.id === Number(id)
-  );
+  const index = maintenanceList.findIndex((item) => item.id === Number(id));
 
   if (index === -1) return null;
 
@@ -81,13 +82,11 @@ const deleteMaintenance = async (id) => {
 
 // Start
 const startMaintenance = async (id) => {
-  const maintenance = maintenanceList.find(
-    (item) => item.id === Number(id)
-  );
+  const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
 
-  maintenance.status = "In Progress";
+  maintenance.status = 'In Progress';
 
   banner.active = true;
   banner.message = `${maintenance.title} is currently in progress.`;
@@ -97,18 +96,16 @@ const startMaintenance = async (id) => {
 
 // Complete
 const completeMaintenance = async (id) => {
-  const maintenance = maintenanceList.find(
-    (item) => item.id === Number(id)
-  );
+  const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
 
-  maintenance.status = "Completed";
+  maintenance.status = 'Completed';
 
   history.push(maintenance);
 
   banner.active = false;
-  banner.message = "No scheduled maintenance.";
+  banner.message = 'No scheduled maintenance.';
 
   return maintenance;
 };
@@ -116,8 +113,8 @@ const completeMaintenance = async (id) => {
 // Emergency Maintenance
 const emergencyMaintenance = async (data) => ({
   id: Date.now(),
-  type: "Emergency",
-  status: "Active",
+  type: 'Emergency',
+  status: 'Active',
   startedAt: new Date().toISOString(),
   ...data,
 });
@@ -133,9 +130,7 @@ const getHistory = async () => history;
 
 // Countdown
 const getCountdown = async (id) => {
-  const maintenance = maintenanceList.find(
-    (item) => item.id === Number(id)
-  );
+  const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
 

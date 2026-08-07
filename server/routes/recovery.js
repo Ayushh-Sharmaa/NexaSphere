@@ -49,7 +49,12 @@ router.post(
 );
 
 // ── Public Auth Recovery Routes ──────────────────────────────────────────────
-router.post('/auth/forgot-password', validate(forgotPasswordBodySchema), passwordResetRateLimiter, recoveryController.forgotPassword);
+router.post(
+  '/auth/forgot-password',
+  validate(forgotPasswordBodySchema),
+  passwordResetRateLimiter,
+  recoveryController.forgotPassword
+);
 
 router.post(
   '/auth/reset-password',

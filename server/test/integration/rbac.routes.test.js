@@ -72,46 +72,41 @@ function createTestApp() {
   router.use(mockRequireAdmin);
 
   // ---- Roles ----
-  router.get(
-    '/api/admin/rbac/roles',
-    mockRequirePermission('rbac:read'),
-    (_req, res) => {
-      res.json({
-        defaultRoles: [
-          { name: 'SuperAdmin', description: 'Full system access' },
-          { name: 'Admin', description: 'Administrative access' },
-          { name: 'Viewer', description: 'Read-only access' },
-        ],
-        customRoles: [
-          { name: 'Moderator', description: 'Content moderation' },
-        ],
-      });
-    },
-  );
+  router.get('/api/admin/rbac/roles', mockRequirePermission('rbac:read'), (_req, res) => {
+    res.json({
+      defaultRoles: [
+        { name: 'SuperAdmin', description: 'Full system access' },
+        { name: 'Admin', description: 'Administrative access' },
+        { name: 'Viewer', description: 'Read-only access' },
+      ],
+      customRoles: [{ name: 'Moderator', description: 'Content moderation' }],
+    });
+  });
 
-  router.get(
-    '/api/admin/rbac/permissions',
-    mockRequirePermission('rbac:read'),
-    (_req, res) => {
-      res.json({
-        permissions: ['rbac:read', 'rbac:write', 'rbac:assign', 'audit:read', 'events:read', 'events:write', 'users:read', 'users:write'],
-      });
-    },
-  );
+  router.get('/api/admin/rbac/permissions', mockRequirePermission('rbac:read'), (_req, res) => {
+    res.json({
+      permissions: [
+        'rbac:read',
+        'rbac:write',
+        'rbac:assign',
+        'audit:read',
+        'events:read',
+        'events:write',
+        'users:read',
+        'users:write',
+      ],
+    });
+  });
 
-  router.get(
-    '/api/admin/rbac/matrix',
-    mockRequirePermission('rbac:read'),
-    (_req, res) => {
-      res.json({
-        matrix: {
-          SuperAdmin: { name: 'SuperAdmin', permissions: [] },
-          Admin: { name: 'Admin', permissions: [] },
-          Viewer: { name: 'Viewer', permissions: [] },
-        },
-      });
-    },
-  );
+  router.get('/api/admin/rbac/matrix', mockRequirePermission('rbac:read'), (_req, res) => {
+    res.json({
+      matrix: {
+        SuperAdmin: { name: 'SuperAdmin', permissions: [] },
+        Admin: { name: 'Admin', permissions: [] },
+        Viewer: { name: 'Viewer', permissions: [] },
+      },
+    });
+  });
 
   router.post(
     '/api/admin/rbac/roles',
@@ -125,7 +120,7 @@ function createTestApp() {
       res.status(201).json({
         role: { name, description: req.body.description || '', permissions },
       });
-    },
+    }
   );
 
   router.put(
@@ -140,7 +135,7 @@ function createTestApp() {
       res.json({
         role: { name, ...req.body, updatedAt: '2026-07-08T00:00:00Z' },
       });
-    },
+    }
   );
 
   router.delete(
@@ -153,22 +148,18 @@ function createTestApp() {
         return res.status(400).json({ error: 'Cannot delete system roles' });
       }
       res.json({ ok: true });
-    },
+    }
   );
 
   // ---- User Role Management ----
-  router.get(
-    '/api/admin/rbac/users',
-    mockRequirePermission('rbac:read'),
-    (_req, res) => {
-      res.json({
-        users: [
-          { id: 1, username: 'alice', role: 'Admin' },
-          { id: 2, username: 'bob', role: 'Viewer' },
-        ],
-      });
-    },
-  );
+  router.get('/api/admin/rbac/users', mockRequirePermission('rbac:read'), (_req, res) => {
+    res.json({
+      users: [
+        { id: 1, username: 'alice', role: 'Admin' },
+        { id: 2, username: 'bob', role: 'Viewer' },
+      ],
+    });
+  });
 
   router.post(
     '/api/admin/rbac/assign',
@@ -182,7 +173,7 @@ function createTestApp() {
       res.json({
         assignment: { userId, roleName, assignedBy: 'testadmin' },
       });
-    },
+    }
   );
 
   router.delete(
@@ -195,7 +186,7 @@ function createTestApp() {
         return res.status(400).json({ error: 'userId and roleName are required' });
       }
       res.json({ ok: true });
-    },
+    }
   );
 
   router.post(
@@ -208,23 +199,23 @@ function createTestApp() {
         return res.status(400).json({ error: 'assignments array is required' });
       }
       res.json({
-        results: assignments.map((a) => ({ userId: a.userId, roleName: a.roleName, status: 'assigned' })),
+        results: assignments.map((a) => ({
+          userId: a.userId,
+          roleName: a.roleName,
+          status: 'assigned',
+        })),
       });
-    },
+    }
   );
 
   // ---- Audit Logs ----
-  router.get(
-    '/api/admin/rbac/audit',
-    mockRequirePermission('audit:read'),
-    (_req, res) => {
-      res.json({
-        logs: [
-          { id: 1, adminId: 'admin', action: 'ROLE_CREATED', timestamp: '2026-07-07T12:00:00Z' },
-        ],
-      });
-    },
-  );
+  router.get('/api/admin/rbac/audit', mockRequirePermission('audit:read'), (_req, res) => {
+    res.json({
+      logs: [
+        { id: 1, adminId: 'admin', action: 'ROLE_CREATED', timestamp: '2026-07-07T12:00:00Z' },
+      ],
+    });
+  });
 
   app.use(router);
   return app;
@@ -251,7 +242,9 @@ describe('RBAC Routes — Auth Enforcement', () => {
 
   it('returns 401 when unauthenticated for POST /api/admin/rbac/roles', async () => {
     authControl.enabled = false;
-    const res = await request(app).post('/api/admin/rbac/roles').send({ name: 'test', permissions: [] });
+    const res = await request(app)
+      .post('/api/admin/rbac/roles')
+      .send({ name: 'test', permissions: [] });
     assert.equal(res.status, 401);
     authControl.enabled = true;
   });
@@ -340,9 +333,7 @@ describe('RBAC Routes — Role CRUD', () => {
   });
 
   it('POST /api/admin/rbac/roles with missing permissions returns 400', async () => {
-    const res = await request(app)
-      .post('/api/admin/rbac/roles')
-      .send({ name: 'TestRole' });
+    const res = await request(app).post('/api/admin/rbac/roles').send({ name: 'TestRole' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -368,7 +359,10 @@ describe('RBAC Routes — Role CRUD', () => {
       .put('/api/admin/rbac/roles/SuperAdmin')
       .send({ description: 'hack' });
     assert.equal(res.status, 400);
-    assert.ok(res.body.error.toLowerCase().includes('system') || res.body.error.toLowerCase().includes('cannot modify'));
+    assert.ok(
+      res.body.error.toLowerCase().includes('system') ||
+        res.body.error.toLowerCase().includes('cannot modify')
+    );
   });
 
   it('DELETE /api/admin/rbac/roles/:name deletes a custom role', async () => {
@@ -380,7 +374,10 @@ describe('RBAC Routes — Role CRUD', () => {
   it('DELETE /api/admin/rbac/roles/:name on system role returns 400', async () => {
     const res = await request(app).delete('/api/admin/rbac/roles/Admin');
     assert.equal(res.status, 400);
-    assert.ok(res.body.error.toLowerCase().includes('system') || res.body.error.toLowerCase().includes('cannot delete'));
+    assert.ok(
+      res.body.error.toLowerCase().includes('system') ||
+        res.body.error.toLowerCase().includes('cannot delete')
+    );
   });
 });
 
@@ -403,17 +400,13 @@ describe('RBAC Routes — Role Assignment', () => {
   });
 
   it('POST /api/admin/rbac/assign with missing userId returns 400', async () => {
-    const res = await request(app)
-      .post('/api/admin/rbac/assign')
-      .send({ roleName: 'Admin' });
+    const res = await request(app).post('/api/admin/rbac/assign').send({ roleName: 'Admin' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
 
   it('POST /api/admin/rbac/assign with missing roleName returns 400', async () => {
-    const res = await request(app)
-      .post('/api/admin/rbac/assign')
-      .send({ userId: 3 });
+    const res = await request(app).post('/api/admin/rbac/assign').send({ userId: 3 });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -440,9 +433,7 @@ describe('RBAC Routes — Role Assignment', () => {
   });
 
   it('POST /api/admin/rbac/bulk-assign with missing assignments array returns 400', async () => {
-    const res = await request(app)
-      .post('/api/admin/rbac/bulk-assign')
-      .send({});
+    const res = await request(app).post('/api/admin/rbac/bulk-assign').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });

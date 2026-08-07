@@ -26,5 +26,5 @@ export const bannersService = {
 
   async deleteBanner(id) {
     return bannersRepository.delete(id);
-  }
+  },
 };

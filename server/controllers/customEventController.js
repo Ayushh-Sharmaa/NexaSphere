@@ -105,13 +105,8 @@ export const logCustomEvent = wrapAsync(async (req, res) => {
 
   const definition = await customEventRepository.getDefinition(eventDefinitionId);
   if (!definition) return sendError(req, res, 'Event definition not found', 404, 'NOT_FOUND');
-  if (!definition.is_active) return sendError(req, res, 'Event definition is inactive', 400, 'VALIDATION_ERROR');
-    return res.status(400).json({ error: 'eventDefinitionId is required' });
-  }
-
-  const definition = await customEventRepository.getDefinition(eventDefinitionId);
-  if (!definition) return res.status(404).json({ error: 'Event definition not found' });
-  if (!definition.is_active) return res.status(400).json({ error: 'Event definition is inactive' });
+  if (!definition.is_active)
+    return sendError(req, res, 'Event definition is inactive', 400, 'VALIDATION_ERROR');
 
   const sessionId = req.headers['x-session-id'] || req.ip;
   const log = await customEventRepository.logEvent({

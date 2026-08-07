@@ -1,46 +1,46 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const workspaceController = require("../controllers/workspaceController");
+const workspaceController = require('../controllers/workspaceController');
 
 // Workspace CRUD
-router.get("/", workspaceController.getAllWorkspaces);
-router.get("/:id", workspaceController.getWorkspaceById);
-router.post("/", workspaceController.createWorkspace);
-router.put("/:id", workspaceController.updateWorkspace);
-router.delete("/:id", workspaceController.deleteWorkspace);
+router.get('/', workspaceController.getAllWorkspaces);
+router.get('/:id', workspaceController.getWorkspaceById);
+router.post('/', workspaceController.createWorkspace);
+router.put('/:id', workspaceController.updateWorkspace);
+router.delete('/:id', workspaceController.deleteWorkspace);
 
 // Shared Documents
-router.get("/:id/documents", workspaceController.getDocuments);
-router.post("/:id/documents", workspaceController.uploadDocument);
+router.get('/:id/documents', workspaceController.getDocuments);
+router.post('/:id/documents', workspaceController.uploadDocument);
 
 // Team Discussions
-router.get("/:id/discussions", workspaceController.getDiscussions);
-router.post("/:id/discussions", workspaceController.addDiscussion);
+router.get('/:id/discussions', workspaceController.getDiscussions);
+router.post('/:id/discussions', workspaceController.addDiscussion);
 
 // Shared Calendar
-router.get("/:id/calendar", workspaceController.getCalendar);
+router.get('/:id/calendar', workspaceController.getCalendar);
 
 // Tasks
-router.get("/:id/tasks", workspaceController.getTasks);
-router.post("/:id/tasks", workspaceController.createTask);
+router.get('/:id/tasks', workspaceController.getTasks);
+router.post('/:id/tasks', workspaceController.createTask);
 
 // Meeting Notes
-router.post("/:id/notes", workspaceController.addMeetingNotes);
+router.post('/:id/notes', workspaceController.addMeetingNotes);
 
 // Quick Polls
-router.post("/:id/polls", workspaceController.createPoll);
+router.post('/:id/polls', workspaceController.createPoll);
 
 // Team Announcements
-router.post("/:id/announcements", workspaceController.createAnnouncement);
+router.post('/:id/announcements', workspaceController.createAnnouncement);
 
 // Activity Timeline
-router.get("/:id/timeline", workspaceController.getTimeline);
+router.get('/:id/timeline', workspaceController.getTimeline);
 
 // Shared Bookmarks
-router.get("/:id/bookmarks", workspaceController.getBookmarks);
+router.get('/:id/bookmarks', workspaceController.getBookmarks);
 
 // Workspace Analytics
-router.get("/:id/analytics", workspaceController.getAnalytics);
+router.get('/:id/analytics', workspaceController.getAnalytics);
 
 module.exports = router;

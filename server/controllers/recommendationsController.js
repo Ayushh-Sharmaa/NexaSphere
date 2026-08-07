@@ -102,10 +102,12 @@ export async function getProjectRecommendations(req, res, next) {
     return sendSuccess(res, recommendations);
   } catch (error) {
     console.error('Error in getProjectRecommendations controller:', error);
-    return sendError(req, res, error.message || 'An error occurred during resume analysis.', 500, 'INTERNAL_ERROR');
-    return res.json(recommendations);
-  } catch (error) {
-    console.error('Error in getProjectRecommendations controller:', error);
-    return res.status(500).json({ error: error.message || 'An error occurred during resume analysis.' });
+    return sendError(
+      req,
+      res,
+      error.message || 'An error occurred during resume analysis.',
+      500,
+      'INTERNAL_ERROR'
+    );
   }
 }

@@ -24,16 +24,13 @@ export const abnormalRequestDetector = async (req, res, next) => {
     if (res.statusCode >= 400 && res.statusCode < 500) {
       // Exclude simple 401s if they are standard auth failures (handled elsewhere)
       if (res.statusCode === 404 || res.statusCode === 400 || res.statusCode === 405) {
-        intrusionDetectionService.reportEvent(
-          EVENT_TYPES.ABNORMAL_API_REQUEST,
-          req.ip,
-          req.user?.id || req.admin?.id,
-          {
+        intrusionDetectionService
+          .reportEvent(EVENT_TYPES.ABNORMAL_API_REQUEST, req.ip, req.user?.id || req.admin?.id, {
             path: req.originalUrl,
             method: req.method,
             statusCode: res.statusCode,
-          }
-        ).catch(err => logger.error('Error reporting abnormal API request:', err));
+          })
+          .catch((err) => logger.error('Error reporting abnormal API request:', err));
       }
     }
   });

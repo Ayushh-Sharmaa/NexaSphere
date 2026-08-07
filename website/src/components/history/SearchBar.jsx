@@ -121,7 +121,9 @@ const SearchBar = ({ onSelectPrompt, workspace = 'default' }) => {
       {showResults && query && results.length === 0 && !isSearching && (
         <div id={resultsPanelId} className="search-empty" role="status">
           {searchError ? (
-            <p className="error-message" style={{ color: '#ef4444' }}>{searchError}</p>
+            <p className="error-message" style={{ color: '#ef4444' }}>
+              {searchError}
+            </p>
           ) : (
             <p>No results found</p>
           )}

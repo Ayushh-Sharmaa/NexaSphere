@@ -41,7 +41,14 @@ router.post('/upload', authenticate, upload.single('photo'), async (req, res) =>
     // 3. Content moderation — reject inappropriate images before storing
     const moderation = await aiTaggingService.moderateContent(processed.largeBuffer);
     if (moderation.rejected) {
-      return sendError(req, res, 'Image rejected by content moderation', 422, 'VALIDATION_ERROR', moderation.reason);
+      return sendError(
+        req,
+        res,
+        'Image rejected by content moderation',
+        422,
+        'VALIDATION_ERROR',
+        moderation.reason
+      );
     }
 
     // 4. AI tagging — run async; don't block response

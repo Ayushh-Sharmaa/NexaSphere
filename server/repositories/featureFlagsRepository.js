@@ -42,14 +42,14 @@ export const featureFlagsRepository = {
           name,
           description || '',
           type,
-          is_active !== undefined ? is_active : true,
-          rollout_percentage !== undefined ? rollout_percentage : 100,
+          is_active ?? true,
+          rollout_percentage ?? 100,
           JSON.stringify(target_users || []),
           JSON.stringify(target_roles || []),
           JSON.stringify(environments || []),
           start_time || null,
           end_time || null,
-          fallback_value !== undefined ? fallback_value : false,
+          fallback_value ?? false,
         ]
       );
       return rows[0];
@@ -189,7 +189,7 @@ export const featureFlagsRepository = {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT * FROM feature_flags 
-         WHERE updated_at < NOW() - CAST($1 || ' days' AS INTERVAL)`,
+         WHERE updated_at < NOW() - make_interval(days => $1::double precision)`,
         [staleThresholdDays]
       );
       return rows;

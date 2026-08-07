@@ -19,8 +19,8 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
+    pass: process.env.SMTP_PASS,
+  },
 });
 
 exports.sendApprovalEmail = async (userId, role, feedback) => {
@@ -41,7 +41,7 @@ exports.sendApprovalEmail = async (userId, role, feedback) => {
       <p>You now have access to the team dashboard and can start contributing!</p>
       <br>
       <p>Best regards,<br>NexaSphere Team</p>
-    `
+    `,
   };
   await transporter.sendMail(mailOptions);
 };
@@ -66,7 +66,7 @@ exports.sendRejectionEmail = async (userId, feedback) => {
       <p>We encourage you to stay engaged with the community and reapply in the future.</p>
       <br>
       <p>Best regards,<br>NexaSphere Team</p>
-    `
+    `,
   };
   await transporter.sendMail(mailOptions);
 };

@@ -194,7 +194,7 @@ function MentorshipDashboard() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold">
-                            {m.mentorName?.charAt(0) || 'M'}
+                            {m.mentorName?.[0] || 'M'}
                           </div>
                           <div>
                             <p className="font-medium text-sm">{m.mentorName}</p>

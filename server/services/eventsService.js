@@ -5,7 +5,6 @@ import { scheduleReminderJob } from './queueService.js';
 import logger from '../utils/logger.js';
 import { emitToRoom } from '../config/socket.js';
 
-
 export const eventsService = {
   async listEvents({
     page = 1,
@@ -97,7 +96,7 @@ export const eventsService = {
           id: `${event.id}-${occurrenceIndex}`,
           date: currentDate.toISOString(),
           seriesId,
-          occurrenceIndex
+          occurrenceIndex,
         };
 
         const createdOcc = await eventsRepository.create(occEvent);
@@ -119,7 +118,7 @@ export const eventsService = {
       created = await eventsRepository.create(event);
       createdEvents.push(created);
     }
-    
+
     recordEventCreated();
 
     // Emit real-time notification to all connected clients
@@ -205,8 +204,8 @@ export const eventsService = {
     let deleted;
     if (deleteSeries) {
       // Find event to get series_id
-      const events = await eventsRepository.listAll({ search: id }); 
-      const event = events.find(e => e.id === id);
+      const events = await eventsRepository.listAll({ search: id });
+      const event = events.find((e) => e.id === id);
       if (event && event.seriesId) {
         deleted = await eventsRepository.deleteSeries(event.seriesId);
       } else {
@@ -215,8 +214,8 @@ export const eventsService = {
     } else {
       deleted = await eventsRepository.delete(id);
     }
-    
-    import('../utils/redis.js').then(m => m.clearCache('events:list:*'));
+
+    import('../utils/redis.js').then((m) => m.clearCache('events:list:*'));
     return deleted;
   },
 

@@ -584,6 +584,18 @@ export const searchRateLimiter = rateLimit({
   ),
 });
 
+// Event registration rate limiter — 20 requests per IP per 15 minutes
+export const eventRegistrationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createRateLimitStore('rate-limit:event-registration:'),
+  message: {
+    error: 'Too many event registration attempts from this IP, please try again later.',
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Startup guard — call once during server boot to catch missing exports early.
 // Throws immediately if any limiter failed to initialise, preventing the silent
@@ -620,8 +632,6 @@ export function validateLimiters() {
     eventRegistrationIpLimiter,
     syncRateLimiter,
     portfolioRateLimiter,
-    eventRegistrationIpLimiter,
-    eventRegistrationUserLimiter,
     searchRateLimiter,
   };
 

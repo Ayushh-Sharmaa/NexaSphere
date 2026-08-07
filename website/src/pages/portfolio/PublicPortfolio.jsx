@@ -222,7 +222,6 @@ export default function PublicPortfolio({ username, onBack }) {
         <meta name="twitter:image" content={meta.image} />
       </Helmet>
 
-
       {/* Dynamic floating toolbar above showcase */}
       <div className="action-floating-header no-print">
         <button className="btn btn-outline" onClick={onBack} aria-label="Back to main page">
@@ -259,7 +258,19 @@ export default function PublicPortfolio({ username, onBack }) {
       </div>
 
       {exportError && (
-        <div className="no-print" style={{ color: '#ef4444', textAlign: 'center', margin: '1rem auto', padding: '0.5rem', background: '#fee2e2', borderRadius: '8px', border: '1px solid #f87171', maxWidth: '800px' }}>
+        <div
+          className="no-print"
+          style={{
+            color: '#ef4444',
+            textAlign: 'center',
+            margin: '1rem auto',
+            padding: '0.5rem',
+            background: '#fee2e2',
+            borderRadius: '8px',
+            border: '1px solid #f87171',
+            maxWidth: '800px',
+          }}
+        >
           {exportError}
         </div>
       )}

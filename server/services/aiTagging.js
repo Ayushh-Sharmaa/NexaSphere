@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js';
 /**
  * server/services/aiTagging.js
  * AI-powered face detection, object recognition, auto-categorisation,
@@ -87,7 +88,7 @@ async function analyzePhoto(photoId, imageBuffer) {
       }
     } catch (err) {
       // SearchFacesByImage fails if collection is empty — not fatal
-      console.warn('Face search skipped:', err.message);
+      logger.warn('Face search skipped: {err}', { err: err.message });
     }
   }
 

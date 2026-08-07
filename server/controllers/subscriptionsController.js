@@ -27,7 +27,8 @@ export async function getStats(req, res) {
 export async function createSubscription(req, res) {
   try {
     const { userId, tierId } = req.body;
-    if (!userId || !tierId) return sendError(req, res, 'userId and tierId required', 400, 'VALIDATION_ERROR');
+    if (!userId || !tierId)
+      return sendError(req, res, 'userId and tierId required', 400, 'VALIDATION_ERROR');
     const result = subscriptionService.createSubscription(userId, tierId);
     subscriptionService.processPayment(userId, result.price);
     sendSuccess(res, result, 201);

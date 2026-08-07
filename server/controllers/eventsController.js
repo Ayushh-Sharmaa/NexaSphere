@@ -157,18 +157,6 @@ export const adminUpdateEvent = wrapAsync(async (req, res) => {
   const updated = await eventsService.updateEvent(id, req.body, updateSeries);
   if (!updated) return sendError(req, res, 'Event not found', 404, 'NOT_FOUND');
 
-  const updated = await eventsService.updateEvent(id, req.body);
-  if (!updated) return res.status(404).json({ error: 'Event not found' });
-
-  // Invalidate event listing cache (and event detail cache if added later)
-  try {
-    const { invalidateByPrefix } = await import('../utils/endpointCache.js');
-    // Events listing cache prefix: cache:endpoint:events:listing:*
-    await invalidateByPrefix('events:listing');
-  } catch {
-    // ignore
-  }
-
   // Broadcast real-time update to all calendar views
   emitToRole('user', 'calendar:event-updated', updated);
 

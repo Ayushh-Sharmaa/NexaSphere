@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4 # This grabs your code so the tool can look at it
 
       - name: Check markdown formatting
-        uses: davidanson/markdownlint-cli2-action@v16 # This is the official community tool
+        uses: davidanson/markdownlint-cli2-action@v24 # This is the official community tool
         with:
           globs: '**/*.md' # Tell it to scan every single .md file
           config: '.markdownlint.json'

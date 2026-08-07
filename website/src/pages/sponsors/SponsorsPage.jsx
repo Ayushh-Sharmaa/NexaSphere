@@ -164,14 +164,15 @@ export default function SponsorsPage() {
                         }}
                       >
                         {sponsor.logoUrl ? (
-                          <img loading="lazy"
+                          <img
+                            loading="lazy"
                             src={sponsor.logoUrl}
                             alt={sponsor.companyName}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         ) : (
                           <span style={{ fontSize: '2rem', opacity: 0.4 }}>
-                            {sponsor.companyName.charAt(0)}
+                            {sponsor.companyName[0]}
                           </span>
                         )}
                       </div>

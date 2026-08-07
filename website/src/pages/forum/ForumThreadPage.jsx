@@ -4,6 +4,7 @@ import { apiClient } from '../../utils/apiClient';
 import { getApiBase } from '../../utils/runtimeConfig';
 import { fallbackThreads, fallbackReplies } from '../../data/forumData.js';
 import { EmptyState } from '../../components/EmptyState';
+import HashtagText from '../../components/common/HashtagText';
 
 // Formats a date string, falling back to a safe placeholder if the value
 // is missing or cannot be parsed — avoids rendering literal "Invalid Date"
@@ -300,7 +301,7 @@ export default function ForumThreadPage({ onBack }) {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.95rem', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                {thread.content}
+                <HashtagText text={thread.content} />
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
                 {(thread.tags || []).map((tag) => (
@@ -387,8 +388,8 @@ export default function ForumThreadPage({ onBack }) {
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                      {reply.content}
+                    <div style={{ fontSize: '0.95rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                      <HashtagText text={reply.content} />
                     </div>
                   </div>
                 </div>
@@ -438,12 +439,12 @@ export default function ForumThreadPage({ onBack }) {
                 />
               </div>
               <div style={{ marginBottom: 12 }}>
-                <textarea
-                  required
+                <MentionTextarea
                   value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
+                  onChange={setReplyContent}
                   placeholder="Write your reply..."
                   rows={4}
+                  className="ns-textarea"
                   style={{
                     width: '100%',
                     padding: '10px 12px',

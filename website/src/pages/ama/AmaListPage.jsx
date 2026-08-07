@@ -44,24 +44,25 @@ export default function AmaListPage({ onBack }) {
       <div className="ama-header">
         <h1 className="ama-title">AMA Spaces</h1>
         <p className="ama-subtitle">
-          Ask questions, get insights, and learn from verified alumni and mentors in our structured Ask-Me-Anything sessions.
+          Ask questions, get insights, and learn from verified alumni and mentors in our structured
+          Ask-Me-Anything sessions.
         </p>
       </div>
 
       <div className="ama-tabs">
-        <button 
+        <button
           className={`ama-tab-btn ${activeTab === 'active' ? 'active' : ''}`}
           onClick={() => setActiveTab('active')}
         >
           Active Now
         </button>
-        <button 
+        <button
           className={`ama-tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
           onClick={() => setActiveTab('upcoming')}
         >
           Upcoming
         </button>
-        <button 
+        <button
           className={`ama-tab-btn ${activeTab === 'archived' ? 'active' : ''}`}
           onClick={() => setActiveTab('archived')}
         >
@@ -71,16 +72,21 @@ export default function AmaListPage({ onBack }) {
 
       <div className="ama-grid">
         {filteredThreads.length > 0 ? (
-          filteredThreads.map((ama) => (
-            <AmaCard key={ama.id} ama={ama} />
-          ))
+          filteredThreads.map((ama) => <AmaCard key={ama.id} ama={ama} />)
         ) : (
-          <div style={{ textAlign: 'center', gridColumn: '1 / -1', color: 'var(--t3)', padding: '40px 0' }}>
+          <div
+            style={{
+              textAlign: 'center',
+              gridColumn: '1 / -1',
+              color: 'var(--t3)',
+              padding: '40px 0',
+            }}
+          >
             No {activeTab} AMAs found.
           </div>
         )}
       </div>
-      
+
       <div style={{ marginTop: '100px' }}>
         <Footer />
       </div>

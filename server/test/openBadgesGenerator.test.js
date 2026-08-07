@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildBadgeAssertion, buildBadgeClass } from '../services/certificates/openBadgesGenerator.js';
+import {
+  buildBadgeAssertion,
+  buildBadgeClass,
+} from '../services/certificates/openBadgesGenerator.js';
 
 test('buildBadgeClass returns an OpenBadges-compliant BadgeClass', () => {
   const badgeClass = buildBadgeClass({

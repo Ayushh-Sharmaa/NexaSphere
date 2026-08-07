@@ -1,0 +1,13 @@
+name = "graphql-edge-cache"
+main = "index.js"
+compatibility_date = "2023-10-10"
+
+[env.production]
+# Add your production route here
+# route = "api.nexasphere.com/graphql"
+
+[vars]
+# Origin GraphQL gateway URL
+ORIGIN_URL = "https://origin.nexasphere.com/graphql"
+# Cache TTL in seconds (default 5 minutes)
+CACHE_TTL = 300

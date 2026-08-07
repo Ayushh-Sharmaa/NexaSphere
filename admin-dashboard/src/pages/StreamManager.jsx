@@ -21,7 +21,11 @@ async function fetchWithAuth(url, options = {}) {
   if (!res.ok) {
     const text = await res.text();
     let err = {};
-    try { err = JSON.parse(text); } catch { err = { error: text }; }
+    try {
+      err = JSON.parse(text);
+    } catch {
+      err = { error: text };
+    }
     throw new Error(err.error || err.message || `Request failed (${res.status})`);
   }
   return res.json();

@@ -1,17 +1,13 @@
-import { Router } from "express";
-import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware.js";
-import * as eventConflictController from "../controllers/eventConflictController.js";
+import { Router } from 'express';
+import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
+import * as eventConflictController from '../controllers/eventConflictController.js';
 
 const router = Router();
 
 /**
  * Detect conflicting events
  */
-router.get(
-  "/conflicts",
-  adminAuthMiddleware.requireAdmin,
-  eventConflictController.getConflicts
-);
+router.get('/conflicts', adminAuthMiddleware.requireAdmin, eventConflictController.getConflicts);
 router.get('/conflicts', adminAuthMiddleware.requireAdmin, eventConflictController.getConflicts);
 
 /**
@@ -20,7 +16,7 @@ router.get('/conflicts', adminAuthMiddleware.requireAdmin, eventConflictControll
  * /venue?venue=Auditorium&date=2026-07-15
  */
 router.get(
-  "/venue",
+  '/venue',
   adminAuthMiddleware.requireAdmin,
   eventConflictController.getVenueAvailability
 );
@@ -29,7 +25,7 @@ router.get(
  * Attendance impact analysis
  */
 router.get(
-  "/attendance-impact",
+  '/attendance-impact',
   adminAuthMiddleware.requireAdmin,
   eventConflictController.getAttendanceImpact
 );
@@ -38,7 +34,7 @@ router.get(
  * Smart scheduling recommendations
  */
 router.get(
-  "/recommendations",
+  '/recommendations',
   adminAuthMiddleware.requireAdmin,
   eventConflictController.getScheduleRecommendations
 );
@@ -47,7 +43,7 @@ router.get(
  * Calendar events
  */
 router.get(
-  "/calendar",
+  '/calendar',
   adminAuthMiddleware.requireAdmin,
   eventConflictController.getCalendarEvents
 );
@@ -55,11 +51,7 @@ router.get(
 /**
  * Organizer alerts
  */
-router.get(
-  "/alerts",
-  adminAuthMiddleware.requireAdmin,
-  eventConflictController.getOrganizerAlerts
-);
+router.get('/alerts', adminAuthMiddleware.requireAdmin, eventConflictController.getOrganizerAlerts);
 
 export default router;
 router.get('/alerts', adminAuthMiddleware.requireAdmin, eventConflictController.getOrganizerAlerts);

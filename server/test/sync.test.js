@@ -13,7 +13,6 @@ process.env.JWT_SECRET = 'secret_super_long_secret_key_that_is_safe_and_long_eno
 process.env.PORT = '0';
 process.env.DATABASE_URL = 'postgresql://localhost/dummy_test_db';
 
-
 // Mock DB responses for sync testing
 let dbQueries = [];
 let mockDbResult = {

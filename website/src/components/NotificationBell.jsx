@@ -1,7 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { MessageCircle, Users, AtSign, Settings, X, CheckCheck, Trash2 } from 'lucide-react';
+import {
+  MessageCircle,
+  Users,
+  AtSign,
+  Settings,
+  X,
+  CheckCheck,
+  Trash2,
+  Mail,
+  MailOpen,
+} from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { formatRelativeTime } from '../utils/formatRelativeTime';
 const TYPE_CONFIG = {
@@ -19,9 +29,13 @@ export default function NotificationBell() {
     togglePanel,
     closePanel,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     clearAll,
+    deleteNotification,
   } = useNotifications();
+
+  const displayedNotifications = notifications.slice(0, 20);
 
   const shouldReduceMotion = useReducedMotion();
   const panelRef = useRef(null);
@@ -222,7 +236,7 @@ export default function NotificationBell() {
                     <CheckCheck size={13} /> All read
                   </motion.button>
                 )}
-                {notifications.length > 0 && (
+                {displayedNotifications.length > 0 && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -266,7 +280,18 @@ export default function NotificationBell() {
 
             {/* Notification List */}
             <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
-              {notifications.length === 0 ? (
+              <style>
+                {`
+                  .notification-item .notification-actions {
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                  }
+                  .notification-item:hover .notification-actions {
+                    opacity: 1;
+                  }
+                `}
+              </style>
+              {displayedNotifications.length === 0 ? (
                 <div
                   style={{
                     padding: '44px 20px',
@@ -291,25 +316,24 @@ export default function NotificationBell() {
                   <div style={{ fontSize: '0.9rem' }}>No notifications yet</div>
                 </div>
               ) : (
-                notifications.map((n) => {
+                displayedNotifications.map((n) => {
                   const cfg = TYPE_CONFIG[n.type] || TYPE_CONFIG.system;
                   return (
-                    <motion.button
+                    <motion.div
                       key={n.id}
-                      onClick={() => markAsRead(n.id)}
+                      className="notification-item"
                       whileHover={{ background: 'rgba(204,17,17,0.06)' }}
                       style={{
                         width: '100%',
                         textAlign: 'left',
                         background: n.isRead ? 'none' : 'rgba(204,17,17,0.04)',
-                        border: 'none',
                         borderBottom: '1px solid rgba(255,255,255,0.05)',
                         padding: '12px 16px',
-                        cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'flex-start',
                         gap: '12px',
                         transition: 'background 0.15s',
+                        position: 'relative',
                       }}
                     >
                       {/* Icon */}
@@ -331,7 +355,10 @@ export default function NotificationBell() {
                       </div>
 
                       {/* Text */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                        onClick={() => !n.isRead && markAsRead(n.id)}
+                      >
                         <div
                           style={{
                             fontWeight: n.isRead ? 400 : 700,
@@ -365,20 +392,70 @@ export default function NotificationBell() {
                         </div>
                       </div>
 
-                      {/* Unread dot */}
-                      {!n.isRead && (
+                      {/* Actions & Unread dot container */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-end',
+                          gap: '8px',
+                        }}
+                      >
+                        {!n.isRead && (
+                          <div
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: 'var(--c1)',
+                              flexShrink: 0,
+                              marginTop: '6px',
+                            }}
+                          />
+                        )}
                         <div
-                          style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            background: 'var(--c1)',
-                            flexShrink: 0,
-                            marginTop: '6px',
-                          }}
-                        />
-                      )}
-                    </motion.button>
+                          className="notification-actions"
+                          style={{ display: 'flex', gap: '4px' }}
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              n.isRead ? markAsUnread(n.id) : markAsRead(n.id);
+                            }}
+                            title={n.isRead ? 'Mark as unread' : 'Mark as read'}
+                            style={{
+                              background: 'rgba(255,255,255,0.07)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: 'var(--t2)',
+                              display: 'flex',
+                            }}
+                          >
+                            {n.isRead ? <Mail size={12} /> : <MailOpen size={12} />}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(n.id);
+                            }}
+                            title="Delete"
+                            style={{
+                              background: 'rgba(204,17,17,0.15)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: 'var(--c1)',
+                              display: 'flex',
+                            }}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
                   );
                 })
               )}

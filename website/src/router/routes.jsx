@@ -651,27 +651,6 @@ export function AppRoutes({
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <PageIn k="profile">
-              <ProfilePage />
-            </PageIn>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings/account"
-        element={
-          <ProtectedRoute>
-            <PageIn k="settings">
-              <AccountSettingsPage />
-            </PageIn>
-          </ProtectedRoute>
-        }
-      />
-
       {/* ── 404 ── */}
       <Route path="*" element={<NotFoundPage onGoHome={onBackHome} />} />
     </Routes>

@@ -66,7 +66,8 @@ router.get('/:id/history', sanitizeId, (req, res) => {
     const history = schedulerService.getHistory(req.params.id, limit);
     sendSuccess(res, { history });
   } catch (err) {
-    if (err.message.includes('not found')) return sendError(req, res, err.message, 404, 'NOT_FOUND');
+    if (err.message.includes('not found'))
+      return sendError(req, res, err.message, 404, 'NOT_FOUND');
     sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
 });
@@ -88,7 +89,8 @@ router.patch('/:id', validate(updateTaskSchema), sanitizeId, (req, res) => {
 
     sendSuccess(res, task);
   } catch (err) {
-    if (err.message.includes('not found')) return sendError(req, res, err.message, 404, 'NOT_FOUND');
+    if (err.message.includes('not found'))
+      return sendError(req, res, err.message, 404, 'NOT_FOUND');
     if (err.message.toLowerCase().includes('invalid cron')) {
       return sendError(req, res, err.message, 400, 'VALIDATION_ERROR');
     }
@@ -102,7 +104,8 @@ router.post('/:id/run', validate(triggerTaskSchema), sanitizeId, async (req, res
     const task = await schedulerService.triggerNow(req.params.id);
     sendSuccess(res, { message: 'Task executed successfully', task });
   } catch (err) {
-    if (err.message.includes('not found')) return sendError(req, res, err.message, 404, 'NOT_FOUND');
+    if (err.message.includes('not found'))
+      return sendError(req, res, err.message, 404, 'NOT_FOUND');
     if (err.message.includes('already running'))
       return sendError(req, res, err.message, 409, 'CONFLICT');
     sendError(req, res, err.message, 500, 'INTERNAL_ERROR');

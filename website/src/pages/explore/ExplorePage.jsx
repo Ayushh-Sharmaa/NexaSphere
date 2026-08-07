@@ -64,29 +64,6 @@ export default function ExplorePage({ onBack, eventsData }) {
       alive = false;
     };
   }, []);
-  const [filters, setFilters] = useState(null);
-  const [activeTab, setActiveTab] = useState('discover');
-
-  const apiBase = import.meta?.env?.VITE_API_BASE || '';
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [trendingRes, recsRes, teamRes] = await Promise.all([
-          apiBase ? apiClient(`${apiBase}/api/search/trending`).catch(() => null) : null,
-          apiBase ? apiClient(`${apiBase}/api/recommendations`).catch(() => null) : null,
-          apiBase ? apiClient(`${apiBase}/api/content/team`).catch(() => null) : null,
-        ]);
-
-        if (trendingRes?.trending) setTrending(trendingRes.trending);
-        if (recsRes?.recommendations) setRecommendations(recsRes.recommendations);
-        if (teamRes?.members) setMembers(teamRes.members);
-      } catch {}
-      setLoading(false);
-    };
-    fetchData();
-  }, [apiBase]);
 
   const filteredEvents = useMemo(() => {
     let items = trending.length > 0 ? trending : eventsData || [];
@@ -552,9 +529,6 @@ function EventCard({ event, detailed }) {
             <Calendar size={11} /> {date}
           </span>
         )}
-        {tags.slice(0, 3).map((t) => (
-          <span
-            key={t}
         {tags.slice(0, 3).map((t, i) => (
           <span
             key={i}

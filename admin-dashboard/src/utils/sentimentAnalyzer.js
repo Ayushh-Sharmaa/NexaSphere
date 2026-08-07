@@ -1,5 +1,38 @@
-const positiveWords = ['great', 'excellent', 'amazing', 'good', 'love', 'nice', 'fantastic', 'perfect', 'helpful', 'informative', 'smooth', 'well', 'awesome', 'wonderful', 'impressive'];
-const negativeWords = ['bad', 'poor', 'terrible', 'hate', 'awful', 'boring', 'late', 'slow', 'confusing', 'messy', 'hot', 'cold', 'issues', 'problem', 'complaint', 'disappointing'];
+const positiveWords = [
+  'great',
+  'excellent',
+  'amazing',
+  'good',
+  'love',
+  'nice',
+  'fantastic',
+  'perfect',
+  'helpful',
+  'informative',
+  'smooth',
+  'well',
+  'awesome',
+  'wonderful',
+  'impressive',
+];
+const negativeWords = [
+  'bad',
+  'poor',
+  'terrible',
+  'hate',
+  'awful',
+  'boring',
+  'late',
+  'slow',
+  'confusing',
+  'messy',
+  'hot',
+  'cold',
+  'issues',
+  'problem',
+  'complaint',
+  'disappointing',
+];
 const neutralWords = ['okay', 'fine', 'average', 'fair', 'decent'];
 
 export function analyzeSentiment(text = '') {

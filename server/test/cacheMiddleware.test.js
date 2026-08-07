@@ -20,8 +20,8 @@ test('cacheResponse continues when cache read fails', async () => {
       json() {},
     };
 
-    await assert.doesNotReject(
-      () => middleware(req, res, () => {
+    await assert.doesNotReject(() =>
+      middleware(req, res, () => {
         nextCalled = true;
       })
     );

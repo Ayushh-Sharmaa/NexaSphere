@@ -894,6 +894,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     year: '',
     teamName: '',
     teamSize: '',
+    attendanceMode: 'in_person',
   });
   const [regStatus, setRegStatus] = useState('idle');
   const [regError, setRegError] = useState('');
@@ -1472,6 +1473,38 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(overview) }}
                 />
+
+                {/* Show Video Link if Registered and Hybrid */}
+                {regStatus === 'confirmed' && event.isHybrid && event.videoLink && (
+                  <div
+                    style={{
+                      marginTop: '24px',
+                      padding: '16px',
+                      background: `rgba(${rgb},0.08)`,
+                      border: `1px solid rgba(${rgb},0.2)`,
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
+                      Virtual Attendance Link
+                    </h4>
+                    <a
+                      href={event.videoLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color,
+                        fontWeight: 'bold',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <DynamicIcon name="Video" size={16} /> Join Virtual Session
+                    </a>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -1756,6 +1789,62 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                       fontFamily: 'Rajdhani,sans-serif',
                     }}
                   />
+
+                  {event.isHybrid && (
+                    <div style={{ padding: '8px 0' }}>
+                      <label
+                        style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        How will you attend?
+                      </label>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <label
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="attendanceMode"
+                            value="in_person"
+                            checked={regForm.attendanceMode === 'in_person'}
+                            onChange={handleRegField('attendanceMode')}
+                            style={{ accentColor: color }}
+                          />
+                          In-Person
+                        </label>
+                        <label
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="attendanceMode"
+                            value="virtual"
+                            checked={regForm.attendanceMode === 'virtual'}
+                            onChange={handleRegField('attendanceMode')}
+                            style={{ accentColor: color }}
+                          />
+                          Virtually
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <select
                       value={regForm.department}

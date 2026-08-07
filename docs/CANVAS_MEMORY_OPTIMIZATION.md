@@ -1,25 +1,27 @@
 # Canvas Memory Optimization: ParticleBackground
 
 ## Overview
+
 ParticleBackground provides an interactive particle canvas for visual appeal while maintaining optimal performance. Proper requestAnimationFrame (RAF) cleanup is critical to prevent memory leaks.
 
 ## Implementation Pattern
 
 ### ✓ Correct: With Cleanup
+
 ```jsx
 useEffect(() => {
   const canvas = canvasRef.current;
   if (!canvas) return;
-  
+
   let raf; // Store RAF ID for cleanup
-  
+
   const draw = () => {
     // Drawing logic
     raf = requestAnimationFrame(draw); // Re-request frame
   };
-  
+
   raf = requestAnimationFrame(draw); // Start animation
-  
+
   return () => {
     cancelAnimationFrame(raf); // CLEANUP: Cancel animation on unmount
   };
@@ -27,13 +29,14 @@ useEffect(() => {
 ```
 
 ### ✗ Incorrect: Memory Leak
+
 ```jsx
 useEffect(() => {
   const draw = () => {
     // Drawing logic
     requestAnimationFrame(draw); // ❌ No RAF ID stored
   };
-  
+
   requestAnimationFrame(draw); // ❌ No cleanup function
   // Invisible animation continues after unmount!
 }, []);
@@ -61,6 +64,7 @@ return () => {
 ## Memory Leak Detection
 
 ### Symptoms
+
 - Battery drain on mobile (invisible animation running)
 - Slowly increasing memory usage
 - CPU usage doesn't drop even when not interacting
@@ -69,6 +73,7 @@ return () => {
 ### Verification Steps
 
 **Method 1: DevTools Memory Tab**
+
 1. Open browser DevTools
 2. Go to Memory tab
 3. Take heap snapshot at app load
@@ -78,6 +83,7 @@ return () => {
 7. Should find 0 retained references
 
 **Method 2: DevTools Performance**
+
 1. Open Performance tab
 2. Navigate to page without ParticleBackground
 3. Record for 5 seconds
@@ -85,6 +91,7 @@ return () => {
 5. Should NOT see animation frames firing
 
 **Method 3: Task Manager (Chrome)**
+
 1. Open Chrome Task Manager (Shift+Esc)
 2. Navigate to page with ParticleBackground
 3. Note CPU usage
@@ -94,6 +101,7 @@ return () => {
 ## Canvas Performance Tips
 
 ### 1. Efficient Canvas Clearing
+
 ```javascript
 // ✓ Efficient: Only clear needed area
 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -104,6 +112,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 ```
 
 ### 2. Passive Event Listeners
+
 ```javascript
 // ✓ Better: Doesn't block scroll
 addEventListener('mousemove', handler, { passive: true });
@@ -113,7 +122,9 @@ addEventListener('mousemove', handler);
 ```
 
 ### 3. Throttle Event Handlers
+
 For expensive operations, throttle updates:
+
 ```javascript
 let lastTime = 0;
 const onMove = (e) => {
@@ -127,14 +138,17 @@ const onMove = (e) => {
 ## Implemented in NexaSphere
 
 ### ParticleBackground.jsx
+
 - ✓ RAF ID stored and canceled on unmount
 - ✓ All event listeners have cleanup
-- ✓ Passive flag used for mouse/touch events  
+- ✓ Passive flag used for mouse/touch events
 - ✓ Canvas dimensions update on resize
 - ✓ Theme switching supported without memory leak
 
 ### Theme Support
+
 Canvas re-renders when theme changes without creating new listeners:
+
 ```jsx
 const themeRef = useRef(theme);
 useEffect(() => {
@@ -145,16 +159,19 @@ useEffect(() => {
 ## Performance Metrics
 
 ### Before Optimization
+
 - Memory leak: +2MB per route navigation
 - CPU: 15-20% idle
 - Battery drain: Fast (mobile)
 
-### After Optimization  
+### After Optimization
+
 - Memory: Stable ±0.5MB
 - CPU: <1% idle
 - Battery: Normal drain rate
 
 ## Related Documentation
+
 - [PERFORMANCE_OPTIMIZATIONS.md](./PERFORMANCE_OPTIMIZATIONS.md) — General optimization patterns
 - [ParticleBackground.jsx](../src/shared/ParticleBackground.jsx) — Implementation
 - [React useEffect Best Practices](https://react.dev/reference/react/useEffect)

@@ -14,7 +14,6 @@ import logger from '../utils/logger.js';
 import { withDb } from '../repositories/db.js';
 import { HAS_SUPABASE } from '../storage/supabaseClient.js';
 import { sendSlackAlert } from '../utils/slack.js';
-import { validateTableName, validateIdentifier } from '../utils/sqlSafety.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
