@@ -3,26 +3,26 @@
  * Provides functionality to export analytics data in CSV and JSON formats
  */
 
-import React, { useState } from 'react';
-import analyticsAPI from '../services/analyticsAPI.js';
+import React, { useState } from "react";
+import analyticsAPI from "../services/analyticsAPI.js";
 
 export default function AnalyticsExport({ eventId }) {
   const [exporting, setExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState('csv');
-  const [message, setMessage] = useState('');
+  const [exportFormat, setExportFormat] = useState("csv");
+  const [message, setMessage] = useState("");
 
   const handleExport = async (format) => {
     setExporting(true);
-    setMessage('');
+    setMessage("");
 
     try {
       const blob = await analyticsAPI.exportAnalytics(eventId, format);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `analytics-${eventId}-${new Date().toISOString().split('T')[0]}.${format}`;
+      link.download = `analytics-${eventId}-${new Date().toISOString().split("T")[0]}.${format}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -30,12 +30,12 @@ export default function AnalyticsExport({ eventId }) {
 
       setMessage(`✅ Exported as ${format.toUpperCase()}`);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
       setMessage(`❌ Export failed: ${error.message}`);
     } finally {
       setExporting(false);
       // Clear message after 3 seconds
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -53,7 +53,7 @@ export default function AnalyticsExport({ eventId }) {
         <div className="export-options">
           <div className="option">
             <button
-              onClick={() => handleExport('csv')}
+              onClick={() => handleExport("csv")}
               disabled={exporting}
               className="btn-export btn-csv"
             >
@@ -65,7 +65,7 @@ export default function AnalyticsExport({ eventId }) {
 
           <div className="option">
             <button
-              onClick={() => handleExport('json')}
+              onClick={() => handleExport("json")}
               disabled={exporting}
               className="btn-export btn-json"
             >
@@ -84,7 +84,9 @@ export default function AnalyticsExport({ eventId }) {
         )}
 
         {message && (
-          <div className={`export-message ${message.startsWith('✅') ? 'success' : 'error'}`}>
+          <div
+            className={`export-message ${message.startsWith("✅") ? "success" : "error"}`}
+          >
             {message}
           </div>
         )}

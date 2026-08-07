@@ -1,33 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 const TOUR_STEPS = [
   {
-    title: '👋 Welcome to NexaSphere Admin!',
-    body: 'We have designed this control center to make managing your community, events, and analytics seamless. Let’s take a quick 1-minute guided tour of the key tools available to you.',
+    title: "👋 Welcome to NexaSphere Admin!",
+    body: "We have designed this control center to make managing your community, events, and analytics seamless. Let’s take a quick 1-minute guided tour of the key tools available to you.",
     selector: null, // Centered
   },
   {
-    title: '📊 Admin Dashboard Control',
-    body: 'This is your Home base. It gives you a real-time high-level view of core team size, membership applications, and upcoming events.',
+    title: "📊 Admin Dashboard Control",
+    body: "This is your Home base. It gives you a real-time high-level view of core team size, membership applications, and upcoming events.",
     selector: '[data-tour="dashboard"]',
   },
   {
-    title: '📈 Comprehensive Analytics',
-    body: 'Unlock platform metrics here. Dive deep into user engagement trends, user retention cohorts, sign-up funnels, and filterable custom reports.',
+    title: "📈 Comprehensive Analytics",
+    body: "Unlock platform metrics here. Dive deep into user engagement trends, user retention cohorts, sign-up funnels, and filterable custom reports.",
     selector: '[data-tour="analytics"]',
   },
   {
-    title: '👥 User & Role Management',
-    body: 'Manage your users, update administration roles (member, moderator, admin), view audit timelines, award customized badges, and unlock accounts.',
+    title: "👥 User & Role Management",
+    body: "Manage your users, update administration roles (member, moderator, admin), view audit timelines, award customized badges, and unlock accounts.",
     selector: '[data-tour="users"]',
   },
   {
-    title: '📅 Events & Activities Manager',
-    body: 'Plan upcoming events, manage activity schedules, monitor RSVPs, download check-in tickets, scan attendee QR codes, and review post-event feedback.',
+    title: "📅 Events & Activities Manager",
+    body: "Plan upcoming events, manage activity schedules, monitor RSVPs, download check-in tickets, scan attendee QR codes, and review post-event feedback.",
     selector: '[data-tour="events"]',
   },
   {
-    title: '🎯 Ready to Go!',
+    title: "🎯 Ready to Go!",
     body: 'You are all set to manage NexaSphere! If you ever need to view this tutorial again, simply click the "Replay Tour" button located in the sidebar footer.',
     selector: null, // Centered
   },
@@ -40,7 +40,7 @@ export function OnboardingTour() {
 
   // Auto-trigger on first admin login
   useEffect(() => {
-    const completed = localStorage.getItem('ns-admin-onboarding-completed');
+    const completed = localStorage.getItem("ns-admin-onboarding-completed");
     if (!completed) {
       const timer = setTimeout(() => {
         setIsActive(true);
@@ -57,8 +57,8 @@ export function OnboardingTour() {
       setCurrentStep(0);
     };
 
-    window.addEventListener('start-ns-tour', handleReplay);
-    return () => window.removeEventListener('start-ns-tour', handleReplay);
+    window.addEventListener("start-ns-tour", handleReplay);
+    return () => window.removeEventListener("start-ns-tour", handleReplay);
   }, []);
 
   // Track target element positions on step change, scroll, or resize
@@ -75,7 +75,7 @@ export function OnboardingTour() {
       const element = document.querySelector(step.selector);
       if (element) {
         // Ensure element is visible in sidebar (scroll it if needed)
-        element.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        element.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
         // Get bounding client rect
         const rect = element.getBoundingClientRect();
@@ -95,13 +95,13 @@ export function OnboardingTour() {
     // Delay slightly to allow any tab transitions/renders to finish
     const timer = setTimeout(updatePosition, 150);
 
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [isActive, currentStep]);
 
@@ -125,7 +125,7 @@ export function OnboardingTour() {
 
   const handleComplete = () => {
     setIsActive(false);
-    localStorage.setItem('ns-admin-onboarding-completed', 'true');
+    localStorage.setItem("ns-admin-onboarding-completed", "true");
   };
 
   if (!isActive) return null;
@@ -137,10 +137,10 @@ export function OnboardingTour() {
   let popoverStyle = {};
   if (isCentered) {
     popoverStyle = {
-      left: '50%',
-      top: '50%',
-      transform: 'translate(-50%, -50%)',
-      position: 'fixed',
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      position: "fixed",
     };
   } else {
     // Position to the right of the target (since we are highlighting sidebar items)
@@ -148,7 +148,7 @@ export function OnboardingTour() {
     popoverStyle = {
       left: `${targetRect.right + padding}px`,
       top: `${Math.max(20, targetRect.top + targetRect.height / 2 - 100)}px`,
-      position: 'fixed',
+      position: "fixed",
     };
   }
 
@@ -167,12 +167,12 @@ export function OnboardingTour() {
                 opacity: 1,
               }
             : {
-                left: '50%',
-                top: '50%',
-                width: '0px',
-                height: '0px',
+                left: "50%",
+                top: "50%",
+                width: "0px",
+                height: "0px",
                 opacity: 0,
-                pointerEvents: 'none',
+                pointerEvents: "none",
               }
         }
       />
@@ -191,17 +191,26 @@ export function OnboardingTour() {
           </div>
           <div className="ns-tour-buttons">
             {currentStep < TOUR_STEPS.length - 1 && (
-              <button className="ns-tour-btn ns-tour-btn-skip" onClick={handleSkip}>
+              <button
+                className="ns-tour-btn ns-tour-btn-skip"
+                onClick={handleSkip}
+              >
                 Skip
               </button>
             )}
             {currentStep > 0 && (
-              <button className="ns-tour-btn ns-tour-btn-back" onClick={handleBack}>
+              <button
+                className="ns-tour-btn ns-tour-btn-back"
+                onClick={handleBack}
+              >
                 Back
               </button>
             )}
-            <button className="ns-tour-btn ns-tour-btn-next" onClick={handleNext}>
-              {currentStep === TOUR_STEPS.length - 1 ? 'Finish' : 'Next'}
+            <button
+              className="ns-tour-btn ns-tour-btn-next"
+              onClick={handleNext}
+            >
+              {currentStep === TOUR_STEPS.length - 1 ? "Finish" : "Next"}
             </button>
           </div>
         </div>

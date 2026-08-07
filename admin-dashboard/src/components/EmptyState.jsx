@@ -1,9 +1,9 @@
-import { AdminIcon } from './AdminIcon';
+import { AdminIcon } from "./AdminIcon";
 
 export function EmptyState({
-  icon = 'Inbox',
-  title = 'No Data Found',
-  description = 'There is currently nothing to display.',
+  icon = "Inbox",
+  title = "No Data Found",
+  description = "There is currently nothing to display.",
   actionLabel,
   onAction,
 }) {
