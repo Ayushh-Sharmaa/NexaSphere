@@ -22,6 +22,9 @@ model User {
   settingsChanges  SettingsChangeLog[]
   certificates     Certificate[]
   registrations    EventRegistration[]
+  assignedTasks    WorkspaceTask[]
+  messages         WorkspaceMessage[]
+  uploadedFiles    WorkspaceFile[]
 
   @@index([createdAt])
 }
@@ -37,6 +40,9 @@ model Workspace {
   posts            Post[]
   logs             Log[]
   webhookEndpoints WebhookEndpoint[]
+  tasks            WorkspaceTask[]
+  messages         WorkspaceMessage[]
+  files            WorkspaceFile[]
 }
 
 model WorkspaceMember {
@@ -311,3 +317,47 @@ model ArchivedReport {
   @@unique([environment, key], name: "environment_key")
   @@index([environment])
 }
+
+
+model WorkspaceTask {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  assigneeId  String?
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignee    User?     @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceMessage {
+  id          String   @id @default(uuid())
+  content     String
+  senderId    String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender      User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceFile {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  size        Int?
+  type        String?
+  uploaderId  String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  uploader    User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
