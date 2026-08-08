@@ -4,8 +4,7 @@
  */
 
 import { Router } from 'express';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
-import adminAuthMiddleware from '../middleware/adminAuthMiddleware.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import { auditToolsRepository } from '../repositories/auditToolsRepository.js';
 import { runComplianceAudit } from '../services/complianceAuditEngine.js';
 import { apiRateLimiter } from '../middleware/rateLimiter.js';
@@ -15,7 +14,7 @@ import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.j
 
 const router = Router();
 
-const adminAuth = [apiRateLimiter, adminAuthMiddleware.requireAdmin];
+const adminAuth = [apiRateLimiter, requireAdmin];
 
 function safePagination(query) {
   const limit = Math.min(parseInt(query.limit, 10) || 50, 200);

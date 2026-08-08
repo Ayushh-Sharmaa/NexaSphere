@@ -6,9 +6,6 @@ import { ThemeToggle } from '../components/common/ThemeToggle';
 import { useStudentAuth } from '../context/StudentAuthContext';
 import LanguageSelector from '../components/common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
-import { Trophy } from 'lucide-react';
-import { useWalkthroughStep } from '../hooks/useWalkthroughStep';
-import { WalkthroughWrapper } from '../components/walkthrough/WalkthroughWrapper';
 
 const TABS = [
   'Home',
@@ -139,7 +136,17 @@ export default function Navbar({
       <nav className="ns-navbar-mobile">
         <div
           className="ns-mobile-top"
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 14px 5px', width: '100%' }}
+          onClick={goHome}
+          style={{
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            padding: 0,
+          }}
+          aria-label="Go to homepage"
         >
           <div
             onClick={goHome}
@@ -237,7 +244,15 @@ export default function Navbar({
                 <button
                   className="ns-nav-user-badge"
                   onClick={() => navigate('/settings/account')}
-                  style={{ cursor: 'pointer', fontSize: '1rem', color: 'var(--t1)', background: 'none', border: 'none', padding: '4px', borderRadius: '4px' }}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    color: 'var(--t1)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    borderRadius: '4px',
+                  }}
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
@@ -246,7 +261,15 @@ export default function Navbar({
                 <button
                   className="ns-nav-user-badge"
                   onClick={() => navigate('/dashboard')}
-                  style={{ cursor: 'pointer', fontSize: '0.8rem', color: 'var(--t1)', background: 'none', border: 'none', padding: '4px', borderRadius: '4px' }}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    color: 'var(--t1)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    borderRadius: '4px',
+                  }}
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >
@@ -433,7 +456,15 @@ export default function Navbar({
                 <button
                   className="ns-nav-user-badge"
                   onClick={() => navigate('/settings/account')}
-                  style={{ cursor: 'pointer', fontSize: '1rem', color: 'var(--t1)', background: 'none', border: 'none', padding: '4px', borderRadius: '4px' }}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    color: 'var(--t1)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    borderRadius: '4px',
+                  }}
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
@@ -442,7 +473,15 @@ export default function Navbar({
                 <button
                   className="ns-nav-user-badge"
                   onClick={() => navigate('/dashboard')}
-                  style={{ cursor: 'pointer', fontSize: '0.9rem', color: 'var(--t1)', background: 'none', border: 'none', padding: '4px', borderRadius: '4px' }}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    color: 'var(--t1)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    borderRadius: '4px',
+                  }}
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >

@@ -24,7 +24,8 @@ router.get('/', authenticate, async (req, res) => {
 router.post('/', authenticate, async (req, res) => {
   try {
     const { eventId, name, description, parentAlbumId, isCollaborative } = req.body;
-    if (!eventId || !name) return sendError(req, res, 'eventId and name required', 400, 'VALIDATION_ERROR');
+    if (!eventId || !name)
+      return sendError(req, res, 'eventId and name required', 400, 'VALIDATION_ERROR');
 
     const album = await db.albums.create({
       eventId,
@@ -48,7 +49,8 @@ router.patch('/:id', authenticate, async (req, res) => {
   try {
     const album = await db.albums.findById(req.params.id);
     if (!album) return sendError(req, res, 'Album not found', 404, 'NOT_FOUND');
-    if (album.createdById !== req.user.id) return sendError(req, res, 'Forbidden', 403, 'FORBIDDEN');
+    if (album.createdById !== req.user.id)
+      return sendError(req, res, 'Forbidden', 403, 'FORBIDDEN');
 
     const { name, description, coverPhotoId } = req.body;
     const updated = await db.albums.update(req.params.id, {
@@ -68,7 +70,8 @@ router.delete('/:id', authenticate, async (req, res) => {
   try {
     const album = await db.albums.findById(req.params.id);
     if (!album) return sendError(req, res, 'Album not found', 404, 'NOT_FOUND');
-    if (album.createdById !== req.user.id) return sendError(req, res, 'Forbidden', 403, 'FORBIDDEN');
+    if (album.createdById !== req.user.id)
+      return sendError(req, res, 'Forbidden', 403, 'FORBIDDEN');
 
     await db.albums.delete(req.params.id);
     sendNoContent(res);

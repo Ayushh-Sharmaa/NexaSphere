@@ -39,7 +39,13 @@ export const runRestore = async (req, res) => {
     } else if (backupKey) {
       result = await backupService.runRestore(backupKey);
     } else {
-      return sendError(req, res, 'Either backupKey or targetTime must be provided', 400, 'VALIDATION_ERROR');
+      return sendError(
+        req,
+        res,
+        'Either backupKey or targetTime must be provided',
+        400,
+        'VALIDATION_ERROR'
+      );
     }
     sendSuccess(res, { message: 'Restore completed successfully', result });
   } catch (err) {

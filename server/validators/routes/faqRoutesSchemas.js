@@ -18,10 +18,6 @@ export const updateFaqSchema = z
   })
   .strict();
 
-export const trackViewSchema = z
-  .object({})
-  .strict();
+export const trackViewSchema = z.object({}).strict();
 
-export const deleteFaqSchema = z
-  .object({})
-  .strict();
+export const deleteFaqSchema = z.object({}).strict();

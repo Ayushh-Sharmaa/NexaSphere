@@ -33,13 +33,14 @@ exports.up = (pgm) => {
       type: 'integer',
       notNull: true,
       default: 0,
-      comment: 'The capacity percentage threshold when this price becomes active (e.g. 50 means 50% full)',
+      comment:
+        'The capacity percentage threshold when this price becomes active (e.g. 50 means 50% full)',
     },
     created_at: {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
-    }
+    },
   });
 
   pgm.createIndex('event_price_tiers', 'event_id');

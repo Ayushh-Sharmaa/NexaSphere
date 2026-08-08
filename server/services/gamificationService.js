@@ -50,24 +50,6 @@ const ACHIEVEMENT_DEFS = {
     tier: 'silver',
     source: 'system',
   },
-  'first-path-completed': {
-    name: 'First Path Completed',
-    description: 'Completed your first learning path',
-    tier: 'silver',
-    source: 'learning',
-  },
-  'path-master': {
-    name: 'Path Master',
-    description: 'Completed 5 learning paths',
-    tier: 'gold',
-    source: 'learning',
-  },
-  'halfway-there': {
-    name: 'Halfway There',
-    description: 'Reached 50% progress on a learning path',
-    tier: 'bronze',
-    source: 'learning',
-  },
 };
 
 class GamificationService {
@@ -96,36 +78,6 @@ class GamificationService {
         await achievementsRepository.award(username, badge);
       } catch (e) {
         logger.error(`[GamificationService] Failed to award "${badge.name}" to ${username}:`, {
-          error: e.message,
-        });
-      }
-    }
-  }
-
-        logger.error(`[GamificationService] Failed to award "${badge.name}" to ${username}:`, { error: e.message });
-  async evaluateLearningProgress(userId, progressPercent, completedPathsCount) {
-    const badges = [];
-
-    if (progressPercent >= 50) {
-      badges.push(ACHIEVEMENT_DEFS['halfway-there']);
-    }
-
-    if (completedPathsCount >= 1) {
-      badges.push(ACHIEVEMENT_DEFS['first-path-completed']);
-    }
-    
-    if (completedPathsCount >= 5) {
-      badges.push(ACHIEVEMENT_DEFS['path-master']);
-    }
-
-    for (const badge of badges) {
-      if (!badge) continue;
-      try {
-        // Use userId directly if it matches the schema or resolve username if needed
-        // The achievementsRepository.award takes a user identifier, assuming userId or username
-        await achievementsRepository.award(userId, badge);
-      } catch (e) {
-        logger.error(`[GamificationService] Failed to award "${badge.name}" to user ${userId}:`, {
           error: e.message,
         });
       }

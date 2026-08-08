@@ -114,7 +114,9 @@ test('getCachedQuery shares one in-flight loader for concurrent cache misses', a
     releaseLoader = resolve;
   });
 
-  const { getCachedQuery, getRedisClient } = await import(`../utils/redis.js?singleflight=${Date.now()}`);
+  const { getCachedQuery, getRedisClient } = await import(
+    `../utils/redis.js?singleflight=${Date.now()}`
+  );
 
   try {
     const client = getRedisClient();
@@ -160,7 +162,9 @@ test('getCachedQuery removes failed in-flight loaders so later misses can retry'
     rejectLoader = reject;
   });
 
-  const { getCachedQuery, getRedisClient } = await import(`../utils/redis.js?singleflight=${Date.now()}`);
+  const { getCachedQuery, getRedisClient } = await import(
+    `../utils/redis.js?singleflight=${Date.now()}`
+  );
 
   try {
     const client = getRedisClient();

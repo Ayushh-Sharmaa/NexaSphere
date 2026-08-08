@@ -44,7 +44,11 @@ describe('Real-time Notifications — Unit Tests', () => {
   });
 
   test('eventsService.createEvent triggers event-published socket notification', async (t) => {
-    const mockCreatedEvent = { id: 'evt-123', name: 'NexaSphere Hackathon', date: '2026-07-15T18:00:00.000Z' };
+    const mockCreatedEvent = {
+      id: 'evt-123',
+      name: 'NexaSphere Hackathon',
+      date: '2026-07-15T18:00:00.000Z',
+    };
 
     // Stub the repository method
     t.mock.method(eventsRepository, 'create', async () => mockCreatedEvent);
@@ -69,7 +73,11 @@ describe('Real-time Notifications — Unit Tests', () => {
   });
 
   test('forumService.createReply triggers new-comment socket notification to thread author', async (t) => {
-    const mockThread = { id: 101, title: 'Prisma Client Setup Help', authorEmail: 'student@nexasphere.edu' };
+    const mockThread = {
+      id: 101,
+      title: 'Prisma Client Setup Help',
+      authorEmail: 'student@nexasphere.edu',
+    };
     const mockReply = { id: 501, content: 'Use the output generator key!' };
 
     // Stub the repository methods
@@ -112,6 +120,10 @@ describe('Real-time Notifications — Unit Tests', () => {
 
     // Verify no emission
     const emission = mockEmissions.find((e) => e.eventName === 'new-comment');
-    assert.equal(emission, undefined, 'Should not notify the author if they are the one who replied');
+    assert.equal(
+      emission,
+      undefined,
+      'Should not notify the author if they are the one who replied'
+    );
   });
 });

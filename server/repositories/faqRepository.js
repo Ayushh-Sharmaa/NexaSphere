@@ -8,8 +8,14 @@ export const faqRepository = {
       let idx = 1;
 
       if (search) {
+        // Escape SQL LIKE meta-characters so a literal % or _ in the search
+        // term does not act as a wildcard.
+        const escaped = String(search)
+          .replace(/\\/g, '\\\\')
+          .replace(/%/g, '\\%')
+          .replace(/_/g, '\\_');
         query += ` AND (question ILIKE $${idx} OR answer ILIKE $${idx})`;
-        params.push(`%${search}%`);
+        params.push(`%${escaped}%`);
         idx++;
       }
 
@@ -34,8 +40,21 @@ export const faqRepository = {
   },
 
   async incrementViews(id) {
+    // Guard: reject invalid id types before hitting the database
+    const parsedId = parseInt(id, 10);
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+      return false;
+    }
     return withDb(async (client) => {
-      await client.query('UPDATE faqs SET views = views + 1 WHERE id = $1', [id]);
+      try {
+        const { rowCount } = await client.query(
+          'UPDATE faqs SET views = views + 1 WHERE id = $1',
+          [parsedId]
+        );
+        return rowCount > 0;
+      } catch {
+        return false;
+      }
     });
   },
 
@@ -77,6 +96,7 @@ export const faqRepository = {
       if (fields.length === 0) return null;
 
       fields.push(`updated_at = NOW()`);
+      idx += 1;
       values.push(id);
 
       const { rows } = await client.query(

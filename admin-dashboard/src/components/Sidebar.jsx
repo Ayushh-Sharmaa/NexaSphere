@@ -577,7 +577,6 @@ export function Sidebar() {
 
           <button
             className="btn-logout"
-
             onClick={logout}
             aria-label={`Logout ${email}`}
             style={{ marginTop: '10px' }}

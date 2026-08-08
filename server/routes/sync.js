@@ -3,10 +3,7 @@ import { syncController } from '../controllers/syncController.js';
 import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 import { apiRateLimiter, syncRateLimiter } from '../middleware/rateLimiter.js';
 import { validate } from '../middleware/validate.js';
-import {
-  syncBatchSchema,
-  resolveConflictsSchema,
-} from '../validators/routes/syncSchemas.js';
+import { syncBatchSchema, resolveConflictsSchema } from '../validators/routes/syncSchemas.js';
 
 const router = Router();
 

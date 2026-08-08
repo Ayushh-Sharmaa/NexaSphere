@@ -18,7 +18,12 @@ function getLocalDefaultUrl(port) {
 }
 
 export function getApiBase() {
-  return normalizeUrl(import.meta.env.VITE_API_BASE) || '/api';
+  const browserHost = getBrowserHostname();
+  const isLocal = !browserHost || isLocalHostname(browserHost);
+  return (
+    normalizeUrl(import.meta.env.VITE_API_BASE) ||
+    (isLocal ? '/api' : 'https://nexasphere-api.onrender.com')
+  );
 }
 
 export function getAiApiBase() {

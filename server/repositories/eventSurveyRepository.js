@@ -47,18 +47,18 @@ export const eventSurveyRepository = {
         `select answers from event_survey_responses where event_id = $1`,
         [eventId]
       );
-      
+
       const { rows: templateRows } = await client.query(
         `select questions from event_survey_templates where event_id = $1`,
         [eventId]
       );
-      
+
       if (!templateRows.length) return null;
-      
+
       const questions = templateRows[0].questions;
       const totalResponses = responses.length;
-      
-      return { totalResponses, questions, responses: responses.map(r => r.answers) };
+
+      return { totalResponses, questions, responses: responses.map((r) => r.answers) };
     });
-  }
+  },
 };

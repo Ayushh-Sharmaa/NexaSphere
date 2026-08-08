@@ -22,7 +22,7 @@ let mockContent = {
       { id: 'event-2', name: 'Event 2' },
     ],
     'activity-2': [{ id: 'event-3', name: 'Event 3' }],
-  }
+  },
 };
 
 const originalListByActivityKey = activityEventsRepository.listByActivityKey;
@@ -202,12 +202,9 @@ test('addActivityEvent validates required fields', async () => {
     password: 'TestPassword123',
   };
 
-  await assert.rejects(
-    async () => {
-      await activityEventsService.addActivityEvent('events', invalidInput);
-    },
-    /Invalid input/
-  );
+  await assert.rejects(async () => {
+    await activityEventsService.addActivityEvent('events', invalidInput);
+  }, /Invalid input/);
 });
 
 // Test 12: deleteActivityEvent with valid ID

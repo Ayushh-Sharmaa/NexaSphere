@@ -1,4 +1,3 @@
-import React, { createContext, useState, useEffect } from "react";
 import React, { createContext, useState, useEffect, useLayoutEffect } from 'react';
 
 export type Theme = "light" | "dark" | "system";
@@ -15,13 +14,6 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined
 );
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Check if user has explicitly set a preference
-    const stored = localStorage.getItem("ns-theme") as Theme | null;
-    return stored || "system";
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme | null>(() => {
     // Priority a: check localStorage
@@ -65,8 +57,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Listen for storage changes across tabs to synchronize theme state
   useEffect(() => {
     const syncTheme = (e: StorageEvent) => {
-      if (e.key === "ns-theme") {
-        const nextTheme = (e.newValue as Theme) || "system";
+      if (e.key === 'nexasphere-theme') {
+        const nextTheme = (e.newValue as Theme) || 'system';
         setThemeState(nextTheme);
       }
     };
@@ -77,9 +69,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const resolvedTheme = theme === "system" ? systemTheme : theme;
   const isDark = resolvedTheme === "dark";
 
-  useEffect(() => {
-    // Apply the resolved theme to documentElement
-    document.documentElement.setAttribute("data-theme", resolvedTheme);
   useLayoutEffect(() => {
     // Apply the resolved theme to documentElement synchronously before paint
     document.documentElement.setAttribute('data-theme', resolvedTheme);
@@ -87,7 +76,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("ns-theme", newTheme);
     localStorage.setItem('nexasphere-theme', newTheme);
   };
 

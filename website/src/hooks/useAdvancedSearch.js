@@ -1,20 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import debounce from 'lodash/debounce';
-import { useState, useEffect, useMemo } from 'react';
-
-function debounce(fn, ms) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), ms);
-  };
-  const debounced = (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), ms);
-  };
-  debounced.cancel = () => clearTimeout(timer);
-  return debounced;
-}
 
 /**
  * Hook for managing advanced search state and API interaction
@@ -30,39 +15,40 @@ export const useAdvancedSearch = () => {
     JSON.parse(localStorage.getItem('recent_searches') || '[]')
   );
 
-  const fetchResults = useCallback(
-    debounce(async (searchQuery, filters) => {
-      if (searchQuery.length < 2) {
-        setResults([]);
-        setSuggestions([]);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        // Build query string with facets
-        const filterParams = new URLSearchParams({
-          q: searchQuery,
-          ...filters,
-        }).toString();
-
-        const response = await fetch(`/api/search?${filterParams}`);
-        const data = await response.json();
-
-        setResults(data.results);
-        setFacets(data.facets);
-        if (data.suggestions) setSuggestions([data.suggestions]);
-
-        // Update recent searches if results found
-        if (data.results.length > 0) {
-          updateRecentSearches(searchQuery);
+  const fetchResults = useMemo(
+    () =>
+      debounce(async (searchQuery, filters) => {
+        if (searchQuery.length < 2) {
+          setResults([]);
+          setSuggestions([]);
+          return;
         }
-      } catch (error) {
-        console.error('Search API Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
+
+        setLoading(true);
+        try {
+          // Build query string with facets
+          const filterParams = new URLSearchParams({
+            q: searchQuery,
+            ...filters,
+          }).toString();
+
+          const response = await fetch(`/api/search?${filterParams}`);
+          const data = await response.json();
+
+          setResults(data.results);
+          setFacets(data.facets);
+          if (data.suggestions) setSuggestions([data.suggestions]);
+
+          // Update recent searches if results found
+          if (data.results.length > 0) {
+            updateRecentSearches(searchQuery);
+          }
+        } catch (error) {
+          console.error('Search API Error:', error);
+        } finally {
+          setLoading(false);
+        }
+      }, 300),
     []
   );
 

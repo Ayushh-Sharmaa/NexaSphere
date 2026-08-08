@@ -16,7 +16,6 @@ function RippleBtn({ cls, children, href, onClick }) {
     return () => {
       current.forEach(clearTimeout);
     };
-    return () => timeoutsRef.current.forEach(clearTimeout);
   }, []);
 
   const go = (e) => {
@@ -429,21 +428,11 @@ export default function HeroSection({ onTabChange, onApply, onJoin, theme = 'dar
         {activeBanner ? (
           <div
             className="mb-8 w-full max-w-4xl mx-auto cursor-pointer"
-            role="button"
-            tabIndex={0}
-            aria-label={`Banner: ${activeBanner.title}`}
             onClick={() =>
               activeBanner.linkUrl
                 ? window.open(activeBanner.linkUrl, '_blank', 'noopener,noreferrer')
                 : null
             }
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (activeBanner.linkUrl)
-                  window.open(activeBanner.linkUrl, '_blank', 'noopener,noreferrer');
-              }
-            }}
           >
             <img
               src={activeBanner.imageUrl}

@@ -831,19 +831,19 @@ export default function RecruitmentPage({ onBack }) {
                     ))}
                   </select>
                   {form.branch === 'Other' && (
-                  <Input
-                    value={form.branchOther}
-                    onChange={(v) => {
-                      const cleaned = v.replace(/[^a-zA-Z0-9\s\/\-&().]/g, '');
-                      setForm((f) => ({ ...f, branchOther: cleaned }));
-                    }}
-                    placeholder="Please specify your department"
-                    maxLength={60}
-                    autoComplete="organization-title"
-                  />
-                )}
-              </div>
-            </Field>
+                    <Input
+                      value={form.branchOther}
+                      onChange={(v) => {
+                        const cleaned = v.replace(/[^a-zA-Z0-9\s\/\-&().]/g, '');
+                        setForm((f) => ({ ...f, branchOther: cleaned }));
+                      }}
+                      placeholder="Please specify your department"
+                      maxLength={60}
+                      autoComplete="organization-title"
+                    />
+                  )}
+                </div>
+              </Field>
               <Field label="Section" required hint="Academic Section (A/B/C/...)">
                 <div style={{ display: 'grid', gap: 8 }}>
                   <select
@@ -888,16 +888,16 @@ export default function RecruitmentPage({ onBack }) {
                     ))}
                   </select>
                   {form.section === 'Other' && (
-                  <Input
-                    value={form.sectionOther}
-                    onChange={(v) => setForm((f) => ({ ...f, sectionOther: v.toUpperCase() }))}
-                    placeholder="Type your section (e.g. J)"
-                    maxLength={10}
-                    autoComplete="off"
-                  />
-                )}
-              </div>
-            </Field>
+                    <Input
+                      value={form.sectionOther}
+                      onChange={(v) => setForm((f) => ({ ...f, sectionOther: v.toUpperCase() }))}
+                      placeholder="Type your section (e.g. J)"
+                      maxLength={10}
+                      autoComplete="off"
+                    />
+                  )}
+                </div>
+              </Field>
             </div>
           </div>
         ),
@@ -1365,9 +1365,27 @@ export default function RecruitmentPage({ onBack }) {
           transition: width .35s cubic-bezier(.22,1,.36,1);
         }
         .apply-body { padding: 22px 18px 18px; }
+        .apply-actions {
+          margin-top:22px;
+          display:flex;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        }
         @media (min-width: 720px) {
           .apply-body { padding: 26px 26px 22px; }
           .apply-topbar { padding: 18px 26px 14px; }
+        }
+        @media (max-width: 640px) {
+          .apply-actions {
+            flex-direction:column-reverse;
+            align-items:stretch;
+          }
+          .apply-actions .btn {
+            width:100%;
+            min-height:52px;
+            justify-content:center;
+          }
         }
       `}</style>
 
@@ -1473,7 +1491,11 @@ export default function RecruitmentPage({ onBack }) {
                       ref={stepHeadingRef}
                       tabIndex={-1}
                       aria-live="polite"
-                      aria-label={done ? 'Submission Complete' : `${current.title}, step ${step + 1} of ${steps.length}`}
+                      aria-label={
+                        done
+                          ? 'Submission Complete'
+                          : `${current.title}, step ${step + 1} of ${steps.length}`
+                      }
                       style={{ outline: 'none' }}
                     >
                       {done ? 'Submission Complete' : current.title}
@@ -1741,6 +1763,7 @@ export default function RecruitmentPage({ onBack }) {
                 ) : null}
 
                 <div
+                  className="apply-actions"
                   style={{
                     marginTop: 22,
                     display: 'flex',

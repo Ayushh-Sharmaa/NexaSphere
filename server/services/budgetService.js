@@ -38,8 +38,9 @@ const getBudgetById = async (id) => budgets.find((budget) => budget.id === Numbe
 
 // Create Budget
 const createBudget = async (data) => {
+  const nextId = budgets.length > 0 ? Math.max(...budgets.map((b) => b.id)) + 1 : 1;
   const budget = {
-    id: budgets.length + 1,
+    id: nextId,
     spent: 0,
     remaining: data.totalBudget,
     createdAt: new Date().toISOString(),
@@ -67,30 +68,41 @@ const updateBudget = async (id, data) => {
 
 // Delete Budget
 const deleteBudget = async (id) => {
-  const index = budgets.findIndex((budget) => budget.id === Number(id));
+  const numId = Number(id);
+  const index = budgets.findIndex((budget) => budget.id === numId);
 
   if (index === -1) return null;
+
+  // Cascade delete associated expenses
+  for (let i = expenses.length - 1; i >= 0; i--) {
+    if (expenses[i].budgetId === numId) {
+      expenses.splice(i, 1);
+    }
+  }
 
   return budgets.splice(index, 1)[0];
 };
 
 // Add Expense
 const addExpense = async (budgetId, data) => {
+  const nextId = expenses.length > 0 ? Math.max(...expenses.map((e) => e.id)) + 1 : 1;
+  const initialStatus = data.status || 'Pending';
   const expense = {
-    id: expenses.length + 1,
+    id: nextId,
     budgetId: Number(budgetId),
     createdAt: new Date().toISOString(),
-    status: 'Pending',
     ...data,
+    status: initialStatus,
   };
 
   expenses.push(expense);
 
-  const budget = budgets.find((item) => item.id === Number(budgetId));
-
-  if (budget) {
-    budget.spent += Number(data.amount || 0);
-    budget.remaining = budget.totalBudget - budget.spent;
+  if (initialStatus === 'Approved') {
+    const budget = budgets.find((item) => item.id === Number(budgetId));
+    if (budget) {
+      budget.spent += Number(data.amount || 0);
+      budget.remaining = budget.totalBudget - budget.spent;
+    }
   }
 
   return expense;
@@ -109,11 +121,25 @@ const uploadInvoice = async (budgetId, data) => ({
 });
 
 // Approve Expense
-const approveExpense = async (budgetId) => ({
-  budgetId: Number(budgetId),
-  approved: true,
-  approvedAt: new Date().toISOString(),
-});
+const approveExpense = async (expenseId) => {
+  const expense = expenses.find((e) => e.id === Number(expenseId));
+  if (!expense) return null;
+
+  if (expense.status !== 'Approved') {
+    expense.status = 'Approved';
+    const budget = budgets.find((item) => item.id === expense.budgetId);
+    if (budget) {
+      budget.spent += Number(expense.amount || 0);
+      budget.remaining = budget.totalBudget - budget.spent;
+    }
+  }
+
+  return {
+    success: true,
+    expense,
+    approvedAt: new Date().toISOString(),
+  };
+};
 
 // Remaining Budget
 const getRemainingBudget = async (budgetId) => {

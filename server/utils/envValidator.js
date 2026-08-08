@@ -5,7 +5,9 @@ export function validateEnvironment() {
 
   if (missing.length) {
     if (process.env.NODE_ENV === 'test') {
-      missing.forEach(key => { process.env[key] = 'mock_' + key; });
+      missing.forEach((key) => {
+        process.env[key] = 'mock_' + key;
+      });
     } else {
       throw new Error(`Missing environment variables: ${missing.join(', ')}`);
     }

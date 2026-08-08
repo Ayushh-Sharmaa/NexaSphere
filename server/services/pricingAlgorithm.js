@@ -85,7 +85,10 @@ export function computeDynamicPrice({
 
   // ── Apply & clamp ─────────────────────────────────────────────────────────
   const raw = basePrice * multiplier;
-  const price = Math.min(maxPrice, Math.max(minPrice, Math.round(raw * 100) / 100));
+  const safeMinPrice = typeof minPrice === 'number' ? Math.max(0, minPrice) : 0;
+  const safeMaxPrice = typeof maxPrice === 'number' ? Math.max(safeMinPrice, maxPrice) : safeMinPrice;
+  const calculatedPrice = Math.round(raw * 100) / 100;
+  const price = Math.min(safeMaxPrice, Math.max(safeMinPrice, calculatedPrice));
 
   return { price, reasons };
 }

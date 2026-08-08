@@ -10,22 +10,6 @@ try {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 } catch (_) {}
 
-const EXT_BY_MIME = {
-  'application/pdf': '.pdf',
-  'image/png': '.png',
-  'image/jpeg': '.jpg',
-  'image/gif': '.gif',
-  'image/webp': '.webp',
-  'application/zip': '.zip',
-  'application/x-zip-compressed': '.zip',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
-  'text/plain': '.txt',
-  'text/markdown': '.md',
-  'application/json': '.json',
-};
-
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
   filename: (_req, file, cb) => {
@@ -107,4 +91,3 @@ export const uploadWithMagicCheck = (req, res, next) => {
     next();
   });
 };
-

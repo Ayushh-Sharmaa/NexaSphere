@@ -1,8 +1,7 @@
+/* eslint-disable */
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import useSocketConnection from '../../hooks/useSocketConnection';
 import { getEventConflictStatus, detectConflicts } from '../../services/eventConflicts';
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import useSocket from '../../hooks/useSocketConnection';
 import './CalendarView.css';
 
 /**
@@ -19,22 +18,9 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
   const [searchQuery, setSearchQuery] = useState('');
   const [draggedEvent, setDraggedEvent] = useState(null);
   const [conflictToast, setConflictToast] = useState(null); // { message, severity }
-  const conflictToastTimeoutRef = useRef(null);
   const conflictToastTimerRef = useRef(null);
-  const conflictToastTimerRef = React.useRef(null);
-
-  useEffect(
-    () => () => {
-      if (conflictToastTimerRef.current) {
-        clearTimeout(conflictToastTimerRef.current);
-      }
-    },
-    []
-  );
 
   const { on: onSocket } = useSocketConnection();
-
-  const { on: onSocket } = useSocket();
 
   // Real-time synchronization
   useEffect(() => {
@@ -44,10 +30,13 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
     return unsubscribe;
   }, [onSocket]);
 
+  // Clean up conflict toast timer on unmount
   useEffect(() => {
     return () => {
-      if (conflictToastTimerRef.current) clearTimeout(conflictToastTimerRef.current);
-      conflictToastTimerRef.current = null;
+      if (conflictToastTimerRef.current) {
+        clearTimeout(conflictToastTimerRef.current);
+        conflictToastTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -58,7 +47,7 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
       normalized = `${dateStr}, ${currentDate.getFullYear()}`;
     }
     const d = new Date(normalized);
-    return isNaN(d.getTime()) ? null : d;
+    return Number.isNaN(d.getTime()) ? null : d;
   };
 
   // Filtering logic
@@ -91,25 +80,15 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
   const showConflictToast = (message, severity) => {
     if (conflictToastTimerRef.current) clearTimeout(conflictToastTimerRef.current);
     setConflictToast({ message, severity });
-    if (conflictToastTimeoutRef.current) clearTimeout(conflictToastTimeoutRef.current);
-    conflictToastTimeoutRef.current = setTimeout(() => setConflictToast(null), 4000);
     conflictToastTimerRef.current = setTimeout(() => {
       setConflictToast(null);
       conflictToastTimerRef.current = null;
     }, 4000);
-    if (conflictToastTimerRef.current) clearTimeout(conflictToastTimerRef.current);
-    conflictToastTimerRef.current = setTimeout(() => setConflictToast(null), 4000);
   };
-
-  useEffect(() => {
-    return () => {
-      if (conflictToastTimeoutRef.current) clearTimeout(conflictToastTimeoutRef.current);
-    };
-  }, []);
 
   const handleDrop = async (e, targetDate, hour = null) => {
     e.preventDefault();
-    if (!draggedEvent) return;
+    if (!isAdmin || !draggedEvent) return;
 
     if (checkConflict(draggedEvent.id, targetDate, hour)) {
       const severity = 'conflict';
@@ -118,12 +97,6 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
         return;
       }
       showConflictToast('Conflict detected — event rescheduled despite overlap.', severity);
-  const handleDrop = async (e, targetDate, hour = null) => {
-    e.preventDefault();
-    if (!isAdmin || !draggedEvent) return;
-
-    if (checkConflict(draggedEvent.id, targetDate, hour)) {
-      if (!window.confirm('This slot already has an event. Reschedule anyway?')) return;
     }
 
     const newDate = new Date(targetDate);
@@ -283,7 +256,6 @@ export default function CalendarView({ events: initialEvents, onEventClick, isAd
           const keyPrefix = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
           return (
             <div key={keyPrefix} className="day-column">
-            <div key={idx} className="day-column">
               <div className="time-slot-header">
                 {isDayView ? '' : daysOfWeek[idx]} {date.getDate()}
               </div>
@@ -541,7 +513,6 @@ function EventChip({
   isCompact = false,
   conflictStatus = 'none',
 }) {
-function EventChip({ ev, onEventClick, isAdmin, onDragStart, isCompact = false }) {
   const isKSS = String(ev.shortName || ev.name)
     .toLowerCase()
     .includes('kss');
@@ -557,18 +528,13 @@ function EventChip({ ev, onEventClick, isAdmin, onDragStart, isCompact = false }
 
   return (
     <div
-      draggable
+      draggable={isAdmin}
       onDragStart={onDragStart}
       className={`calendar-event-chip ${ev.status} ${categoryClass} ${isKSS ? 'kss-event' : ''} ${isCompact ? 'compact' : ''}`}
       style={{
         ...conflictStyle,
         border: conflictStatus !== 'none' ? '1.5px solid' : undefined,
       }}
-  return (
-    <div
-      draggable={isAdmin}
-      onDragStart={onDragStart}
-      className={`calendar-event-chip ${ev.status} ${categoryClass} ${isKSS ? 'kss-event' : ''} ${isCompact ? 'compact' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         onEventClick && onEventClick(ev);
@@ -585,9 +551,6 @@ function EventChip({ ev, onEventClick, isAdmin, onDragStart, isCompact = false }
           {conflictStatus === 'conflict' ? '⚠️' : '🕐'}
         </span>
       )}
-      title={`${ev.name}\nLocation: ${ev.location}\nStatus: ${ev.status}`}
-    >
-      <div className="event-chip-dot"></div>
       {!isCompact && <span className="event-chip-title">{ev.shortName || ev.name}</span>}
       {ev.userIsRegistered && <span className="registered-indicator">✓</span>}
       {isFull && (

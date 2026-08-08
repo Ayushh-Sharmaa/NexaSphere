@@ -223,7 +223,14 @@ export const submitApplication = wrapAsync(async (req, res) => {
   // Prevent duplicate applications.
   const existing = await coreTeamApplicationsRepository.findByStudentId(studentId);
   if (existing) {
-    return sendError(req, res, 'You already have a pending or approved application.', 409, 'CONFLICT', { status: existing.status });
+    return sendError(
+      req,
+      res,
+      'You already have a pending or approved application.',
+      409,
+      'CONFLICT',
+      { status: existing.status }
+    );
   }
 
   const application = await coreTeamApplicationsRepository.create({
@@ -270,7 +277,10 @@ export const approveApplication = wrapAsync(async (req, res) => {
 
   // Update application status.
   const updated = await coreTeamApplicationsRepository.updateStatus(
-    id, 'approved', reviewedBy, toSafeString(reviewNote ?? '', 500)
+    id,
+    'approved',
+    reviewedBy,
+    toSafeString(reviewNote ?? '', 500)
   );
 
   // Add approved applicant to core team.
@@ -306,7 +316,10 @@ export const rejectApplication = wrapAsync(async (req, res) => {
   }
 
   const updated = await coreTeamApplicationsRepository.updateStatus(
-    id, 'rejected', reviewedBy, toSafeString(reviewNote ?? '', 500)
+    id,
+    'rejected',
+    reviewedBy,
+    toSafeString(reviewNote ?? '', 500)
   );
 
   return sendSuccess(res, {

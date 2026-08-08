@@ -122,8 +122,7 @@ export const localLogin = async (req, res) => {
  * On reuse detection all sessions are invalidated and a 401 is returned.
  */
 export const refreshTokens = async (req, res) => {
-  const rawRefreshToken =
-    req.cookies?.[REFRESH_TOKEN_COOKIE] ?? req.body?.refreshToken;
+  const rawRefreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE] ?? req.body?.refreshToken;
 
   if (!rawRefreshToken) {
     return res.status(401).json({ error: 'Refresh token required' });
@@ -170,10 +169,9 @@ export const refreshTokens = async (req, res) => {
         if (studentRows[0]) return studentRows[0];
 
         // Fall back to local users table
-        const { rows: localRows } = await client.query(
-          'SELECT * FROM users WHERE id = $1',
-          [tokenRow.user_id]
-        );
+        const { rows: localRows } = await client.query('SELECT * FROM users WHERE id = $1', [
+          tokenRow.user_id,
+        ]);
         return localRows[0] ?? null;
       });
     } catch (lookupErr) {

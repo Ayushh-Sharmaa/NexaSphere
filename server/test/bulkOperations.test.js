@@ -197,4 +197,3 @@ test('Bulk Operations Service: Rollback fails after 24h', async () => {
     /only allowed within 24 hours/
   );
 });
-

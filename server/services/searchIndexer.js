@@ -72,7 +72,10 @@ export const searchIndexer = {
     } catch (err) {
       // If it doesn't exist, it's fine
       if (err.status !== 404) {
-        logger.error(`Failed to delete document from ${collectionName}`, { id, error: err.message });
+        logger.error(`Failed to delete document from ${collectionName}`, {
+          id,
+          error: err.message,
+        });
       }
     }
   },

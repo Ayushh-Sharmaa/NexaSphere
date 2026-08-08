@@ -11,7 +11,7 @@ export default function EventCalendarView({ events = [], onEventClick }) {
   const parseDate = (ev) => {
     const raw = ev.dateText ?? ev.date ?? '';
     const d = new Date(raw);
-    return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+    return Number.isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
   };
 
   const calEvents = events

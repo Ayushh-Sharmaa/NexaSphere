@@ -129,6 +129,8 @@ const knowledgeBase = [
     answer:
       'Sorry to hear that! You can report bugs via:\n• **GitHub Issues**: github.com/Ayushh-Sharmaa/NexaSphere\n• **Email**: nexasphere@glbajajgroup.org\n• **Contact page**: Use the contact form on our website\n\nPlease describe the issue and which page/feature is affected.',
     quickReplies: ['Contact us', 'Go to GitHub', 'Try refreshing the page'],
+  },
+  {
     keywords: ['nexasphere', 'about', 'community', 'what is'],
     answer:
       'NexaSphere is the official tech ecosystem at GL Bajaj Group of Institutions, Mathura, run by students for students to foster innovation and learning.',

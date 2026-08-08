@@ -30,7 +30,7 @@ exports.approve = async (req, res) => {
 
     await User.findByIdAndUpdate(application.userId, {
       isTeamMember: true,
-      teamRole: application.role
+      teamRole: application.role,
     });
 
     await sendApprovalEmail(application.userId, application.role, feedback);

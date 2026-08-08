@@ -42,7 +42,9 @@ export async function ensureContentFile() {
 
 export async function readContent() {
   if (HAS_SUPABASE) {
-    console.warn('DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.');
+    console.warn(
+      'DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.'
+    );
   }
   await ensureContentFile();
   const raw = await fs.readFile(CONTENT_FILE, 'utf8');
@@ -51,7 +53,9 @@ export async function readContent() {
 
 export async function writeContent(content) {
   if (HAS_SUPABASE) {
-    console.warn('DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.');
+    console.warn(
+      'DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.'
+    );
   }
   await ensureContentFile();
   const tempPath = `${CONTENT_FILE}.${crypto.randomUUID()}.tmp`;

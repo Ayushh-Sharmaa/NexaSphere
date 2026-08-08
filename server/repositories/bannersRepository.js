@@ -94,5 +94,5 @@ export const bannersRepository = {
       const { rowCount } = await client.query('delete from banners where id=$1', [id]);
       return rowCount > 0;
     });
-  }
+  },
 };

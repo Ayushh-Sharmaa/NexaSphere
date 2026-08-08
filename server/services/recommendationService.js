@@ -63,7 +63,7 @@ export const recommendationService = {
       prisma.userEventInteraction.findMany({ where: { userId }, select: { eventId: true } }),
     ]);
 
-    const interactedEventIds = [...new Set(interactions.map((i) => i.eventId))];
+    const interactedEventIds = new Set(interactions.map((i) => String(i.eventId)));
 
     // Fetch all upcoming/active events (excluding already-interacted ones)
     // NOTE: events are stored via the Supabase / JSON store in this project,
@@ -72,7 +72,7 @@ export const recommendationService = {
     const { eventsRepository } = await import('../repositories/eventsRepository.js');
     const { rows: allEvents } = await eventsRepository.list({ page: 1, limit: 200 });
 
-    const candidates = allEvents.filter((e) => !interactedEventIds.includes(e.id));
+    const candidates = allEvents.filter((e) => !interactedEventIds.has(String(e.id)));
 
     if (candidates.length === 0) {
       return { recommendations: [], total: 0, source: 'empty' };
@@ -127,13 +127,14 @@ export const recommendationService = {
     const { eventsRepository } = await import('../repositories/eventsRepository.js');
     const { rows: allEvents } = await eventsRepository.list({ page: 1, limit: 200 });
 
-    const target = allEvents.find((e) => e.id === eventId);
+    const targetStringId = String(eventId);
+    const target = allEvents.find((e) => String(e.id) === targetStringId);
     if (!target) return [];
 
     const targetTags = Array.isArray(target.tags) ? target.tags.map((t) => t.toLowerCase()) : [];
 
     const similar = allEvents
-      .filter((e) => e.id !== eventId)
+      .filter((e) => String(e.id) !== targetStringId)
       .map((e) => {
         const eTags = Array.isArray(e.tags) ? e.tags.map((t) => t.toLowerCase()) : [];
         const overlap = targetTags.filter((t) => eTags.includes(t)).length;

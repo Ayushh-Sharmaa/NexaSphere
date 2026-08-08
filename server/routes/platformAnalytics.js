@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import {
   getDashboardOverview,
   getUserAnalytics,
@@ -7,22 +7,22 @@ import {
   getPortfolioAnalytics,
   getGrowthAnalytics,
   exportReport,
-} from "../controllers/platformAnalyticsController.js";
+} from '../controllers/platformAnalyticsController.js';
 
 const router = express.Router();
 
-router.get("/overview", getDashboardOverview);
+router.get('/overview', getDashboardOverview);
 
-router.get("/users", getUserAnalytics);
+router.get('/users', getUserAnalytics);
 
-router.get("/events", getEventAnalytics);
+router.get('/events', getEventAnalytics);
 
-router.get("/clubs", getClubAnalytics);
+router.get('/clubs', getClubAnalytics);
 
-router.get("/portfolios", getPortfolioAnalytics);
+router.get('/portfolios', getPortfolioAnalytics);
 
-router.get("/growth", getGrowthAnalytics);
+router.get('/growth', getGrowthAnalytics);
 
-router.get("/export", exportReport);
+router.get('/export', exportReport);
 
 export default router;

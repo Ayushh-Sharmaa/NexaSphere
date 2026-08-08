@@ -153,18 +153,6 @@ export const studentUsersRepository = {
         }
       }
 
-      const { rows } = await client.query(
-        `INSERT INTO student_users (provider, provider_id, email, full_name, avatar_url, last_login_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-         ON CONFLICT (provider, provider_id) DO UPDATE SET
-           email = EXCLUDED.email,
-           full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), student_users.full_name),
-           avatar_url = COALESCE(NULLIF(EXCLUDED.avatar_url, ''), student_users.avatar_url),
-           last_login_at = NOW(),
-           updated_at = NOW()
-         RETURNING *`,
-        [provider, providerId, email, fullName || null, avatarUrl || null]
-      );
       return rows[0];
     });
   },

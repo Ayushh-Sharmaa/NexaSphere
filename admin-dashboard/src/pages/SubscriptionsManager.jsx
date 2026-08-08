@@ -8,7 +8,6 @@ export function SubscriptionsManager() {
   const [error, setError] = useState('');
   const [error, setError] = useState(null);
 
-
   useEffect(() => {
     loadData();
   }, []);
@@ -30,9 +29,6 @@ export function SubscriptionsManager() {
       });
     } catch (e) {
       console.error('Failed to load subscriptions', e);
-      setError(e.message || 'Failed to load subscriptions');
-      setSubscriptions([]);
-      setError(e.message || 'Failed to load subscriptions. Please try again.');
     }
     setLoading(false);
   };

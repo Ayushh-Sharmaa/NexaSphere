@@ -50,19 +50,21 @@ export function exportPDF(req, res) {
         }
       } else if (el.type === 'triangle') {
         const fill = el.fill && el.fill !== 'transparent' ? el.fill : null;
-        doc.moveTo(el.x + el.w / 2, el.y)
-           .lineTo(el.x + el.w, el.y + el.h)
-           .lineTo(el.x, el.y + el.h)
-           .closePath();
+        doc
+          .moveTo(el.x + el.w / 2, el.y)
+          .lineTo(el.x + el.w, el.y + el.h)
+          .lineTo(el.x, el.y + el.h)
+          .closePath();
         if (fill) {
           doc.fillAndStroke(fill, color);
         } else {
           doc.stroke(color);
         }
       } else if (el.type === 'line') {
-        doc.moveTo(el.x, el.y)
-           .lineTo(el.x + el.w, el.y + el.h)
-           .stroke(color);
+        doc
+          .moveTo(el.x, el.y)
+          .lineTo(el.x + el.w, el.y + el.h)
+          .stroke(color);
       } else if (el.type === 'arrow') {
         // Draw main line
         const fromX = el.x;
@@ -79,11 +81,7 @@ export function exportPDF(req, res) {
         const h2X = toX - headLength * Math.cos(angle + Math.PI / 6);
         const h2Y = toY - headLength * Math.sin(angle + Math.PI / 6);
 
-        doc.moveTo(toX, toY)
-           .lineTo(h1X, h1Y)
-           .lineTo(h2X, h2Y)
-           .closePath()
-           .fill(color);
+        doc.moveTo(toX, toY).lineTo(h1X, h1Y).lineTo(h2X, h2Y).closePath().fill(color);
       } else if (el.type === 'text') {
         doc.fillColor(color);
         const size = el.fontSize || 16;

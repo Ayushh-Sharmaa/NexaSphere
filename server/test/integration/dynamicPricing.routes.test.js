@@ -174,9 +174,7 @@ describe('Dynamic Pricing Routes', () => {
       assert.ok(res.body.transparency);
       assert.equal(res.body.transparency.eventId, 'event-123');
       assert.equal(res.body.transparency.basePrice, 100);
-      assert.deepEqual(res.body.transparency.adjustments, [
-        { reason: 'Early Bird', amount: -20 },
-      ]);
+      assert.deepEqual(res.body.transparency.adjustments, [{ reason: 'Early Bird', amount: -20 }]);
       assert.equal(res.body.transparency.finalPrice, 80);
     });
 
@@ -201,9 +199,7 @@ describe('Dynamic Pricing Routes', () => {
     };
 
     it('returns 200 with created pricing config when body is valid', async () => {
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(validConfig);
+      const res = await request(app).post('/api/pricing/config/event-456').send(validConfig);
 
       assert.equal(res.status, 200);
       assert.equal(res.body.success, true);
@@ -218,9 +214,7 @@ describe('Dynamic Pricing Routes', () => {
 
     it('returns 400 when basePrice is missing', async () => {
       const { basePrice: _, ...missingBase } = validConfig;
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(missingBase);
+      const res = await request(app).post('/api/pricing/config/event-456').send(missingBase);
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -229,9 +223,7 @@ describe('Dynamic Pricing Routes', () => {
 
     it('returns 400 when minPrice is missing', async () => {
       const { minPrice: _, ...missingMin } = validConfig;
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(missingMin);
+      const res = await request(app).post('/api/pricing/config/event-456').send(missingMin);
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -240,9 +232,7 @@ describe('Dynamic Pricing Routes', () => {
 
     it('returns 400 when maxPrice is missing', async () => {
       const { maxPrice: _, ...missingMax } = validConfig;
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(missingMax);
+      const res = await request(app).post('/api/pricing/config/event-456').send(missingMax);
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -251,9 +241,7 @@ describe('Dynamic Pricing Routes', () => {
 
     it('returns 400 when capacity is missing', async () => {
       const { capacity: _, ...missingCap } = validConfig;
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(missingCap);
+      const res = await request(app).post('/api/pricing/config/event-456').send(missingCap);
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -262,9 +250,7 @@ describe('Dynamic Pricing Routes', () => {
 
     it('returns 400 when eventDate is missing', async () => {
       const { eventDate: _, ...missingDate } = validConfig;
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send(missingDate);
+      const res = await request(app).post('/api/pricing/config/event-456').send(missingDate);
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -272,9 +258,7 @@ describe('Dynamic Pricing Routes', () => {
     });
 
     it('returns 400 when body is empty', async () => {
-      const res = await request(app)
-        .post('/api/pricing/config/event-456')
-        .send({});
+      const res = await request(app).post('/api/pricing/config/event-456').send({});
 
       assert.equal(res.status, 400);
       assert.equal(res.body.success, false);
@@ -328,9 +312,7 @@ describe('Dynamic Pricing Routes', () => {
     });
 
     it('returns 200 when overridePrice is omitted from body', async () => {
-      const res = await request(app)
-        .post('/api/pricing/override/event-789')
-        .send({});
+      const res = await request(app).post('/api/pricing/override/event-789').send({});
 
       assert.equal(res.status, 200);
       assert.equal(res.body.success, true);
@@ -349,9 +331,8 @@ describe('Dynamic Pricing Routes', () => {
       // Dynamically import the mocked service to override one method.
       // The mock.module above already replaced the real service; we just
       // need a reference to temporarily sabotage a single method.
-      const { dynamicPricingService: svc } = await import(
-        '../../services/dynamicPricingService.js'
-      );
+      const { dynamicPricingService: svc } =
+        await import('../../services/dynamicPricingService.js');
       const original = svc.getPricingAnalytics;
       svc.getPricingAnalytics = async () => {
         throw new Error('Simulated database failure');

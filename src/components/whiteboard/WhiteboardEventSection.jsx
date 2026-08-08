@@ -160,7 +160,8 @@ export default function WhiteboardEventSection({ eventId, width = 1100, height =
         let tspanText = '';
         let currentY = el.y + 18;
         textLines.slice(0, 6).forEach((line) => {
-          const safeLine = line.slice(0, 30)
+          const safeLine = line
+            .slice(0, 30)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')

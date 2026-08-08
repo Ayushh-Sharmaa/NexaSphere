@@ -17,7 +17,7 @@ export default function AdvancedFilters({ events, onFilterChange }) {
       if (ev.category) cats.add(ev.category);
       if (ev.tags) ev.tags.forEach((t) => cats.add(t.toLowerCase()));
     });
-    return ['all', ...Array.from(cats).sort()];
+    return ['all', ...Array.from(cats).sort((a, b) => a - b)];
   }, [events]);
 
   const updateFilter = (key, value) => {

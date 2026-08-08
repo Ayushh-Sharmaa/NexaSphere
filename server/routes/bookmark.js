@@ -1,7 +1,10 @@
 import express from 'express';
+import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 const router = express.Router();
 
 import * as bookmarkController from '../controllers/bookmarkController.js';
+
+router.use(requireStudentAuth);
 
 // Bookmarks
 router.post('/', bookmarkController.createBookmark);

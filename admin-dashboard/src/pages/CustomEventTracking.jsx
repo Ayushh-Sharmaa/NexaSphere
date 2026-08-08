@@ -624,8 +624,8 @@ export function CustomEventTracking() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this event definition and all its logs? This cannot be undone.')) return;
-    if (!confirm('Delete this event definition and all its logs? This cannot be undone.')) return;
+    if (!window.confirm('Delete this event definition and all its logs? This cannot be undone.'))
+      return;
     await fetch(`${API_BASE}/api/admin/custom-events/definitions/${id}`, {
       method: 'DELETE',
       credentials: 'include',

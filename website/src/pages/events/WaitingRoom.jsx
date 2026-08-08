@@ -76,17 +76,6 @@ export default function WaitingRoom({ eventId, fullName, email, onJoinEvent }) {
 
   const estimateWait = (pos) => {
     if (pos === null || pos === undefined) return;
-    // Position 0 means front of queue — wait time is 0, not forced to 1
-    const mins = pos === 0 ? 0 : Math.max(1, Math.round(pos * 2));
-    if (pos === 0) {
-      setWaitTime(0);
-      return;
-    }
-
-    const mins = Math.max(1, Math.round(pos * 2));
-    if (pos == null) return;
-    const mins = pos === 0 ? 0 : Math.max(1, Math.round(pos * 2));
-    setWaitTime(mins);
     setWaitTime(getEstimatedWaitMinutes(pos));
   };
 
@@ -186,8 +175,6 @@ export default function WaitingRoom({ eventId, fullName, email, onJoinEvent }) {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--t1)' }}>
             {waitTime === 0 ? 'Ready' : waitTime != null ? `~${waitTime}m` : '-'}
-        <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--t1)' }}>
-            {waitTime === 0 ? 'Ready' : `~${waitTime ?? '-'}m`}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--t3)' }}>Est. Wait</div>
         </div>

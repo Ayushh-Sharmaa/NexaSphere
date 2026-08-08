@@ -1,67 +1,70 @@
 const records = {
   events: [
     {
-      id: "E101",
-      title: "AI Workshop",
-      organizer: "Tech Club",
-      date: "2026-08-10",
+      id: 'E101',
+      title: 'AI Workshop',
+      organizer: 'Tech Club',
+      date: '2026-08-10',
     },
     {
-      id: "E102",
-      title: "Artificial Intelligence Workshop",
-      organizer: "Tech Club",
-      date: "2026-08-10",
+      id: 'E102',
+      title: 'Artificial Intelligence Workshop',
+      organizer: 'Tech Club',
+      date: '2026-08-10',
     },
   ],
 
   portfolios: [
     {
-      id: "P101",
-      title: "Smart Irrigation System",
-      owner: "John",
+      id: 'P101',
+      title: 'Smart Irrigation System',
+      owner: 'John',
     },
     {
-      id: "P102",
-      title: "Smart Irrigation",
-      owner: "John",
+      id: 'P102',
+      title: 'Smart Irrigation',
+      owner: 'John',
     },
   ],
 
   media: [
     {
-      id: "M101",
-      filename: "banner.png",
+      id: 'M101',
+      filename: 'banner.png',
       size: 421000,
     },
     {
-      id: "M102",
-      filename: "banner_copy.png",
+      id: 'M102',
+      filename: 'banner_copy.png',
       size: 421500,
     },
   ],
 
   clubRegistrations: [
     {
-      id: "C101",
-      user: "Alice",
-      club: "Coding Club",
+      id: 'C101',
+      user: 'Alice',
+      club: 'Coding Club',
     },
     {
-      id: "C102",
-      user: "Alice",
-      club: "Coding Club",
+      id: 'C102',
+      user: 'Alice',
+      club: 'Coding Club',
     },
   ],
 };
 
 function similarity(a, b) {
-  a = a.toLowerCase();
-  b = b.toLowerCase();
+  if (!a || !b) return 0;
+  a = String(a).trim().toLowerCase().replace(/\s+/g, " ");
+  b = String(b).trim().toLowerCase().replace(/\s+/g, " ");
 
   if (a === b) return 100;
 
-  const wordsA = a.split(" ");
-  const wordsB = b.split(" ");
+  const wordsA = a.split(" ").filter(Boolean);
+  const wordsB = b.split(" ").filter(Boolean);
+
+  if (wordsA.length === 0 || wordsB.length === 0) return 0;
 
   let common = 0;
 
@@ -94,7 +97,7 @@ exports.checkRecord = (record) => {
 
     if (score >= 60) {
       matches.push({
-        module: "Events",
+        module: 'Events',
         id: item.id,
         similarity: score,
         title: item.title,
@@ -113,10 +116,7 @@ exports.detectDuplicateEvents = () => {
 
   for (let i = 0; i < records.events.length; i++) {
     for (let j = i + 1; j < records.events.length; j++) {
-      const score = similarity(
-        records.events[i].title,
-        records.events[j].title
-      );
+      const score = similarity(records.events[i].title, records.events[j].title);
 
       if (score >= 60) {
         duplicates.push({
@@ -136,10 +136,7 @@ exports.detectPortfolioDuplicates = () => {
 
   for (let i = 0; i < records.portfolios.length; i++) {
     for (let j = i + 1; j < records.portfolios.length; j++) {
-      const score = similarity(
-        records.portfolios[i].title,
-        records.portfolios[j].title
-      );
+      const score = similarity(records.portfolios[i].title, records.portfolios[j].title);
 
       if (score >= 60) {
         duplicates.push({
@@ -155,12 +152,9 @@ exports.detectPortfolioDuplicates = () => {
 };
 
 exports.detectDuplicateMedia = () => {
-  return records.media.filter((item, index) =>
-    records.media.findIndex(
-      (m) =>
-        Math.abs(m.size - item.size) < 1000 &&
-        m.id !== item.id
-    ) !== -1
+  return records.media.filter(
+    (item, index) =>
+      records.media.findIndex((m) => Math.abs(m.size - item.size) < 1000 && m.id !== item.id) !== -1
   );
 };
 
@@ -168,10 +162,7 @@ exports.detectClubDuplicates = () => {
   return records.clubRegistrations.filter(
     (item, index) =>
       records.clubRegistrations.findIndex(
-        (c) =>
-          c.user === item.user &&
-          c.club === item.club &&
-          c.id !== item.id
+        (c) => c.user === item.user && c.club === item.club && c.id !== item.id
       ) !== -1
   );
 };
@@ -180,7 +171,7 @@ exports.mergeDuplicates = (id1, id2) => ({
   success: true,
   mergedRecord: id1,
   removedRecord: id2,
-  message: "Duplicate records merged successfully.",
+  message: 'Duplicate records merged successfully.',
 });
 
 exports.deleteDuplicate = (id) => ({
@@ -194,5 +185,5 @@ exports.getStatistics = () => ({
   preventedDuplicates: 7,
   mergeSuggestions: 14,
   resolvedDuplicates: 11,
-  duplicatePercentage: "3.6%",
+  duplicatePercentage: '3.6%',
 });

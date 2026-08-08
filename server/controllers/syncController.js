@@ -110,7 +110,13 @@ export const syncController = {
   async syncBatch(req, res) {
     const { changes } = req.body;
     if (!Array.isArray(changes)) {
-      return sendError(req, res, 'Expected "changes" array in request body', 400, 'VALIDATION_ERROR');
+      return sendError(
+        req,
+        res,
+        'Expected "changes" array in request body',
+        400,
+        'VALIDATION_ERROR'
+      );
     }
 
     for (let i = 0; i < changes.length; i++) {
@@ -119,19 +125,49 @@ export const syncController = {
         return sendError(req, res, `changes[${i}] must be an object`, 400, 'VALIDATION_ERROR');
       }
       if (!change.type || typeof change.type !== 'string') {
-        return sendError(req, res, `changes[${i}].type is required and must be a string`, 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          `changes[${i}].type is required and must be a string`,
+          400,
+          'VALIDATION_ERROR'
+        );
       }
       if (!['event'].includes(change.type)) {
-        return sendError(req, res, `changes[${i}].type "event" is the only supported type`, 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          `changes[${i}].type "event" is the only supported type`,
+          400,
+          'VALIDATION_ERROR'
+        );
       }
       if (!change.id || typeof change.id !== 'string') {
-        return sendError(req, res, `changes[${i}].id is required and must be a string`, 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          `changes[${i}].id is required and must be a string`,
+          400,
+          'VALIDATION_ERROR'
+        );
       }
       if (!change.data || typeof change.data !== 'object' || Array.isArray(change.data)) {
-        return sendError(req, res, `changes[${i}].data is required and must be an object`, 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          `changes[${i}].data is required and must be an object`,
+          400,
+          'VALIDATION_ERROR'
+        );
       }
       if (!change.data.name || typeof change.data.name !== 'string') {
-        return sendError(req, res, `changes[${i}].data.name is required and must be a string`, 400, 'VALIDATION_ERROR');
+        return sendError(
+          req,
+          res,
+          `changes[${i}].data.name is required and must be a string`,
+          400,
+          'VALIDATION_ERROR'
+        );
       }
       return res.status(400).json({ error: 'Expected "changes" array in request body' });
     }
@@ -200,11 +236,17 @@ export const syncController = {
       });
 
       const hasConflicts = results.some((r) => r.status === 'conflict');
-      return sendSuccess(res, {
-        serverTime: new Date().toISOString(),
-        results,
-        ...(hasConflicts ? { retryAfterConflict: 'Use POST /api/sync/resolve-conflicts to force update' } : {}),
-      }, hasConflicts ? 409 : 200);
+      return sendSuccess(
+        res,
+        {
+          serverTime: new Date().toISOString(),
+          results,
+          ...(hasConflicts
+            ? { retryAfterConflict: 'Use POST /api/sync/resolve-conflicts to force update' }
+            : {}),
+        },
+        hasConflicts ? 409 : 200
+      );
     } catch (err) {
       logger.error('Sync batch execution failed', { error: err.message });
       return sendError(req, res, 'Sync batch failed', 500, 'INTERNAL_ERROR');
@@ -214,7 +256,13 @@ export const syncController = {
   async resolveConflicts(req, res) {
     const { changes } = req.body;
     if (!Array.isArray(changes)) {
-      return sendError(req, res, 'Expected "changes" array in request body', 400, 'VALIDATION_ERROR');
+      return sendError(
+        req,
+        res,
+        'Expected "changes" array in request body',
+        400,
+        'VALIDATION_ERROR'
+      );
     }
 
     const results = [];

@@ -33,7 +33,6 @@ export const bulkWorker =
               );
               throw err;
             }
-
           }
         },
         { connection }

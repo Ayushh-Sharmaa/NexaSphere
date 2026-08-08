@@ -44,7 +44,7 @@ export const STORAGE_KEYS = {
    * @example
    * const profile = { id: 123, email: 'user@example.com', name: 'John Doe' };
    * localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
-   * const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_PROFILE));
+   * const user = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_PROFILE)) } catch { return null } })();
    */
   USER_PROFILE: 'ns_user',
 

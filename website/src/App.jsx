@@ -597,7 +597,6 @@ function MainRouter({
         Resources: '/resources',
         Portfolio: '/portfolio',
         Collab: '/collab',
-        Explore: '/explore',
         About: '/about',
         'Core Team': '/team',
         Contact: '/contact',

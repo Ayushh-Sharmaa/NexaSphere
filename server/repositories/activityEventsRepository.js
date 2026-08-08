@@ -102,7 +102,9 @@ export const activityEventsRepository = {
             subtitle: mapped.tagline,
           })
         )
-        .catch((err) => logger.error('Failed to index activity in search', { err, activityId: mapped?.id }));
+        .catch((err) =>
+          logger.error('Failed to index activity in search', { err, activityId: mapped?.id })
+        );
       return mapped;
     });
   },
@@ -116,7 +118,12 @@ export const activityEventsRepository = {
       if (rowCount > 0) {
         import('../services/searchIndexer.js')
           .then(({ searchIndexer }) => searchIndexer.deleteDocument('activities', eventId))
-          .catch((err) => logger.error('Failed to remove activity from search index', { err, activityId: eventId }));
+          .catch((err) =>
+            logger.error('Failed to remove activity from search index', {
+              err,
+              activityId: eventId,
+            })
+          );
       }
       return rowCount > 0;
     });

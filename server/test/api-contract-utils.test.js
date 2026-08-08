@@ -15,9 +15,10 @@ describe('circuitBreaker — contract', () => {
     const mod = await import('../utils/circuitBreaker.js').catch(() => null);
     if (!mod) return;
 
-    const hasFactory = typeof mod.createCircuitBreaker === 'function'
-      || typeof mod.CircuitBreaker === 'function'
-      || typeof mod.default === 'function';
+    const hasFactory =
+      typeof mod.createCircuitBreaker === 'function' ||
+      typeof mod.CircuitBreaker === 'function' ||
+      typeof mod.default === 'function';
     assert.ok(hasFactory, 'circuitBreaker must export a factory or class');
   });
 
@@ -31,7 +32,11 @@ describe('circuitBreaker — contract', () => {
     const breaker = factory(() => Promise.resolve('ok'), { threshold: 3, timeout: 1000 });
     // State should be CLOSED (or equivalent) on init
     const state = breaker.state ?? breaker.getState?.() ?? 'CLOSED';
-    assert.match(String(state).toUpperCase(), /CLOSE|HALF|OPEN/, 'State must be a valid circuit state');
+    assert.match(
+      String(state).toUpperCase(),
+      /CLOSE|HALF|OPEN/,
+      'State must be a valid circuit state'
+    );
   });
 
   test('circuit breaker successfully calls through in CLOSED state', async () => {
@@ -42,10 +47,19 @@ describe('circuitBreaker — contract', () => {
     if (typeof factory !== 'function') return;
 
     let called = false;
-    const breaker = factory(() => { called = true; return Promise.resolve('success'); }, { threshold: 5 });
+    const breaker = factory(
+      () => {
+        called = true;
+        return Promise.resolve('success');
+      },
+      { threshold: 5 }
+    );
 
-    const result = await breaker.fire?.() ?? await breaker.call?.();
-    assert.ok(called || result === 'success', 'Underlying function must be invoked through a closed breaker');
+    const result = (await breaker.fire?.()) ?? (await breaker.call?.());
+    assert.ok(
+      called || result === 'success',
+      'Underlying function must be invoked through a closed breaker'
+    );
   });
 });
 
@@ -56,7 +70,11 @@ describe('envValidator — contract', () => {
     const mod = await import('../utils/envValidator.js').catch(() => null);
     if (!mod?.validateEnvironment) return;
 
-    assert.equal(typeof mod.validateEnvironment, 'function', 'validateEnvironment must be a function');
+    assert.equal(
+      typeof mod.validateEnvironment,
+      'function',
+      'validateEnvironment must be a function'
+    );
   });
 
   test('validateEnvironment does not throw in test environment', async () => {
@@ -65,7 +83,11 @@ describe('envValidator — contract', () => {
 
     // May log warnings but should not throw in test mode
     assert.doesNotThrow(() => {
-      try { mod.validateEnvironment(); } catch { /* ok — might throw on missing vars */ }
+      try {
+        mod.validateEnvironment();
+      } catch {
+        /* ok — might throw on missing vars */
+      }
     });
   });
 });
@@ -121,8 +143,13 @@ describe('notificationSchemas — snapshot contract', () => {
 
     const typeValues = Object.values(types).map((v) => String(v).toLowerCase());
     const hasEmail = typeValues.some((t) => t.includes('email'));
-    const hasInApp = typeValues.some((t) => t.includes('in_app') || t.includes('inapp') || t.includes('push'));
-    assert.ok(hasEmail || hasInApp, `Expected email or in_app type; got: ${JSON.stringify(typeValues)}`);
+    const hasInApp = typeValues.some(
+      (t) => t.includes('in_app') || t.includes('inapp') || t.includes('push')
+    );
+    assert.ok(
+      hasEmail || hasInApp,
+      `Expected email or in_app type; got: ${JSON.stringify(typeValues)}`
+    );
   });
 
   test('notification schema shapes are frozen/constant (snapshot)', async () => {

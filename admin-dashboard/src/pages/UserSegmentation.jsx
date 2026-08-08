@@ -46,7 +46,7 @@ export function UserSegmentation() {
     const rules_json = {
       condition,
       days: 30,
-      value: 5
+      value: 5,
     };
 
     try {
@@ -81,14 +81,18 @@ export function UserSegmentation() {
       });
       if (!res.ok) throw new Error('Preview failed');
       const recordings = await res.json();
-      
+
       // Simple mock user filtering for segment preview matching
       const users = recordings
-        .filter(r => r.user_name)
-        .map(r => ({ id: r.id, full_name: r.user_name, email: `${r.user_name.toLowerCase().replace(/\s/g, '')}@nexasphere.org` }));
-      
+        .filter((r) => r.user_name)
+        .map((r) => ({
+          id: r.id,
+          full_name: r.user_name,
+          email: `${r.user_name.toLowerCase().replace(/\s/g, '')}@nexasphere.org`,
+        }));
+
       // Deduplicate by name
-      const uniqueUsers = Array.from(new Map(users.map(u => [u.full_name, u])).values());
+      const uniqueUsers = Array.from(new Map(users.map((u) => [u.full_name, u])).values());
       setPreviewUsers(uniqueUsers);
     } catch (e) {
       alert('Preview failed');
@@ -98,14 +102,17 @@ export function UserSegmentation() {
   const handleAction = async (segmentId, action) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/segments/${segmentId}/action`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ action, template: 'default' })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/admin/analytics/segments/${segmentId}/action`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ action, template: 'default' }),
+        }
+      );
       if (!res.ok) throw new Error('Action failed');
       const result = await res.json();
       alert(`Action successful: ${result.count} users affected.`);
@@ -118,9 +125,12 @@ export function UserSegmentation() {
     setCohortLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/cohorts?month=${cohortMonth}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/admin/analytics/cohorts?month=${cohortMonth}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!res.ok) throw new Error('Cohort analysis failed');
       const data = await res.json();
       setCohortData(data);
@@ -222,7 +232,10 @@ export function UserSegmentation() {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                  <button
+                    type="submit"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+                  >
                     Save
                   </button>
                 </div>
@@ -320,8 +333,8 @@ export function UserSegmentation() {
                 value={cohortMonth}
                 onChange={(e) => setCohortMonth(e.target.value)}
               />
-              <button 
-                onClick={fetchCohort} 
+              <button
+                onClick={fetchCohort}
                 disabled={cohortLoading}
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
               >
@@ -329,7 +342,9 @@ export function UserSegmentation() {
               </button>
             </div>
 
-            {cohortLoading && <p className="text-gray-500 text-sm">Calculating retention metrics...</p>}
+            {cohortLoading && (
+              <p className="text-gray-500 text-sm">Calculating retention metrics...</p>
+            )}
 
             {cohortData && (
               <div className="mt-4 space-y-4">
@@ -346,7 +361,9 @@ export function UserSegmentation() {
                     <span className="text-gray-500">30-Day Retention Rate</span>
                     <span className="font-bold">
                       {cohortData.total_users > 0
-                        ? ((cohortData.retained_30d_users / cohortData.total_users) * 100).toFixed(1)
+                        ? ((cohortData.retained_30d_users / cohortData.total_users) * 100).toFixed(
+                            1
+                          )
                         : 0}
                       %
                     </span>
@@ -363,7 +380,9 @@ export function UserSegmentation() {
               </div>
             )}
             {!cohortLoading && !cohortData && (
-              <p className="text-gray-400 text-sm text-center py-6">Select a month to load cohort data</p>
+              <p className="text-gray-400 text-sm text-center py-6">
+                Select a month to load cohort data
+              </p>
             )}
           </div>
         </div>

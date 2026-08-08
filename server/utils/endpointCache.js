@@ -13,7 +13,7 @@ function stableStringify(value) {
     return '[' + value.map(stableStringify).join(',') + ']';
   }
   if (type === 'object') {
-    const keys = Object.keys(value).sort();
+    const keys = Object.keys(value).sort((a, b) => a - b);
     return '{' + keys.map((k) => `${k}:${stableStringify(value[k])}`).join(',') + '}';
   }
   return String(value);

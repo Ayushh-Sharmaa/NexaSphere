@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getApiBase } from '../../utils/apiClient';
+
+const mockTeams = [];
 
 export default function CollabPage({ onBack }) {
-  const [activeTab, setActiveTab] = useState('find-team'); // 'find-team', 'skill-swap'
+  const [activeTab, setActiveTab] = useState('find-team');
   const [teams, setTeams] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -9,7 +12,8 @@ export default function CollabPage({ onBack }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const teamsUrl = buildUrl(getApiBase(), '/api/collab/teams');
+    const base = getApiBase();
+    const teamsUrl = base ? `${base}/api/collab/teams` : null;
     if (!teamsUrl) {
       setTeams(mockTeams);
       setIsDemo(true);
@@ -31,18 +35,21 @@ export default function CollabPage({ onBack }) {
       })
       .finally(() => setLoading(false));
   }, []);
+
   useEffect(() => {
     if (activeTab !== 'find-team') {
       setSearch('');
     }
   }, [activeTab]);
+
   const handleJoinSubmit = async (requestData) => {
     if (isDemo) {
       alert('Demo mode: Join requests are disabled.');
       return;
     }
 
-    const requestsUrl = buildUrl(getApiBase(), '/api/collab/requests');
+    const base = getApiBase();
+    const requestsUrl = base ? `${base}/api/collab/requests` : null;
     if (!requestsUrl) return;
 
     await fetch(requestsUrl, {
@@ -59,15 +66,6 @@ export default function CollabPage({ onBack }) {
       t.techStack.some((ts) => ts.toLowerCase().includes(search.toLowerCase()))
   );
 
-  return (
-    <div className="collab-page" style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Collaboration</h1>
-      <p>Collaborative workspace features coming soon.</p>
-      {onBack && (
-        <button onClick={onBack} className="btn btn-secondary" style={{ marginTop: '1rem' }}>
-          ← Back
-        </button>
-      )}
   return (
     <div
       style={{

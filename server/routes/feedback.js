@@ -21,7 +21,8 @@ router.post('/', authenticate, async (req, res) => {
 
   // Prevent duplicate submissions
   const existing = await db('feedback').where({ event_id: eventId, user_id: userId }).first();
-  if (existing) return sendError(req, res, 'Already submitted feedback for this event', 409, 'CONFLICT');
+  if (existing)
+    return sendError(req, res, 'Already submitted feedback for this event', 409, 'CONFLICT');
 
   // NPS classification
   let npsCategory = null;

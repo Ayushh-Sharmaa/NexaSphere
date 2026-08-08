@@ -7,6 +7,7 @@ try {
 
 import twilio from 'twilio';
 import { withDb } from '../repositories/db.js';
+import logger from '../utils/logger.js';
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
@@ -47,15 +48,12 @@ export const smsService = {
           to: phoneNumber,
         });
 
-          to: phoneNumber
-        });
-        
         // Twilio returns price in response if available, fallback to estimate
         cost = Math.abs(parseFloat(response.price || SMS_COST_USD));
         status = response.status === 'failed' ? 'failed' : 'sent';
       } else {
         // Mock sending for development/testing
-        console.log(`[SMS MOCK] To: ${phoneNumber} | Msg: ${message}`);
+        logger.info(`[SMS MOCK] To: ${phoneNumber} | Msg: ${message}`);
         cost = SMS_COST_USD;
         status = 'mock_sent';
       }

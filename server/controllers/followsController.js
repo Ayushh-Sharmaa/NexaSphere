@@ -34,11 +34,15 @@ export const followUser = wrapAsync(async (req, res) => {
   try {
     const follow = await followsService.followUser(followerId, followingIdNum);
 
-    return sendSuccess(res, {
-      success: true,
-      message: 'Successfully followed user',
-      follow,
-    }, 201);
+    return sendSuccess(
+      res,
+      {
+        success: true,
+        message: 'Successfully followed user',
+        follow,
+      },
+      201
+    );
   } catch (error) {
     if (
       error.message.includes('Already following') ||

@@ -15,10 +15,8 @@ import express from 'express';
 
 mock.module('../../controllers/certificatesController.js', {
   exports: {
-    issueCertificates: (req, res) =>
-      res.status(201).json({ success: true, certificates: [] }),
-    getMyCertificates: (req, res) =>
-      res.json({ certificates: [] }),
+    issueCertificates: (req, res) => res.status(201).json({ success: true, certificates: [] }),
+    getMyCertificates: (req, res) => res.json({ certificates: [] }),
     verifyCertificate: (req, res) =>
       res.json({ valid: true, certificate: { code: req.params.code } }),
     downloadCertificatePdf: (req, res) =>
@@ -32,12 +30,9 @@ mock.module('../../controllers/certificatesController.js', {
 
 mock.module('../../controllers/certificatesAdminController.js', {
   exports: {
-    adminGetCertificateById: (req, res) =>
-      res.json({ certificate: { id: req.params.id } }),
-    adminVerifyCertificate: (req, res) =>
-      res.json({ success: true, verified: true }),
-    adminRevokeCertificate: (req, res) =>
-      res.json({ success: true, revoked: true }),
+    adminGetCertificateById: (req, res) => res.json({ certificate: { id: req.params.id } }),
+    adminVerifyCertificate: (req, res) => res.json({ success: true, verified: true }),
+    adminRevokeCertificate: (req, res) => res.json({ success: true, revoked: true }),
   },
 });
 
@@ -77,9 +72,7 @@ const authControl = { studentEnabled: true, adminEnabled: true };
  * but with a wrapper that can toggle auth to test enforcement.
  */
 async function createTestApp() {
-  const { default: certificateRouter } = await import(
-    '../../routes/certificates.js'
-  );
+  const { default: certificateRouter } = await import('../../routes/certificates.js');
 
   const app = express();
   app.use(express.json());
@@ -89,17 +82,14 @@ async function createTestApp() {
     // For student-protected routes we intercept based on path
     if (
       req.path.startsWith('/certificates/me') ||
-      req.path.startsWith('/certificates/') && req.path.endsWith('/download')
+      (req.path.startsWith('/certificates/') && req.path.endsWith('/download'))
     ) {
       if (!authControl.studentEnabled) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
     }
     // For admin routes we intercept based on path
-    if (
-      req.path.startsWith('/admin/certificates') ||
-      req.path.startsWith('/certificates/issue')
-    ) {
+    if (req.path.startsWith('/admin/certificates') || req.path.startsWith('/certificates/issue')) {
       if (!authControl.adminEnabled) {
         return res.status(401).json({ error: 'Unauthorized: No admin session' });
       }
@@ -226,10 +216,12 @@ describe('Certificates Routes — Admin Management', () => {
   });
 
   it('POST /api/certificates/issue returns 201 with certificates array', async () => {
-    const res = await request(app).post('/api/certificates/issue').send({
-      eventId: 1,
-      userIds: [1, 2, 3],
-    });
+    const res = await request(app)
+      .post('/api/certificates/issue')
+      .send({
+        eventId: 1,
+        userIds: [1, 2, 3],
+      });
     assert.equal(res.status, 201);
     assert.equal(res.body.success, true);
     assert.ok(Array.isArray(res.body.certificates));
@@ -273,10 +265,12 @@ describe('Certificates Routes — Admin Auth Enforcement', () => {
 
   it('POST /api/certificates/issue returns 401 without admin auth', async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).post('/api/certificates/issue').send({
-      eventId: 1,
-      userIds: [1],
-    });
+    const res = await request(app)
+      .post('/api/certificates/issue')
+      .send({
+        eventId: 1,
+        userIds: [1],
+      });
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });

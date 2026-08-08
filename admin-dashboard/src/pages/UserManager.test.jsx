@@ -3,10 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const sourcePath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  'UserManager.jsx'
-);
+const sourcePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'UserManager.jsx');
 const source = readFileSync(sourcePath, 'utf8');
 
 describe('UserManager password handling', () => {

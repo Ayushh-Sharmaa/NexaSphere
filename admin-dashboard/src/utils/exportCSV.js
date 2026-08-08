@@ -1,30 +1,3 @@
-export function exportToCSV(data, filename) {
-  if (!data || data.length === 0) return;
-  const headers = Object.keys(data[0]).join(',');
-  const rows = data
-    .map((row) =>
-      Object.values(row)
-        .map((val) => {
-          let str = String(val === null || val === undefined ? '' : val);
-          // Sanitize CSV Formula Injection (prefix with single quote if starts with =, +, -, @)
-          if (
-            str.startsWith('=') ||
-            str.startsWith('+') ||
-            str.startsWith('-') ||
-            str.startsWith('@')
-          ) {
-            str = `'${str}`;
-          }
-          // Escape double quotes and wrap in quotes if contains comma
-          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-            str = `"${str.replace(/"/g, '""')}"`;
-          }
-          return str;
-        })
-        .join(',')
-    )
-    .join('\n');
-  const blob = new Blob([`\uFEFF${headers}\n${rows}`], { type: 'text/csv;charset=utf-8;' });
 /**
  * exportCSV.js — RFC 4180-compliant CSV export utility.
  * Properly escapes commas, double quotes, and newlines in cell values.
@@ -37,7 +10,11 @@ export function exportToCSV(data, filename) {
  */
 function escapeCsvCell(value) {
   if (value === null || value === undefined) return '';
-  const str = String(value);
+  let str = String(value);
+  // Guard against CSV formula injection
+  if (str.startsWith('=') || str.startsWith('+') || str.startsWith('-') || str.startsWith('@')) {
+    str = "'" + str;
+  }
   // Wrap in quotes if the value contains comma, quote, or newline
   if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
     return '"' + str.replace(/"/g, '""') + '"';

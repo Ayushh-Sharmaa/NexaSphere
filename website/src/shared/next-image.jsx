@@ -41,8 +41,10 @@ export default function Image({
 
   if (isStaticAsset) {
     const basePath = src.substring(0, src.lastIndexOf('.'));
-    // Generate the 1x, 2x, 3x WebP srcset
-    const srcsetWebp = `${basePath}@1x.webp 1x, ${basePath}@2x.webp 2x, ${basePath}@3x.webp 3x`;
+    // Generate responsive srcset using widths
+    const srcsetWebp = `${basePath}-480w.webp 480w, ${basePath}-800w.webp 800w, ${basePath}-1200w.webp 1200w`;
+    const defaultSizes =
+      props.sizes || '(max-width: 600px) 480px, (max-width: 1024px) 800px, 1200px';
 
     // For picture, we need the parent to take the full space and img to fill it
     // The wrapper picture needs to adopt the display sizing
@@ -67,7 +69,15 @@ export default function Image({
       <picture className={className} style={pictureStyle}>
         <source srcSet={srcsetWebp} type="image/webp" />
         {/* Fallback to original image format for legacy browsers */}
-        <img src={src} alt={alt} style={innerImgStyle} loading={loadingProp} {...props} />
+        <img
+          src={src}
+          alt={alt}
+          style={innerImgStyle}
+          loading={loadingProp}
+          srcSet={`${basePath}-480w.png 480w, ${basePath}-800w.png 800w, ${basePath}-1200w.png 1200w`}
+          sizes={defaultSizes}
+          {...props}
+        />
       </picture>
     );
   }

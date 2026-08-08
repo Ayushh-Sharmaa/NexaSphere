@@ -33,7 +33,13 @@ router.get('/api/admin/core-team', adminAuth, coreTeamController.adminListCoreTe
 /**
  * POST /api/admin/core-team â€” Add a new core team member (admin).
  */
-router.post('/api/admin/core-team', apiRateLimiter, validate(addCoreTeamMemberSchema), adminAuth, coreTeamController.adminAddCoreTeamMember);
+router.post(
+  '/api/admin/core-team',
+  apiRateLimiter,
+  validate(addCoreTeamMemberSchema),
+  adminAuth,
+  coreTeamController.adminAddCoreTeamMember
+);
 
 /**
  * DELETE /api/admin/core-team/:id â€” Remove a core team member (admin).
@@ -43,8 +49,11 @@ router.delete('/api/admin/core-team/:id', adminAuth, coreTeamController.adminDel
 /**
  * POST /api/core-team/apply — Student submits application to join core team.
  */
-router.post('/api/core-team/apply', validate(submitApplicationSchema), coreTeamController.submitApplication);
-router.post('/api/core-team/apply', coreTeamController.submitApplication);
+router.post(
+  '/api/core-team/apply',
+  validate(submitApplicationSchema),
+  coreTeamController.submitApplication
+);
 
 /**
  * GET /api/admin/core-team/applications — List all pending applications (admin).
@@ -54,14 +63,23 @@ router.get('/api/admin/core-team/applications', adminAuth, coreTeamController.li
 /**
  * POST /api/admin/core-team/applications/:id/approve — Approve an application (admin).
  */
-router.post('/api/admin/core-team/applications/:id/approve', apiRateLimiter, validate(reviewApplicationSchema), adminAuth, coreTeamController.approveApplication);
-router.post('/api/admin/core-team/applications/:id/approve', adminAuth, coreTeamController.approveApplication);
+router.post(
+  '/api/admin/core-team/applications/:id/approve',
+  apiRateLimiter,
+  validate(reviewApplicationSchema),
+  adminAuth,
+  coreTeamController.approveApplication
+);
 
 /**
  * POST /api/admin/core-team/applications/:id/reject — Reject an application (admin).
  */
-router.post('/api/admin/core-team/applications/:id/reject', apiRateLimiter, validate(reviewApplicationSchema), adminAuth, coreTeamController.rejectApplication);
-router.post('/api/admin/core-team/applications/:id/reject', adminAuth, coreTeamController.rejectApplication);
+router.post(
+  '/api/admin/core-team/applications/:id/reject',
+  apiRateLimiter,
+  validate(reviewApplicationSchema),
+  adminAuth,
+  coreTeamController.rejectApplication
+);
 
 export default router;
-

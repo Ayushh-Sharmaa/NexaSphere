@@ -86,6 +86,44 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+input,
+select,
+textarea,
+button,
+.btn,
+[role='button'] {
+  min-height: 44px;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+  touch-action: manipulation;
+}
+
+textarea {
+  min-height: 96px;
+}
+
+select {
+  cursor: pointer;
+}
+
+input[type='checkbox'],
+input[type='radio'],
+input[type='color'],
+input[type='range'],
+input[type='file'] {
+  min-height: 0;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  width: 20px;
+  height: 20px;
+}
+
 .container {
   width: 100%;
   max-width: 1240px;
@@ -302,6 +340,41 @@ a {
   #back-to-top {
     bottom: 18px;
     left: 18px;
+  }
+
+  form,
+  .form,
+  .builder-panel {
+    gap: 18px;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='color']):not([type='range']),
+  select,
+  textarea,
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .ns-input,
+  .ns-select,
+  .ns-textarea {
+    min-height: 48px;
+    padding: 13px 14px;
+  }
+
+  button[type='submit'],
+  form button[type='button'].btn-primary:last-child,
+  .form-actions .btn-primary,
+  .builder-actions .btn-primary {
+    width: 100%;
+    min-height: 52px;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .form-actions,
+  .builder-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
   }
 }
 

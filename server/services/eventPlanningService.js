@@ -1,4 +1,23 @@
+import { eventsRepository } from '../repositories/eventsRepository.js';
+import { readContent } from '../storage/contentFileStore.js';
+
 const plans = new Map();
+
+const isDbConfigured = () => Boolean(process.env.DATABASE_URL);
+
+async function validateEventExists(eventId) {
+  if (isDbConfigured()) {
+    const event = await eventsRepository.getById(eventId);
+    return event !== null;
+  } else {
+    try {
+      const content = await readContent();
+      return (content.events || []).some((e) => String(e.id) === String(eventId));
+    } catch (err) {
+      return false;
+    }
+  }
+}
 
 function getPlan(eventId) {
   if (!plans.has(eventId)) {
@@ -38,9 +57,18 @@ export const eventPlanningService = {
     };
   },
 
-  createTask(eventId, task, user) {
+  async createTask(eventId, task, user) {
+    const exists = await validateEventExists(eventId);
+    if (!exists) {
+      throw new Error('Event not found.');
+    }
     const plan = getPlan(eventId);
-    const taskId = `task-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const taskIds = Array.from(plan.tasks.values()).map(t => {
+      const match = String(t.id).match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    });
+    const nextNum = taskIds.length > 0 ? Math.max(...taskIds) + 1 : 1;
+    const taskId = `task-${nextNum}`;
     const newTask = {
       id: taskId,
       ...task,
@@ -143,7 +171,7 @@ export const eventPlanningService = {
     ];
     defaults.forEach((t) =>
       plan.templates.push({
-        id: `tmpl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        id: `tmpl-${Date.now()}-${crypto.randomUUID().split('-')[0]}`,
         ...t,
       })
     );

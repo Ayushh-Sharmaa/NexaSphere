@@ -22,7 +22,6 @@ export function requireNotificationPrefAuth(req, res, next) {
   });
 }
 
-
 export function requireMentorshipAuth(req, res, next) {
   adminAuthMiddleware.requireAdmin(req, res, (err) => {
     if (!err && req.adminSession) {

@@ -28,11 +28,25 @@ function makeRes() {
     _status: 200,
     _body: null,
     _headers: {},
-    status(code) { this._status = code; return this; },
-    json(body) { this._body = body; return this; },
-    send(body) { this._body = body; return this; },
-    setHeader(k, v) { this._headers[k] = v; return this; },
-    getHeader(k) { return this._headers[k]; },
+    status(code) {
+      this._status = code;
+      return this;
+    },
+    json(body) {
+      this._body = body;
+      return this;
+    },
+    send(body) {
+      this._body = body;
+      return this;
+    },
+    setHeader(k, v) {
+      this._headers[k] = v;
+      return this;
+    },
+    getHeader(k) {
+      return this._headers[k];
+    },
   };
   return res;
 }
@@ -66,10 +80,15 @@ describe('adminAuthMiddleware — contract', () => {
     const res = makeRes();
     let nextCalled = false;
 
-    await requireAdmin(req, res, () => { nextCalled = true; });
+    await requireAdmin(req, res, () => {
+      nextCalled = true;
+    });
 
     assert.ok(!nextCalled, 'next() must not be called for unauthenticated request');
-    assert.ok(res._status === 401 || res._status === 403, `Expected 401 or 403, got ${res._status}`);
+    assert.ok(
+      res._status === 401 || res._status === 403,
+      `Expected 401 or 403, got ${res._status}`
+    );
   });
 
   test('rejects request with malformed token → 401/403', async (t) => {
@@ -78,7 +97,9 @@ describe('adminAuthMiddleware — contract', () => {
     const res = makeRes();
     let nextCalled = false;
 
-    await requireAdmin(req, res, () => { nextCalled = true; });
+    await requireAdmin(req, res, () => {
+      nextCalled = true;
+    });
 
     assert.ok(!nextCalled || res._status >= 400, 'Should reject bad token');
   });
@@ -135,7 +156,11 @@ describe('apiRateLimiter — contract', () => {
     const exports = Object.values(mod);
     assert.ok(exports.length > 0, 'tierRateLimiter must export at least one limiter');
     for (const fn of exports) {
-      assert.equal(typeof fn, 'function', `Each rate limiter export must be a function; got ${typeof fn}`);
+      assert.equal(
+        typeof fn,
+        'function',
+        `Each rate limiter export must be a function; got ${typeof fn}`
+      );
     }
   });
 });
@@ -151,7 +176,9 @@ describe('errorHandler — contract', () => {
     const res = makeRes();
     let nextCalled = false;
 
-    mod.notFoundHandler(req, res, () => { nextCalled = true; });
+    mod.notFoundHandler(req, res, () => {
+      nextCalled = true;
+    });
 
     // Should respond 404, not call next
     assert.ok(!nextCalled, 'notFoundHandler should not call next()');
@@ -168,7 +195,9 @@ describe('errorHandler — contract', () => {
     let nextCalled = false;
 
     // errorHandler has arity 4: (err, req, res, next)
-    mod.errorHandler(err, req, res, () => { nextCalled = true; });
+    mod.errorHandler(err, req, res, () => {
+      nextCalled = true;
+    });
 
     assert.ok(!nextCalled, 'errorHandler should not call next()');
     assert.ok(res._status >= 400, `Expected ≥400 status, got ${res._status}`);

@@ -35,23 +35,14 @@ const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstFor
         onClick={() => onClick(id)}
         style={{ cursor: 'pointer' }}
       >
-
-const EventCard = React.memo(function EventCard({ event, onClick, id }) {
-  const [shareOpen, setShareOpen] = useState(false);
-
-  function handleShareClick(e) {
-    e.stopPropagation(); // don't trigger the card's onClick
-    setShareOpen(true);
-  }
-
-  return (
-    <>
-      <div className="event-card" onClick={() => onClick(id)} style={{ cursor: 'pointer' }}>
-        <h3>{event.title}</h3>
         <h3>{event.title || event.name}</h3>
         <p>{event.date}</p>
         <p>{event.description}</p>
-        {event.location && <p><strong>Location:</strong> {event.location}</p>}
+        {event.location && (
+          <p>
+            <strong>Location:</strong> {event.location}
+          </p>
+        )}
         <div
           className="event-description-html"
           style={{
@@ -65,31 +56,49 @@ const EventCard = React.memo(function EventCard({ event, onClick, id }) {
           }}
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(event.description || '') }}
         />
-        {event.location && <p>{event.location}</p>}
         {event.category && <span className="event-category">{event.category}</span>}
-        
+
         {/* Capacity Tracking & Status Bar */}
         {capacity > 0 && (
           <div className="event-capacity-container" style={{ margin: '12px 0' }}>
-            <div className="event-capacity-text" style={{ fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{rsvpCount}/{capacity} spots filled</span>
-              {isFull && isUpcoming && <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Waitlist Active</span>}
+            <div
+              className="event-capacity-text"
+              style={{ fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between' }}
+            >
+              <span>
+                {rsvpCount}/{capacity} spots filled
+              </span>
+              {isFull && isUpcoming && (
+                <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Waitlist Active</span>
+              )}
             </div>
-            <div className="capacity-bar-bg" style={{ background: '#e2e8f0', height: '6px', borderRadius: '3px', marginTop: '4px', overflow: 'hidden' }}>
-              <div 
-                className="capacity-bar-fill" 
-                style={{ 
-                  width: `${Math.min((rsvpCount / capacity) * 100, 100)}%`, 
-                  background: isFull ? '#ef4444' : '#10b981', 
-                  height: '100%' 
-                }} 
+            <div
+              className="capacity-bar-bg"
+              style={{
+                background: '#e2e8f0',
+                height: '6px',
+                borderRadius: '3px',
+                marginTop: '4px',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                className="capacity-bar-fill"
+                style={{
+                  width: `${Math.min((rsvpCount / capacity) * 100, 100)}%`,
+                  background: isFull ? '#ef4444' : '#10b981',
+                  height: '100%',
+                }}
               />
             </div>
           </div>
         )}
 
         {/* Action Controls */}
-        <div className="event-card-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+        <div
+          className="event-card-actions"
+          style={{ display: 'flex', gap: '8px', marginTop: '12px' }}
+        >
           {isUpcoming && (
             <button
               className={`event-action-btn ${isFull ? 'btn-waitlist' : 'btn-rsvp'}`}
@@ -101,13 +110,13 @@ const EventCard = React.memo(function EventCard({ event, onClick, id }) {
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               {isFull ? 'Join Waitlist' : 'RSVP / Register'}
             </button>
           )}
-          
+
           <button
             className="event-share-btn"
             onClick={handleShareClick}

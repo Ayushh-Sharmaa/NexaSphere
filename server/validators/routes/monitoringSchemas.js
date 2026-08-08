@@ -6,10 +6,6 @@ export const rumMetricSchema = z
   })
   .strict();
 
-export const keyRotationSchema = z
-  .object({})
-  .strict();
+export const keyRotationSchema = z.object({}).strict();
 
-export const testErrorSchema = z
-  .object({})
-  .strict();
+export const testErrorSchema = z.object({}).strict();

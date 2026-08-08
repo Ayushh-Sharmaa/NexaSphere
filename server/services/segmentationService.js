@@ -26,8 +26,13 @@ export const segmentationService = {
     const segment = await userSegmentsRepository.getSegmentById(segmentId);
     if (!segment) throw new Error('Segment not found');
 
+    const criteria = segment.criteria;
+    if (!criteria || typeof criteria !== 'object' || Object.keys(criteria).length === 0) {
+      return [];
+    }
+
     // We reuse the email campaign repo's user fetching logic for segments
-    return emailCampaignRepository.getSegmentUsers(segment.criteria);
+    return emailCampaignRepository.getSegmentUsers(criteria);
   },
 
   async runAutoSegmentation() {

@@ -1,23 +1,31 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { TASK_STATUSES } from "../models/Task.js";
 
 const MAX_PAYLOAD_SIZE = 50000; // 50KB limit to prevent memory exhaustion
 const MAX_NESTING_DEPTH = 10; // Prevent deep object attacks
 
 // Reusable schema pieces
-const roomIdSchema = z.string().regex(/^[a-zA-Z0-9\-_]{1,100}$/, 'Invalid room ID');
+const roomIdSchema = z
+  .string()
+  .regex(/^[a-zA-Z0-9\-_]{1,100}$/, "Invalid room ID");
 const userNameSchema = z.string().max(100).optional();
-const userEmailSchema = z.string().email().max(256).optional().or(z.literal(''));
+const userEmailSchema = z
+  .string()
+  .email()
+  .max(256)
+  .optional()
+  .or(z.literal(""));
 const userColorSchema = z.string().max(20).optional();
 
 // Schema definitions per event
 // These enforce strict typing and bounds checking on incoming data
 export const eventSchemas = {
-  'user:identify': z.object({
+  "user:identify": z.object({
     userId: z.string().max(128),
     email: z.string().max(256), // Allow non-email formats if that's how it's used, just max length
   }),
-  'room:join': z.string().max(100),
-  'room:leave': z.string().max(100),
+  "room:join": z.string().max(100),
+  "room:leave": z.string().max(100),
   join_room: z
     .tuple([
       roomIdSchema,
@@ -72,7 +80,7 @@ export const eventSchemas = {
     })
     .passthrough(),
 
-  'admin:authenticate': z
+  "admin:authenticate": z
     .object({
       token: z.string().max(1000).optional(),
     })
@@ -97,7 +105,7 @@ export const eventSchemas = {
     .object({
       roomId: roomIdSchema,
       taskId: z.string().max(100),
-      status: z.enum(['Todo', 'In_Progress', 'Review', 'Done']),
+      status: z.enum(TASK_STATUSES),
       previousStatus: z.string().max(50).optional().nullable(),
       updatedBy: z.string().max(100).optional().nullable(),
     })
@@ -108,7 +116,7 @@ export const eventSchemas = {
     .object({
       teamRoomId: roomIdSchema,
       taskId: z.string().max(100),
-      newStatus: z.enum(['Todo', 'In_Progress', 'Review', 'Done']),
+      newStatus: z.enum(TASK_STATUSES),
       previousStatus: z.string().max(50).optional().nullable(),
       updatedBy: z.string().max(100).optional().nullable(),
     })
@@ -120,10 +128,10 @@ function checkDepth(str) {
   let depth = 0;
   let maxDepth = 0;
   for (let i = 0; i < str.length; i++) {
-    if (str[i] === '{' || str[i] === '[') {
+    if (str[i] === "{" || str[i] === "[") {
       depth++;
       if (depth > maxDepth) maxDepth = depth;
-    } else if (str[i] === '}' || str[i] === ']') {
+    } else if (str[i] === "}" || str[i] === "]") {
       depth--;
     }
   }
@@ -133,7 +141,7 @@ function checkDepth(str) {
 export function validationMiddleware(packet, next) {
   try {
     if (!Array.isArray(packet) || packet.length === 0) {
-      return next(new Error('Invalid packet format'));
+      return next(new Error("Invalid packet format"));
     }
 
     const event = packet[0];
@@ -144,12 +152,12 @@ export function validationMiddleware(packet, next) {
 
     // 2. Enforce Size Limit
     if (payloadString.length > MAX_PAYLOAD_SIZE) {
-      return next(new Error('Payload too large'));
+      return next(new Error("Payload too large"));
     }
 
     // 3. Enforce Nesting Depth
     if (checkDepth(payloadString) > MAX_NESTING_DEPTH) {
-      return next(new Error('Payload too deeply nested'));
+      return next(new Error("Payload too deeply nested"));
     }
 
     // 4. Schema Validation (if defined)
@@ -169,12 +177,15 @@ export function validationMiddleware(packet, next) {
 
     next();
   } catch (error) {
-    if (error && error.name === 'ZodError') {
-      const issue = error.errors && error.errors.length > 0 ? error.errors[0] : null;
-      const path = issue && issue.path ? issue.path.join('.') : '';
+    if (error && error.name === "ZodError") {
+      const issue =
+        error.errors && error.errors.length > 0 ? error.errors[0] : null;
+      const path = issue && issue.path ? issue.path.join(".") : "";
       const msg = issue ? issue.message : error.message;
-      return next(new Error(`Validation error: ${path ? path + ' ' : ''}${msg}`));
+      return next(
+        new Error(`Validation error: ${path ? path + " " : ""}${msg}`)
+      );
     }
-    return next(new Error('Invalid payload structure'));
+    return next(new Error("Invalid payload structure"));
   }
 }

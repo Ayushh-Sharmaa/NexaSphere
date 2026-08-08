@@ -59,7 +59,11 @@ describe('API Request Tracing and Distributed Correlation IDs', () => {
       headers: { 'X-Correlation-ID': testId },
     });
 
-    assert.equal(res.headers.get('X-Correlation-ID'), testId, 'Should preserve incoming request ID');
+    assert.equal(
+      res.headers.get('X-Correlation-ID'),
+      testId,
+      'Should preserve incoming request ID'
+    );
   });
 
   test('prepends reqId to pg client queries', async (t) => {

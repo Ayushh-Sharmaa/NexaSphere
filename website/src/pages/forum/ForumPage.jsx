@@ -15,6 +15,7 @@ import { fallbackCategories, fallbackThreads } from '../../data/forumData.js';
 import Footer from '../../shared/Footer';
 import { EmptyState } from '../../components/EmptyState';
 import { ForumPostSkeleton } from '../../components/ui/skeleton/ForumPostSkeleton';
+import TrendingHashtags from '../../components/forum/TrendingHashtags';
 
 export default function ForumPage({ onBack }) {
   const navigate = useNavigate();
@@ -244,6 +245,9 @@ export default function ForumPage({ onBack }) {
           </select>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+
         {loading ? (
           <ForumPostSkeleton count={5} />
         ) : filteredThreads.length === 0 ? (
@@ -359,6 +363,11 @@ export default function ForumPage({ onBack }) {
             ))}
           </div>
         )}
+        </div>
+        <div className="hidden lg:block lg:col-span-1">
+          <TrendingHashtags />
+        </div>
+      </div>
       </div>
 
       {showCreateModal && (

@@ -430,17 +430,13 @@ function LiveStreamPage() {
                 {stream.startedAt && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Started</span>
-                    <span className="font-medium">
-                      {formatStreamTime(stream.startedAt)}
-                    </span>
+                    <span className="font-medium">{formatStreamTime(stream.startedAt)}</span>
                   </div>
                 )}
                 {stream.endedAt && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Ended</span>
-                    <span className="font-medium">
-                      {formatStreamTime(stream.endedAt)}
-                    </span>
+                    <span className="font-medium">{formatStreamTime(stream.endedAt)}</span>
                   </div>
                 )}
                 {stream.recordingDuration && (

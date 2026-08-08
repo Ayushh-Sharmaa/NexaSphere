@@ -19,7 +19,9 @@ export const elasticsearchService = {
         document,
       });
       // Optionally refresh for real-time visibility in small datasets/tests
-      await client.indices.refresh({ index }).catch((err) => console.error('Elasticsearch refresh error:', err.message));
+      await client.indices
+        .refresh({ index })
+        .catch((err) => console.error('Elasticsearch refresh error:', err.message));
     } catch (e) {
       console.error(`Elasticsearch index error on [${index}]:`, e.message);
     }
@@ -36,10 +38,10 @@ export const elasticsearchService = {
 
   async search(query, type = 'all', limit = 20, skip = 0) {
     if (!client) return [];
-    
+
     try {
       const index = type === 'all' ? '*' : type;
-      
+
       const response = await client.search({
         index,
         from: skip,
@@ -49,13 +51,13 @@ export const elasticsearchService = {
             multi_match: {
               query,
               fuzziness: 'AUTO',
-              fields: ['title^3', 'description^2', 'tags', 'skills', 'category', 'location']
-            }
-          }
-        }
+              fields: ['title^3', 'description^2', 'tags', 'skills', 'category', 'location'],
+            },
+          },
+        },
       });
-      
-      return response.hits.hits.map(h => ({
+
+      return response.hits.hits.map((h) => ({
         ...h._source,
         score: h._score,
       }));
@@ -63,5 +65,5 @@ export const elasticsearchService = {
       console.error('Elasticsearch search error:', e.message);
       return [];
     }
-  }
+  },
 };

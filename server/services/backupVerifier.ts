@@ -82,15 +82,10 @@ export class BackupVerifierService {
 
       // The script is located at the root of the server directory
       const scriptPath = path.resolve(__dirname, '../../verify-backup-integrity.sh');
-      
+
       // Use execFile with argument array to prevent command injection
       const { stdout, stderr } = await execFileAsync('bash', [scriptPath, localFilePath]);
-      // The script is located at the root of the server directory
-      const scriptPath = path.resolve(__dirname, '../../verify-backup-integrity.sh');
-      
-      // Use bash explicitly in case it's not executable
-      const { stdout, stderr } = await execAsync(`bash "${scriptPath}" "${localFilePath}"`);
-      
+
       console.log('Integrity check output:', stdout);
       if (stderr) {
         console.warn('Integrity check stderr:', stderr);

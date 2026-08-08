@@ -34,7 +34,7 @@ export default function SessionPlayer() {
     setActiveSessionId(sessionId);
     if (playerRef.current) {
       // Destroy old player
-      containerRef.current.innerHTML = '';
+      containerRef.current.textContent = '';
     }
 
     try {

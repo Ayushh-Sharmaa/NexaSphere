@@ -1,0 +1,49 @@
+name: Dependency Security Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'backend/package.json'
+      - 'backend/package-lock.json'
+
+jobs:
+  socket-security:
+    name: Socket.dev Supply Chain Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Socket Security Scan
+        uses: socketdev/setup-socket@v1
+        with:
+          api_token: ${{ secrets.SOCKET_SECURITY_TOKEN }}
+          
+      - name: Analyze PR Dependencies
+        run: |
+          echo "Scanning newly added or updated dependencies for malicious behavior..."
+          # Socket CLI will automatically analyze the diff and post a comment on the PR.
+          # It will fail the workflow if anomalous behavior (e.g., unexpected network access,
+          # typo-squatting, or malware) is detected.
+          npx @socketsecurity/cli@latest report
+          
+  e2e-tests:
+    name: Run E2E Tests Before Automerge
+    needs: socket-security
+    runs-on: ubuntu-latest
+    # Only run for Renovate PRs to gate the automerge
+    if: github.actor == 'renovate[bot]'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npx playwright test
+      
+  # If Socket passes and E2E passes, GitHub's native auto-merge will kick in for minor/patch

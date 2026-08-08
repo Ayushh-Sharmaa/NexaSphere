@@ -2,20 +2,8 @@ import { z } from 'zod';
 
 export const enrollSchema = z
   .object({
-    targetWeeks: z
-      .number()
-      .int()
-      .positive()
-      .max(52)
-      .optional()
-      .default(12),
-    initialLevel: z
-      .number()
-      .int()
-      .min(1)
-      .max(10)
-      .optional()
-      .default(1),
+    targetWeeks: z.number().int().positive().max(52).optional().default(12),
+    initialLevel: z.number().int().min(1).max(10).optional().default(1),
   })
   .strict();
 
