@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning';
+import BadgesList from '../../components/profile/BadgesList';
 import { Skeleton, SkeletonAvatar, SkeletonText } from '../../components/ui/skeleton/Skeleton';
 const styles = {
   page: {
@@ -354,6 +355,11 @@ export default function ProfilePage() {
                 month: 'long',
               })}
               &nbsp;&bull;&nbsp;{profile.role || 'Student'}
+            </div>
+            <div
+              style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
+              <BadgesList />
             </div>
             {profile.socialLinks && (
               <div style={{ marginTop: '0.6rem' }}>

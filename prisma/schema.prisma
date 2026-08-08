@@ -252,6 +252,29 @@ model EventRegistration {
   @@index([userId])
 }
 
+model Badge {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  iconUrl     String?
+  criteria    String
+  points      Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  badgeId     String   @db.ObjectId
+  earnedAt    DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+}
+
+
 // =========================================================
 
 model EventFeedback {
