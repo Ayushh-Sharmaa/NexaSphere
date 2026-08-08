@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning';
 import BadgesList from '../../components/profile/BadgesList';
+import ProfileProgressBar from '../../components/profile/ProfileProgressBar';
+import GitHubStats from '../../components/profile/GitHubStats';
 import { Skeleton, SkeletonAvatar, SkeletonText } from '../../components/ui/skeleton/Skeleton';
 const styles = {
   page: {
