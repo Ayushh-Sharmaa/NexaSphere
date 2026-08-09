@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { requireStudentAuth } = require('../middleware/studentAuthMiddleware');
 
 const eventResourceController = require('../controllers/eventResourceController');
+
+router.use(requireStudentAuth);
 
 // Resource CRUD
 router.post('/', eventResourceController.createResource);
