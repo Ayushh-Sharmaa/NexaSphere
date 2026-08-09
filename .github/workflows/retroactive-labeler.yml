@@ -1,0 +1,30 @@
+name: GSSoC — Retroactive Labeler
+
+on:
+  workflow_dispatch:
+
+jobs:
+  label-past-items:
+    name: Label Past PRs and Issues
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @octokit/rest
+
+      - name: Run Retroactive Labeler Script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/retroactive-labeler.js

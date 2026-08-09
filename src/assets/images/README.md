@@ -49,7 +49,9 @@ Circular profile photos — **300×300px, PNG with transparent background**.
 1. Crop image to circle — 300×300px, transparent background
 2. Save as `membername.png` in this folder
 3. Upload or reference the image through the backend-managed core team record:
+
    ```js
    import membernameImg from '../assets/images/team/membername.png';
    ```
+
 4. Use `membernameImg` in the team member object's `photo` field

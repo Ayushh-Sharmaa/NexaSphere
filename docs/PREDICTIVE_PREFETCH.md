@@ -9,5 +9,6 @@ We have implemented an ML-based predictive prefetching system to optimize the Ti
 3. **Dynamic Prefetching**: The \`usePredictivePrefetch\` hook listens to route changes. If the model predicts an 80%+ chance that a user will navigate from the "Collaboration Hub" to "Analytics", the React hook dynamically injects a \`<link rel="prefetch">\` tag for the Analytics JavaScript bundle into the \`<head>\`.
 
 ## Benefits
+
 - Drastically reduces the 1-2 second delay when loading heavy chunks over the network.
 - More efficient than the Next.js/Vite default of prefetching *every* visible link, which wastes bandwidth on mobile networks.

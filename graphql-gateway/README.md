@@ -22,6 +22,6 @@ or adding a users service.
 
 cd graphql-gateway
 npm install
-$env:NEXASPHERE_SERVER_URL="http://localhost:8787"; npm run dev
+$env:NEXASPHERE_SERVER_URL="<http://localhost:8787>"; npm run dev
 
 Requires the existing server/ API running on port 8787.

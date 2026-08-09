@@ -15,5 +15,6 @@ Instead of routing 100% of traffic to a new deployment (Blue/Green), we use **Ca
    - If healthy, the traffic is progressively increased (20%, 50%, 100%).
 
 ## Infrastructure Files
+
 - \`infra/k8s/canary-rollout.yaml\`: The Argo Rollouts definition outlining the canary steps and Istio VirtualService integration.
 - \`.github/workflows/canary-deployment.yml\`: The CI/CD pipeline that triggers the rollout on pushes to \`main\`.

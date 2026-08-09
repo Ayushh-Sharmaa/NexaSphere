@@ -145,6 +145,7 @@ Success responses return the data directly (no wrapper):
 ```json
 { "id": 1, "name": "Example" }
 ```
+
 All errors return a JSON object with a `message` field:
 
 ```json

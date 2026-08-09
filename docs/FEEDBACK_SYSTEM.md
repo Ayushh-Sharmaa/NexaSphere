@@ -68,15 +68,19 @@ CREATE TABLE feedback_schedule (
 
 1. Run migrations above.
 2. Register routes in `server/app.js`:
+
    ```js
    const feedbackRoutes = require('./routes/feedback');
    app.use('/api/feedback', feedbackRoutes);
    ```
+
 3. Start the scheduler in `server/index.js`:
+
    ```js
    const { startScheduler } = require('./services/feedbackScheduler');
    startScheduler();
    ```
+
 4. Call `scheduleFeedbackForEvent(eventId)` whenever an event is created or end_time is updated.
 
 ## API Reference

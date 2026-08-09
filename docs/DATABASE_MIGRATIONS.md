@@ -293,6 +293,7 @@ npm --prefix server run db:validate
 ```
 
 This validation script runs automatically as part of the Database Migrations CI pipeline and staging deployment workflows.
+
 | Job                             | Description                                                                                     |
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `Validate Node.js Migrations`   | Spins up a PostgreSQL service, installs dependencies, runs migrations, validates constraints, and tests rollback. |
@@ -329,25 +330,34 @@ To support zero-downtime database updates during Blue-Green deployments, schema 
 Each stack supports rolling back database migrations using their respective CLI commands:
 
 ### Node.js (PostgreSQL)
+
 Run the rollback command to revert the last batch of migrations:
+
 ```bash
 npm --prefix server run migrate:rollback
 ```
+
 To roll back to a specific migration version, inspect the `pgmigrations` table and run down migrations to that revision.
 
 ### Java (Flyway)
+
 Since Flyway Community Edition does not support manual down migrations natively, rollbacks are handled by:
+
 1. Reverting the application deployment to the previous (Blue) version.
 2. Since schema changes are backward-compatible, no DB rollback is required.
 3. For destructive rollbacks, apply an additive compensating migration (e.g. recreating dropped columns).
 
 ### Python (Alembic)
+
 To revert the most recent migration:
+
 ```bash
 cd server-python
 alembic downgrade -1
 ```
+
 Or downgrade to a specific revision ID:
+
 ```bash
 alembic downgrade <revision_id>
 ```
@@ -359,15 +369,19 @@ alembic downgrade <revision_id>
 We implement automated data validation checks to verify schema integrity and foreign key constraints before and after migration.
 
 ### Validation Script
+
 A dedicated validation script resides in `server/scripts/validate-database.js`. It performs the following checks:
+
 1. Verifies that all expected tables exist.
 2. Verifies that critical columns and their datatypes are correct.
 3. Validates data integrity (e.g., checks for orphan entries in relationship tables).
 
 To run the checks manually:
+
 ```bash
 npm --prefix server run db:validate
 ```
+
 This validation script runs automatically as part of the Database Migrations CI pipeline and staging deployment workflows.
 
 ---

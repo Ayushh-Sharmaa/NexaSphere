@@ -10,7 +10,7 @@ We have implemented the **Circuit Breaker** pattern to protect NexaSphere from c
 
 ## Distributed State via Redis
 
-Because NexaSphere is a clustered microservice architecture, a circuit breaker residing in the memory of a single Node.js process is insufficient. 
+Because NexaSphere is a clustered microservice architecture, a circuit breaker residing in the memory of a single Node.js process is insufficient.
 We implemented a \`DistributedCircuitBreaker\` (\`backend/services/circuitBreaker.js\`) that syncs its state to Redis. If Pod A detects an outage and opens its circuit, it writes "OPEN" to Redis. Pod B will read this state and instantly fail-fast, avoiding the need to discover the outage independently.
 
 ## Usage

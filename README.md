@@ -311,6 +311,7 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 After the installation script finishes, reload your shell configuration by running `source ~/.zshrc` (or `source ~/.bashrc` depending on your active shell), or restart your terminal.
 
 Verify the installation by querying the NVM version:
+
 ```bash
 nvm --version
 ```
@@ -322,6 +323,7 @@ Since NVM does not officially support Windows, developers on Windows should use 
 1. **Uninstall Existing Node.js Versions**: Before installing, uninstall any existing standalone Node.js installations to prevent PATH environment conflicts. Delete any residual folders like `C:\Program Files\nodejs` or `%APPDATA%\npm`.
 2. **Download the Installer**: Visit the [nvm-windows releases page](https://github.com/coreybutler/nvm-windows/releases), download the latest `nvm-setup.exe` installer, and run it.
 3. **Verify Installation**: Open a new Command Prompt or PowerShell window as Administrator and run:
+
    ```cmd
    nvm version
    ```
@@ -342,22 +344,25 @@ If you have NVM installed, running `nvm use` in the repository root will automat
 
 #### 🔧 Troubleshooting Common Setup Issues
 
-* **Error: `command not found: nvm` (macOS/Linux)**
+- **Error: `command not found: nvm` (macOS/Linux)**
   This occurs when your shell profile script does not export the path variables. Ensure the following configuration is appended to your shell configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`):
+
   ```bash
   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && echo "$HOME/.nvm" || echo "$XDG_CONFIG_HOME/nvm")"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
   ```
+
   After adding the lines, run `source ~/.zshrc` to reload.
 
-* **Error: `nvm is not recognized as an internal or external command` (Windows)**
+- **Error: `nvm is not recognized as an internal or external command` (Windows)**
   Make sure you closed and reopened your terminal emulator (Command Prompt, PowerShell, or Git Bash) after installing `nvm-windows`. If the error persists, check your User and System environment variables to verify that the `NVM_HOME` and `NVM_SYMLINK` paths have been set correctly.
 
-* **Version Mismatch or Symlink Errors (Windows)**
+- **Version Mismatch or Symlink Errors (Windows)**
   If running `nvm use 20` outputs a success message but `node -v` still shows a different version, it means an old Node.js installation is shadowing the NVM symlink in your system's `PATH`. Ensure the NVM directories in your environment variables are placed higher than any other Node.js references.
 
-* **Download Failures or Network Timeout (Global)**
+- **Download Failures or Network Timeout (Global)**
   If downloading Node.js through NVM fails due to network restrictions or firewalls, you can configure NVM to use official mirrors:
+
   ```bash
   # For macOS/Linux
   export NVM_NODEJS_ORG_MIRROR=https://nodejs.org/dist
@@ -365,6 +370,7 @@ If you have NVM installed, running `nvm use` in the repository root will automat
   # For Windows (cmd)
   nvm node_mirror https://npmmirror.com/mirrors/node/
   ```
+
 ---
 
 ## 🚀 Quick Start
@@ -414,10 +420,10 @@ Or start services individually:
 | —                     | API Health Check | <http://localhost:8787/health> |
 | Command                 | Service          | URL                          |
 | ----------------------- | ---------------- | ---------------------------- |
-| `npm run dev:website`   | Website          | http://localhost:5175        |
-| `npm run dev:admin`     | Admin Dashboard  | http://localhost:5001        |
-| `npm run dev:server`    | Backend API      | http://localhost:8787        |
-| —                       | API Health Check | http://localhost:8787/health |
+| `npm run dev:website`   | Website          | <http://localhost:5175>        |
+| `npm run dev:admin`     | Admin Dashboard  | <http://localhost:5001>        |
+| `npm run dev:server`    | Backend API      | <http://localhost:8787>        |
+| —                       | API Health Check | <http://localhost:8787/health> |
 
 > **Tip:** The website works in **offline mode** when `VITE_API_BASE` is empty.
 > All data comes from localStorage / static JSON files — no backend needed.
@@ -449,6 +455,7 @@ This section covers common issues you may encounter during setup and development
    ```
 
 2. **Change the port in your `.env` file:**
+
    ```env
    PORT=8788  # Change to a different port
    ```
@@ -532,6 +539,7 @@ Make sure the ports match your running frontend services.
    ```
 
 3. **Use legacy peer resolver (if needed):**
+
    ```bash
    npm install --legacy-peer-deps
    ```
@@ -549,6 +557,7 @@ Make sure the ports match your running frontend services.
    ```
 
 2. **Fix npm permissions (if using system Node):**
+
    ```bash
    mkdir ~/.npm-global
    npm config set prefix '~/.npm-global'
@@ -564,10 +573,13 @@ Make sure the ports match your running frontend services.
 
 1. **Check file paths are correct** (case-sensitive on Linux/macOS)
 2. **Ensure all dependencies are installed:**
+
    ```bash
    npm install
    ```
+
 3. **Clear build cache:**
+
    ```bash
    rm -rf dist build .vite  # macOS/Linux
    # or
@@ -595,6 +607,7 @@ Make sure the ports match your running frontend services.
    ```
 
 3. **Run tests with coverage disabled (if needed):**
+
    ```bash
    npm test -- --no-coverage
    ```
@@ -620,11 +633,15 @@ npm run test:ui
 ### End-to-End Tests (Playwright)
 
 # Seed the database with dummy data
+
 npx prisma db seed
 
 # Start the backend server
+
 npm run dev
-# → Runs at http://localhost:8080
+
+# → Runs at <http://localhost:8080>
+
 ```bash
 # Run E2E tests
 npm run e2e
@@ -738,5 +755,5 @@ npm run dev
 ```
 
 ### How do I report a bug?
-Please open a GitHub issue with reproduction steps and relevant logs.
 
+Please open a GitHub issue with reproduction steps and relevant logs.

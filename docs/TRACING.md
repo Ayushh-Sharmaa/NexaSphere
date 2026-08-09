@@ -18,5 +18,5 @@ To view the traces locally, spin up the Jaeger container using the provided dock
 docker-compose -f docker-compose.telemetry.yml up -d
 \`\`\`
 
-Then run the services. They default to exporting to \`http://localhost:4318/v1/traces\`.
-You can view the distributed traces UI at \`http://localhost:16686\`.
+Then run the services. They default to exporting to \`<http://localhost:4318/v1/traces\`>.
+You can view the distributed traces UI at \`<http://localhost:16686\`>.

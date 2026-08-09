@@ -12,8 +12,10 @@ To protect sensitive communications, we have implemented End-to-End Encryption f
 6. **Decryption**: The recipient derives the same shared secret (using their private key and the sender's public key) and decrypts the message.
 
 ## UI Implementation
+
 - The \`E2EEMessageInput\` component handles encryption before transmission.
 - The \`E2EEBadge\` component is displayed in E2EE-enabled channels to reassure users.
 
 ## Search limitations
+
 Because the server cannot read the messages, server-side search is disabled for E2EE channels. Client-side search (using IndexedDB) will be implemented in a future iteration.

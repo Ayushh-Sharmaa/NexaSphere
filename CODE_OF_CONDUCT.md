@@ -139,29 +139,32 @@ Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcem
 
 For answers to common questions about this code of conduct, see the FAQ at [https://www.contributor-covenant.org/faq](https://www.contributor-covenant.org/faq). Translations are available at [https://www.contributor-covenant.org/translations](https://www.contributor-covenant.org/translations).
 
-
 ## Technical Conduct Standards
 
 In addition to interpersonal conduct, we expect the following technical standards:
 
 ### Code Review Etiquette
+
 - Be constructive, not critical — suggest improvements, not just problems
 - Acknowledge good work when you see it
 - Ask questions before assuming intent: "Could you help me understand why...?"
 - Review the code, not the person
 
 ### Pull Request Behavior
+
 - Keep PRs focused — one feature or fix per PR
 - Write clear PR descriptions explaining what, why, and how
 - Respond to review comments promptly (within 72 hours)
 - Do not merge your own PRs without review (unless you are the only maintainer)
 
 ### Commit Standards
+
 - Write clear, imperative commit messages: "Add pagination to EventsList" not "added stuff"
 - Reference issues in commits: "fix: resolve null crash in DataTable (#42)"
 - Do not commit generated files, build artifacts, or node_modules
 
 ### Issue Behavior
+
 - Search for duplicates before opening a new issue
 - Provide reproducible steps for bug reports
 - Respect issue labels and do not self-assign without maintainer approval

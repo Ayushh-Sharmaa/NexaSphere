@@ -9,7 +9,7 @@ Standard GraphQL uses \`POST\` requests, which CDNs (like Cloudflare or CloudFro
 To solve this, we use **Automatic Persisted Queries (APQ)**.
 
 1. **Client**: The frontend hashes the GraphQL query string (SHA-256) and sends a \`GET\` request containing only the hash in the URL parameters.
-2. **Edge (Cloudflare Worker)**: 
+2. **Edge (Cloudflare Worker)**:
    - The Cloudflare Worker (\`workers/graphql-edge-cache/index.js\`) intercepts the \`GET\` request.
    - It checks the local Edge CDN Cache for that specific URL (hash).
    - If found (Cache Hit), it serves the JSON instantly (<10ms) without ever hitting our AWS region.
@@ -19,6 +19,7 @@ To solve this, we use **Automatic Persisted Queries (APQ)**.
 4. **Worker Caching**: On a successful response from the origin, the Worker injects \`Cache-Control\` headers and writes the payload to the CDN Cache.
 
 ## Deployment
+
 Install Wrangler CLI and run from the \`workers/graphql-edge-cache\` directory:
 \`\`\`bash
 npm i -g wrangler

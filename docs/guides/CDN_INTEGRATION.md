@@ -45,10 +45,11 @@ This guide documents the architecture, setup instructions, deployment configurat
 
 1. Open the [AWS S3 Console](https://s3.console.aws.amazon.com/).
 2. Create a bucket named `nexasphere-static-assets` (or similar).
-3. **Block Public Access:** Keep "Block *all* public access" **enabled** (CloudFront will access files securely using OAC).
+3. **Block Public Access:** Keep "Block _all_ public access" **enabled** (CloudFront will access files securely using OAC).
 4. Enable **Bucket Versioning** for easy rollback of files if needed.
 
 ### Step 2: AWS CloudFront Distribution Setup
+
 1. Open the [AWS CloudFront Console](https://console.aws.amazon.com/cloudfront/).
 2. Click **Create Distribution**.
 3. **Origin Domain:** Select the S3 bucket created in Step 1.
@@ -105,11 +106,14 @@ To ensure immediate propagation of code changes on deploy:
    ```
 
 To ensure immediate propagation of code changes on deploy:
+
 1. When assets are deployed, a CloudFront cache invalidation is triggered.
 2. In the deployment script `scripts/deploy-cdn.sh`, we run:
+
    ```bash
    aws cloudfront create-invalidation --distribution-id <id> --paths "/*"
    ```
+
 3. This invalidates the cached entrypoint files at all edge locations, forcing them to re-verify files on the origin (S3) next time they are requested.
 
 ---

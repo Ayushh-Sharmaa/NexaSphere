@@ -1,6 +1,7 @@
 # TODO: Add Search Functionality to Events Page
 
 ## Steps
+
 - [x] Plan approved by user
 - [x] 1. Edit `src/pages/events/EventsPage.jsx` - Add search state, filtering logic, search input UI, and empty state
 - [x] 2. Edit `src/__tests__/EventsPage.test.tsx` - Add test cases for search functionality
@@ -13,7 +14,9 @@
 - [ ] Validate update management flow (prompt/reload behavior) doesn’t interrupt active session
 - [ ] Run website build + unit tests
 - [ ] Run e2e tests that cover offline/registration flows (if feasible)
+
 # TODO - Event Stream Processing & Real-Time Analytics (#1776)
+
 # NexaSphere Monorepo TODO Checklist
 
 This file tracks the status of major features and integrations planned for NexaSphere.
@@ -23,6 +26,7 @@ This file tracks the status of major features and integrations planned for NexaS
 ## 1. Event Stream Processing & Real-Time Analytics (#1776)
 
 # TODO - Event Stream Processing & Real-Time Analytics (#1776)
+
 # NexaSphere Monorepo TODO Checklist
 
 This file tracks the status of major features and integrations planned for NexaSphere.

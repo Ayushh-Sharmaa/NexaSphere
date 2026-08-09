@@ -48,6 +48,7 @@ await client.query('SELECT * FROM users WHERE email = $1 AND role = $2', [email,
 Never concatenate strings or interpolate variables directly into SQL queries:
 
 All repositories in `server/repositories/` must use parameterized queries when passing variables:
+
 ```javascript
 // SAFE: Parameterized Query
 await client.query(
@@ -55,7 +56,9 @@ await client.query(
   [email, role]
 );
 ```
+
 Never concatenate strings or interpolate variables directly into SQL queries:
+
 ```javascript
 // VULNERABLE: Direct string interpolation (DO NOT DO THIS)
 await client.query(`SELECT * FROM users WHERE email = '${email}'`);
@@ -70,9 +73,11 @@ npm run audit:sql
 ```
 
 An automated AST-based static code analysis script runs during the build pipeline to detect direct variable interpolation in `client.query` calls:
+
 ```bash
 npm run audit:sql
 ```
+
 This is executed automatically in the CI pipeline to block any PR introducing non-parameterized SQL statements.
 
 ---

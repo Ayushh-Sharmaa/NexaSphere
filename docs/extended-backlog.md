@@ -13,6 +13,7 @@
 #### Issue #42: Portfolio GitHub Integration [COMPLETED]
 
 #### Issue #42: Portfolio GitHub Integration
+
 **Priority**: P2 | **Type**: Feature  
 **Component**: Portfolio  
 **Description**: Auto-import GitHub repositories and contribution stats into portfolio.
@@ -199,12 +200,15 @@
 **Acceptance Criteria**:
 
 - [x] Search index updated in real-time (Elasticsearch Integration)
+
 #### Issue #53: Full-Text Search Improvements
+
 **Priority**: P2 | **Type**: Performance  
 **Component**: Search  
 **Description**: Implement Elasticsearch for fast, relevant search results.
 
 **Acceptance Criteria**:
+
 - [ ] Search index updated in real-time
 - [ ] Sub-100ms response times
 - [ ] Typo tolerance (fuzzy search)
