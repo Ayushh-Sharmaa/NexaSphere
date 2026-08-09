@@ -25,19 +25,47 @@ exports.getRecentResources = (req, res) => {
 };
 
 exports.getRecommendedResources = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.getRecommendedResources(req.params.userId));
+  const userId = req.params.userId;
+  const authUserId = req.studentUser?.sub || req.user?.id;
+
+  if (userId !== authUserId) {
+    return res.status(403).json({ error: 'Access denied: can only view your own recommendations' });
+  }
+
+  res.status(200).json(resourceDiscoveryService.getRecommendedResources(userId));
 };
 
 exports.bookmarkResource = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.bookmarkResource(req.params.userId, req.params.id));
+  const userId = req.params.userId;
+  const authUserId = req.studentUser?.sub || req.user?.id;
+
+  if (userId !== authUserId) {
+    return res.status(403).json({ error: 'Access denied: can only bookmark resources for yourself' });
+  }
+
+  res.status(200).json(resourceDiscoveryService.bookmarkResource(userId, req.params.id));
 };
 
 exports.removeBookmark = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.removeBookmark(req.params.userId, req.params.id));
+  const userId = req.params.userId;
+  const authUserId = req.studentUser?.sub || req.user?.id;
+
+  if (userId !== authUserId) {
+    return res.status(403).json({ error: 'Access denied: can only remove bookmarks for yourself' });
+  }
+
+  res.status(200).json(resourceDiscoveryService.removeBookmark(userId, req.params.id));
 };
 
 exports.getBookmarkedResources = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.getBookmarkedResources(req.params.userId));
+  const userId = req.params.userId;
+  const authUserId = req.studentUser?.sub || req.user?.id;
+
+  if (userId !== authUserId) {
+    return res.status(403).json({ error: 'Access denied: can only view your own bookmarks' });
+  }
+
+  res.status(200).json(resourceDiscoveryService.getBookmarkedResources(userId));
 };
 
 exports.createResource = (req, res) => {
