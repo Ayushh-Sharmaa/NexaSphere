@@ -3,28 +3,34 @@
  * Main dashboard for displaying live event metrics
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useEventAnalytics } from '../hooks/useAnalyticsSocket.js';
-import { useLogoutAwareInterval } from '../hooks/useLogoutAwareInterval.js';
-import analyticsAPI from '../services/analyticsAPI.js';
-import { useAuth } from '../context/AuthContext';
-import LiveMetricsCards from './LiveMetricsCards';
-import RegistrationTrendsChart from './RegistrationTrendsChart';
-import RecentRegistrationsList from './RecentRegistrationsList';
-import CheckInStatsChart from './CheckInStatsChart';
-import AnalyticsExport from './AnalyticsExport';
-import { Skeleton } from './Skeleton';
-import { DashboardCardSkeleton } from './DashboardCardSkeleton';
-import '../styles/analytics-dashboard.css';
+import React, { useCallback, useEffect, useState } from "react";
+import { useEventAnalytics } from "../hooks/useAnalyticsSocket.js";
+import { useLogoutAwareInterval } from "../hooks/useLogoutAwareInterval.js";
+import analyticsAPI from "../services/analyticsAPI.js";
+import { useAuth } from "../context/AuthContext";
+import LiveMetricsCards from "./LiveMetricsCards";
+import RegistrationTrendsChart from "./RegistrationTrendsChart";
+import RecentRegistrationsList from "./RecentRegistrationsList";
+import CheckInStatsChart from "./CheckInStatsChart";
+import AnalyticsExport from "./AnalyticsExport";
+import { Skeleton } from "./Skeleton";
+import { DashboardCardSkeleton } from "./DashboardCardSkeleton";
+import "../styles/analytics-dashboard.css";
 
 export default function AnalyticsDashboard({ eventId }) {
   const { isAuthenticated } = useAuth();
-  const { metrics, registrationTrends, recentRegistrations, loading, error, isConnected } =
-    useEventAnalytics(eventId);
+  const {
+    metrics,
+    registrationTrends,
+    recentRegistrations,
+    loading,
+    error,
+    isConnected,
+  } = useEventAnalytics(eventId);
 
   const [checkInStats, setCheckInStats] = useState({});
   const [allMetrics, setAllMetrics] = useState([]);
-  const [selectedTimeWindow, setSelectedTimeWindow] = useState('7 days');
+  const [selectedTimeWindow, setSelectedTimeWindow] = useState("7 days");
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchCheckInStats = useCallback(async () => {
@@ -34,7 +40,7 @@ export default function AnalyticsDashboard({ eventId }) {
       const stats = await analyticsAPI.getCheckInStats(eventId);
       setCheckInStats(stats);
     } catch (err) {
-      console.error('Failed to fetch check-in stats:', err);
+      console.error("Failed to fetch check-in stats:", err);
     }
   }, [eventId]);
   // Fetch check-in stats
@@ -46,7 +52,7 @@ export default function AnalyticsDashboard({ eventId }) {
         const stats = await analyticsAPI.getCheckInStats(eventId);
         setCheckInStats(stats);
       } catch (err) {
-        console.error('Failed to fetch check-in stats:', err);
+        console.error("Failed to fetch check-in stats:", err);
       }
     };
 
@@ -70,7 +76,7 @@ export default function AnalyticsDashboard({ eventId }) {
         const data = await analyticsAPI.getAllEventsMetrics();
         setAllMetrics(data);
       } catch (err) {
-        console.error('Failed to fetch all events metrics:', err);
+        console.error("Failed to fetch all events metrics:", err);
       }
     };
 
@@ -85,7 +91,7 @@ export default function AnalyticsDashboard({ eventId }) {
       const stats = await analyticsAPI.getCheckInStats(eventId);
       setCheckInStats(stats);
     } catch (err) {
-      console.error('Failed to refresh:', err);
+      console.error("Failed to refresh:", err);
     } finally {
       setRefreshing(false);
     }
@@ -119,9 +125,11 @@ export default function AnalyticsDashboard({ eventId }) {
         <div className="header-controls">
           <div className="connection-status">
             <span
-              className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`}
+              className={`status-indicator ${isConnected ? "connected" : "disconnected"}`}
             ></span>
-            <span className="status-text">{isConnected ? 'Live' : 'Offline'}</span>
+            <span className="status-text">
+              {isConnected ? "Live" : "Offline"}
+            </span>
           </div>
           <button
             onClick={handleRefresh}
@@ -129,7 +137,7 @@ export default function AnalyticsDashboard({ eventId }) {
             className="btn-refresh"
             title="Refresh all data"
           >
-            {refreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
+            {refreshing ? "🔄 Refreshing..." : "🔄 Refresh"}
           </button>
         </div>
       </div>
@@ -186,7 +194,10 @@ export default function AnalyticsDashboard({ eventId }) {
           {/* Recent Activity and Export */}
           <div className="dashboard-bottom">
             <div className="recent-activity">
-              <RecentRegistrationsList registrations={recentRegistrations} isLoading={loading} />
+              <RecentRegistrationsList
+                registrations={recentRegistrations}
+                isLoading={loading}
+              />
             </div>
 
             <div className="export-section">
@@ -205,7 +216,9 @@ export default function AnalyticsDashboard({ eventId }) {
                     <div className="event-stats">
                       <div className="stat">
                         <span className="label">Registrations</span>
-                        <span className="value">{event.totalRegistrations}</span>
+                        <span className="value">
+                          {event.totalRegistrations}
+                        </span>
                       </div>
                       <div className="stat">
                         <span className="label">Checked In</span>

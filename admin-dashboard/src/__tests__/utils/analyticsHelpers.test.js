@@ -1,11 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { buildFeedbackAnalyticsReport } from '../../utils/analyticsHelpers';
+import { describe, expect, it } from "vitest";
+import { buildFeedbackAnalyticsReport } from "../../utils/analyticsHelpers";
 
-describe('buildFeedbackAnalyticsReport', () => {
-  it('returns sentiment, aspect, theme, and suggestion data for feedback entries', () => {
+describe("buildFeedbackAnalyticsReport", () => {
+  it("returns sentiment, aspect, theme, and suggestion data for feedback entries", () => {
     const report = buildFeedbackAnalyticsReport([
-      { id: 1, text: 'Great speaker but poor venue and the room was too hot.' },
-      { id: 2, text: 'The content was informative and the timing was perfect.' },
+      { id: 1, text: "Great speaker but poor venue and the room was too hot." },
+      {
+        id: 2,
+        text: "The content was informative and the timing was perfect.",
+      },
     ]);
 
     expect(report.summary.overallSentiment).toBeTruthy();

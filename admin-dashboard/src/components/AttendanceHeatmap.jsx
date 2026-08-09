@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const HOURS = ['8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', 'Late'];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const HOURS = ["8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "Late"];
 
 /**
  * AttendanceHeatmap
@@ -12,9 +12,12 @@ const HOURS = ['8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', 'Late'];
  *                   OR null/undefined (uses synthetic demo data)
  *   title         — optional heading override
  */
-export function AttendanceHeatmap({ registrations, title = 'Attendance Density Heatmap' }) {
+export function AttendanceHeatmap({
+  registrations,
+  title = "Attendance Density Heatmap",
+}) {
   const [tooltip, setTooltip] = useState(null); // { day, hour, count, pct, x, y }
-  const [exportMsg, setExportMsg] = useState('');
+  const [exportMsg, setExportMsg] = useState("");
 
   /* ── Build 7×8 matrix ── */
   const matrix = useMemo(() => {
@@ -69,11 +72,14 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
   }, [registrations]);
 
   const maxVal = useMemo(() => Math.max(1, ...matrix.flat()), [matrix]);
-  const total = useMemo(() => matrix.flat().reduce((s, v) => s + v, 0), [matrix]);
+  const total = useMemo(
+    () => matrix.flat().reduce((s, v) => s + v, 0),
+    [matrix]
+  );
 
   /* ── Colour interpolation ── */
   function cellColor(count) {
-    if (count === 0) return 'rgba(255,255,255,0.03)';
+    if (count === 0) return "rgba(255,255,255,0.03)";
     const pct = count / maxVal;
     if (pct < 0.25) return `rgba(204,17,17,${0.1 + pct * 0.4})`;
     if (pct < 0.5) return `rgba(204,17,17,${0.2 + pct * 0.5})`;
@@ -83,39 +89,39 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
 
   /* ── CSV Export ── */
   function exportCSV() {
-    const header = ['Day', ...HOURS].join(',');
-    const rows = DAYS.map((day, di) => [day, ...matrix[di]].join(','));
-    const csv = [header, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const header = ["Day", ...HOURS].join(",");
+    const rows = DAYS.map((day, di) => [day, ...matrix[di]].join(","));
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'attendance_heatmap.csv';
+    a.download = "attendance_heatmap.csv";
     a.click();
     URL.revokeObjectURL(url);
-    setExportMsg('Exported!');
-    setTimeout(() => setExportMsg(''), 2000);
+    setExportMsg("Exported!");
+    setTimeout(() => setExportMsg(""), 2000);
   }
 
   return (
     <div
       style={{
-        background: 'var(--admin-bg-card, #1a1a2e)',
-        border: '1px solid var(--admin-border, #333)',
+        background: "var(--admin-bg-card, #1a1a2e)",
+        border: "1px solid var(--admin-border, #333)",
         borderRadius: 14,
-        padding: '20px 24px',
+        padding: "20px 24px",
         marginBottom: 24,
-        position: 'relative',
+        position: "relative",
       }}
     >
       {/* Header */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginBottom: 20,
-          flexWrap: 'wrap',
+          flexWrap: "wrap",
           gap: 10,
         }}
       >
@@ -123,50 +129,50 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
           <h3
             style={{
               margin: 0,
-              fontFamily: 'Rajdhani,sans-serif',
-              fontSize: '1.1rem',
-              color: 'var(--admin-text, #eee)',
+              fontFamily: "Rajdhani,sans-serif",
+              fontSize: "1.1rem",
+              color: "var(--admin-text, #eee)",
             }}
           >
             🔥 {title}
           </h3>
           <p
             style={{
-              margin: '4px 0 0',
-              fontSize: '0.78rem',
-              color: 'var(--admin-text-muted, #888)',
+              margin: "4px 0 0",
+              fontSize: "0.78rem",
+              color: "var(--admin-text-muted, #888)",
             }}
           >
             {total > 0
               ? `${total} registrations across the week`
-              : 'Showing demo data — select an event above'}
+              : "Showing demo data — select an event above"}
           </p>
         </div>
         <button
           onClick={exportCSV}
           style={{
-            background: 'rgba(204,17,17,0.12)',
-            border: '1px solid rgba(204,17,17,0.3)',
+            background: "rgba(204,17,17,0.12)",
+            border: "1px solid rgba(204,17,17,0.3)",
             borderRadius: 8,
-            padding: '6px 14px',
-            fontSize: '0.8rem',
-            color: '#CC1111',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
+            padding: "6px 14px",
+            fontSize: "0.8rem",
+            color: "#CC1111",
+            cursor: "pointer",
+            transition: "all 0.2s",
           }}
         >
-          {exportMsg || '⬇ Export CSV'}
+          {exportMsg || "⬇ Export CSV"}
         </button>
       </div>
 
       {/* Grid */}
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflowX: "auto" }}>
         <div style={{ minWidth: 480 }}>
           {/* Hour labels */}
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: '52px repeat(8, 1fr)',
+              display: "grid",
+              gridTemplateColumns: "52px repeat(8, 1fr)",
               gap: 4,
               marginBottom: 4,
             }}
@@ -176,10 +182,10 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
               <div
                 key={h}
                 style={{
-                  textAlign: 'center',
-                  fontSize: '0.65rem',
-                  color: 'var(--admin-text-muted, #888)',
-                  fontFamily: 'monospace',
+                  textAlign: "center",
+                  fontSize: "0.65rem",
+                  color: "var(--admin-text-muted, #888)",
+                  fontFamily: "monospace",
                 }}
               >
                 {h}
@@ -192,19 +198,19 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
             <div
               key={day}
               style={{
-                display: 'grid',
-                gridTemplateColumns: '52px repeat(8, 1fr)',
+                display: "grid",
+                gridTemplateColumns: "52px repeat(8, 1fr)",
                 gap: 4,
                 marginBottom: 4,
               }}
             >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '0.72rem',
-                  color: 'var(--admin-text-muted, #888)',
-                  fontFamily: 'monospace',
+                  display: "flex",
+                  alignItems: "center",
+                  fontSize: "0.72rem",
+                  color: "var(--admin-text-muted, #888)",
+                  fontFamily: "monospace",
                   fontWeight: 600,
                 }}
               >
@@ -217,27 +223,34 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
                     key={hi}
                     onMouseEnter={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
-                      setTooltip({ day, hour: HOURS[hi], count, pct, x: rect.left, y: rect.top });
+                      setTooltip({
+                        day,
+                        hour: HOURS[hi],
+                        count,
+                        pct,
+                        x: rect.left,
+                        y: rect.top,
+                      });
                     }}
                     onMouseLeave={() => setTooltip(null)}
                     style={{
                       height: 32,
                       borderRadius: 6,
                       background: cellColor(count),
-                      border: '1px solid rgba(255,255,255,0.04)',
-                      cursor: count > 0 ? 'pointer' : 'default',
-                      transition: 'transform 0.15s, box-shadow 0.15s',
-                      position: 'relative',
+                      border: "1px solid rgba(255,255,255,0.04)",
+                      cursor: count > 0 ? "pointer" : "default",
+                      transition: "transform 0.15s, box-shadow 0.15s",
+                      position: "relative",
                     }}
                     onMouseOver={(e) => {
                       if (count > 0) {
-                        e.currentTarget.style.transform = 'scale(1.08)';
+                        e.currentTarget.style.transform = "scale(1.08)";
                         e.currentTarget.style.boxShadow = `0 0 12px rgba(204,17,17,${(count / maxVal) * 0.6})`;
                       }
                     }}
                     onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.boxShadow = "none";
                     }}
                   />
                 );
@@ -248,8 +261,17 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
       </div>
 
       {/* Legend */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
-        <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-muted, #888)' }}>Low</span>
+      <div
+        style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16 }}
+      >
+        <span
+          style={{
+            fontSize: "0.72rem",
+            color: "var(--admin-text-muted, #888)",
+          }}
+        >
+          Low
+        </span>
         {[0.1, 0.25, 0.5, 0.75, 1.0].map((v) => (
           <div
             key={v}
@@ -258,30 +280,37 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
               height: 14,
               borderRadius: 4,
               background: cellColor(Math.round(v * maxVal)),
-              border: '1px solid rgba(255,255,255,0.05)',
+              border: "1px solid rgba(255,255,255,0.05)",
             }}
           />
         ))}
-        <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-muted, #888)' }}>High</span>
+        <span
+          style={{
+            fontSize: "0.72rem",
+            color: "var(--admin-text-muted, #888)",
+          }}
+        >
+          High
+        </span>
       </div>
 
       {/* Tooltip */}
       {tooltip && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: tooltip.y - 64,
             left: tooltip.x - 20,
-            background: 'rgba(20,20,35,0.98)',
-            border: '1px solid rgba(204,17,17,0.4)',
+            background: "rgba(20,20,35,0.98)",
+            border: "1px solid rgba(204,17,17,0.4)",
             borderRadius: 8,
-            padding: '8px 12px',
-            fontSize: '0.78rem',
-            color: '#eee',
-            pointerEvents: 'none',
+            padding: "8px 12px",
+            fontSize: "0.78rem",
+            color: "#eee",
+            pointerEvents: "none",
             zIndex: 9999,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-            whiteSpace: 'nowrap',
+            boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+            whiteSpace: "nowrap",
           }}
         >
           <div style={{ fontWeight: 700, marginBottom: 2 }}>
@@ -289,7 +318,9 @@ export function AttendanceHeatmap({ registrations, title = 'Attendance Density H
           </div>
           <div>{tooltip.count} registrations</div>
           {tooltip.pct > 0 && (
-            <div style={{ color: '#CC1111', marginTop: 2 }}>{tooltip.pct}% of total</div>
+            <div style={{ color: "#CC1111", marginTop: 2 }}>
+              {tooltip.pct}% of total
+            </div>
           )}
         </div>
       )}

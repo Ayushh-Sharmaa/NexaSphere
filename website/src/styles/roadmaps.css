@@ -971,14 +971,14 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="light"] .roadmap-projects-section {
+[data-theme='light'] .roadmap-projects-section {
   background: #ffffff;
   border-color: rgba(26, 26, 26, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
 
 .roadmap-projects-section::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   left: -50%;
@@ -1015,8 +1015,8 @@
   text-transform: uppercase;
 }
 
-[data-theme="light"] .projects-section-title {
-  background: linear-gradient(135deg, #CC1111, #880000);
+[data-theme='light'] .projects-section-title {
+  background: linear-gradient(135deg, #cc1111, #880000);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1030,7 +1030,7 @@
   line-height: 1.6;
 }
 
-[data-theme="light"] .projects-section-subtitle {
+[data-theme='light'] .projects-section-subtitle {
   color: #555555;
 }
 
@@ -1067,7 +1067,7 @@
   flex-direction: column;
 }
 
-[data-theme="light"] .project-milestone-card {
+[data-theme='light'] .project-milestone-card {
   background: rgba(245, 245, 245, 0.5);
   border-color: rgba(26, 26, 26, 0.08);
 }
@@ -1078,7 +1078,7 @@
   box-shadow: 0 8px 25px rgba(230, 57, 70, 0.1);
 }
 
-[data-theme="light"] .project-milestone-card:hover {
+[data-theme='light'] .project-milestone-card:hover {
   border-color: rgba(204, 17, 17, 0.3);
   box-shadow: 0 8px 25px rgba(204, 17, 17, 0.05);
 }
@@ -1101,9 +1101,9 @@
   justify-content: center;
 }
 
-[data-theme="light"] .project-card-icon-wrapper {
+[data-theme='light'] .project-card-icon-wrapper {
   background: rgba(204, 17, 17, 0.06);
-  color: #CC1111;
+  color: #cc1111;
 }
 
 .project-card-title {
@@ -1114,8 +1114,8 @@
   margin: 0;
 }
 
-[data-theme="light"] .project-card-title {
-  color: #1A1A1A;
+[data-theme='light'] .project-card-title {
+  color: #1a1a1a;
 }
 
 .project-card-tagline {
@@ -1127,8 +1127,8 @@
   margin-bottom: 20px;
 }
 
-[data-theme="light"] .project-card-tagline {
-  color: #CC1111;
+[data-theme='light'] .project-card-tagline {
+  color: #cc1111;
 }
 
 .project-list {
@@ -1144,7 +1144,7 @@
   transition: all 0.2s ease;
 }
 
-[data-theme="light"] .project-item {
+[data-theme='light'] .project-item {
   border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -1161,8 +1161,8 @@
   display: block;
 }
 
-[data-theme="light"] .project-item-title {
-  color: #1A1A1A;
+[data-theme='light'] .project-item-title {
+  color: #1a1a1a;
 }
 
 .project-item-desc {
@@ -1173,7 +1173,7 @@
   display: block;
 }
 
-[data-theme="light"] .project-item-desc {
+[data-theme='light'] .project-item-desc {
   color: #555555;
 }
 
@@ -1193,10 +1193,8 @@
   color: var(--t3);
 }
 
-[data-theme="light"] .project-tech-pill {
+[data-theme='light'] .project-tech-pill {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(26, 26, 26, 0.08);
-  color: #6B6B6B;
+  color: #6b6b6b;
 }
-
-

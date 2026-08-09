@@ -1,5 +1,5 @@
-import React, { lazy, Suspense } from "react";
-import ErrorBoundary from "../components/common/ErrorBoundary";
+import React, { lazy, Suspense } from 'react';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 
 export default function dynamic(importFunc, options = {}) {
   const LazyComponent = lazy(importFunc);
