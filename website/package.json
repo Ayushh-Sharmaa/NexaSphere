@@ -27,7 +27,7 @@
     "@google/generative-ai": "^0.24.1",
     "@marsidev/react-turnstile": "^1.5.3",
     "@rrweb/types": "^2.0.0",
-    "@sentry/react": "^10.67.0",
+    "@sentry/react": "^10.69.0",
     "@sentry/tracing": "^7.84.0",
     "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.18.0",
