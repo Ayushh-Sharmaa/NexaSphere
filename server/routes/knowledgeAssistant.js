@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
+const { requireStudentAuth } = require("../middleware/studentAuthMiddleware");
+const { requireAdmin } = require("../middleware/adminAuthMiddleware");
 
 const knowledgeAssistantController = require("../controllers/knowledgeAssistantController");
 
 // AI Assistant
-router.post("/query", knowledgeAssistantController.askQuestion);
+router.post("/query", requireStudentAuth, knowledgeAssistantController.askQuestion);
 
 // Natural Language Search
-router.get("/search", knowledgeAssistantController.naturalSearch);
+router.get("/search", requireStudentAuth, knowledgeAssistantController.naturalSearch);
 
 // Documentation
 router.get("/documentation", knowledgeAssistantController.getDocumentation);
@@ -28,18 +30,18 @@ router.get("/guides", knowledgeAssistantController.getGuides);
 router.get("/suggestions", knowledgeAssistantController.getSuggestions);
 
 // Multilingual Translation
-router.post("/translate", knowledgeAssistantController.translateResponse);
+router.post("/translate", requireStudentAuth, knowledgeAssistantController.translateResponse);
 
 // Query History
-router.get("/history", knowledgeAssistantController.getHistory);
+router.get("/history", requireStudentAuth, knowledgeAssistantController.getHistory);
 
 // Feedback
-router.post("/feedback", knowledgeAssistantController.submitFeedback);
+router.post("/feedback", requireStudentAuth, knowledgeAssistantController.submitFeedback);
 
 // Analytics
-router.get("/analytics", knowledgeAssistantController.getAnalytics);
+router.get("/analytics", requireStudentAuth, knowledgeAssistantController.getAnalytics);
 
-// Knowledge Base Update
-router.post("/update", knowledgeAssistantController.updateKnowledgeBase);
+// Knowledge Base Update (admin only)
+router.post("/update", requireAdmin, knowledgeAssistantController.updateKnowledgeBase);
 
 module.exports = router;
