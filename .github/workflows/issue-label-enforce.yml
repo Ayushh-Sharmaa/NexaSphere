@@ -1,0 +1,98 @@
+name: GSSoC — Issue Label Enforce
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Checks all open issues to ensure they have required labels.
+# Minimum: one difficulty label (level:*) AND one type label (type:*).
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [opened, labeled, unlabeled]
+
+concurrency:
+  group: issue-label-enforce-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  enforce-labels:
+    name: Enforce Required Issue Labels
+    runs-on: ubuntu-latest
+    if: >-
+      !endsWith(github.event.issue.user.login, '[bot]')
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check and enforce required label categories
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issue    = context.payload.issue;
+            const issueNum = issue.number;
+
+            // Skip bots
+            if (issue.user.login.endsWith('[bot]')) return;
+
+            // ── Ensure needs-labels label exists ─────────────────────────────
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: 'needs-labels' });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name: 'needs-labels',
+                  color: 'e4e669',
+                  description: 'Issue is missing required label categories',
+                });
+              }
+            }
+
+            // ── Fetch current labels ──────────────────────────────────────────
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: issueNum,
+            });
+            const labelNames = labels.map(l => l.name);
+
+            const hasLevel = labelNames.some(n => n.startsWith('level:'));
+            const hasType  = labelNames.some(n => n.startsWith('type:'));
+
+            if (!hasLevel || !hasType) {
+              // ── Missing required labels ───────────────────────────────────
+              if (!labelNames.includes('needs-labels')) {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issueNum, labels: ['needs-labels'],
+                });
+              }
+
+              const missing = [];
+              if (!hasLevel) missing.push('`level:*` (e.g. `level:beginner`, `level:intermediate`, `level:advanced`)');
+              if (!hasType)  missing.push('`type:*` (e.g. `type:bug`, `type:feature`, `type:docs`, `type:design`)');
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issueNum,
+                body: [
+                  `## 🏷️ Missing Required Labels`,
+                  ``,
+                  `This issue is missing the following required label categor${missing.length > 1 ? 'ies' : 'y'}:`,
+                  ``,
+                  missing.map(m => `- ${m}`).join('\n'),
+                  ``,
+                  `A maintainer will add the appropriate labels. This helps contributors find the right issues to work on!`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              console.log(`⚠️  Issue #${issueNum} flagged: missing ${missing.length} label category(ies)`);
+            } else {
+              // ── All required labels present — remove needs-labels ─────────
+              if (labelNames.includes('needs-labels')) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: issueNum, name: 'needs-labels',
+                  });
+                  console.log(`✅ Removed needs-labels from issue #${issueNum}`);
+                } catch (_) {}
+              }
+              console.log(`✅ Issue #${issueNum} has all required labels`);
+            }

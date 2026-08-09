@@ -1,0 +1,153 @@
+name: GSSoC — PR Spam Check
+
+# Uses pull_request_target so the write token works for fork PRs.
+# Safe: we never checkout or run code from the fork.
+on:
+  pull_request_target:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  spam-check:
+    name: Validate PR Links Issue & Assignment
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Check PR for linked issue and contributor assignment
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr       = context.payload.pull_request;
+            const prNumber = pr.number;
+            const prAuthor = pr.user.login;
+            const prBody   = pr.body || '';
+            const { owner, repo } = context.repo;
+
+            // ── Skip admins ───────────────────────────────────────────────────
+            const ADMINS = ['Ayushh-Sharmaa'];
+            if (ADMINS.includes(prAuthor)) {
+              console.log(`Author ${prAuthor} is an admin — skipping spam check.`);
+              return;
+            }
+
+            // ── Label helpers ─────────────────────────────────────────────────
+            const SPAM_LABEL         = 'gssoc:spam';
+            const NO_ISSUE_LABEL     = 'gssoc:no-linked-issue';
+            const NOT_ASSIGNED_LABEL = 'gssoc:not-assigned';
+            const DO_NOT_MERGE_LABEL = 'do-not-merge';
+
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+
+            async function addLabels(labels) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels });
+            }
+
+            async function removeLabel(name) {
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name });
+              } catch (_) {}
+            }
+
+            // ── Ensure spam labels exist ──────────────────────────────────────
+            await ensureLabel(SPAM_LABEL,         'ee0701', 'GSSoC: Spam PR');
+            await ensureLabel(NO_ISSUE_LABEL,     'ffa500', 'GSSoC: PR has no linked issue');
+            await ensureLabel(NOT_ASSIGNED_LABEL, 'ffa500', 'GSSoC: Contributor not assigned to linked issue');
+            await ensureLabel(DO_NOT_MERGE_LABEL, 'b60205', 'Do not merge this PR');
+
+            // ── Extract linked issue numbers from PR body ─────────────────────
+            // Supports: closes #123 | fixes #123 | resolves #123
+            const pattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s*#(\d+)/gi;
+            const linked  = [...new Set([...prBody.matchAll(pattern)].map(m => parseInt(m[1])))];
+
+            console.log(`PR #${prNumber} by @${prAuthor}`);
+            console.log(`Linked issues: ${linked.length > 0 ? linked.join(', ') : 'NONE'}`);
+
+            // ── No linked issue → spam + close ───────────────────────────────
+            if (linked.length === 0) {
+              await addLabels([NO_ISSUE_LABEL, SPAM_LABEL, DO_NOT_MERGE_LABEL]);
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNumber,
+                body: [
+                  `## ⚠️ GSSoC Contribution Check Failed`,
+                  ``,
+                  `Hey @${prAuthor}! 👋`,
+                  ``,
+                  `This PR was **automatically closed** because it has no linked issue.`,
+                  ``,
+                  `**To fix this, reopen the PR and add to the description:**`,
+                  `\`\`\``,
+                  `Closes #ISSUE_NUMBER`,
+                  `\`\`\``,
+                  `> Make sure you are **assigned to that issue** before submitting. PRs without assignment will also be closed.`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              await github.rest.pulls.update({ owner, repo, pull_number: prNumber, state: 'closed' });
+              console.log(`❌ PR #${prNumber} closed: no linked issue.`);
+              return;
+            }
+
+            // ── Check contributor is assigned to the linked issue ─────────────
+            let isAssigned = false;
+            for (const num of linked) {
+              try {
+                const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: num });
+                const assignees = issue.assignees.map(a => a.login.toLowerCase());
+                if (assignees.includes(prAuthor.toLowerCase())) {
+                  isAssigned = true;
+                  console.log(`✅ @${prAuthor} is assigned to issue #${num}`);
+                  break;
+                }
+                console.log(`⚠️  @${prAuthor} NOT assigned to #${num}. Assignees: ${assignees.join(', ') || 'none'}`);
+              } catch (e) {
+                console.log(`Could not fetch issue #${num}: ${e.message}`);
+              }
+            }
+
+            if (!isAssigned) {
+              await addLabels([NOT_ASSIGNED_LABEL, SPAM_LABEL, DO_NOT_MERGE_LABEL]);
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNumber,
+                body: [
+                  `## ⚠️ GSSoC Contribution Check Failed`,
+                  ``,
+                  `Hey @${prAuthor}! 👋`,
+                  ``,
+                  `This PR was **automatically closed** because you are not assigned to the linked issue(s): ${linked.map(n => `#${n}`).join(', ')}.`,
+                  ``,
+                  `**Steps to fix:**`,
+                  `1. Go to the issue and comment: *"Can I work on this? Please assign me."*`,
+                  `2. Wait for a maintainer to **officially assign** you`,
+                  `3. Then reopen / re-submit your PR`,
+                  ``,
+                  `> GSSoC rules: contributors must be **assigned before submitting a PR**.`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              await github.rest.pulls.update({ owner, repo, pull_number: prNumber, state: 'closed' });
+              console.log(`❌ PR #${prNumber} closed: @${prAuthor} not assigned.`);
+              return;
+            }
+
+            // ── Valid PR — clean up any old spam labels ────────────────────────
+            await removeLabel(SPAM_LABEL);
+            await removeLabel(NO_ISSUE_LABEL);
+            await removeLabel(NOT_ASSIGNED_LABEL);
+            await removeLabel(DO_NOT_MERGE_LABEL);
+            console.log(`✅ PR #${prNumber} passed spam check — clean.`);

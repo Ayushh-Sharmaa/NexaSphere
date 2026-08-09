@@ -1,0 +1,71 @@
+name: GSSoC — Dismiss Stale Change Requests
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When a contributor pushes new commits to a PR, automatically dismisses
+# any stale "Request Changes" reviews so they don't block re-review.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [synchronize]
+
+concurrency:
+  group: dismiss-change-requests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  dismiss-stale-reviews:
+    name: Dismiss Stale Change Requests
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Dismiss all CHANGES_REQUESTED reviews
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr    = context.payload.pull_request;
+            const prNum = pr.number;
+
+            // ── Fetch all reviews on this PR ──────────────────────────────────
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner, repo, pull_number: prNum, per_page: 100,
+            });
+
+            // Filter for CHANGES_REQUESTED from real users only
+            const changeRequests = reviews.filter(r =>
+              r.state === 'CHANGES_REQUESTED' &&
+              r.user &&
+              !r.user.login.endsWith('[bot]')
+            );
+
+            if (changeRequests.length === 0) {
+              console.log(`✅ PR #${prNum} — no stale change requests to dismiss`);
+              return;
+            }
+
+            // ── Dismiss each stale review ─────────────────────────────────────
+            let dismissed = 0;
+            for (const review of changeRequests) {
+              try {
+                await github.rest.pulls.dismissReview({
+                  owner, repo,
+                  pull_number: prNum,
+                  review_id: review.id,
+                  message: `Dismissed automatically — new commits pushed to PR #${prNum}. Please re-review.`,
+                });
+                console.log(`🔄 Dismissed review #${review.id} by @${review.user.login}`);
+                dismissed++;
+              } catch (err) {
+                console.log(`⚠️  Could not dismiss review #${review.id}: ${err.message}`);
+              }
+            }
+
+            if (dismissed > 0) {
+              console.log(`✅ PR #${prNum} — dismissed ${dismissed} stale change request(s)`);
+            }

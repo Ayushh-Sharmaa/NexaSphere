@@ -1,0 +1,122 @@
+name: GSSoC — Auto Good First Issue Label
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Automatically adds `good first issue` label to newly opened issues that
+# appear genuinely useful — clear title, meaningful description, proper
+# formatting, and not spam.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto-label-good-first-issue:
+    name: Auto Label Good First Issue
+    runs-on: ubuntu-latest
+    # Skip bot-created issues
+    if: >
+      !endsWith(github.event.issue.user.login, '[bot]')
+    permissions:
+      issues: write
+
+    steps:
+      - name: Evaluate and label issue
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issue    = context.payload.issue;
+            const issueNum = issue.number;
+            const author   = issue.user.login;
+            const title    = (issue.title || '').trim();
+            const body     = (issue.body || '').trim();
+
+            // ── Quality checks ─────────────────────────────────────────────
+            // 1. Title must be descriptive (at least 10 characters)
+            if (title.length < 10) {
+              console.log(`⏭️  Skipping #${issueNum}: title too short (${title.length} chars)`);
+              return;
+            }
+
+            // 2. Body must have meaningful content (at least 50 characters)
+            if (body.length < 50) {
+              console.log(`⏭️  Skipping #${issueNum}: body too short (${body.length} chars)`);
+              return;
+            }
+
+            // 3. Reject obvious spam patterns
+            const spamPatterns = [
+              /\b(buy|sell|discount|coupon|promo|casino|lottery|crypto\s*airdrop)\b/i,
+              /(.)\1{10,}/,                    // Repeated characters (aaaaaaaaaa)
+              /^(test|asdf|hello|hi|hey)\s*$/i, // Throwaway titles
+            ];
+            const combinedText = `${title} ${body}`;
+            for (const pattern of spamPatterns) {
+              if (pattern.test(combinedText)) {
+                console.log(`⏭️  Skipping #${issueNum}: matched spam pattern ${pattern}`);
+                return;
+              }
+            }
+
+            // 4. Must contain at least one quality signal in the body
+            const qualitySignals = [
+              /\b(bug|fix|feature|add|implement|improve|update|create|enhance|refactor|issue|problem|error|crash)\b/i,
+              /\b(should|could|would|need|want|expected|actual|steps|reproduce)\b/i,
+              /```/,                           // Contains code block
+              /- \[[ x]\]/,                    // Contains checklist
+              /#{1,3}\s/,                      // Contains headers
+              /!\[.*\]\(.*\)/,                 // Contains images
+            ];
+            const hasQualitySignal = qualitySignals.some(p => p.test(combinedText));
+            if (!hasQualitySignal) {
+              console.log(`⏭️  Skipping #${issueNum}: no quality signals found`);
+              return;
+            }
+
+            // ── Check if already has the label ─────────────────────────────
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: issueNum,
+            });
+            if (labels.some(l => l.name === 'good first issue')) {
+              console.log(`ℹ️  Issue #${issueNum} already has 'good first issue' label`);
+              return;
+            }
+
+            // ── Ensure label exists ────────────────────────────────────────
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: 'good first issue' });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name: 'good first issue',
+                  color: '7057ff',
+                  description: 'Good for newcomers',
+                });
+              }
+            }
+
+            // ── Apply the label ────────────────────────────────────────────
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number: issueNum,
+              labels: ['good first issue'],
+            });
+
+            console.log(`✅ Auto-labelled issue #${issueNum} as 'good first issue'`);
+
+            // ── Post a welcome comment ─────────────────────────────────────
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: issueNum,
+              body: [
+                `## 🌟 Good First Issue`,
+                ``,
+                `Thanks for opening this issue, @${author}! This looks like a genuinely useful contribution opportunity.`,
+                ``,
+                `It has been automatically tagged as a \`good first issue\` — great for newcomers to NexaSphere! 🚀`,
+                ``,
+                `> 💡 A maintainer will review and assign a difficulty level shortly.`,
+                ``,
+                `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+              ].join('\n'),
+            });

@@ -1,0 +1,51 @@
+name: GSSoC — Auto-Merge on Admin Approval
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  auto-merge:
+    name: Auto-merge PR if approved by Admin
+    runs-on: ubuntu-latest
+    if: github.event.review.state == 'approved'
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Check if reviewer is Admin
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const reviewer = context.payload.review.user.login;
+            const prNumber = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+
+            const admins = ['Ayushh-Sharmaa'];
+            if (!admins.includes(reviewer)) {
+              console.log(`Reviewer ${reviewer} is not an admin. Skipping auto-merge.`);
+              return;
+            }
+
+            console.log(`Admin ${reviewer} approved PR #${prNumber}. Attempting auto-merge...`);
+
+            try {
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: prNumber,
+                merge_method: 'squash'
+              });
+              console.log(`✅ Successfully auto-merged PR #${prNumber}`);
+            } catch (error) {
+              console.error(`❌ Failed to auto-merge PR #${prNumber}:`, error.message);
+              
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `⚠️ **Auto-merge failed.**\n\nThe PR was approved by an admin, but couldn't be automatically merged. This might be due to merge conflicts or failing required CI checks.\n\nError: \`${error.message}\``
+              });
+            }

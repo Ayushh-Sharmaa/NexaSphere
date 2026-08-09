@@ -1,0 +1,77 @@
+name: GSSoC — Spam Escalation
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When "spam" or "gssoc:spam" label is applied, removes the contributor's
+# assignment and escalates to Project Admin.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [labeled]
+  pull_request_target:
+    types: [labeled]
+
+concurrency:
+  group: spam-escalation-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  handle-spam:
+    name: Spam Label Escalation
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Handle spam label application
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const labelName = context.payload.label.name;
+            const SPAM_LABELS = ['spam', 'gssoc:spam'];
+
+            if (!SPAM_LABELS.includes(labelName)) {
+              console.log(`⏭️  Label "${labelName}" is not a spam label — skipping`);
+              return;
+            }
+
+            const event   = context.eventName;
+            const isPR    = event === 'pull_request_target';
+            const item    = isPR ? context.payload.pull_request : context.payload.issue;
+            const itemNum = item.number;
+            const author  = item.user.login;
+
+            // ── Remove assignment if any ──────────────────────────────────────
+            if (!isPR && item.assignees && item.assignees.length > 0) {
+              const assignees = item.assignees.map(a => a.login);
+              try {
+                await github.rest.issues.removeAssignees({
+                  owner, repo, issue_number: itemNum, assignees,
+                });
+                console.log(`🔓 Removed assignees from issue #${itemNum}: ${assignees.join(', ')}`);
+              } catch (err) {
+                console.log(`⚠️  Could not remove assignees: ${err.message}`);
+              }
+            }
+
+            // ── Post notification comment ─────────────────────────────────────
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: itemNum,
+              body: [
+                `## 🚫 Spam Flagged`,
+                ``,
+                `@${author}, this ${isPR ? 'PR' : 'issue'} has been flagged as **spam** by a maintainer.`,
+                ``,
+                isPR
+                  ? `This PR will not be merged. If you believe this is a mistake, please reach out to the Project Admin.`
+                  : `Your assignment (if any) has been removed. If you believe this is a mistake, please contact the Project Admin.`,
+                ``,
+                `CC: @S3DFX-CYBER — please review for any further action needed.`,
+                ``,
+                `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+              ].join('\n'),
+            });
+
+            console.log(`🚫 Spam escalation handled for ${isPR ? 'PR' : 'issue'} #${itemNum} — @S3DFX-CYBER notified`);

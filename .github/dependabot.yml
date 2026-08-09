@@ -1,25 +1,43 @@
 version: 2
 updates:
-  # Maintain dependencies for npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: "main"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    groups:
-      npm-dependencies:
-        patterns:
-          - "*"
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
-  # Maintain dependencies for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "main"
+  - package-ecosystem: 'npm'
+    directory: '/server'
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    groups:
-      github-actions-dependencies:
-        patterns:
-          - "*"
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: 'npm'
+    directory: '/admin-dashboard'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: 'npm'
+    directory: '/website'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10

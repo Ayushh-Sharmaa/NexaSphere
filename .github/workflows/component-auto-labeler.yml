@@ -1,0 +1,182 @@
+name: GSSoC — Component Auto-Labeler
+
+# ─────────────────────────────────────────────────────────────────────────────
+# This workflow automatically applies the `admin-dashboard`, `website`,
+# `spotify`, and `ai` labels to newly opened or edited issues and pull requests:
+#
+# - Issues: Scans the title and body for key terms related to each area.
+# - PRs: Analyzes the paths of the changed files (e.g., changes under `admin-dashboard/`
+#        or `website/`), with fallback to title/body scanning.
+#
+# Uses pull_request_target to ensure labeling works seamlessly on PRs
+# opened from fork repositories.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  auto-label:
+    name: Auto-Label Component Areas
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Auto-Label Component Issues & PRs
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+
+            // ── 1. Ensure the component labels exist ─────────────────────────
+            const COMPONENT_LABELS = [
+              {
+                name: "admin-dashboard",
+                color: "0052cc",
+                description: "Issues/PRs related to the Admin Dashboard portal"
+              },
+              {
+                name: "website",
+                color: "a855f7",
+                description: "Issues/PRs related to the main NexaSphere website"
+              },
+              {
+                name: "spotify",
+                color: "1db954",
+                description: "Issues/PRs related to Spotify clone/integration"
+              },
+              {
+                name: "ai",
+                color: "6366f1",
+                description: "Issues/PRs related to AI/ML features"
+              }
+            ];
+
+            for (const lbl of COMPONENT_LABELS) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: lbl.name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, ...lbl });
+                  console.log(`✅ Created label: ${lbl.name}`);
+                } else {
+                  console.error(`⚠️ Error checking/creating label "${lbl.name}": ${e.message}`);
+                }
+              }
+            }
+
+            // ── 2. Helper Functions for Term Matching ────────────────────────
+            const checkSpotify = (text) => {
+              return /\b(spotify|sppoy|music|playlist|song|audio player)\b/i.test(text);
+            };
+
+            const checkAI = (text) => {
+              return /\b(ai|ml|artificial intelligence|machine learning|opencv|tensorflow|pytorch|neural network|nlp|chatbot|prediction|llm|gemini|openai)\b/i.test(text);
+            };
+
+            const checkAdmin = (text) => {
+              return /\b(admin|dashboard|control panel|admin-panel)\b/i.test(text);
+            };
+
+            const checkWebsite = (text) => {
+              return /\b(website|landing|public|frontend|home page|main site)\b/i.test(text);
+            };
+
+            // ── 3. Handle Auto-Labeling for Issues ───────────────────────────
+            if (context.eventName === 'issues') {
+              const issue = context.payload.issue;
+              const issueNumber = issue.number;
+              const title = issue.title || '';
+              const body = issue.body || '';
+              const combinedText = `${title}\n${body}`;
+
+              const toAdd = [];
+              if (checkAdmin(combinedText))   toAdd.push('admin-dashboard');
+              if (checkWebsite(combinedText)) toAdd.push('website');
+              if (checkSpotify(combinedText)) toAdd.push('spotify');
+              if (checkAI(combinedText))      toAdd.push('ai');
+
+              // ── Fallback: apply 'website' if no component matched ──────────
+              if (toAdd.length === 0) {
+                toAdd.push('website');
+                console.log(`ℹ️  No component keyword match for issue #${issueNumber} — applying fallback 'website' label`);
+              }
+
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                labels: toAdd
+              });
+              console.log(`🏷️ Applied component labels to Issue #${issueNumber}: ${toAdd.join(', ')}`);
+            }
+
+            // ── 4. Handle Auto-Labeling for Pull Requests ─────────────────────
+            else if (context.eventName === 'pull_request_target') {
+              const pr = context.payload.pull_request;
+              const prNumber = pr.number;
+              const title = pr.title || '';
+              const body = pr.body || '';
+              const combinedText = `${title}\n${body}`;
+
+              const toAdd = new Set();
+
+              // A. Scan changed file paths (highly accurate)
+              try {
+                const { data: files } = await github.rest.pulls.listFiles({
+                  owner,
+                  repo,
+                  pull_number: prNumber
+                });
+                const filePaths = files.map(f => f.filename);
+                console.log(`📂 Found ${filePaths.length} changed file(s) in PR #${prNumber}`);
+
+                if (filePaths.some(p => p.startsWith('admin-dashboard/'))) {
+                  toAdd.add('admin-dashboard');
+                }
+                // Website paths: website/ dir, root src/, public/, index.html, vite configs
+                if (filePaths.some(p =>
+                  p.startsWith('website/') ||
+                  p.startsWith('src/') ||
+                  p.startsWith('public/') ||
+                  /^(index\.html|vite\.config\.[jt]s|tailwind\.config\.[jt]s)$/.test(p)
+                )) {
+                  toAdd.add('website');
+                }
+                if (filePaths.some(p => /\b(spotify|sppoy|music|playlist|song)\b/i.test(p))) {
+                  toAdd.add('spotify');
+                }
+                if (filePaths.some(p => /\b(ai|ml|tensorflow|opencv|model|pytorch|nlp|chatbot)\b/i.test(p) || p.toLowerCase().includes('ai-attend') || p.toLowerCase().includes('machine-learning'))) {
+                  toAdd.add('ai');
+                }
+              } catch (err) {
+                console.error(`⚠️ Error fetching PR file list: ${err.message}`);
+              }
+
+              // B. Fallback/supplement by scanning PR title and body keywords
+              if (checkAdmin(combinedText))   toAdd.add('admin-dashboard');
+              if (checkWebsite(combinedText)) toAdd.add('website');
+              if (checkSpotify(combinedText)) toAdd.add('spotify');
+              if (checkAI(combinedText))      toAdd.add('ai');
+
+              // ── Fallback: apply 'website' if no component matched ──────────
+              if (toAdd.size === 0) {
+                toAdd.add('website');
+                console.log(`ℹ️  No component keyword match for PR #${prNumber} — applying fallback 'website' label`);
+              }
+
+              const labelsArray = Array.from(toAdd);
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: labelsArray
+              });
+              console.log(`🏷️ Applied component labels to PR #${prNumber}: ${labelsArray.join(', ')}`);
+            }

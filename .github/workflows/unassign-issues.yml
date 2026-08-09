@@ -1,0 +1,129 @@
+name: GSSoC — Auto-Unassign Inactive Contributors
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runs daily. Unassigns contributors with no issue activity for 7+ days.
+# Exempts maintainers / collaborators with write access.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 02:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: unassign-inactive
+  cancel-in-progress: true
+
+jobs:
+  unassign-inactive:
+    name: Unassign Inactive Contributors
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Check and unassign inactive contributors
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const INACTIVITY_DAYS = 7;
+            const now = Date.now();
+            const cutoff = now - INACTIVITY_DAYS * 24 * 60 * 60 * 1000;
+
+            // ── Fetch all open issues with at least one assignee ──────────────
+            let page = 1;
+            let unassignedCount = 0;
+
+            while (true) {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner, repo, state: 'open', per_page: 100, page,
+              });
+              if (issues.length === 0) break;
+
+              for (const issue of issues) {
+                // Skip PRs
+                if (issue.pull_request) continue;
+                // Skip issues with no assignees
+                if (!issue.assignees || issue.assignees.length === 0) continue;
+
+                for (const assignee of issue.assignees) {
+                  const login = assignee.login;
+
+                  // ── Skip bots ─────────────────────────────────────────────
+                  if (login.endsWith('[bot]')) continue;
+
+                  // ── Check if collaborator/maintainer (exempt) ─────────────
+                  try {
+                    const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
+                      owner, repo, username: login,
+                    });
+                    if (['admin', 'write', 'maintain'].includes(perm.permission)) {
+                      console.log(`⏭️  Skipping maintainer @${login} on issue #${issue.number}`);
+                      continue;
+                    }
+                  } catch (_) {
+                    // Not a collaborator — proceed with inactivity check
+                  }
+
+                  // ── Check last activity (comments + events) ───────────────
+                  const { data: comments } = await github.rest.issues.listComments({
+                    owner, repo, issue_number: issue.number, per_page: 100,
+                  });
+
+                  // Find the most recent comment by the assignee
+                  const assigneeComments = comments.filter(c => c.user.login === login);
+                  const lastCommentDate  = assigneeComments.length > 0
+                    ? new Date(assigneeComments[assigneeComments.length - 1].created_at).getTime()
+                    : 0;
+
+                  // Use the later of: issue assignment date or last comment
+                  const assignedAt = new Date(issue.created_at).getTime(); // fallback
+                  const lastActivity = Math.max(lastCommentDate, assignedAt);
+
+                  if (lastActivity >= cutoff) {
+                    console.log(`✅ @${login} is active on issue #${issue.number} — skipping`);
+                    continue;
+                  }
+
+                  // ── Unassign ──────────────────────────────────────────────
+                  await github.rest.issues.removeAssignees({
+                    owner, repo, issue_number: issue.number, assignees: [login],
+                  });
+
+                  // ── Remove assigned label if no other assignees remain ─────
+                  const remaining = issue.assignees.filter(a => a.login !== login);
+                  if (remaining.length === 0) {
+                    try {
+                      await github.rest.issues.removeLabel({
+                        owner, repo, issue_number: issue.number, name: 'assigned',
+                      });
+                    } catch (_) {}
+                  }
+
+                  await github.rest.issues.createComment({
+                    owner, repo, issue_number: issue.number,
+                    body: [
+                      `## ⏰ Auto-Unassignment — Inactivity`,
+                      ``,
+                      `@${login} has been **automatically unassigned** from this issue due to **${INACTIVITY_DAYS}+ days of inactivity**.`,
+                      ``,
+                      `**To reclaim this issue:**`,
+                      `1. Comment \`/assign\` below`,
+                      `2. Demonstrate progress or ask for help`,
+                      ``,
+                      `This issue is now **open for other contributors** to claim! 🙌`,
+                      ``,
+                      `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                    ].join('\n'),
+                  });
+
+                  console.log(`🔓 Unassigned @${login} from issue #${issue.number} (inactive ${INACTIVITY_DAYS}+ days)`);
+                  unassignedCount++;
+                }
+              }
+              page++;
+            }
+
+            console.log(`✅ Unassignment sweep complete — ${unassignedCount} contributor(s) unassigned.`);

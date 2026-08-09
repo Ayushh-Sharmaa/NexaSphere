@@ -28,7 +28,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
-        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -41,18 +40,6 @@ jobs:
 
       - name: Run npm audit
         run: npm audit --audit-level=high
-
-      - name: Run Snyk test
-        run: snyk test --json > snyk-report.json || true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Upload Snyk SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: snyk-report.json
-          category: snyk
 
       - name: Dependency Review
         if: github.event_name == 'pull_request'

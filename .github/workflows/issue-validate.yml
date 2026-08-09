@@ -32,8 +32,10 @@ jobs:
             const issueNum = issue.number;
             const body     = issue.body || '';
             const author   = issue.user.login;
-            const labels   = (issue.labels || []).map((label) => label.name);
-            const isBug    = labels.includes('bug');
+            const isBug = issue.labels.some(l => l.name === 'bug');
+
+            // -- Skip Non Bug Issues ----------------------
+            if (!isBug) return;
 
             // ── Skip bots ─────────────────────────────────────────────────────
             if (author.endsWith('[bot]')) {
@@ -63,19 +65,11 @@ jobs:
             await ensureLabel('needs-more-info', 'e4e669', 'Issue needs more information from the author');
             await ensureLabel('valid-issue',     '0e8a16', 'Issue has all required information');
 
-            // ── Only validate bug reports ────────────────────────────────────
-            if (!isBug) {
-              await removeLabel('needs-more-info');
-              await removeLabel('valid-issue');
-              console.log(`↩️  Issue #${issueNum} is not labeled bug; skipping validation`);
-              return;
-            }
-
             // ── Define required sections ──────────────────────────────────────
             const REQUIRED_SECTIONS = [
               { pattern: /^#{1,6}\s*(?:bug\s+)?description\b/im,           label: '**Description** — What is the issue?' },
-              { pattern: /^#{1,6}\s*steps\s+to\s+reproduce\b/im,           label: '**Steps to Reproduce** — How can we reproduce the issue?' },
-              { pattern: /^#{1,6}\s*expected\s+behav(?:ior|iour)\b/im,     label: '**Expected Behavior** — What should happen?' },
+              { pattern: /^#{1,6}\s*steps\s+to\s+reproduce/im, label: '**Steps to Reproduce** — How can we reproduce the issue?' },
+              { pattern: /^#{1,6}\s*expected\s+behav/im,      label: '**Expected Behavior** — What should happen?' },
             ];
 
             const missing = REQUIRED_SECTIONS

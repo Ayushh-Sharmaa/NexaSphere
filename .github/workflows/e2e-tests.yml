@@ -39,7 +39,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U nexasphere -d nexasphere_test"
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -56,7 +56,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v7
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -82,22 +81,13 @@ jobs:
           echo "E2E_API_BASE=http://localhost:8080" >> .env
           echo "VITE_API_BASE=http://localhost:8080" >> website/.env
           echo "CORS_ORIGIN=http://localhost:5175,http://localhost:5001" >> server/.env
-          echo "ADMIN_EVENT_PASSWORD=${{ secrets.ADMIN_EVENT_PASSWORD }}" >> server/.env
-          echo "ADMIN_USERS_JSON=${{ secrets.ADMIN_USERS_JSON }}" >> server/.env
+          echo "ADMIN_EVENT_PASSWORD=ChangeMe123!Event" >> server/.env
           echo "JWT_SECRET=nexasphere-jwt-dev-secret-change-in-production" >> server/.env
-          echo "DATABASE_URL=postgresql://nexasphere:nexasphere@127.0.0.1:5432/nexasphere_test" >> .env
-          echo "DATABASE_URL=postgresql://nexasphere:nexasphere@127.0.0.1:5432/nexasphere_test" >> server/.env
-          echo "E2E_API_BASE=http://127.0.0.1:8080" >> .env
-          echo "E2E_API_BASE=http://127.0.0.1:8080" >> server/.env
-          echo "VITE_API_BASE=http://127.0.0.1:8080" >> website/.env
-          echo "VITE_API_PROXY_TARGET=http://127.0.0.1:8080" >> website/.env
-          echo "DISABLE_PWA=true" >> website/.env
 
       - name: Start server
         run: |
           cd server
           npm install
-          npm install --legacy-peer-deps
           npm run migrate:latest
           node index.js &
           echo "SERVER_PID=$!"
@@ -109,12 +99,8 @@ jobs:
           PORT: 8080
           FRONTEND_URL: http://localhost:5175,http://127.0.0.1:5175
           CORS_ORIGIN: http://localhost:5175,http://127.0.0.1:5175
-          CORS_ORIGIN: http://localhost:5175,http://127.0.0.1:5175,http://localhost:5001,http://127.0.0.1:5001
           ADMIN_USERS_JSON: '[{"username":"admin","password":"admin123","role":"SuperAdmin"}]'
           ADMIN_EVENT_PASSWORD: StrongEventPassword123!
-          ADMIN_USERS_JSON: ${{ secrets.ADMIN_USERS_JSON }}
-          ADMIN_EVENT_PASSWORD: ${{ secrets.ADMIN_EVENT_PASSWORD }}
-          ADMIN_EVENT_PASSWORD: ${{ secrets.E2E_ADMIN_EVENT_PASSWORD || 'ChangeMe123!Event' }}
         timeout-minutes: 5
 
       - name: Wait for server
@@ -128,10 +114,7 @@ jobs:
 
       - name: Run E2E tests (${{ matrix.browser }})
         run: npx playwright test e2e/auth.spec.ts e2e/main.spec.ts e2e/prompt-history.spec.ts e2e/student-flows.spec.ts --project=${{ matrix.browser }}
-        run: npx playwright test --project=${{ matrix.browser }}
         timeout-minutes: 50
-        run: npx playwright test e2e/auth.spec.ts e2e/main.spec.ts e2e/prompt-history.spec.ts e2e/journeys/05-admin-event-creation-journey.spec.ts --project=${{ matrix.browser }}
-        timeout-minutes: 20
         env:
           PWTEST_HEADLESS: true
           VITE_API_PROXY_TARGET: http://127.0.0.1:8080

@@ -31,7 +31,6 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
-        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -41,19 +40,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Build client website
         run: npm run build --workspace=website
@@ -73,15 +59,6 @@ jobs:
         if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
         run: |
           aws s3 sync website/dist/assets s3://${{ env.S3_BUCKET }}/assets \
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Sync immutable hashed assets to S3
-        run: |
-          aws s3 sync website/dist/assets s3://${{ secrets.S3_BUCKET }}/assets \
             --delete \
             --cache-control "public, max-age=31536000, immutable"
 
@@ -89,8 +66,6 @@ jobs:
         if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
         run: |
           aws s3 sync website/dist s3://${{ env.S3_BUCKET }} \
-        run: |
-          aws s3 sync website/dist s3://${{ secrets.S3_BUCKET }} \
             --delete \
             --exclude "assets/*" \
             --cache-control "public, max-age=0, must-revalidate"
@@ -100,7 +75,4 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"

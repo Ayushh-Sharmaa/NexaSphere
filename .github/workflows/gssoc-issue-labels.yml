@@ -1,0 +1,18 @@
+name: GSSoC — Issue Level Auto-Label (Deprecated)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# This workflow has been superseded by:
+#   gssoc-auto-label-on-open.yml  (handles both issues + PRs on open)
+#   gssoc-label-setup.yml         (bootstraps all labels)
+#
+# Kept for backwards compatibility — now just a no-op redirect.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    name: No-op (Superseded)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This workflow is superseded by gssoc-auto-label-on-open.yml"

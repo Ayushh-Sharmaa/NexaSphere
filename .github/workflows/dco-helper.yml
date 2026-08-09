@@ -1,0 +1,109 @@
+name: GSSoC — DCO Sign-Off Helper
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Enforces Developer Certificate of Origin (DCO).
+# Every commit must have "Signed-off-by:" in the message.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: dco-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  dco-check:
+    name: DCO Sign-Off Check
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Check all commits for Signed-off-by
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr    = context.payload.pull_request;
+            const prNum = pr.number;
+
+            // ── Label helpers ─────────────────────────────────────────────────
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+            async function addLabel(name) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: prNum, labels: [name] });
+            }
+            async function removeLabel(name) {
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: prNum, name });
+              } catch (_) {}
+            }
+
+            await ensureLabel('dco-missing', 'e11d48', 'One or more commits are missing DCO Signed-off-by');
+            await ensureLabel('dco-ok',      '0e8a16', 'All commits have DCO Signed-off-by');
+
+            // ── Fetch all commits in the PR ───────────────────────────────────
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner, repo, pull_number: prNum, per_page: 250,
+            });
+
+            const missing = commits.filter(c => {
+              const msg = c.commit.message || '';
+              return !msg.includes('Signed-off-by:');
+            });
+
+            if (missing.length > 0) {
+              await removeLabel('dco-ok');
+              await addLabel('dco-missing');
+
+              const commitList = missing.map(c =>
+                `- \`${c.sha.substring(0, 7)}\` — ${c.commit.message.split('\n')[0]}`
+              ).join('\n');
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNum,
+                body: [
+                  `## ❌ DCO Sign-Off Missing`,
+                  ``,
+                  `Hey @${pr.user.login}! The following commit(s) are missing a **\`Signed-off-by:\`** line:`,
+                  ``,
+                  commitList,
+                  ``,
+                  `**To fix this:**`,
+                  ``,
+                  `For the most recent commit:`,
+                  `\`\`\`bash`,
+                  `git commit --amend --signoff`,
+                  `git push --force-with-lease`,
+                  `\`\`\``,
+                  ``,
+                  `For multiple commits (replace N with the number):`,
+                  `\`\`\`bash`,
+                  `git rebase HEAD~${missing.length} --signoff`,
+                  `git push --force-with-lease`,
+                  `\`\`\``,
+                  ``,
+                  `> 📖 The DCO sign-off certifies you have the right to submit the contribution. [Learn more](https://developercertificate.org/).`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              console.log(`❌ PR #${prNum}: ${missing.length} commit(s) missing DCO sign-off`);
+            } else {
+              await removeLabel('dco-missing');
+              await addLabel('dco-ok');
+              console.log(`✅ PR #${prNum}: All commits have DCO sign-off`);
+            }

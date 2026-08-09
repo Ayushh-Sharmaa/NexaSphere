@@ -1,0 +1,87 @@
+name: GSSoC — PR Size Label
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Labels each PR with its size (XS/S/M/L/XL) based on total lines changed.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-size-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  size-label:
+    name: Apply PR Size Label
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Calculate size and apply label
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr    = context.payload.pull_request;
+            const prNum = pr.number;
+
+            const additions = pr.additions || 0;
+            const deletions = pr.deletions || 0;
+            const total     = additions + deletions;
+
+            // ── Determine size tier ───────────────────────────────────────────
+            let sizeLabel, emoji, description;
+            if      (total < 10)  { sizeLabel = 'size/XS'; emoji = '🔹'; description = 'Extra-small PR (< 10 lines)'; }
+            else if (total < 50)  { sizeLabel = 'size/S';  emoji = '🟢'; description = 'Small PR (10–49 lines)'; }
+            else if (total < 150) { sizeLabel = 'size/M';  emoji = '🟡'; description = 'Medium PR (50–149 lines)'; }
+            else if (total < 500) { sizeLabel = 'size/L';  emoji = '🟠'; description = 'Large PR (150–499 lines)'; }
+            else                  { sizeLabel = 'size/XL'; emoji = '🔴'; description = 'Extra-large PR (500+ lines)'; }
+
+            // ── Ensure all size labels exist ──────────────────────────────────
+            const sizeDefs = [
+              { name: 'size/XS', color: 'bfd4f2', description: 'Extra-small PR (< 10 lines)' },
+              { name: 'size/S',  color: '78d97a', description: 'Small PR (10–49 lines)' },
+              { name: 'size/M',  color: 'f0e068', description: 'Medium PR (50–149 lines)' },
+              { name: 'size/L',  color: 'f97316', description: 'Large PR (150–499 lines)' },
+              { name: 'size/XL', color: 'e11d48', description: 'Extra-large PR (500+ lines)' },
+            ];
+            for (const def of sizeDefs) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: def.name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, ...def });
+                }
+              }
+            }
+
+            // ── Remove old size/* labels ──────────────────────────────────────
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: prNum,
+            });
+            for (const lbl of currentLabels) {
+              if (lbl.name.startsWith('size/') && lbl.name !== sizeLabel) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: prNum, name: lbl.name,
+                  });
+                  console.log(`🗑️  Removed old size label: ${lbl.name}`);
+                } catch (_) {}
+              }
+            }
+
+            // ── Apply new size label ──────────────────────────────────────────
+            if (!currentLabels.some(l => l.name === sizeLabel)) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: prNum, labels: [sizeLabel],
+              });
+            }
+
+            console.log(`${emoji} PR #${prNum} — ${sizeLabel} (${total} lines: +${additions} -${deletions})`);

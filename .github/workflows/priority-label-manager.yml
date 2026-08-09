@@ -1,0 +1,92 @@
+name: GSSoC — Priority Label Manager
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Automatically assigns priority labels to issues and PRs based on
+# keywords found in the title and body.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, edited, synchronize]
+
+concurrency:
+  group: priority-label-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  apply-priority:
+    name: Apply Priority Label
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Determine and apply priority label
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const event    = context.eventName;
+            const isIssue  = event === 'issues';
+            const item     = isIssue ? context.payload.issue : context.payload.pull_request;
+            const itemNum  = item.number;
+            const title    = (item.title || '').toLowerCase();
+            const body     = (item.body  || '').toLowerCase();
+            const text     = title + ' ' + body;
+
+            // Skip bots
+            if (item.user.login.endsWith('[bot]')) return;
+
+            // ── Priority keyword maps ─────────────────────────────────────────
+            const HIGH_KEYWORDS   = ['crash', 'broken', 'security', 'urgent', 'critical', 'vulnerability',
+                                     'data loss', 'breach', 'exploit', 'emergency', 'outage', 'hotfix'];
+            const MEDIUM_KEYWORDS = ['bug', 'fix', 'error', 'broken link', 'incorrect', 'wrong',
+                                     'failing', 'regression', 'defect', 'issue'];
+
+            let priority = 'priority:low';
+            if (HIGH_KEYWORDS.some(k => text.includes(k)))        priority = 'priority:high';
+            else if (MEDIUM_KEYWORDS.some(k => text.includes(k))) priority = 'priority:medium';
+
+            // ── Ensure all priority labels exist ──────────────────────────────
+            const priorityDefs = [
+              { name: 'priority:high',   color: 'e11d48', description: 'High priority — urgent attention needed' },
+              { name: 'priority:medium', color: 'f97316', description: 'Medium priority — should be addressed soon' },
+              { name: 'priority:low',    color: '22c55e', description: 'Low priority — nice to have' },
+            ];
+            for (const def of priorityDefs) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: def.name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, ...def });
+                }
+              }
+            }
+
+            // ── Remove old priority:* labels ──────────────────────────────────
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: itemNum,
+            });
+            for (const lbl of currentLabels) {
+              if (lbl.name.startsWith('priority:') && lbl.name !== priority) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: itemNum, name: lbl.name,
+                  });
+                  console.log(`🗑️  Removed: ${lbl.name}`);
+                } catch (_) {}
+              }
+            }
+
+            // ── Apply new priority label ──────────────────────────────────────
+            if (!currentLabels.some(l => l.name === priority)) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: itemNum, labels: [priority],
+              });
+            }
+
+            const emoji = { 'priority:high': '🔴', 'priority:medium': '🟡', 'priority:low': '🟢' }[priority];
+            console.log(`${emoji} Applied ${priority} to ${isIssue ? 'issue' : 'PR'} #${itemNum}`);

@@ -1,0 +1,83 @@
+name: GSSoC — PR Welcome Bot
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When a first-time contributor opens their first PR, posts a welcome message
+# explaining the 3-stage review pipeline and what to expect.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [opened]
+
+concurrency:
+  group: welcome-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  welcome-pr-author:
+    name: Welcome First-Time PR Author
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Check if first PR and post welcome
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr     = context.payload.pull_request;
+            const prNum  = pr.number;
+            const author = pr.user.login;
+
+            // ── Check for previous PRs by this author ─────────────────────────
+            const { data: results } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} author:${author} is:pr`,
+            });
+
+            // Current PR will appear in results, so > 1 means they've opened PRs before
+            if (results.total_count > 1) {
+              console.log(`⏭️  @${author} has ${results.total_count} PRs — skipping welcome`);
+              return;
+            }
+
+            // ── Post first-time PR welcome ────────────────────────────────────
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: prNum,
+              body: [
+                `## 🚀 Welcome to NexaSphere, @${author}! Your First PR!`,
+                ``,
+                `Congratulations on opening your first PR — we're excited to review your contribution! 🎉`,
+                ``,
+                `**Here's how our review pipeline works:**`,
+                ``,
+                `| Stage | Description | Who Reviews |`,
+                `|-------|-------------|-------------|`,
+                `| 🔵 Stage 1 | Automated checks (spam, validator, DCO, size) | GitHub Actions |`,
+                `| 🟡 Stage 2 | Mentor review & approval | [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa) |`,
+                `| 🟢 Stage 3 | Project Admin final approval & merge | [@S3DFX-CYBER](https://github.com/S3DFX-CYBER) |`,
+                ``,
+                `**Important requirements:**`,
+                `- ✅ PR description must include \`Closes #ISSUE_NUMBER\``,
+                `- ✅ You must be **assigned** to the linked issue`,
+                `- ✅ All commits must have \`Signed-off-by:\` (DCO)`,
+                `- ✅ All CI checks must pass`,
+                ``,
+                `**Typical review timeline:**`,
+                `- Stage 2 (mentor): within **24–48 hours**`,
+                `- Stage 3 (admin): within **48–72 hours** after mentor approval`,
+                ``,
+                `**Resources:**`,
+                `- 📋 [CONTRIBUTING.md](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)`,
+                `- 🔖 [PR Template](https://github.com/${owner}/${repo}/blob/main/.github/pull_request_template.md)`,
+                ``,
+                `> ❓ Have questions? Comment here or reach out to the mentor!`,
+                ``,
+                `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+              ].join('\n'),
+            });
+            console.log(`🚀 Posted first-PR welcome for @${author} on PR #${prNum}`);
