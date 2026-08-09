@@ -1,40 +1,44 @@
 const express = require('express');
 const router = express.Router();
+const { requireStudentAuth } = require('../middleware/studentAuthMiddleware');
+const { requireAdmin } = require('../middleware/adminAuthMiddleware');
 
 const reportingCenterController = require('../controllers/reportingCenterController');
 
-// Get all reports
-router.get('/reports', reportingCenterController.getReports);
+router.use(requireStudentAuth);
 
-// Export data (CSV, Excel, PDF)
-router.post('/export', reportingCenterController.exportData);
+// Get all reports (admin only)
+router.get('/reports', requireAdmin, reportingCenterController.getReports);
 
-// Schedule report generation
-router.post('/schedule', reportingCenterController.scheduleReport);
+// Export data (CSV, Excel, PDF) (admin only)
+router.post('/export', requireAdmin, reportingCenterController.exportData);
 
-// Generate custom report
-router.post('/custom', reportingCenterController.generateCustomReport);
+// Schedule report generation (admin only)
+router.post('/schedule', requireAdmin, reportingCenterController.scheduleReport);
 
-// Report templates
-router.get('/templates', reportingCenterController.getTemplates);
-router.post('/templates', reportingCenterController.saveTemplate);
+// Generate custom report (admin only)
+router.post('/custom', requireAdmin, reportingCenterController.generateCustomReport);
 
-// Email report
-router.post('/email', reportingCenterController.emailReport);
+// Report templates (admin only)
+router.get('/templates', requireAdmin, reportingCenterController.getTemplates);
+router.post('/templates', requireAdmin, reportingCenterController.saveTemplate);
 
-// Dashboard summary
-router.get('/dashboard', reportingCenterController.getDashboardSummary);
+// Email report (admin only)
+router.post('/email', requireAdmin, reportingCenterController.emailReport);
 
-// Report history
-router.get('/history', reportingCenterController.getReportHistory);
+// Dashboard summary (admin only)
+router.get('/dashboard', requireAdmin, reportingCenterController.getDashboardSummary);
 
-// Audit logs
-router.get('/audit', reportingCenterController.getAuditLogs);
+// Report history (admin only)
+router.get('/history', requireAdmin, reportingCenterController.getReportHistory);
 
-// Advanced filtering
-router.get('/filter', reportingCenterController.filterReports);
+// Audit logs (admin only)
+router.get('/audit', requireAdmin, reportingCenterController.getAuditLogs);
 
-// Permission-based exports
-router.get('/permissions', reportingCenterController.getPermissions);
+// Advanced filtering (admin only)
+router.get('/filter', requireAdmin, reportingCenterController.filterReports);
+
+// Permission-based exports (admin only)
+router.get('/permissions', requireAdmin, reportingCenterController.getPermissions);
 
 module.exports = router;
