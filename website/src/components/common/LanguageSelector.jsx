@@ -227,8 +227,7 @@ export default function LanguageSelector() {
                   e.currentTarget.style.background = 'var(--bdr, #333)';
               }}
               onBlur={(e) => {
-                if (lang.code !== current.code)
-                  e.currentTarget.style.background = 'transparent';
+                if (lang.code !== current.code) e.currentTarget.style.background = 'transparent';
               }}
               onMouseOver={(e) => {
                 if (lang.code !== current.code)
