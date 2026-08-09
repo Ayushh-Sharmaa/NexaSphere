@@ -1,13 +1,17 @@
 const express = require("express");
 const router = express.Router();
+const { requireStudentAuth } = require("../middleware/studentAuthMiddleware");
+const { searchRateLimiter } = require("../middleware/rateLimiter");
 
 const knowledgeAssistantController = require("../controllers/knowledgeAssistantController");
 
+router.use(requireStudentAuth);
+
 // AI Assistant
-router.post("/query", knowledgeAssistantController.askQuestion);
+router.post("/query", searchRateLimiter, knowledgeAssistantController.askQuestion);
 
 // Natural Language Search
-router.get("/search", knowledgeAssistantController.naturalSearch);
+router.get("/search", searchRateLimiter, knowledgeAssistantController.naturalSearch);
 
 // Documentation
 router.get("/documentation", knowledgeAssistantController.getDocumentation);
@@ -28,7 +32,7 @@ router.get("/guides", knowledgeAssistantController.getGuides);
 router.get("/suggestions", knowledgeAssistantController.getSuggestions);
 
 // Multilingual Translation
-router.post("/translate", knowledgeAssistantController.translateResponse);
+router.post("/translate", searchRateLimiter, knowledgeAssistantController.translateResponse);
 
 // Query History
 router.get("/history", knowledgeAssistantController.getHistory);
