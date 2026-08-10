@@ -5,7 +5,7 @@ try {
   // twilio not installed, fallback to mock
 }
 
-import twilio from 'twilio';
+
 import { withDb } from '../repositories/db.js';
 import logger from '../utils/logger.js';
 
@@ -18,10 +18,6 @@ const client =
   twilio && TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN
     ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     : null;
-// Initialize client if credentials exist, otherwise mock
-const client = (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN) 
-  ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) 
-  : null;
 
 // Mock cost calculator (average cost per SMS segment)
 const SMS_COST_USD = 0.0079;
@@ -81,5 +77,4 @@ export const smsService = {
       console.error('Failed to log SMS analytics:', e.message);
     }
   },
-  }
 };

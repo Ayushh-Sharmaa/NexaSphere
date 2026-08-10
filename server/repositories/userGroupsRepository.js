@@ -69,8 +69,6 @@ export const userGroupsRepository = {
 
   async getGroupMembers(groupId) {
     return withDb(async (client) => {
-      const { rows } = await client.query(
-        `
       const { rows } = await client.query(`
         SELECT s.id, s.email, s.full_name, m.joined_at
         FROM student_users s
@@ -91,11 +89,6 @@ export const userGroupsRepository = {
       let count = 0;
       for (const studentId of studentIds) {
         const { rowCount } = await client.query(
-          `INSERT INTO user_group_members (group_id, student_id)
-           VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-          [groupId, studentId]
-        );
-        count += rowCount;
       }
       return count;
     });

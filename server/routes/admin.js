@@ -29,8 +29,6 @@ import {
   getReadOnlyStatus,
   createIncidentLog,
 } from '../routes/readOnlyMode.js';
-} from '../utils/readOnlyMode.js';
-} from './readOnlyMode.js';
 
 import {
   getServiceStatus,
@@ -52,7 +50,6 @@ import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.j
 const router = Router();
 const adminAuth = adminAuthMiddleware.requireAdmin;
 router.use(apiRateLimiter);
-const adminAuth = [adminAuthMiddleware.requireAdmin];
 
 /**
  * Raw membership fetch helper, wrapped in a circuit breaker to protect
@@ -97,9 +94,6 @@ router.get('/membership', adminAuth, async (req, res) => {
           method: 'GET',
         }
       );
-      const data = await supabaseBreaker.execute('form_submissions?form_type=eq.membership&order=created_at.desc', {
-        method: 'GET',
-      });
       const responses = (data || []).map((row) => ({
         submittedAt: row.created_at,
         formType: row.form_type,
@@ -114,13 +108,6 @@ router.get('/membership', adminAuth, async (req, res) => {
         console.warn(
           '[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script'
         );
-      return res.json({ responses });
-    } catch (err) {
-      if (err.code === 'CIRCUIT_OPEN') {
-        console.warn('[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script');
-      } else {
-        console.error('[Membership] Failed to fetch from Supabase:', err.message);
-      }
       // Fall through to Google Apps Script fallback
     }
   }
@@ -146,7 +133,6 @@ router.get('/membership', adminAuth, async (req, res) => {
       throw new Error(`Google Apps Script returned ${response.status}`);
     }
 
-    const data = await response.json();
     return res.json({ responses: data.responses || [] });
   } catch (err) {
     if (err.code === 'CIRCUIT_OPEN') {
@@ -356,7 +342,6 @@ router.get('/api/admin/reports/engagement', adminAuth, async (req, res) => {
   });
   seedUsers.sort((a, b) => b.engagementScore - a.engagementScore);
   sendSuccess(res, { users: seedUsers });
-  res.json({ users: seedUsers });
 });
 
 router.get('/api/admin/reports/revenue', adminAuth, async (req, res) => {

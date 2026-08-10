@@ -4,12 +4,8 @@ import { EventEmitter } from 'node:events';
 
 // Create a mock socket resembling Socket.IO Socket
 const createMockSocket = (id = 'test-socket-123') => {
-import assert from "node:assert/strict";
-import test from "node:test";
-import { EventEmitter } from "node:events";
 
 // Create a mock socket resembling Socket.IO Socket
-const createMockSocket = (id = "test-socket-123") => {
   const socket = new EventEmitter();
   socket.id = id;
   socket.adminAuthenticated = false;
@@ -161,19 +157,13 @@ test("Room Registration Handler Verification", async (t) => {
     // typing_start
     socket.emit('typing_start', { roomId: room, details: 'ignored' });
     const typingStartEvent = socket.emittedTo.find((e) => e.event === 'typing_start');
-  await t.test("Verify that typing indicators work correctly", () => {
-    const socket = createMockSocket("socket-typing");
     _onConnection(socket);
 
-    const room = "workspace-typing";
     socket.emit("join_room", room, { name: "Typist" });
     socket.emittedTo = [];
 
     // typing_start
     socket.emit("typing_start", { roomId: room, details: "ignored" });
-    const typingStartEvent = socket.emittedTo.find(
-      (e) => e.event === "typing_start"
-    );
     assert.ok(typingStartEvent);
     assert.equal(typingStartEvent.room, room);
     assert.equal(typingStartEvent.data.socketId, socket.id);
@@ -182,9 +172,6 @@ test("Room Registration Handler Verification", async (t) => {
     socket.emit('typing_stop', { roomId: room });
     const typingStopEvent = socket.emittedTo.find((e) => e.event === 'typing_stop');
     socket.emit("typing_stop", { roomId: room });
-    const typingStopEvent = socket.emittedTo.find(
-      (e) => e.event === "typing_stop"
-    );
     assert.ok(typingStopEvent);
     assert.equal(typingStopEvent.room, room);
     assert.equal(typingStopEvent.data.socketId, socket.id);
@@ -195,17 +182,8 @@ test("Room Registration Handler Verification", async (t) => {
     _onConnection(socket);
 
     const eventsToCheck = ['join_room', 'leave_room', 'typing_start', 'typing_stop', 'disconnect'];
-  await t.test("Verify no duplicate event listeners exist on socket", () => {
-    const socket = createMockSocket("socket-duplicate-test");
     _onConnection(socket);
 
-    const eventsToCheck = [
-      "join_room",
-      "leave_room",
-      "typing_start",
-      "typing_stop",
-      "disconnect",
-    ];
     for (const event of eventsToCheck) {
       const listeners = socket.listeners(event);
       assert.equal(
@@ -265,5 +243,11 @@ test("Room Registration Handler Verification", async (t) => {
       );
       assert.equal(taskUpdatedEvents.length, 0);
     }
-  );
 });
+
+}
+);
+}
+);
+}
+);

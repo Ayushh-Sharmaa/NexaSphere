@@ -50,4 +50,3 @@ it("should generate encryption audit logs", () => {
   assert.ok(Array.isArray(logs));
 });
 
-});

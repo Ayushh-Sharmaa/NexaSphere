@@ -1,4 +1,5 @@
 import { notificationAnalyticsRepository } from "../repositories/notificationAnalyticsRepository.js";
+import { notificationPreferencesRepository } from "../repositories/notificationPreferencesRepository.js";
 import { pushSubscriptionsRepository } from "../repositories/pushSubscriptionsRepository.js";
 import { notificationsRepository } from "../repositories/notificationsRepository.js";
 import { HAS_SUPABASE, supabaseRequest } from "../storage/supabaseClient.js";
@@ -256,7 +257,7 @@ class NotificationsService {
     const activity =
       await notificationAnalyticsRepository.getUserActivityMetrics(userId);
     const prefs = await notificationPreferencesRepository.get(userId);
-    const config = prefs.types[type] || { push: true, frequency: "immediate" };
+    const config = prefs?.types?.[type] || { push: true, frequency: "immediate" };
 
     // 2. Check delivery preferences (handles DND, quiet hours, channel prefs)
     const result = await shouldDeliver(
@@ -416,4 +417,12 @@ class NotificationsService {
   }
 }
 
-export default new NotificationsService();
+const instance = new NotificationsService();
+export default instance;
+
+export const getNotifications = instance.getNotifications.bind(instance);
+export const addNotification = instance.addNotification.bind(instance);
+export const markAsRead = instance.markAsRead.bind(instance);
+export const markAllAsRead = instance.markAllAsRead.bind(instance);
+export const clearAll = instance.clearAll.bind(instance);
+export const removeNotification = instance.removeNotification.bind(instance);

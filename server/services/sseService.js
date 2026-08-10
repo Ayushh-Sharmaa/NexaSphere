@@ -68,7 +68,6 @@ function writeToClient(client, message) {
 }
 import { getAdminSession } from '../repositories/adminSessionsRepository.js';
 
-const adminClients = new Set();
 const SSE_VALIDATION_INTERVAL_MS = 5000;
 let sseValidationTimer = null;
 
@@ -204,7 +203,6 @@ export function getConnectedSSEClientsCount() {
   return adminClients.size;
 }
 
-const HEALTH_CHECK_INTERVAL_MS = 60000;
 
 setInterval(() => {
   const now = Date.now();
@@ -260,22 +258,6 @@ export function setupSSEHeaders(req, res, next) {
 
   res.on('error', (error) => {
     cleanupClient(res, 'error', { error: error.message });
-export function addSSEClient(res) {
-  adminClients.add(res);
-  logger.info('SSE client connected', { totalClients: adminClients.size });
-
-  res.on('close', () => {
-    adminClients.delete(res);
-    if (res._heartbeat) clearInterval(res._heartbeat);
-    logger.info('SSE client disconnected', { totalClients: adminClients.size });
-  });
-
-  res.on('error', (error) => {
-    adminClients.delete(res);
-    if (res._heartbeat) clearInterval(res._heartbeat)
-    logger.error('SSE client error', { error: error.message });
-  });
-}
 
 /**
  * Broadcast an event to all SSE clients whose admin session has
@@ -286,125 +268,6 @@ export function addSSEClient(res) {
  * @param {Object} data - Event payload
  * Send SSE event to all connected clients
  */
-export function broadcastSSEEvent(eventName, data) {
-  const eventData = JSON.stringify({
-    type: eventName,
-    data,
-    timestamp: new Date().toISOString(),
-  });
-
-  let delivered = 0;
-  let skipped = 0;
-
-  for (const [client, entry] of adminClients) {
-    if (!adminCanReceiveEvent(eventName, entry.admin.permissions)) {
-      skipped += 1;
-      continue;
-    }
-    if (writeToClient(client, message)) {
-      delivered += 1;
-  const dead = [];
-  adminClients.forEach((client) => {
-    try {
-      client.write(`event: ${eventName}\n`);
-      client.write(`data: ${eventData}\n\n`);
-    } catch (error) {
-      logger.error('Failed to send SSE event', { error: error.message });
-      dead.push(client);
-    }
-  });
-
-  dead.forEach((c) => {
-    adminClients.delete(c);
-    clearInterval(c._heartbeat);
-  });
-
-  logger.debug('SSE event broadcast', {
-    event: eventName,
-    delivered,
-    skipped,
-    totalClients: adminClients.size,
-  });
 }
-
-/**
- * Get connected SSE clients count
- */
-export function getConnectedSSEClientsCount() {
-  return adminClients.size;
+);
 }
-
-function startHealthCheck() {
-  if (healthCheckTimer) return;
-  healthCheckTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [client, entry] of adminClients) {
-      if (now - entry.joinedAt > HEALTH_CHECK_INTERVAL_MS) {
-        try {
-          client.write(': ping\n\n');
-        } catch {
-          cleanupClient(client, 'health_check_failed');
-        }
-      }
-    }
-  }, HEALTH_CHECK_INTERVAL_MS);
-  if (typeof healthCheckTimer.unref === 'function') {
-    healthCheckTimer.unref();
-  }
-}
-
-export function setupSSEHeaders(req, res, next) {
-  if (adminClients.size >= MAX_SSE_CLIENTS) {
-    res.status(503).end('Too many SSE connections');
-    return;
-  }
-
-/**
- * SSE middleware setup
- */
-export function setupSSEHeaders(req, res, next) {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  // The app-level cors() middleware already selected the correct origin.
-  // Do not overwrite it here, or multi-origin deployments break.
-
-  // Send initial connection message
-  res.write(': SSE connection established\n\n');
-
-  // Send heartbeat every 30 seconds to keep connection alive
-  res._heartbeat = setInterval(() => {
-    try {
-      res.write(': heartbeat\n\n');
-    } catch (error) {
-      clearInterval(res._heartbeat);
-    }
-  }, 30000);
-
-  res.on('close', () => {
-    clearInterval(res._heartbeat);
-  });
-
-  startHealthCheck();
-  if (typeof res.flush === 'function') res.flush();
-
-  next();
-}
-
-export function _resetSSEClientsForTests() {
-  for (const [res] of adminClients) {
-    if (res._heartbeat) clearInterval(res._heartbeat);
-  }
-  adminClients.clear();
-}
-
-export default {
-  addSSEClient,
-  broadcastSSEEvent,
-  getConnectedSSEClientsCount,
-  setupSSEHeaders,
-  _resetSSEClientsForTests,
-  startSSEValidation,
-  stopSSEValidation,
-};

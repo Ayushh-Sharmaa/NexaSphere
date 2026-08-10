@@ -42,9 +42,6 @@ export const listEvents = wrapAsync(async (req, res) => {
       : req.cookies?.ns_student_token || null;
 
   
-  let studentGroups = undefined;
-  const authHeader = req.headers.authorization;
-  let token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : (req.cookies?.ns_student_token || null);
   
   if (token) {
     // Import dynamically to avoid top-level circular dependencies if any
@@ -148,7 +145,6 @@ export const adminCreateEvent = wrapAsync(async (req, res) => {
   }
 
   return sendSuccess(res, { event: created }, 201);
-  return res.status(201).json({ ok: true, event: created });
 });
 
 export const adminUpdateEvent = wrapAsync(async (req, res) => {
@@ -161,7 +157,6 @@ export const adminUpdateEvent = wrapAsync(async (req, res) => {
   emitToRole('user', 'calendar:event-updated', updated);
 
   return sendSuccess(res, { event: updated });
-  return res.json({ ok: true, event: updated });
 });
 
 export const adminDeleteEvent = wrapAsync(async (req, res) => {
@@ -181,5 +176,4 @@ export const adminDeleteEvent = wrapAsync(async (req, res) => {
   }
 
   return sendSuccess(res, { ok: true });
-  return res.json({ ok: true });
 });

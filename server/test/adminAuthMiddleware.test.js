@@ -43,11 +43,9 @@ process.env.ADMIN_LOGIN_MAX_ATTEMPTS = "2";
 process.env.ADMIN_LOGIN_MAX_TRACKED_IPS = "5";
 
 // Helper
-const createMockReqRes = (
   ip,
   username,
   password
-) => {
 
   const req = {
     body: { username, password },
@@ -101,12 +99,8 @@ test('Security + Concurrency Validation', async (t) => {
 
     assert.equal(adminAuthMiddleware._getLoginAttemptsMapSize(), 0);
     const { adminAuthMiddleware } =
-      await import(
         "../middleware/adminAuthMiddleware.js"
-      );
-  const { adminAuthMiddleware } = await import('../middleware/adminAuthMiddleware.js');
 
-  await t.test('Initial map is empty', () => {
     adminAuthMiddleware._clearAllLoginAttempts();
 
     assert.equal(adminAuthMiddleware._getLoginAttemptsMapSize(), 0);
@@ -122,12 +116,6 @@ test('Security + Concurrency Validation', async (t) => {
         adminAuthMiddleware
           ._clearAllLoginAttempts();
 
-        const { req, res } =
-          createMockReqRes(
-            "192.168.0.1",
-            "admin",
-            "wrongpass"
-          );
 
         await adminAuthMiddleware.login(
           req,
@@ -427,7 +415,6 @@ test('Security + Concurrency Validation', async (t) => {
     adminAuthMiddleware._cleanupExpiredAttempts();
 
     assert.equal(adminAuthMiddleware._getLoginAttemptsMapSize(), 0);
-  });
 
   await t.test('Successful login clears attempts', async () => {
     adminAuthMiddleware._clearAllLoginAttempts();
@@ -544,7 +531,6 @@ test('Security + Concurrency Validation', async (t) => {
 
     const { req, res } = createMockReqRes('192.168.0.1', 'admin', 'wrongpass');
     const ip = '192.168.1.50';
-    const { req, res } = createMockReqRes(ip, 'admin', 'wrongpass');
 
     await adminAuthMiddleware.login(req, res);
 
@@ -574,7 +560,6 @@ test('Security + Concurrency Validation', async (t) => {
 
     await adminAuthMiddleware.login(success.req, success.res);
 
-    const ip = '192.168.1.60';
 
     // Failed attempt 1
     const { req: reqFail, res: resFail } = createMockReqRes(ip, 'admin', 'wrongpass');
@@ -588,7 +573,6 @@ test('Security + Concurrency Validation', async (t) => {
       'admin',
       'AdminStrongPass123!'
     );
-    const { req: reqSuccess, res: resSuccess } = createMockReqRes(ip, 'admin', 'dummy-test-password-do-not-use');
     await adminAuthMiddleware.login(reqSuccess, resSuccess);
 
     // The credentials match and success returns 200 (or calls createAdminSession which fails because DB isn't connected, returning 500 but it should have cleared the attempts first!)
@@ -602,7 +586,6 @@ test('Security + Concurrency Validation', async (t) => {
     adminAuthMiddleware._clearAllLoginAttempts();
 
     const ip = '192.168.0.3';
-    const ip = '192.168.1.70';
 
     // Attempt 1: Failed (Attempts set to 1)
     const { req: req1, res: res1 } = createMockReqRes(ip, 'admin', 'wrongpass');

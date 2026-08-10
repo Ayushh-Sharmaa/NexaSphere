@@ -361,7 +361,6 @@ router.post(
       }
 
       return sendSuccess(res, { success: true, message: 'Skill endorsed successfully' });
-      return res.json({ success: true, message: 'Skill endorsed successfully' });
     } catch (err) {
       if (
         err.message === 'You have already endorsed this skill' ||
@@ -372,10 +371,6 @@ router.post(
       }
       console.error('Error endorsing skill:', err);
       return sendError(req, res, 'Internal server error', 500, 'INTERNAL_ERROR');
-        return res.status(400).json({ error: err.message });
-      }
-      console.error('Error endorsing skill:', err);
-      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
@@ -386,7 +381,6 @@ router.post(
  * brute-force lockout on repeated failed passkey attempts.
  */
 router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
-  try {
     const body = req.body || {};
     const ip = String(req.ip || 'unknown').trim();
 
@@ -456,27 +450,19 @@ router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
 
     // If projects are saved, push real-time project approval notification
     if (saved && Array.isArray(saved.projects) && saved.projects.length > 0) {
-      try {
         const { emitToRoom } = await import('../config/socket.js');
         const lastProject = saved.projects[saved.projects.length - 1];
         emitToRoom(`user-${String(username).toLowerCase()}`, 'project-approved', {
           projectName: lastProject.name,
         });
-      } catch (socketErr) {
-        console.warn(
           '[Portfolio] Could not emit project-approved notification:',
           socketErr.message
-        );
       }
-    }
 
     return sendSuccess(res, { ok: true, portfolio: saved });
         console.warn('[Portfolio] Could not emit project-approved notification:', socketErr.message);
-      }
-    }
 
     return res.json({ ok: true, portfolio: saved });
-  } catch (err) {
     if (err.code === '23505') {
       return sendError(
         req,
@@ -488,7 +474,6 @@ router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
     }
     console.error('Error saving portfolio:', err);
     return sendError(req, res, err.message || 'Internal server error', 500, 'INTERNAL_ERROR');
-  }
 });
 
 export default router;

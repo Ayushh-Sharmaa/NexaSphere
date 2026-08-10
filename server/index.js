@@ -1,7 +1,6 @@
 import logger from './utils/logger.js';
 import { getRedisClient } from './utils/redis.js';
 import 'dotenv/config';
-﻿import 'dotenv/config';
 import { tracedFetch } from './config/appContext.js';
 import { initObservability } from './observability/index.js';
 import { setTraceIdResolver } from './utils/logContext.js';
@@ -31,25 +30,14 @@ import formSubmissionsRouter from './routes/forms.js';
 import { logEvent } from './controllers/analyticsController.js';
 import healthDashboardRouter from './routes/healthDashboard.js';
 import complianceRouter from './routes/compliance.js';
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { eventRemindersQueue } from './services/queueService.js';
 import { slackIntegrationService } from './services/slackIntegrationService.js';
-import { initializeSocketIO } from './config/socket.js';
+
 import adminStreamRouter from './routes/adminStream.js';
 import documentationRouter from './routes/documentation.js';
 import monitoringRouter from './routes/monitoring.js';
-import healthDashboardRouter from './routes/healthDashboard.js';
-import { logEvent } from './controllers/analyticsController.js';
-import healthRouter from './routes/health.js';
 import coreTeamRouter from './routes/coreTeam.js';
-import formsRouter from './routes/forms.js';
 import portfolioRouter from './routes/portfolio.js';
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
-import { ExpressAdapter } from '@bull-board/express';
-import { eventRemindersQueue } from './services/queueService.js';
 import './workers/reminderWorker.js';
 import portfolioExportRouter from './routes/portfolioExport.js';
 import userGroupsRouter from './routes/userGroups.js';
@@ -57,7 +45,6 @@ import notificationsRouter from './routes/notifications.js';
 import adminRouter from './routes/admin.js';
 import announcementsRouter from './routes/announcements.js';
 import bulkRouter from './routes/bulk.js';
-import complianceRouter from './routes/compliance.js';
 import { validateEnvironment } from './utils/envValidator.js';
 import { performanceMonitor } from './middleware/performanceMonitor.js';
 import { enhancedTracingMiddleware } from './middleware/enhancedTracingMiddleware.js';
@@ -109,7 +96,6 @@ import * as studentAuthController from './controllers/studentAuthController.js';
 import * as forumController from './controllers/forumController.js';
 import { requireStudentAuth } from './middleware/studentAuthMiddleware.js';
 import { loadPersistedPushSubscriptions } from './routes/notifications.js';
-import { studentAuthService } from './services/studentAuthService.js';
 import { getAdminSession } from './repositories/adminSessionsRepository.js';
 import * as mentorshipController from './controllers/mentorshipController.js';
 import { xssSanitizer } from './middleware/xssSanitizer.js';
@@ -117,7 +103,6 @@ import { tierRateLimiter } from './middleware/tierRateLimiter.js';
 import { startWebhookRetryProcessor } from './services/webhookRetryProcessor.js';
 import { csrfProtection } from './middleware/csrfMiddleware.js';
 import compression from 'compression';
-import morgan from 'morgan';
 import syncRouter from './routes/sync.js';
 import multer from 'multer';
 import learningPathRouter from './routes/learningPaths.js';
@@ -127,13 +112,11 @@ import * as backupController from './controllers/backupController.js';
 import scheduledTasksRouter from './routes/scheduledTasks.js';
 import financialsRouter from './routes/financials.js';
 import { schedulerService } from './services/schedulerService.js';
-import { eventRemindersQueue } from './services/queueService.js';
 import feedbackRouter from './routes/feedbackRoutes.js';
 import * as slackController from './controllers/slackController.js';
-import formSubmissionsRouter from './routes/smartForms.js';
+import smartFormsRouter from './routes/smartForms.js';
 import activityTimelineRoutes from './routes/activityTimeline.js';
 
-import { portfolioRepository } from './repositories/portfolioRepository.js';
 
 import moderationRouter from './routes/moderation.js';
 import rbacRouter from './routes/rbac.js';
@@ -180,29 +163,17 @@ import apiKeysRouter from './routes/apiKeys.js';
 import { apiKeysRepository } from './repositories/apiKeysRepository.js';
 
 import { initializeSocketIO, emitToRoom, getRoom } from './config/socket.js';
-import adminStreamRouter from './routes/adminStream.js';
 import { broadcastSSEEvent } from './services/sseService.js';
 import rateLimit from 'express-rate-limit';
-import { apiRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
 
-import { portfolioRepository } from './repositories/portfolioRepository.js';
+
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CONTENT_FILE = path.join(__dirname, 'data', 'content.json');
 
-const REQUIRED_ENV_VARS = ['CORS_ORIGIN', 'ADMIN_EVENT_PASSWORD'];
 
-function validateEnvironment() {
-  const missing = REQUIRED_ENV_VARS.filter((env) => !process.env[env]);
-
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  console.log('Environment validation passed');
-}
 
 validateEnvironment();
 
@@ -235,10 +206,6 @@ const ADMIN_PASSWORD = requiredStrongPassword('ADMIN_PASSWORD');
  * @description Server entry point.
  */
 
-// Import required modules
-const express = require('express');
-const helmet = require('helmet');
-const securityMiddleware = require('./middleware/security');
 
 // Create an Express app instance
 const app = express();
@@ -268,6 +235,7 @@ function requestLogger(req, res, next) {
   });
 
   next();
+}
 initializeSentry(app);
 app.use(compression());
 
@@ -427,13 +395,6 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-app.use(
-  cors({
-    origin: (origin, callback) => {
-app.use(
-  cors({
-    origin: (origin, callback) => {
       if (!origin) {
         return callback(null, true);
       }
@@ -462,7 +423,6 @@ app.use(
     optionsSuccessStatus: 204,
     maxAge: 86400,
   })
-  })
 );
 app.options('*', cors());
 
@@ -471,13 +431,11 @@ app.use(enhancedTracingMiddleware);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(xssSanitizer);
-const useStructuredHttpLog = process.env.USE_STRUCTURED_HTTP_LOG === 'true';
 if (useStructuredHttpLog) {
   app.use(apiLogger);
 } else {
   app.use(morgan('combined'));
 }
-app.use(apiLogger);
 app.use(performanceMonitor);
 app.use(cookieParser());
 app.use(sessionMiddleware);
@@ -491,6 +449,7 @@ if (process.env.NODE_ENV === 'production' && !redisSessionUrl.startsWith('rediss
 let sessionClient = getRedisClient();
 if (!sessionClient) {
   sessionClient = new Redis(redisSessionUrl);
+}
 app.use(
   session({
     store: new RedisStore({ client: sessionClient, prefix: 'session:express:' }),
@@ -518,18 +477,25 @@ app.use((req, res, next) => {
     req.session.ip !== (req.ip || req.connection?.remoteAddress)
   ) {
     logger.warn({ originalIp: req.session.ip, newIp: req.ip || req.connection?.remoteAddress, sessionId: req.sessionID }, 'Suspicious activity: session accessed from different IP');
+  }
   next();
 });
+
 // Idle timeout middleware (30 mins)
+app.use((req, res, next) => {
   if (req.session) {
     const now = Date.now();
     if (req.session.lastActive && now - req.session.lastActive > 30 * 60 * 1000) {
       logger.info('[Session] Destroying idle session:', req.sessionID);
-      req.session.destroy((err) => {
+      return req.session.destroy((err) => {
         if (err) logger.error({ err: err.message }, 'Error destroying idle session');
         return res.status(401).json({ error: 'Session expired due to inactivity' });
-      return;
+      });
+    }
     req.session.lastActive = now;
+  }
+  next();
+});
 // Track app activity for smart notification frequency adjustment
 app.use((req, res, next) => {
   if (req.studentUser || req.adminSession) {
@@ -576,17 +542,17 @@ app.use('/api', learningPathRouter);
 app.use('/api/feedback', feedbackRouter);
 
 // Admin Specific Routes
-const adminAuth = [apiRateLimiter, adminAuthMiddleware.requireAdmin];
+const adminAuthRateLimited = [apiRateLimiter, adminAuthMiddleware.requireAdmin];
 
 // Scheduled Tasks Management
-app.use('/api/admin/scheduled-tasks', adminAuth, scheduledTasksRouter);
+app.use('/api/admin/scheduled-tasks', adminAuthRateLimited, scheduledTasksRouter);
 
 // Database Backup & Recovery Endpoints
-app.get('/api/admin/backups', adminAuth, backupController.getBackups);
-app.post('/api/admin/backups/manual', adminAuth, backupController.runManualBackup);
-app.post('/api/admin/backups/restore', adminAuth, backupController.runRestore);
-app.get('/api/admin/backups/restore-test-history', adminAuth, backupController.getRestoreHistory);
-app.delete('/api/admin/backups', adminAuth, backupController.deleteBackup);
+app.get('/api/admin/backups', adminAuthRateLimited, backupController.getBackups);
+app.post('/api/admin/backups/manual', adminAuthRateLimited, backupController.runManualBackup);
+app.post('/api/admin/backups/restore', adminAuthRateLimited, backupController.runRestore);
+app.get('/api/admin/backups/restore-test-history', adminAuthRateLimited, backupController.getRestoreHistory);
+app.delete('/api/admin/backups', adminAuthRateLimited, backupController.deleteBackup);
 
 const defaultContent = {
   events: [
@@ -607,39 +573,6 @@ const defaultContent = {
   coreTeam: [],
 };
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || '';
-export const HAS_SUPABASE = Boolean(SUPABASE_URL && SUPABASE_SERVICE_KEY);
-
-function requiredEnv(name) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing environment variable: ${name}`);
-  return v;
-}
-
-function requiredStrongPassword(name) {
-  const value = String(process.env[name] || '').trim();
-  if (!value) {
-    throw new Error(`Missing environment variable: ${name}`);
-  }
-  const hasLower = /[a-z]/.test(value);
-  const hasUpper = /[A-Z]/.test(value);
-  const hasNumber = /\d/.test(value);
-  const hasSymbol = /[^A-Za-z0-9]/.test(value);
-
-  if (value.length < 12 || !hasLower || !hasUpper || !hasNumber || !hasSymbol) {
-    throw new Error(
-      `${name} must be at least 12 characters and include uppercase, lowercase, number, and symbol`
-    );
-  }
-
-  return value;
-}
-
-const ADMIN_EVENT_PASSWORD = requiredStrongPassword('ADMIN_EVENT_PASSWORD');
-
-function normalizePrivateKey(k) {
-  return k.includes('\\n') ? k.replace(/\\n/g, '\n') : k;
 // â”€â”€ File Upload Configuration â”€â”€
 import webhooksRouter from './routes/webhooks.js';
 app.use('/api/webhooks', webhooksRouter);
@@ -721,12 +654,13 @@ async function ensureContentFile() {
   } catch {
     await fsp.writeFile(CONTENT_FILE, JSON.stringify(defaultContent, null, 2), 'utf8');
   }
+}
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Compliance & Accessibility Audit Tools (#1801)
 app.use('/api', auditToolsRouter);
 
-export async function runWithFileLock(callback) {
+async function runWithFileLock(callback) {
   return await fileMutex.runExclusive(callback);
 }
 
@@ -751,409 +685,6 @@ function withContentLock(fn) {
   const current = contentLock;
   contentLock = next;
   return current.then(() => fn()).finally(() => release());
-}
-
-export async function supabaseRequest(pathname, { method = 'GET', body } = {}) {
-  if (!HAS_SUPABASE) throw new Error('Supabase is not configured');
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${pathname}`, {
-    method,
-    headers: {
-      apikey: SUPABASE_SERVICE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: method === 'GET' ? 'count=exact' : 'return=representation',
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Supabase error (${res.status}): ${text}`);
-  }
-  const text = await res.text();
-  return text ? JSON.parse(text) : [];
-}
-
-function toSafeString(value, max = 4000) {
-  return String(value ?? '').trim().slice(0, max);
-}
-
-function validateWhatsApp(str) {
-  const v = String(str || '').trim();
-  if (!/^\d{10}$/.test(v)) throw new Error('WhatsApp must be exactly 10 digits');
-  return v;
-}
-
-function validateSection(str) {
-  const v = String(str || '').trim().toUpperCase();
-  if (!/^[A-Z]$/.test(v)) throw new Error('Section must be a single letter (A-Z)');
-  return v;
-}
-
-function sanitizeEvent(input = {}) {
-  const status = input.status === 'upcoming' ? 'upcoming' : 'completed';
-  const tags = Array.isArray(input.tags)
-    ? input.tags.map(t => toSafeString(t, 40)).filter(Boolean).slice(0, 12)
-    : String(input.tags || '').split(',').map(t => t.trim()).filter(Boolean).slice(0, 12);
-
-  return {
-    id: toSafeString(input.id || input.shortName || input.name, 80)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || `event-${Date.now()}`,
-    name: toSafeString(input.name, 120),
-    shortName: toSafeString(input.shortName || input.name, 60),
-    date: toSafeString(input.date, 80),
-    description: toSafeString(input.description, 1200),
-    status,
-    icon: toSafeString(input.icon || 'Pin', 32),
-    tags,
-  };
-}
-
-function normalizePhone(value) {
-  return String(value || '').replace(/[^\d]/g, '');
-}
-
-async function canManageActivityEvent({ name, email, phone, password }) {
-  const expectedPassword = process.env.ADMIN_EVENT_PASSWORD;
-  if (String(password || '') !== expectedPassword) return false;
-  const n = String(name || '').trim().toLowerCase();
-  const e = String(email || '').trim().toLowerCase();
-  const p = normalizePhone(phone);
-
-  const members = await listCoreTeamStore();
-  return members.some(m =>
-    m.name.toLowerCase() === n &&
-    m.email.toLowerCase() === e &&
-    normalizePhone(m.whatsapp) === p
-  );
-}
-
-async function listEventsStore() {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest('events?select=*&order=created_at.desc');
-    return rows.map(r => sanitizeEventRecord({
-      id: r.id,
-      name: r.name,
-      shortName: r.short_name || r.shortName || r.name,
-      date: r.date_text || r.date,
-      description: r.description,
-      status: r.status,
-      icon: r.icon || 'Pin',
-      tags: Array.isArray(r.tags) ? r.tags : [],
-      createdAt: r.created_at,
-      updatedAt: r.updated_at,
-    }));
-  }
-  const content = await readContent();
-  return (content.events || []).map((event) => sanitizeEventRecord(event));
-}
-
-function sanitizeEventRecord(event) {
-  return event;
-}
-
-async function createEventStore(event) {
-  if (HAS_SUPABASE) {
-    let payload = {
-      id: event.id,
-      name: event.name,
-      short_name: event.shortName,
-      date_text: event.date,
-      description: event.description,
-      status: event.status,
-      icon: event.icon,
-      tags: event.tags,
-    };
-    let row;
-    try {
-      [row] = await supabaseRequest('events', { method: 'POST', body: [payload] });
-    } catch (e) {
-      // Retry with suffix if id collision occurs.
-      payload = { ...payload, id: `${event.id}-${Date.now()}` };
-      [row] = await supabaseRequest('events', { method: 'POST', body: [payload] });
-    }
-    return sanitizeEventRecord({
-      id: row.id,
-      name: row.name,
-      shortName: row.short_name || row.name,
-      date: row.date_text,
-      description: row.description,
-      status: row.status,
-      icon: row.icon || 'Pin',
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    });
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    content.events.unshift({ ...event, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-    await writeContent(content);
-    return sanitizeEventRecord(content.events[0]);
-  });
-}
-
-async function updateEventStore(id, patch) {
-  if (HAS_SUPABASE) {
-    const [row] = await supabaseRequest(`events?id=eq.${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      body: {
-        name: patch.name,
-        short_name: patch.shortName,
-        date_text: patch.date,
-        description: patch.description,
-        status: patch.status,
-        icon: patch.icon,
-        tags: patch.tags,
-        updated_at: new Date().toISOString(),
-      },
-    });
-    if (!row) return null;
-    return sanitizeEventRecord({
-      id: row.id,
-      name: row.name,
-      shortName: row.short_name || row.name,
-      date: row.date_text,
-      description: row.description,
-      status: row.status,
-      icon: row.icon || 'Pin',
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    });
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    const idx = content.events.findIndex(e => e.id === id);
-    if (idx < 0) return null;
-    content.events[idx] = { ...content.events[idx], ...patch, id, updatedAt: new Date().toISOString() };
-    await writeContent(content);
-    return sanitizeEventRecord(content.events[idx]);
-  });
-}
-
-async function deleteEventStore(id) {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest(`events?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
-    return Array.isArray(rows) && rows.length > 0;
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    const before = content.events.length;
-    content.events = content.events.filter(e => e.id !== id);
-    if (content.events.length === before) return false;
-    await writeContent(content);
-    return true;
-  });
-}
-
-async function listActivityEventsStore(activityKey) {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest(`activity_events?activity_key=eq.${encodeURIComponent(activityKey)}&select=*&order=created_at.desc`);
-    return rows.map(r => sanitizeActivityEventRecord({
-      id: r.id,
-      name: r.name,
-      date: r.date_text || r.date,
-      tagline: r.tagline,
-      description: r.description,
-      status: r.status || 'completed',
-      createdAt: r.created_at,
-    }));
-  }
-  const content = await readContent();
-  return (content.activityEvents?.[activityKey] || []).map((event) => sanitizeActivityEventRecord(event));
-}
-
-function sanitizeActivityEventRecord(event) {
-  if (!event || typeof event !== 'object') return event;
-  const { createdBy, ...safe } = event;
-  return safe;
-}
-
-async function createActivityEventStore(activityKey, event) {
-  if (HAS_SUPABASE) {
-    const [row] = await supabaseRequest('activity_events', {
-      method: 'POST',
-      body: [{
-        id: event.id,
-        activity_key: activityKey,
-        name: event.name,
-        date_text: event.date,
-        tagline: event.tagline,
-        description: event.description,
-        status: event.status,
-        created_by_name: event.createdBy?.name || '',
-        created_by_email: event.createdBy?.email || '',
-        created_by_phone: event.createdBy?.phone || '',
-      }],
-    });
-    return sanitizeActivityEventRecord({
-      id: row.id,
-      name: row.name,
-      date: row.date_text,
-      tagline: row.tagline,
-      description: row.description,
-      status: row.status || 'completed',
-      createdAt: row.created_at,
-    });
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    content.activityEvents = content.activityEvents || {};
-    content.activityEvents[activityKey] = content.activityEvents[activityKey] || [];
-    content.activityEvents[activityKey].unshift(event);
-    await writeContent(content);
-    return sanitizeActivityEventRecord(event);
-  });
-}
-
-async function deleteActivityEventStore(activityKey, eventId) {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest(`activity_events?activity_key=eq.${encodeURIComponent(activityKey)}&id=eq.${encodeURIComponent(eventId)}`, { method: 'DELETE' });
-    return Array.isArray(rows) && rows.length > 0;
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    content.activityEvents = content.activityEvents || {};
-    const list = content.activityEvents[activityKey] || [];
-    const next = list.filter(e => e.id !== eventId);
-    if (next.length === list.length) return false;
-    content.activityEvents[activityKey] = next;
-    await writeContent(content);
-    return true;
-  });
-}
-
-async function listCoreTeamStore() {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest('core_team_members?select=*&order=created_at.asc');
-    return rows.map(r => sanitizeCoreTeamMemberRecord({
-      id: r.id, name: r.name, role: r.role, year: r.year,
-      branch: r.branch, section: r.section, email: r.email,
-      whatsapp: r.whatsapp, linkedin: r.linkedin, instagram: r.instagram,
-      photoUrl: r.photo_url, createdAt: r.created_at
-    }));
-  }
-  const content = await readContent();
-  return (content.coreTeam || []).map((member) => sanitizeCoreTeamMemberRecord(member));
-}
-
-function sanitizeCoreTeamMemberRecord(member) {
-  return member;
-}
-
-async function createCoreTeamStore(member) {
-  if (HAS_SUPABASE) {
-    const [row] = await supabaseRequest('core_team_members', {
-      method: 'POST',
-      body: [{
-        name: member.name, role: member.role, year: member.year,
-        branch: member.branch, section: member.section, email: member.email,
-        whatsapp: member.whatsapp, linkedin: member.linkedin,
-        instagram: member.instagram, photo_url: member.photoUrl
-      }]
-    });
-    return sanitizeCoreTeamMemberRecord({
-      id: row.id, name: row.name, role: row.role, year: row.year,
-      branch: row.branch, section: row.section, email: row.email,
-      whatsapp: row.whatsapp, linkedin: row.linkedin, instagram: row.instagram,
-      photoUrl: row.photo_url, createdAt: row.created_at
-    });
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    content.coreTeam = content.coreTeam || [];
-    const newMember = { ...member, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    content.coreTeam.push(newMember);
-    await writeContent(content);
-    return sanitizeCoreTeamMemberRecord(newMember);
-  });
-}
-
-async function deleteCoreTeamStore(id) {
-  if (HAS_SUPABASE) {
-    const rows = await supabaseRequest(`core_team_members?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
-    return Array.isArray(rows) && rows.length > 0;
-  }
-  return withContentLock(async () => {
-    const content = await readContent();
-    content.coreTeam = content.coreTeam || [];
-    const before = content.coreTeam.length;
-    content.coreTeam = content.coreTeam.filter(m => String(m.id) !== String(id));
-    if (content.coreTeam.length === before) return false;
-    await writeContent(content);
-    return true;
-  });
-}
-
-async function appendToSupabaseForms(formType, payload) {
-  if (!HAS_SUPABASE) return false;
-  try {
-    await supabaseRequest('form_submissions', {
-      method: 'POST',
-      body: [{
-        form_type: formType,
-        full_name: toSafeString(payload.fullName, 140),
-        college_email: toSafeString(payload.collegeEmail, 140),
-        whatsapp: toSafeString(payload.whatsapp, 40),
-        payload,
-      }],
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function appendFormToSheet(formType, payload) {
-  const clientEmail = requiredEnv('GOOGLE_SERVICE_ACCOUNT_EMAIL');
-  const privateKey = normalizePrivateKey(requiredEnv('GOOGLE_PRIVATE_KEY'));
-  const spreadsheetId = requiredEnv('GOOGLE_SHEET_ID');
-
-  const defaultTab = process.env.GOOGLE_SHEET_TAB_NAME || 'Responses';
-  const tabMap = {
-    membership: process.env.GOOGLE_MEMBERSHIP_TAB_NAME || 'MembershipResponses',
-    recruitment: process.env.GOOGLE_RECRUITMENT_TAB_NAME || 'RecruitmentResponses',
-    core_team: process.env.GOOGLE_CORE_TEAM_TAB_NAME || 'CoreTeamResponses',
-  };
-  const sheetName = tabMap[formType] || defaultTab;
-
-  const auth = new google.auth.JWT({
-    email: clientEmail,
-    key: privateKey,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  const now = new Date().toISOString();
-  const row = [
-    now,
-    formType,
-    toSafeString(payload.fullName, 140),
-    toSafeString(payload.collegeEmail, 140),
-    toSafeString(payload.whatsapp, 40),
-    JSON.stringify(payload),
-  ];
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId,
-    range: `${sheetName}!A1`,
-    valueInputOption: 'USER_ENTERED',
-    insertDataOption: 'INSERT_ROWS',
-    requestBody: { values: [row] },
-  });
-}
-
-function isEmail(s) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim());
-}
-
-function isPhoneish(s) {
-  const v = String(s || '').trim();
-  return /^[+()\-\s0-9]{8,20}$/.test(v);
 }
 
 app.get('/healthz', async (req, res) => {
@@ -1239,12 +770,6 @@ app.post('/api/admin/logout', adminAuthMiddleware.logout);
 app.use('/api/admin/analytics', adminAuth, analyticsRouter);
 app.use('/api/admin/metrics', adminAuth, adminStreamRouter);
 
-app.get('/api/admin/events', adminAuth, async (req, res) => {
-  return res.json({ events: await listEventsStore() });
-});
-
-app.post('/api/admin/events', adminAuth, async (req, res) => {
-// OAuth / SSO Student Auth Endpoints
 app.get('/api/auth/google', studentAuthController.googleAuth);
 app.get('/api/auth/google/callback', studentAuthController.googleCallback);
 app.get('/api/auth/github', studentAuthController.githubAuth);
@@ -1253,12 +778,6 @@ app.get('/api/auth/github/portfolio', studentAuthController.githubPortfolioAuth)
 app.get('/api/auth/github/portfolio/callback', studentAuthController.githubPortfolioCallback);
 app.get('/api/auth/me', requireStudentAuth, studentAuthController.getMe);
 app.post('/api/auth/theme', requireStudentAuth, studentAuthController.updateTheme);
-
-// Student Profile Endpoints
-app.get('/api/auth/profile', requireStudentAuth, studentAuthController.getProfile);
-app.put('/api/auth/profile', requireStudentAuth, studentAuthController.updateProfile);
-app.get('/api/auth/registrations', requireStudentAuth, studentAuthController.getRegistrations);
-app.post('/api/auth/logout', studentAuthController.logout);
 
 // Student Profile Endpoints
 app.get('/api/auth/profile', requireStudentAuth, studentAuthController.getProfile);
@@ -1508,47 +1027,6 @@ async function handleForm(formType, req, res) {
   }
 }
 
-const formRateLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
-  message: { error: 'Too many form submissions from this IP, please try again after 10 minutes' }
-});
-
-const portfolioRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 requests per windowMs
-  message: { error: 'Too many portfolio update attempts from this IP, please try again after 15 minutes' }
-});
-
-const failedPasskeyAttempts = new Map();
-
-function checkPasskeyLockout(username, ip) {
-  const key = `${String(username || '').toLowerCase()}:${ip}`;
-  const entry = failedPasskeyAttempts.get(key);
-  if (!entry) return null;
-  if (Date.now() > entry.lockoutUntil) {
-    failedPasskeyAttempts.delete(key);
-    return null;
-  }
-  return entry;
-}
-
-function recordFailedPasskeyAttempt(username, ip) {
-  const key = `${String(username || '').toLowerCase()}:${ip}`;
-  const entry = failedPasskeyAttempts.get(key) || { count: 0, lockoutUntil: 0 };
-  entry.count += 1;
-  if (entry.count >= 5) {
-    entry.lockoutUntil = Date.now() + 15 * 60 * 1000; // 15 min lockout
-    entry.count = 0;
-  }
-  failedPasskeyAttempts.set(key, entry);
-  return entry;
-}
-
-function clearPasskeyAttempts(username, ip) {
-  const key = `${String(username || '').toLowerCase()}:${ip}`;
-  failedPasskeyAttempts.delete(key);
-}
 
 app.post('/api/forms/membership', formRateLimiter, (req, res) => handleForm('membership', req, res));
 app.post('/api/forms/recruitment', formRateLimiter, (req, res) => handleForm('recruitment', req, res));
@@ -1583,7 +1061,6 @@ app.post('/api/notifications/unsubscribe', (req, res) => {
 
 
 // Server-side notifications API (simple in-memory store)
-import notificationsService from './services/notificationsService.js';
 
 app.get('/api/notifications', adminAuth, notificationRateLimiter, (req, res) => {
   try {
@@ -1773,78 +1250,6 @@ app.post(
     }
   }
 );
-    requireStudentAuth(req, res, (err2) => {
-      if (!err2 && req.studentUser) {
-        return next();
-      }
-      return res.status(401).json({ error: 'Unauthorized: Authentication required' });
-    });
-  });
-}
-
-app.post(
-  '/api/notifications/mark-read',
-  requireNotificationAuth,
-  notificationRateLimiter,
-  async (req, res) => {
-    try {
-      const { id, userId } = req.body || {};
-      if (!id) return res.status(400).json({ error: 'id required' });
-      let uid = userId || 'global';
-      if (req.studentUser) {
-        const studentId = req.studentUser.sub || req.studentUser.id;
-        if (userId && userId !== studentId) {
-          return res
-            .status(403)
-            .json({ error: 'Forbidden: Cannot modify other users notifications' });
-        }
-        uid = studentId;
-      }
-      const ok = await notificationsService.markAsRead(uid, id);
-      return res.json({ success: ok });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-);
-
-app.post(
-  '/api/notifications/mark-all-read',
-  requireNotificationAuth,
-  notificationRateLimiter,
-  async (req, res) => {
-    try {
-      const { userId } = req.body || {};
-      let uid = userId || 'global';
-      if (req.studentUser) {
-        const studentId = req.studentUser.sub || req.studentUser.id;
-        if (userId && userId !== studentId) {
-          return res.status(403).json({ error: 'Forbidden' });
-        }
-        uid = studentId;
-      }
-      await notificationsService.markAllAsRead(uid);
-      return res.json({ success: true });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-);
-    requireStudentAuth(req, res, (err2) => {
-      if (err2 || !req.studentUser) {
-        return res.status(401).json({ error: 'Unauthorized: Authentication required' });
-      }
-      const userId =
-        req.method === 'GET' ? req.query.userId || 'global' : req.body.userId || 'global';
-      if (req.studentUser.sub === userId || req.studentUser.id === userId) {
-        return next();
-      }
-      return res
-        .status(403)
-        .json({ error: "Forbidden: You cannot access or modify other users' preferences" });
-    });
-  });
-}
 
 app.delete(
   '/api/notifications/:id',

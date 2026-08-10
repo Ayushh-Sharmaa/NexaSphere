@@ -5,7 +5,6 @@ import {
   tierRateLimiter,
   pruneMemoryStores,
 } from '../middleware/tierRateLimiter.js';
-import { pruneMemoryStores, tierRateLimiter } from '../middleware/tierRateLimiter.js';
 
 test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
   await t.test('0. Unknown tiers fall back to guest defaults', () => {
@@ -22,14 +21,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
     const middleware = tierRateLimiter({ capacity: 5, refillRate: 0.1 });
     const req = { ip: '192.168.1.50', adminSession: null, user: null };
 
-import { tierRateLimiter } from '../middleware/tierRateLimiter.js';
-
-test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
-  
-  await t.test('1. Guest rate limit checks (IP-based keying & headers)', async () => {
-    const middleware = tierRateLimiter({ capacity: 5, refillRate: 0.1 });
-    const req = { ip: '192.168.1.50', adminSession: null, user: null };
-    
     let headers = {};
     const res = {
       setHeader(name, val) {
@@ -49,11 +40,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
     const next = () => {
       nextCalled = true;
     };
-      }
-    };
-    
-    let nextCalled = false;
-    const next = () => { nextCalled = true; };
 
     // 1st request -> Allowed
     await middleware(req, res, next);
@@ -79,7 +65,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
       res.jsonData.error.includes('Rate limit exceeded') ||
         res.jsonData.error.includes('Too many requests')
     );
-    assert.ok(res.jsonData.error.includes('Rate limit exceeded') || res.jsonData.error.includes('Too many requests'));
   });
 
   await t.test('2. Authenticated user rate limit checks (higher capacity)', async () => {
@@ -90,8 +75,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
       user: null,
     };
 
-    const req = { ip: '127.0.0.1', adminSession: { username: 'superadmin', id: 'session-123' }, user: null };
-    
     let headers = {};
     const res = {
       setHeader(name, val) {
@@ -111,11 +94,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
     const next = () => {
       nextCalled = true;
     };
-      }
-    };
-
-    let nextCalled = false;
-    const next = () => { nextCalled = true; };
 
     // 1st request allowed
     await middleware(req, res, next);
@@ -162,7 +140,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
   });
 
   await t.test('4. Exponential Backoff Block checks', async () => {
-  await t.test('3. Exponential Backoff Block checks', async () => {
     const middleware = tierRateLimiter({ capacity: 1, refillRate: 0.1, baseCooldown: 2 });
     const req = { ip: '10.0.0.99', adminSession: null, user: null };
 
@@ -185,11 +162,6 @@ test('Tier-Based Rate Limiting & Backoff Middleware Tests', async (t) => {
     const next = () => {
       nextCalled = true;
     };
-      }
-    };
-
-    let nextCalled = false;
-    const next = () => { nextCalled = true; };
 
     // 1st request -> Allowed (remains 0 tokens)
     await middleware(req, res, next);

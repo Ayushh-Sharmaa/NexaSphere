@@ -24,12 +24,6 @@ router.get('/admin/groups', async (req, res) => {
   } catch (err) {
     console.error('Error fetching groups:', err);
     sendError(req, res, 'Internal server error', 500, 'INTERNAL_ERROR');
-    res.json({ groups });
-  } catch (err) {
-    console.error('Error fetching groups:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // Create group
 router.post('/admin/groups', validate(createGroupBodySchema), async (req, res) => {
@@ -200,4 +194,5 @@ router.post(
   }
 );
 
+}
 export default router;

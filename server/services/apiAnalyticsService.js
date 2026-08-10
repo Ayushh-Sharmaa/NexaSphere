@@ -5,7 +5,6 @@ import crypto from 'crypto';
  * Mock implementation for Platform-Wide API Usage Analytics & Developer Portal
  */
 
-import crypto from 'crypto';
 
 const apiKeys = [
   {

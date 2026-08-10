@@ -76,10 +76,6 @@ export const getScheduleRecommendations = async (req, res) => {
     const recommendations =
       await eventConflictService.scheduleRecommendation();
 
-    return res.json({
-      success: true,
-      data: recommendations,
-    });
   } catch (err) {
     logger.error('Event conflict error: {err}', { err });
 

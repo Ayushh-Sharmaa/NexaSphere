@@ -158,7 +158,6 @@ export function adminAuditMiddleware(req, res, next) {
         sessionId,
       });
     }
-  });
 
   next();
 }
@@ -167,6 +166,7 @@ export function adminAuditMiddleware(req, res, next) {
  * Helper to attach old state to the request before the controller modifies it.
  * @param {Function} fetcher Async function that takes req and returns the old state object.
  */
+}
 export const attachOldState = (fetcher) => async (req, res, next) => {
   try {
     req.oldState = await fetcher(req);

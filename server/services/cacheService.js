@@ -86,8 +86,6 @@ export const cacheService = {
   buildKey(prefix, id) {
     return `cache:${prefix}:${id}`;
   },
-import pg from "pg";
-import { withDb } from "../repositories/db.js";
 
 // In-memory cache store
 // Entry shape: { value, expiresAt, version }
@@ -97,7 +95,6 @@ const cacheStore = new Map();
 const cacheVersions = new Map();
 
 // Default cache TTL: 5 minutes (300,000 ms)
-const DEFAULT_TTL = 300000;
 
 // Aggressive cache TTL: 30 seconds (30,000 ms)
 const AGGRESSIVE_TTL = 30000;

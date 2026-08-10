@@ -24,7 +24,6 @@ router.post(
   syncController.resolveConflicts
 );
 
-const router = Router();
 
 router.get('/api/sync/status', syncController.getSyncStatus);
 router.get('/api/sync/updates', syncController.getUpdates);

@@ -4,11 +4,7 @@
 
 import logger from '../utils/logger.js';
 import { httpRequestsTotal, httpRequestDuration, httpErrorsTotal } from './metrics.js';
-import {
-  httpRequestsTotal,
-  httpRequestDuration,
-  httpErrorsTotal,
-} from './metrics.js';
+
 
 const SLOW_REQUEST_THRESHOLD = parseInt(process.env.SLOW_REQUEST_THRESHOLD || '1000', 10);
 const PERFORMANCE_ENABLED = process.env.ENABLE_PERFORMANCE_MONITORING !== 'false';

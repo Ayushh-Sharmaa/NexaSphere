@@ -39,7 +39,6 @@ export const markAttendance = wrapAsync(async (req, res) => {
 
   if (registration.attended) {
     return sendSuccess(res, { ...registration, already_attended: true });
-    return res.status(404).json({ error: 'Registration not found' });
   }
 
   if (registration.attended) {
@@ -68,7 +67,6 @@ export const markAttendance = wrapAsync(async (req, res) => {
 
 export const getAttendanceList = wrapAsync(async (req, res) => {
   const eventId = String(req.params.eventId || req.query.eventId || '').trim();
-  const eventId = String(req.query.eventId || req.params.eventId || '').trim();
   const exportFormat = String(req.query.export || '').trim();
   
   if (!eventId) {
@@ -89,14 +87,5 @@ export const getAttendanceList = wrapAsync(async (req, res) => {
   }
   
   return sendSuccess(res, { registrations });
-  return res.status(200).json({ ...updated, already_attended: false });
 });
 
-export const getAttendanceList = wrapAsync(async (req, res) => {
-  const eventId = String(req.params.eventId || '').trim();
-  if (!eventId) {
-    return res.status(400).json({ error: 'Event ID required' });
-  }
-  const registrations = await registrationsRepository.findByEventId(eventId);
-  return res.json({ registrations });
-});

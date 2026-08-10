@@ -6,11 +6,7 @@ export const activeTraces = new Map();
 const tracer = trace.getTracer('nexasphere-api');
 
 export function tracingMiddleware(req, res, next) {
-  const reqId = req.headers['X-Correlation-ID'] || crypto.randomUUID();
-const tracer = trace.getTracer('nexasphere-api');
-
-export function tracingMiddleware(req, res, next) {
-  const reqId = req.headers['x-request-id'] || crypto.randomUUID();
+  const reqId = req.headers['x-request-id'] || req.headers['x-correlation-id'] || crypto.randomUUID();
 
   req.reqId = reqId;
   res.setHeader('X-Correlation-ID', reqId);
@@ -39,7 +35,6 @@ export function tracingMiddleware(req, res, next) {
 
   context.with(spanContext, () => {
     const store = { reqId, traceEntry };
-    const store = { reqId };
     const activeSpan = trace.getSpan(context.active());
     if (activeSpan) {
       const sc = activeSpan.spanContext();
@@ -49,7 +44,6 @@ export function tracingMiddleware(req, res, next) {
     appContext.run(store, () => {
       res.on('finish', () => {
         traceEntry.duration = Date.now() - traceEntry.startTime;
-        // Bounded memory protection
         if (activeTraces.size > 500) {
           const oldestKey = activeTraces.keys().next().value;
           activeTraces.delete(oldestKey);

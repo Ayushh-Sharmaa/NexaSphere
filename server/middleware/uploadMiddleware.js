@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
     // Derive the extension from the validated mimetype, never the untrusted
     // filename, so an attacker can't store executable content as .html/.js/.svg.
     const ext = EXT_BY_MIME[file.mimetype] || '.bin';
-    const ext = path.extname(file.originalname) || '';
     cb(null, `${uniqueSuffix}${ext}`);
   },
 });

@@ -6,19 +6,12 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { SEMRESATTRS_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { trace, context, propagation } from '@opentelemetry/api';
 import logger from '../utils/logger.js';
 
 const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'nexasphere-api';
 const OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
-import { Resource } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { trace, context, propagation } from '@opentelemetry/api';
-
-const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || 'nexasphere-api';
-const OTLP_ENDPOINT =
-  process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
 
 let sdk = null;
 let shutdownHookRegistered = false;
@@ -36,7 +29,6 @@ export function initTracing() {
 
   sdk = new NodeSDK({
     resource: resourceFromAttributes({
-    resource: new Resource({
       [ATTR_SERVICE_NAME]: SERVICE_NAME,
     }),
     traceExporter: exporter,
@@ -49,35 +41,52 @@ export function initTracing() {
 
   sdk.start();
 
-  process.on('SIGTERM', () => {
-    sdk?.shutdown().catch((err) => logger.error('OpenTelemetry SDK shutdown failed', { err }));
-    sdk?.shutdown().catch(() => {});
-  });
+  logger.info('[Tracing] OpenTelemetry SDK initialized');
+
   if (!shutdownHookRegistered) {
-    process.on('SIGTERM', () => {
-      sdk?.shutdown().catch(() => {});
-      sdk = null;
-    });
     shutdownHookRegistered = true;
+    process.on('SIGTERM', () => {
+      sdk
+        .shutdown()
+        .then(() => logger.info('[Tracing] Tracing terminated'))
+        .catch((error) => logger.error('[Tracing] Error terminating tracing', error))
+        .finally(() => process.exit(0));
+    });
   }
 
   return sdk;
 }
 
-export function getActiveTraceId() {
-  const span = trace.getSpan(context.active());
-  if (!span) return null;
-  const ctx = span.spanContext();
-  return ctx.traceId && ctx.traceId !== '00000000000000000000000000000000' ? ctx.traceId : null;
-  return ctx.traceId && ctx.traceId !== '00000000000000000000000000000000'
-    ? ctx.traceId
-    : null;
+export function shutdownTracing() {
+  if (sdk) {
+    return sdk.shutdown();
+  }
+  return Promise.resolve();
 }
 
-export function injectTraceHeaders(headers = {}) {
-  const carrier = { ...headers };
-  propagation.inject(context.active(), carrier);
-  return carrier;
+/**
+ * Convenience helper to create a new span.
+ */
+export function startSpan(name, options = {}) {
+  const tracer = trace.getTracer(SERVICE_NAME);
+  return tracer.startSpan(name, options);
+}
+
+/**
+ * Runs a function within the context of a given span.
+ */
+export function withSpanContext(span, fn) {
+  return context.with(trace.setSpan(context.active(), span), fn);
 }
 
 export { trace, context, propagation };
+
+export function getActiveTraceId() {
+  const currentSpan = trace.getSpan(context.active());
+  return currentSpan ? currentSpan.spanContext().traceId : null;
+}
+
+export function injectTraceHeaders(headers = {}) {
+  propagation.inject(context.active(), headers);
+  return headers;
+}

@@ -45,7 +45,6 @@ export const eventsRepository = {
   } = {}) {
   // Returns { rows, total } — rows are the current page, total is the full
   // count without LIMIT so callers can build pagination metadata.
-  async list({ page = 1, limit = 20 } = {}) {
     const cacheKey = `events:list:${page}:${limit}`;
     const cached = await getCache(cacheKey);
     if (cached) return cached;
@@ -67,13 +66,9 @@ export const eventsRepository = {
       const total = rows.length > 0 ? rows[0].total : 0;
       return { rows: rows.map(mapRow), total };
       const countResult = await client.query('select count(*)::int as total from events');
-      const total = countResult.rows[0]?.total ?? 0;
       const result = { rows: rows.map(mapRow), total };
       await setCache(cacheKey, result);
       return result;
-  async list({ page = 1, limit = 20, studentGroups = undefined } = {}) {
-    return withDb(async (client) => {
-      await client.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ');
 
       try {
         const offset = (page - 1) * limit;
@@ -141,11 +136,7 @@ export const eventsRepository = {
 
         const countQuery = 'select count(*)::int as total from events ' + (conditions.length > 0 ? ' where ' + conditions.join(' and ') : '');
         const countResult = await client.query(countQuery);
-        const countQuery =
-          'select count(*)::int as total from events ' +
-          (conditions.length > 0 ? ' where ' + conditions.join(' and ') : '');
         const countParams = params.slice(0, params.length - 2);
-        const countResult = await client.query(countQuery, countParams);
 
         const total = countResult.rows[0]?.total ?? 0;
 
@@ -244,8 +235,6 @@ export const eventsRepository = {
       const setClauses = [];
       const values = [id]; // $1 is always the ID for the WHERE clause
       let paramIndex = 2; // Dynamic parameters start at $2
-      const values = [id];
-      let paramIndex = 2;
 
       for (const key of keys) {
         if (fieldMap[key] !== undefined) {
@@ -259,7 +248,6 @@ export const eventsRepository = {
             val = val;
           }
 
-          let val = patch[key];
           values.push(val);
           paramIndex++;
         }
@@ -274,31 +262,6 @@ export const eventsRepository = {
         returning *`;
 
       const { rows } = await client.query(queryText, values);
-      const { rows } = await client.query(
-        `update events set
-           name = coalesce($2, name),
-           short_name = coalesce($3, short_name),
-           date_text = coalesce($4, date_text),
-           description = coalesce($5, description),
-           status = coalesce($6, status),
-           icon = coalesce($7, icon),
-           tags = coalesce($8, tags),
-           restricted_groups = coalesce($9, restricted_groups),
-           updated_at = now()
-         where id = $1
-         returning *`,
-        [
-          id,
-          patch.name ?? null,
-          patch.shortName ?? null,
-          patch.date ?? null,
-          patch.description ?? null,
-          patch.status ?? null,
-          patch.icon ?? null,
-          patch.tags ?? null,
-          patch.restrictedGroups ? JSON.stringify(patch.restrictedGroups) : null,
-        ]
-      );
       if (!rows.length) return null;
       
       await invalidateCache('events:list:*');
@@ -314,9 +277,7 @@ export const eventsRepository = {
           .then(({ searchIndexer }) => searchIndexer.deleteDocument('events', id))
           .catch((err) => logger.error('Failed to remove event from search index', { err, eventId: id }));
         await invalidateCache('events:list:*');
-          .catch((err) =>
             logger.error('Failed to remove event from search index', { err, eventId: id })
-          );
       }
       return rowCount > 0;
     });

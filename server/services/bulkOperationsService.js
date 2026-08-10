@@ -19,8 +19,6 @@ if (process.env.REDIS_URL) {
     maxRetriesPerRequest: null, // Required by BullMQ
   connection = new IORedis(process.env.REDIS_URL, {
     maxRetriesPerRequest: null,
-  });
-}
 
 export const bulkOperationsQueueName = 'bulk-operations';
 

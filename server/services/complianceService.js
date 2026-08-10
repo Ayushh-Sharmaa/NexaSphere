@@ -152,30 +152,8 @@ export async function createDocument(
   { type, title, version, effectiveDate, content, summary },
   actorId
 ) {
-export async function createDocument({ type, title, version, effectiveDate, content, summary }, actorId) {
-  const s = await load();
-  if (!DOCUMENT_TYPES.includes(type)) throw new Error(`Invalid document type: ${type}`);
 
-  const now = new Date().toISOString();
-  const doc = {
-    id: `doc-${randomUUID()}`,
-    type,
-    title: String(title || '').trim(),
-    version: String(version || '1.0.0').trim(),
-    effectiveDate: effectiveDate || now,
-    content: String(content || '').trim(),
-    summary: String(summary || '').trim(),
-    archived: false,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  s.documents.push(doc);
-  audit('document.created', actorId, doc.id, { type, version });
-  await save();
-  return doc;
 }
-
 export async function updateDocument(id, updates, actorId) {
   const s = await load();
   const idx = s.documents.findIndex((d) => d.id === id);

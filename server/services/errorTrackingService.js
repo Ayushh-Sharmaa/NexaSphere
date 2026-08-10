@@ -104,12 +104,10 @@ async function logError(error, context = {}) {
     userId: context.userId,
     requestPath: context.url,
     tags: { status: errorData.status, endpoint },
-  logger.error(error.message || 'Error logged', { 
     error, 
     ...errorData, 
     userId: context.userId,
     requestPath: context.url,
-  logger.error(error.message || 'Error logged', { 
     error, 
     ...errorData, 
     userId: context.userId,
@@ -384,6 +382,7 @@ export const checkEncryptionCompliance = () => {
 export { logError, getErrorStats, getRecentErrors, getEndpointErrors, getUserErrors, clearErrors };
 export const predictServiceFailure = (history) => {
   // simple prediction logic
+}
 export {
   logError,
   getErrorStats,

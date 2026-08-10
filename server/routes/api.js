@@ -19,7 +19,6 @@ import { eventsRepository } from '../repositories/eventsRepository.js';
 import { coreTeamService } from '../services/coreTeamService.js';
 import { authRateLimiter, protectedActionRateLimiter } from '../middleware/authRateLimiter.js';
 import { eventRegistrationUserLimiter, eventRegistrationIpLimiter } from '../middleware/rateLimiter.js';
-import { eventRegistrationIpLimiter, eventRegistrationUserLimiter } from '../middleware/rateLimiter.js';
 import { portfolioRepository } from '../repositories/portfolioRepository.js';
 import { achievementsRepository } from '../repositories/achievementsRepository.js';
 import { portfolioService } from '../services/portfolioService.js';
@@ -41,12 +40,6 @@ import recommendationEngine from './recommendationEngine.js';
 import platformAnalyticsRoutes from './platformAnalytics.js';
 // Fixed duplicate import
 import * as whiteboardController from '../controllers/whiteboardController.js';
-import * as portfolioAnalyticsController from '../controllers/portfolioAnalyticsController.js';
-import { achievementSchema } from '../validators/portfolioSchemas.js';
-import { auditLogRepository } from '../repositories/auditLogRepository.js';
-import announcementPriorityRouter from "./announcementPriority.js";
-import eventConflictRouter from "./eventConflict.js";
-import waitlistRoutes from "./waitlist.js";
 
 import bookmarkRoutes from './bookmark.js';
 import operationalInsightsRoutes from './operationalInsights.js';
@@ -76,33 +69,19 @@ import {
 } from '../validators/routes/apiSchemas.js';
 import * as recommendationsController from '../controllers/recommendationsController.js';
 import * as gamificationController from '../controllers/gamificationController.js';
-import { studentAuthService } from '../services/studentAuthService.js';
-import * as recommendationsController from '../controllers/recommendationsController.js';
-import * as gamificationController from '../controllers/gamificationController.js';
-import * as recommendationsController from '../controllers/recommendationsController.js';
-import * as gamificationController from '../controllers/gamificationController.js';
 import multer from 'multer';
-import settingsRouter from './settingsRoutes.js';
 import { impersonationService } from '../services/impersonationService.js';
 
 const router = Router();
 
-const router = Router();
-import multer from 'multer';
 
-const router = Router();
-import multer from 'multer';
 
 // Fixed duplicate import
-import { impersonationService } from '../services/impersonationService.js';
-import * as followsController from '../controllers/followsController.js';
 // Fixed duplicate import
 // Fixed duplicate import
-import multer from 'multer';
 // Fixed duplicate upload declarations
 // Fixed duplicate import
 const workflowAutomationRoutes = require("./workflowAutomation"); 
-const router = Router();
 // Fixed duplicate import
 const digitalAssetRoutes = require("./digitalAsset");
 import googleFormsWebhookRoutes from './googleFormsWebhookRoutes.js';
@@ -119,7 +98,6 @@ router.get('/api/dashboard/leaderboard', gamificationController.getLeaderboard);
 router.post('/api/dashboard/xp', protectedActionRateLimiter, adminAuthMiddleware.requireAdmin, gamificationController.awardXP);
 const knowledgeAssistantRoutes = require("./knowledgeAssistant");
 const reportingCenterRoutes = require("./reportingCenter");
-const router = Router();
 const budgetRoutes = require('./budget');
 const resourceDiscoveryRoutes = require("./resourceDiscovery");
 const notificationCampaignRoutes = require("./notificationCampaign");
@@ -152,24 +130,15 @@ router.post('/api/content/events/:eventId/register', eventRegistrationController
 router.post(
   '/api/content/events/:eventId/cancel',
   requireStudentAuth,
-  eventRegistrationController.cancelRegistration
-router.get('/api/content/banners', bannersController.listActiveBanners);
 router.post(
   '/api/content/events/:eventId/register',
   eventRegistrationUserLimiter,
   eventRegistrationIpLimiter,
-  eventRegistrationController.registerForEvent
-);
-router.get('/api/content/events/:eventId/calendar', eventRegistrationController.getEventCalendar);
   eventRegistrationIpLimiter,
   eventRegistrationUserLimiter,
   validate(eventRegistrationSchema),
-  eventRegistrationController.registerForEvent
-);
-router.get('/api/content/events/:eventId/calendar', eventRegistrationController.getEventCalendar);
 
 // QR Code Generation
-router.get('/api/registrations/:id/qr', eventRegistrationController.getRegistrationQr);
 
 router.post(
   '/api/content/events/:eventId/cancel',
@@ -177,40 +146,26 @@ router.post(
   eventRegistrationUserLimiter,
   requireStudentAuth,
   validate(emailSchema),
-  eventRegistrationController.cancelRegistration
-);
 router.get(
   '/api/content/events/:eventId/waitlist-position',
-  eventRegistrationController.getWaitlistPosition
-);
 router.post(
   '/api/content/events/:eventId/waitlist/confirm',
   validate(emailSchema),
-  eventRegistrationController.confirmWaitlistSpot
-);
 router.delete(
   '/api/content/events/:eventId/waitlist',
   eventRegistrationIpLimiter,
   eventRegistrationUserLimiter,
   validate(emailSchema),
-  eventRegistrationController.leaveWaitlist
-);
 router.get(
   '/api/content/activity-events/:activityKey',
-  activityEventsController.listActivityEvents
-);
 router.post(
   '/api/content/activity-events/:activityKey',
   protectedActionRateLimiter,
   adminAuthMiddleware.requireScope('events:write'),
-  activityEventsController.addActivityEvent
-);
 router.delete(
   '/api/content/activity-events/:activityKey/:eventId',
   protectedActionRateLimiter,
   adminAuthMiddleware.requireScope('events:write'),
-  activityEventsController.deleteActivityEvent
-);
 router.post('/account-recovery/request', async (req, res) => {
   const { email } = req.body;
 
@@ -221,7 +176,6 @@ router.post('/account-recovery/request', async (req, res) => {
     message: 'Recovery code generated',
     recovery,
   });
-});
 router.post('/account-recovery/verify', async (req, res) => {
   const { savedCode, enteredCode } = req.body;
 
@@ -538,11 +492,9 @@ router.delete(
   '/api/admin/sponsors/:id',
   adminAuthMiddleware.requireScope('events:write'),
   adminAuditMiddleware,
-  sponsorshipsController.adminDeleteSponsor
 router.post('/api/admin/impersonate/stop', adminAuthMiddleware.requireAdmin, (req, res) => {
   impersonationService.stop(req.adminSession.token);
   return res.json({ impersonating: false });
-});
 router.get('/api/admin/impersonate/status', adminAuthMiddleware.requireAdmin, (req, res) => {
   const active = impersonationService.getActive(req.adminSession.token);
   return res.json({ impersonating: !!active, user: active?.targetUser || null });
@@ -560,7 +512,6 @@ router.use(
 );
 
 // Audit Log Viewer APIs
-}); // Audit Log Viewer APIs
 router.get('/api/admin/audit-logs', adminAuthMiddleware.requireAdmin, auditLogController.listLogs);
 
 router.get(

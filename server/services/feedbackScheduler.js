@@ -21,7 +21,6 @@ async function scheduleFeedbackForEvent(eventId) {
   const endTime = new Date(event.end_time);
   const firstEmailAt = new Date(endTime.getTime() + 60 * 60 * 1000);
   const reminderAt = new Date(endTime.getTime() + 48 * 60 * 60 * 1000);
-  const reminderAt = new Date(endTime.getTime() + 25 * 60 * 60 * 1000);
 
   await db('feedback_schedule')
     .insert({

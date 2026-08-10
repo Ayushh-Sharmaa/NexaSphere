@@ -16,7 +16,6 @@ import { ErrorCodes } from '../utils/errors.js';
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-import { logError } from '../services/errorTrackingService.js';
 
 function resolveUserId(req) {
   return req.user?.id || req.adminSession?.username || null;
@@ -64,13 +63,7 @@ const errorHandler = (err, req, res, next) => {
   // ---- Tracking & instrumentation ----
   const trackedError = trackError(err);
   logger.error('Tracked Error', trackedError);
-import logger from '../utils/logger.js';
-import { captureException } from '../utils/sentry.js';
-import { sendSlackAlert } from '../utils/slack.js';
 
-const errorHandler = (err, req, res, next) => {
-  const status = err.statusCode || err.status || 500;
-  const message = err.message || 'Internal Server Error';
 
   const errorLog = {
     status,
@@ -220,6 +213,7 @@ const asyncHandler = (fn) => (req, res, next) => {
   });
 };
 
+}
 export { errorHandler, notFoundHandler, validationErrorHandler, asyncHandler };
 export {
   errorHandler,

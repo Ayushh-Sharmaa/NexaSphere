@@ -15,8 +15,7 @@ const { appContext, tracedFetch } = await import('../config/appContext.js');
 const { tracingMiddleware } = await import('../middleware/tracingMiddleware.js');
 
 describe('API Request Tracing and Distributed Correlation IDs', () => {
-  test('generates a new X-Correlation-ID if not provided', async () => {
-  test('generates a new X-Request-ID if not provided', async (t) => {
+  test('generates a new X-Correlation-ID if not provided', async (t) => {
     const app = express();
     app.use(tracingMiddleware);
     let capturedReqId = null;
@@ -44,8 +43,7 @@ describe('API Request Tracing and Distributed Correlation IDs', () => {
     );
   });
 
-  test('preserves existing X-Correlation-ID if provided', async () => {
-  test('preserves existing X-Request-ID if provided', async (t) => {
+  test('preserves existing X-Correlation-ID if provided', async (t) => {
     const app = express();
     app.use(tracingMiddleware);
     app.get('/', (req, res) => res.send('ok'));
@@ -94,17 +92,16 @@ describe('API Request Tracing and Distributed Correlation IDs', () => {
     const queryText =
       typeof capturedPgArgs[0] === 'string' ? capturedPgArgs[0] : capturedPgArgs[0]?.text;
     assert.ok(
-      config.text.includes(`/* reqId: ${testId} */`),
+      queryText.includes(`/* reqId: ${testId} */`),
       'SQL should include the reqId comment'
     );
-    assert.ok(config.text.includes('SELECT * FROM users'), 'SQL should include the original query');
+    assert.ok(queryText.includes('SELECT * FROM users'), 'SQL should include the original query');
   });
 
-  test('injects X-Correlation-ID into downstream fetch calls', async () => {
-  test('injects X-Request-ID into downstream fetch calls', async (t) => {
+  test('injects X-Correlation-ID into downstream fetch calls', async (t) => {
     const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ header: req.headers['X-Correlation-ID'] }));
+      res.end(JSON.stringify({ header: req.headers['x-correlation-id'] }));
     });
 
     await new Promise((resolve) => server.listen(0, resolve));

@@ -8,27 +8,13 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
 });
 
-  const missingVars = [];
-
-  requiredVars.forEach((variable) => {
-    if (!process.env[variable]) {
-      missingVars.push(variable);
-    }
-  });
-
-  if (missingVars.length > 0) {
-    logger.error('Incomplete environment profiles. Server initializing fallback block closure.', {
-      missingParameters: missingVars,
-      action: 'HALT_BOOT_SEQUENCE',
-    });
-    throw new Error(`Critical infrastructure variables missing: ${missingVars.join(', ')}`);
+export function validateEnv() {
+  const result = envSchema.safeParse(process.env);
+  if (!result.success) {
+    console.error('Invalid environment configuration:', result.error.format());
+    throw new Error('Invalid environment configuration');
   }
+  return result.data;
+}
 
-  logger.info(
-    'Environment variables verification check succeeded. Application configurations loaded.'
-  );
-} // <-- Restored missing structural closing brace
-
-module.exports = {
-  validateEnvironment,
-};
+export const env = validateEnv();

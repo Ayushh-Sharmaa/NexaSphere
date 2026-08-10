@@ -13,7 +13,6 @@ import {
 } from "../storage/supabaseClient.js";
 import { tracedFetch } from "../config/appContext.js";
 import { readContent, writeContent } from "../storage/contentFileStore.js";
-import { runWithFileLock } from "../storage/contentFileStore.js";
 
 // We need withContentLock
 let contentLock = Promise.resolve();

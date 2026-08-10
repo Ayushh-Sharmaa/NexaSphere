@@ -71,9 +71,6 @@ export const announcementPriorityService = {
 
   updatePriority(id, priority) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
 
     if (!announcement) return null;
 
@@ -84,9 +81,6 @@ export const announcementPriorityService = {
 
   pinAnnouncement(id, pinned = true) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
 
     if (!announcement) return null;
 
@@ -97,9 +91,6 @@ export const announcementPriorityService = {
 
   markAnnouncementRead(id, userId) {
     const announcement = announcements.find((item) => item.id === id);
-    const announcement = announcements.find(
-      (item) => item.id === id
-    );
 
     if (!announcement) return null;
 
@@ -118,15 +109,7 @@ export const announcementPriorityService = {
     const totalViews = announcements.reduce((sum, item) => sum + item.views, 0);
 
     const totalReads = announcements.reduce((sum, item) => sum + item.readBy.length, 0);
-    const totalViews = announcements.reduce(
-      (sum, item) => sum + item.views,
-      0
-    );
 
-    const totalReads = announcements.reduce(
-      (sum, item) => sum + item.readBy.length,
-      0
-    );
 
     return {
       totalAnnouncements: total,

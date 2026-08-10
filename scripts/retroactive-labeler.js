@@ -68,6 +68,9 @@ async function run() {
         if (!existingLabels.has("GSSoC'26")) {
           toAdd.push("GSSoC'26");
         }
+        if (!existingLabels.has("gssoc approved")) {
+          toAdd.push("gssoc approved");
+        }
 
         if (!existingLabels.has("mentor:Ayushh-Sharmaa")) {
           toAdd.push("mentor:Ayushh-Sharmaa");

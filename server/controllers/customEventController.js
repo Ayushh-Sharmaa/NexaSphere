@@ -48,14 +48,12 @@ export const createEventDefinition = wrapAsync(async (req, res) => {
     createdBy,
   });
   return sendSuccess(res, { definition }, 201);
-  return res.status(201).json({ success: true, definition });
 });
 
 export const listEventDefinitions = wrapAsync(async (req, res) => {
   const activeOnly = req.query.active === 'true';
   const definitions = await customEventRepository.listDefinitions({ activeOnly });
   return sendSuccess(res, { definitions });
-  return res.json({ success: true, definitions });
 });
 
 export const getEventDefinition = wrapAsync(async (req, res) => {
@@ -116,7 +114,6 @@ export const logCustomEvent = wrapAsync(async (req, res) => {
     properties: properties || {},
   });
   return sendSuccess(res, { log }, 201);
-  return res.status(201).json({ success: true, log });
 });
 
 // ---------------------------------------------------------------------------
@@ -145,7 +142,6 @@ export const getRecentLogs = wrapAsync(async (req, res) => {
 
   const result = await customEventRepository.getRecentLogs(id, { page, limit });
   return sendSuccess(res, { ...result });
-  return res.json({ success: true, ...result });
 });
 
 export const exportEventData = wrapAsync(async (req, res) => {

@@ -18,20 +18,8 @@ import {
   blacklistParamsSchema,
   unblockBodySchema,
 } from '../validators/routes/rateLimitAdminRoutesSchemas.js';
- *
- * Admin-only API endpoints for the Rate Limiting & Throttling system.
- * Mount under your existing admin router, e.g.:
- *
- *   import rateLimitAdminRoutes from './routes/rateLimitAdminRoutes.js';
- *   router.use(rateLimitAdminRoutes);
- *
- * All routes require adminAuthMiddleware.requireAdmin.
- */
 
-import { Router } from 'express';
 import { createClient } from 'redis';
-import logger from '../utils/logger.js';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
 import {
   addToWhitelist,
   removeFromWhitelist,
@@ -96,21 +84,18 @@ async function scanKeys(pattern) {
       resolve([]);
     });
   });
-}
 
 router.get(
   '/api/admin/rate-limits/status',
   adminAuthMiddleware.requireAdmin,
 
   async (req, res) => {
-    try {
       const r = await redis();
       const keys = await scanKeys('ratelimit:*');
   for await (const key of r.scanIterator({ MATCH: pattern, COUNT: 200 })) {
     keys.push(key);
   }
   return keys;
-}
 
 // ── GET /api/admin/rate-limits/status ─────────────────────────────────────────
 // Returns top rate-limited users/IPs and endpoint distribution.
@@ -118,7 +103,6 @@ router.get(
   '/api/admin/rate-limits/status',
   adminAuthMiddleware.requireAdmin,
   async (req, res) => {
-    try {
       const r = await redis();
 
       // Collect all active rate-limit keys
@@ -150,7 +134,6 @@ router.get(
       }
 
       const topUsers = Object.entries(userCounts)
-        ) continue;
 
         const count = r ? parseInt(await r.get(key) || '0', 10) : 0;
         const ttl   = r ? await r.ttl(key) : -1;
@@ -163,13 +146,8 @@ router.get(
         violations.push({ key, identifier, endpoint, count, ttlSeconds: ttl });
         endpointCounts[endpoint]   = (endpointCounts[endpoint]   || 0) + count;
         userCounts[identifier]     = (userCounts[identifier]     || 0) + count;
-      }
 
       // Top 20 by count
-      const topUsers     = Object.entries(userCounts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 20)
-        .map(([identifier, count]) => ({ identifier, count }));
 
       const topEndpoints = Object.entries(endpointCounts)
         .sort(([, a], [, b]) => b - a)

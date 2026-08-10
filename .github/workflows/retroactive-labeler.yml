@@ -1,6 +1,9 @@
 name: GSSoC — Retroactive Labeler
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:

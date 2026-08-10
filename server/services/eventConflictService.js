@@ -1,5 +1,4 @@
 import { eventsRepository } from '../repositories/eventsRepository.js';
-import { eventsRepository } from "../repositories/eventsRepository.js";
 
 export const eventConflictService = {
   async checkConflicts() {
@@ -41,7 +40,6 @@ export const eventConflictService = {
     const booked = events.some(
       (event) =>
         event.location?.toLowerCase() === venue.toLowerCase() &&
-        new Date(event.date).toDateString() === new Date(date).toDateString()
         new Date(event.date).toDateString() ===
           new Date(date).toDateString()
     );

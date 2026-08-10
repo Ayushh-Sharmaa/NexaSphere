@@ -256,20 +256,16 @@ async function checkMigrationHistory(client) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-const MODE = process.argv.includes('--pre') ? 'pre' : 'post';
 
 // ── Expected schema definition ────────────────────────────────────────────────
 
-const EXPECTED_TABLES = [
   'admin_sessions',
   'users',
   'events',
   'notifications',
   'push_subscriptions',
   'notification_preferences',
-];
 
-const EXPECTED_COLUMNS = {
   admin_sessions: [
     { name: 'token_hash', type: 'text' },
     { name: 'username', type: 'text' },
@@ -289,7 +285,6 @@ const EXPECTED_COLUMNS = {
   ],
 };
 
-const EXPECTED_INDEXES = [
   { table: 'users', index: 'users_pkey' },
   { table: 'events', index: 'events_pkey' },
   { table: 'notifications', index: 'notifications_pkey' },
@@ -298,16 +293,12 @@ const EXPECTED_INDEXES = [
 
 // Minimum row counts — fail if a table drops below this after migration.
 // Set to 0 for tables that may legitimately be empty in test environments.
-const MIN_ROW_COUNTS = {
   users: 0,
   events: 0,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-let passed = 0;
-let failed = 0;
-const warnings = [];
 
 function pass(msg) {
   console.log(`  ✓ ${msg}`);
@@ -523,7 +514,6 @@ async function validateSchema() {
     console.error('\n✗ Validation script error:', err.message);
   console.log('[Database Validation] Starting schema and data integrity checks...');
 
-import { withDb } from '../repositories/db.js';
 
 async function validateSchema() {
   console.log('[Database Validation] Starting schema and data integrity checks...');

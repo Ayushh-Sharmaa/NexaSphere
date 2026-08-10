@@ -19,78 +19,10 @@ import {
 import { usersRepository } from '../repositories/usersRepository.js';
 import { sendPushNotification, sendToTopic } from './pushNotificationService.js';
 import gamificationService from './gamificationService.js';
-import { sendPushNotification } from './pushNotificationService.js';
-import EventEmitter from "events";
-import logger from "../utils/logger.js";
-import { emitToRoom, getRoom } from "../config/socket.js";
-import notificationsService from "./notificationsService.js";
-import { sendEmail } from "./emailService.js";
 import {
   sendPushNotification,
   sendToTopic,
 } from "./pushNotificationService.js";
-
-// Wrappers/fallbacks for the missing event-specific email functions
-async function sendRegistrationConfirmationEmail(to, data) {
-  return sendEmail({
-    to,
-    subject: `Registration Confirmed: ${data.eventName}`,
-    templateName: "rsvp-confirmation",
-    data: {
-      name: data.name,
-      eventName: data.eventName,
-      eventDate: data.eventDate,
-      eventLocation: data.eventLocation || "Online",
-      eventTime: data.eventTime || "TBA",
-    },
-  });
-}
-
-async function sendWaitlistPromotionEmail(to, data) {
-  return sendEmail({
-    to,
-    subject: `🎉 Waitlist Promotion: ${data.eventName}`,
-    templateName: "rsvp-confirmation",
-    data: {
-      name: data.name,
-      eventName: data.eventName,
-      eventDate: data.eventDate,
-      eventLocation: data.eventLocation || "Online",
-      eventTime: data.eventTime || "TBA",
-    },
-  });
-}
-
-async function sendEventReminderEmail(to, data) {
-  return sendEmail({
-    to,
-    subject: `⏰ Reminder: ${data.eventName}`,
-    templateName: "rsvp-confirmation",
-    data: {
-      name: data.name,
-      eventName: data.eventName,
-      eventDate: data.eventDate,
-      eventLocation: data.eventLocation || "Online",
-      eventTime: data.eventTime || "TBA",
-    },
-  });
-}
-
-async function sendAttendanceConfirmationEmail(to, data) {
-  return sendEmail({
-    to,
-    subject: `Attendance Marked: ${data.eventName}`,
-    templateName: "rsvp-confirmation",
-    data: {
-      name: data.name,
-      eventName: data.eventName,
-      eventDate: data.eventDate,
-      eventLocation: data.eventLocation || "Online",
-      eventTime: data.eventTime || "TBA",
-      points: data.points,
-    },
-  });
-}
 
 class RealTimeEventManager extends EventEmitter {
   constructor() {

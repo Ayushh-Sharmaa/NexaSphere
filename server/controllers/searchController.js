@@ -13,9 +13,6 @@ import { sendSuccess, sendError } from '../utils/responseHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import { eventsRepository } from '../repositories/eventsRepository.js';
-import { coreTeamService } from '../services/coreTeamService.js';
-import { activityEventsService } from '../services/activityEventsService.js';
 
 export const searchController = {
   async search(req, res) {
@@ -28,7 +25,6 @@ export const searchController = {
 
       if (!q || q.length < 2) {
         return sendSuccess(res, { results: [], total: 0, page, limit });
-        return res.json({ results: [], total: 0, page, limit });
       }
 
       const { isTypesenseEnabled, typesenseClient } = await import('../config/typesense.js');
@@ -147,7 +143,6 @@ export const searchController = {
         if (type === 'all' || type === 'events') {
           const events = await eventsRepository.list({ page: 1, limit: 100 });
           const matched = (events?.rows || []).map((ev) => ({
-      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
 
       if (!q || q.length < 2) {
         return res.json({ results: [], total: 0 });
@@ -400,7 +395,6 @@ export const searchController = {
 
       return sendSuccess(res, { results, total: allResultsCount, query: q });
 
-      return res.json({ results, total: trueTotal, page, limit, query: q });
     } catch (err) {
       console.error('Search error:', err);
       return sendError(req, res, 'Search failed', 500, 'INTERNAL_ERROR', { results: [], total: 0 });

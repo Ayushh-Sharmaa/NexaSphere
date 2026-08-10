@@ -61,6 +61,7 @@ test('CORS Policy Configuration Verification', async (t) => {
   } finally {
     server.close();
   }
+});
 
 // ---------------------------------------------------------------------------
 // Inline the buildCorsOrigins logic so the test has no dependency on the full

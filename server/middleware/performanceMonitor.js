@@ -1,8 +1,6 @@
 import logger from '../utils/logger.js';
 import { captureMessage, addBreadcrumb } from '../utils/sentry.js';
 
-import logger from '../utils/logger.js';
-import { captureMessage, addBreadcrumb } from '../utils/sentry.js';
 import { recordSlowQuery } from '../utils/queryLogger.js';
 
 /**
@@ -188,17 +186,6 @@ const performanceMonitor = (req, res, next) => {
   markWrapped(res);
 
   const startTime = Date.now();
-
-  const originalSend = res.send;
-const metrics = {
-  endpoints: {},
-  errorRate: 0,
-  totalRequests: 0,
-  totalErrors: 0,
-};
-
-const performanceMonitor = (req, res, next) => {
-  const startTime = Date.now();
   const originalSend = res.send;
 
   res.send = function (data) {
@@ -214,38 +201,11 @@ const performanceMonitor = (req, res, next) => {
 
     if (!endpointMetrics.has(endpoint)) {
       endpointMetrics.set(endpoint, new EndpointMetrics());
-    metrics.totalRequests++;
-    if (statusCode >= 400) {
-      metrics.totalErrors++;
     }
     const metrics = endpointMetrics.get(endpoint);
 
     const isError = statusCode >= 400;
     metrics.addRequest(duration, isError);
-
-    if (!metrics.endpoints[endpoint]) {
-      metrics.endpoints[endpoint] = {
-        count: 0,
-        totalTime: 0,
-        errors: 0,
-        avgTime: 0,
-        maxTime: 0,
-        minTime: Infinity,
-      };
-    }
-
-    const endpointMetrics = metrics.endpoints[endpoint];
-    endpointMetrics.count++;
-    endpointMetrics.totalTime += duration;
-    endpointMetrics.avgTime = endpointMetrics.totalTime / endpointMetrics.count;
-    endpointMetrics.maxTime = Math.max(endpointMetrics.maxTime, duration);
-    endpointMetrics.minTime = Math.min(endpointMetrics.minTime, duration);
-
-    if (statusCode >= 400) {
-      endpointMetrics.errors++;
-    }
-
-    metrics.errorRate = (metrics.totalErrors / metrics.totalRequests) * 100;
 
     if (duration > 1000) {
       logger.warn('Slow Request Detected', {
@@ -338,30 +298,13 @@ const getMetrics = () => {
     endpoints: {},
     databaseQueries: {
       totalQueries: dbQueryMetrics.totalQueries,
-      avgQueryDurationMs:
-        dbQueryMetrics.totalQueries > 0
-          ? dbQueryMetrics.totalQueryTime / dbQueryMetrics.totalQueries
-          : 0,
+      avgQueryDurationMs: dbQueryMetrics.totalQueries > 0 ? dbQueryMetrics.totalQueryTime / dbQueryMetrics.totalQueries : 0,
       slowQueriesCount: dbQueryMetrics.slowQueriesCount,
       queries: dbQueryMetrics.queries,
     },
     customMetrics: {
       registrationsPerMinute: getRegistrationsPerMinute(),
-    },
-const getMetrics = () => {
-  return {
-    totalRequests: metrics.totalRequests,
-    totalErrors: metrics.totalErrors,
-    errorRate: metrics.errorRate.toFixed(2) + '%',
-    endpoints: Object.entries(metrics.endpoints).map(([endpoint, data]) => ({
-      endpoint,
-      count: data.count,
-      avgTime: data.avgTime.toFixed(2) + 'ms',
-      maxTime: data.maxTime + 'ms',
-      minTime: data.minTime === Infinity ? 0 : data.minTime + 'ms',
-      errorCount: data.errors,
-      errorRate: ((data.errors / data.count) * 100).toFixed(2) + '%',
-    })),
+    }
   };
   endpointMetrics.forEach((metrics, endpoint) => {
     result.endpoints[endpoint] = {
@@ -394,17 +337,6 @@ const checkErrorRateThreshold = (threshold = 5) => {
   if (exceeded) {
     captureMessage(`Alert: Error rate exceeded ${threshold}% in last 5 minutes!`, 'error', {
       tags: { type: 'performance', alert: 'error_rate' },
-  if (metrics.errorRate > threshold) {
-    captureMessage(`Alert: Error rate exceeded ${threshold}%! Current: ${metrics.errorRate.toFixed(2)}%`, 'error', {
-      tags: { type: 'performance', alert: 'error_rate' },
-      extra: { errorRate: metrics.errorRate, totalRequests: metrics.totalRequests },
-    });
-
-    logger.error('Error Rate Threshold Exceeded', {
-      threshold,
-      current: metrics.errorRate,
-      totalRequests: metrics.totalRequests,
-      totalErrors: metrics.totalErrors,
     });
     logger.error('Error Rate Threshold Exceeded', { threshold, window: '5min' });
     return true;
@@ -421,10 +353,7 @@ function getHealthStatus() {
     (sum, m) => sum + m.fiveMin.getCount(),
     0
   );
-  const fiveMinErrors = Array.from(endpointMetrics.values())
-    .reduce((sum, m) => sum + m.fiveMin.getErrorCount(), 0);
-  const fiveMinTotal = Array.from(endpointMetrics.values())
-    .reduce((sum, m) => sum + m.fiveMin.getCount(), 0);
+
   const errorRate = fiveMinTotal > 0 ? (fiveMinErrors / fiveMinTotal) * 100 : 0;
 
   if (errorRate > 10) return 'critical';

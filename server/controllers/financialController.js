@@ -174,7 +174,3 @@ export const getRevenueReport = wrapAsync(async (req, res) => {
   return sendSuccess(res, report);
 });
 
-export const getRevenueReport = wrapAsync(async (req, res) => {
-  const report = await financialService.getRevenueReport(req.studentUser);
-  return res.status(200).json(report);
-});

@@ -7,8 +7,6 @@ process.env.ADMIN_EVENT_PASSWORD = 'StrongEventPassword123!';
 
 const { logError, getErrorStats, getRecentErrors, getEndpointErrors, getUserErrors, clearErrors } =
   await import('../services/errorTrackingService.js');
-import assert from 'node:assert/strict';
-import test from 'node:test';
 import {
   logError,
   getErrorStats,
@@ -201,8 +199,6 @@ test('logError stores environment metadata and groups similar errors', async () 
   assert.ok(Array.isArray(stats.groupedErrors));
   assert.strictEqual(stats.groupedErrors[0].message, 'Grouped error');
   assert.strictEqual(stats.groupedErrors[0].count, 2);
-import assert from 'node:assert/strict';
-import test from 'node:test';
 import {
   logError,
   getErrorStats,

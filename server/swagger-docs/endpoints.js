@@ -765,8 +765,6 @@
  */
 
 
- * ...
- */
 
 /**
  * @swagger
@@ -1069,34 +1067,6 @@
  *         description: Knowledge base updated successfully
  */
 
- * /api/announcements/{id}/pin:
- *   patch:
- *     summary: Pin or unpin an announcement
- *     tags:
- *       - Announcements
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Workspace deleted successfully
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               pinned:
- *                 type: boolean
- *     responses:
- *       200:
- *         description: Announcement updated successfully.
- */
 
 /**
  * @swagger
