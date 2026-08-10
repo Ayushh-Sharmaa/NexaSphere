@@ -179,7 +179,7 @@ registerRoute(
 const bgSyncPlugin = new BackgroundSyncPlugin('nexasphere-offline-queue', {
   maxRetentionTime: 48 * 60, // retain queued requests for up to 48 hours (in minutes)
   onSync: async ({ queue }) => {
-    const error = null;
+    let error = null;
     try {
       await queue.replayRequests();
       // Emptied successfully! Trigger notification if permitted
