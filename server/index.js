@@ -667,7 +667,15 @@ async function runWithFileLock(callback) {
 async function readContent() {
   await ensureContentFile();
   const raw = await fs.readFile(CONTENT_FILE, 'utf8');
-  return JSON.parse(raw);
+  if (!raw || !raw.trim()) {
+    return { ...defaultContent };
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error('[readContent] Failed to parse content file, falling back to defaults:', err.message);
+    return { ...defaultContent };
+  }
 }
 
 async function writeContent(content) {
