@@ -3,6 +3,8 @@ import { DynamicIcon } from '../../shared/Icons';
 import apiClient from '../../utils/apiClient.js';
 import DOMPurify from 'dompurify';
 import { getApiBase } from '../../utils/runtimeConfig';
+import { formatWithTimezone } from '../../utils/timezoneUtils';
+
 
 /* ── Animated counter ── */
 function Counter({ value, suffix = '' }) {
@@ -205,7 +207,7 @@ function EventCard({ event, activityColor, onSelect }) {
               marginBottom: '10px',
             }}
           >
-            <DynamicIcon name="Calendar" size={14} /> {event.dateText ?? event.date}
+            <DynamicIcon name="Calendar" size={14} /> {event.dateText ? event.dateText : formatWithTimezone(event.date)}
           </div>
           <div
             className="event-description-html"
@@ -328,7 +330,7 @@ function UpcomingCard({ event, color }) {
           marginBottom: '6px',
         }}
       >
-        <DynamicIcon name="Calendar" size={14} /> {event.dateText ?? event.date}
+        <DynamicIcon name="Calendar" size={14} /> {event.dateText ? event.dateText : formatWithTimezone(event.date)}
       </div>
       <div
         className="event-description-html"
@@ -540,6 +542,29 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
 
       {/* ── Content area — reduced top padding to avoid double-gap ── */}
       <div className="container" style={{ paddingTop: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
+          <label style={{ fontSize: '0.85rem', marginRight: '8px', color: 'var(--t2)' }}>Timezone:</label>
+          <select 
+            style={{ fontSize: '0.85rem', padding: '4px', borderRadius: '4px', background: 'var(--bg2)', color: 'var(--t1)', border: '1px solid var(--bdr1)' }}
+            onChange={(e) => {
+              if (e.target.value) {
+                localStorage.setItem('preferredTimezone', e.target.value);
+              } else {
+                localStorage.removeItem('preferredTimezone');
+              }
+              window.location.reload();
+            }}
+            defaultValue={typeof window !== 'undefined' ? localStorage.getItem('preferredTimezone') || '' : ''}
+          >
+            <option value="">Browser Default</option>
+            <option value="America/New_York">EST (New York)</option>
+            <option value="America/Los_Angeles">PST (Los Angeles)</option>
+            <option value="Europe/London">GMT (London)</option>
+            <option value="Asia/Kolkata">IST (Kolkata)</option>
+            <option value="Asia/Tokyo">JST (Tokyo)</option>
+          </select>
+        </div>
+
         {/* Conducted Events */}
         {(allConducted.length > 0 || fetchState === 'loading') && (
           <div style={{ marginBottom: '48px' }}>
