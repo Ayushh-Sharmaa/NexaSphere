@@ -1500,18 +1500,29 @@
     left: 20px;
   }
 
-  .timeline-card {
+  .timeline-card, .event-card {
     width: 100% !important;
     padding: 18px;
+    display: flex;
+    flex-direction: column;
+    word-break: break-word;
+  }
+  
+  .timeline-card img, .event-card img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
   }
 
   .timeline-event-name {
     font-size: 0.9rem;
     flex-wrap: wrap;
+    word-break: break-word;
   }
 
   .timeline-event-desc {
     font-size: 0.84rem;
+    white-space: normal;
   }
 
   .view-details-badge {
