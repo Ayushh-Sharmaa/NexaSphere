@@ -66,12 +66,20 @@ export const liveQaService = {
   },
 
   upvoteQuestion(eventId, questionId, userId) {
+    if (!userId || typeof userId !== 'string') {
+      return { error: 'Valid userId is required' };
+    }
+    const normalizedUserId = userId.trim();
+    if (!normalizedUserId) {
+      return { error: 'Valid userId is required' };
+    }
+
     const qs = getEventQuestions(eventId);
     const q = qs.find((q) => q.id === questionId);
     if (!q) return { error: 'Question not found' };
-    if (q.upvotedBy.includes(userId)) return { error: 'Already upvoted' };
+    if (q.upvotedBy.includes(normalizedUserId)) return { error: 'Already upvoted' };
     q.upvotes += 1;
-    q.upvotedBy.push(userId);
+    q.upvotedBy.push(normalizedUserId);
     const io = liveQaService._io;
     if (io) broadcast(io, eventId, 'qa:updated', { id: questionId, upvotes: q.upvotes });
     return { id: questionId, upvotes: q.upvotes };
@@ -144,6 +152,14 @@ export const liveQaService = {
   },
 
   votePoll(eventId, pollId, optionIds, voterId) {
+    if (!voterId || typeof voterId !== 'string') {
+      return { error: 'Valid voterId is required' };
+    }
+    const normalizedVoterId = voterId.trim();
+    if (!normalizedVoterId) {
+      return { error: 'Valid voterId is required' };
+    }
+
     const ps = getEventPolls(eventId);
     const poll = ps.find((p) => p.id === pollId);
     if (!poll) return { error: 'Poll not found' };
@@ -151,13 +167,13 @@ export const liveQaService = {
 
     const ids = Array.isArray(optionIds) ? optionIds : [optionIds];
     for (const opt of poll.options) {
-      if (opt.voters.includes(voterId)) return { error: 'Already voted' };
+      if (opt.voters.includes(normalizedVoterId)) return { error: 'Already voted' };
     }
     let votedCount = 0;
     for (const opt of poll.options) {
       if (ids.includes(opt.id)) {
         opt.votes += 1;
-        opt.voters.push(voterId);
+        opt.voters.push(normalizedVoterId);
         votedCount += 1;
       }
     }
