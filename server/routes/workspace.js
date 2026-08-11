@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { requireStudentAuth } = require('../middleware/studentAuthMiddleware');
 
 const workspaceController = require('../controllers/workspaceController');
+
+router.use(requireStudentAuth);
 
 // Workspace CRUD
 router.get('/', workspaceController.getAllWorkspaces);
