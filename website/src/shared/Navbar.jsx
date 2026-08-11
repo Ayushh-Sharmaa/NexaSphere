@@ -99,25 +99,35 @@ export default function Navbar({
       setCompact(isCompact);
       if (!isCompact) setMenuOpen(false);
     };
-    window.addEventListener('scroll', s, { passive: true });
-    window.addEventListener('resize', r, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', s);
-      window.removeEventListener('resize', r);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!compact || !menuOpen) return undefined;
-
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
         setMenuOpen(false);
       }
     };
-
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    
+    window.addEventListener('scroll', s, { passive: true });
+    window.addEventListener('resize', r, { passive: true });
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Focus management when menu opens
+    if (menuOpen && compact) {
+      document.body.style.overflow = 'hidden';
+      const menuElement = document.getElementById('ns-nav-menu');
+      if (menuElement) {
+        // Find first focusable element inside menu
+        const firstFocusable = menuElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) firstFocusable.focus();
+      }
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', s);
+      window.removeEventListener('resize', r);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [compact, menuOpen]);
 
   const { user, isAuthenticated, login } = useStudentAuth();
