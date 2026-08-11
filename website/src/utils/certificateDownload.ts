@@ -64,7 +64,7 @@ export const generatePDFBlob = async (
 
     // We try to open it in a new tab. Some browsers might block popups if not directly in click handler,
     // but this usually works on iOS Safari when triggered by a user action.
-    const newTab = window.open(blobUrl, '_blank');
+    const newTab = window.open(blobUrl, '_blank', 'noopener,noreferrer');
 
     if (!newTab) {
       // Fallback: just redirect current window
