@@ -1,10 +1,6 @@
 /**
  * reportRoutes.js
  * server/routes/reportRoutes.js
- *
- * Mount in api.js:
- *   import reportRouter from './reportRoutes.js';
- *   router.use('/api/admin/reports', adminAuthMiddleware.requireAdmin, reportRouter);
  */
 
 import { Router } from 'express';
@@ -16,6 +12,7 @@ import {
   getScheduleConfigs,
   upsertScheduleConfig,
 } from '../controllers/reportController.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 
 const router = Router();
 
@@ -28,6 +25,7 @@ const reportsLimiter = rateLimit({
 });
 
 router.use(reportsLimiter);
+router.use(requireAdmin);
 
 router.post('/generate', triggerReport);
 router.get('/archive', getArchive);
