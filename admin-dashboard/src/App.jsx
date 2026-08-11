@@ -23,6 +23,11 @@ const EventsManager = React.lazy(() =>
     default: module.EventsManager,
   }))
 );
+const ActivityLogs = React.lazy(() =>
+  import("./pages/ActivityLogs").then((module) => ({
+    default: module.ActivityLogs,
+  }))
+);
 
 // Components
 import { Sidebar } from "./components/Sidebar";
@@ -241,6 +246,7 @@ export default function App() {
               element={<SponsorshipsManager />}
             />
             <Route path="/dashboard/audit-logs" element={<AuditLogViewer />} />
+            <Route path="/dashboard/activity-logs" element={<ActivityLogs />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
