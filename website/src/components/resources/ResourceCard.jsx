@@ -1,5 +1,17 @@
 import { formatFileSize } from '../../data/resourcesData';
 
+function isSafeUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) return true;
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const categoryGradients = {
   study_material: 'linear-gradient(135deg, #1a73e8, #0d47a1)',
   project_template: 'linear-gradient(135deg, #0f9d58, #1b5e20)',
@@ -52,7 +64,7 @@ export default function ResourceCard({
   const handleDownloadClick = (e) => {
     e.stopPropagation();
     onDownload?.(resource.id);
-    if (resource.fileUrl && resource.fileUrl !== '#') {
+    if (resource.fileUrl && resource.fileUrl !== '#' && isSafeUrl(resource.fileUrl)) {
       window.open(resource.fileUrl, '_blank', 'noopener,noreferrer');
     }
   };
