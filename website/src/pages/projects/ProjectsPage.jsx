@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Code, ExternalLink, X, Tag, Users } from 'lucide-react';
+
 import { projectsData } from '../../data/projectsData';
 import SafeImage from '../../shared/SafeImage';
 import { ProjectCardSkeleton } from '../../components/ui/skeleton/ProjectCardSkeleton';
+import ProjectCard from '../../components/projects/ProjectCard';
+
+const ProjectDetailModal = lazy(() => import('../../components/projects/ProjectDetailModal'));
 import '../../styles/projects.css';
 
 const CATEGORIES = [
@@ -174,101 +177,9 @@ export default function ProjectsPage({ onBack, loading = false }) {
                 aria-modal="true"
                 aria-labelledby="modal-title"
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 50, scale: 0.95 }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                  className="modal-box project-modal"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    className="modal-close"
-                    onClick={() => setSelectedProject(null)}
-                    aria-label="Close modal"
-                    autoFocus
-                  >
-                    <X size={20} />
-                  </button>
-
-                  <SafeImage
-                    src={selectedProject.image}
-                    alt={selectedProject.title}
-                    className="project-modal-image"
-                    fallbackType="project"
-                  />
-
-                  <div className="project-modal-header">
-                    <span className="project-category">{selectedProject.category}</span>
-                    <h2 id="modal-title" className="project-modal-title">
-                      {selectedProject.title}
-                    </h2>
-                  </div>
-
-                  <div className="project-modal-body">
-                    <p className="project-modal-desc">{selectedProject.longDesc}</p>
-
-                    <div className="project-modal-section">
-                      <h4 className="section-title">
-                        <Tag size={16} /> Tech Stack
-                      </h4>
-                      <div className="project-tech-stack">
-                        {selectedProject.techStack.map((tech) => (
-                          <span key={tech} className="tech-pill">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="project-modal-section">
-                      <h4 className="section-title">
-                        <Users size={16} /> Team
-                      </h4>
-                      <div className="project-team-list">
-                        {selectedProject.team.map((member) => (
-                          <div key={member.name} className="team-member">
-                            <SafeImage
-                              src={member.photo}
-                              alt={member.name}
-                              className="team-member-photo"
-                              fallbackType="avatar"
-                            />
-                            <div className="team-member-info">
-                              <span className="team-member-name">{member.name}</span>
-                              <span className="team-member-role">{member.role}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="project-modal-footer">
-                    {selectedProject.github && selectedProject.github !== '#' && (
-                      <a
-                        href={selectedProject.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-outline"
-                        aria-label="View Source Code on GitHub"
-                      >
-                        <Code size={18} /> Source Code
-                      </a>
-                    )}
-                    {selectedProject.demo && selectedProject.demo !== '#' && (
-                      <a
-                        href={selectedProject.demo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary"
-                        aria-label="View Live Demo"
-                      >
-                        <ExternalLink size={18} /> Live Demo
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
+                <Suspense fallback={<div className="modal-box project-modal" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>Loading...</div>}>
+                  <ProjectDetailModal selectedProject={selectedProject} onClose={() => setSelectedProject(null)} />
+                </Suspense>
               </div>,
               document.body
             )
