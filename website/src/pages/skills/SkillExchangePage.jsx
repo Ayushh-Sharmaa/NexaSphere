@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // Validates a date value before formatting — avoids rendering literal
 // "Invalid Date" text when the API returns a null or malformed timestamp.
@@ -18,7 +18,20 @@ function formatSkillSessionDate(value) {
   return date.toLocaleDateString();
 }
 
-const USER_ID = localStorage.getItem('ns_user_id') || `user-${Date.now().toString(36)}`;
+function getUserId() {
+  if (typeof window === 'undefined') return 'user-ssr';
+  try {
+    let id = localStorage.getItem('ns_user_id');
+    if (!id) {
+      id = `user-${Date.now().toString(36)}`;
+      localStorage.setItem('ns_user_id', id);
+    }
+    return id;
+  } catch {
+    return `user-fallback`;
+  }
+}
+
 const PROFICIENCY = ['Beginner', 'Intermediate', 'Advanced'];
 const FORMATS = ['Video', 'Chat', 'In-person'];
 const DURATIONS = [30, 60, 90];
@@ -30,11 +43,8 @@ function formatSkillDate(value) {
   return date.toLocaleDateString();
 }
 
-if (!localStorage.getItem('ns_user_id')) {
-  localStorage.setItem('ns_user_id', USER_ID);
-}
-
 export default function SkillExchangePage({ onBack }) {
+  const USER_ID = useMemo(() => getUserId(), []);
   const [tab, setTab] = useState('listings');
   const [listings, setListings] = useState([]);
   const [matches, setMatches] = useState([]);
@@ -121,7 +131,11 @@ export default function SkillExchangePage({ onBack }) {
           user: USER_ID,
         });
         fetchListings();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to create listing:', err.message);
+        }
+      }
     }
   };
 
@@ -131,7 +145,11 @@ export default function SkillExchangePage({ onBack }) {
       try {
         const d = await apiClient(url);
         setMatches(d.matches || []);
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to find matches:', err.message);
+        }
+      }
   };
 
   const bookSession = async (match) => {
@@ -150,7 +168,11 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         fetchUserStats();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to book session:', err.message);
+        }
+      }
     }
   };
 
@@ -165,7 +187,11 @@ export default function SkillExchangePage({ onBack }) {
         });
         fetchUserStats();
         fetchLeaderboard();
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to complete session:', err.message);
+        }
+      }
     }
   };
 
@@ -186,7 +212,11 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         setRating({ sessionId: null, score: 5, comment: '' });
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('[SkillExchangePage] Failed to submit feedback:', err.message);
+        }
+      }
     }
   };
 

@@ -206,6 +206,7 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [activeTab, setActiveTab] = useState('registrations');
   const [editForm, setEditForm] = useState({
     fullName: '',
@@ -248,18 +249,22 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       setSaving(true);
+      setSaveError(null);
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
       });
-      if (!res.ok) throw new Error('Failed to update profile');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || 'Failed to update profile');
+      }
       const updated = await res.json();
       setProfile((prev) => ({ ...prev, ...updated }));
       setEditing(false);
     } catch (err) {
-      alert(err.message);
+      setSaveError(err.message || 'An unexpected error occurred while saving profile.');
     } finally {
       setSaving(false);
     }
@@ -502,7 +507,7 @@ export default function ProfilePage() {
                 </thead>
                 <tbody>
                   {profile.registrations.map((r, i) => (
-                    <tr key={i}>
+                    <tr key={r.id || r._id || `reg-${i}`}>
                       <td style={styles.td}>
                         {r.eventId?.title || r.eventId?.name || 'Unknown Event'}
                       </td>
@@ -530,7 +535,7 @@ export default function ProfilePage() {
           {activeTab === 'forum' &&
             (profile.forumActivity?.length ? (
               profile.forumActivity.map((post, i) => (
-                <div key={i} style={styles.forumItem}>
+                <div key={post.id || post._id || `forum-${i}`} style={styles.forumItem}>
                   <div style={styles.forumTitle}>
                     {post.title || post.content?.slice(0, 80) + '...'}
                   </div>
@@ -562,7 +567,7 @@ export default function ProfilePage() {
                 </thead>
                 <tbody>
                   {profile.mentorSessions.map((s, i) => (
-                    <tr key={i}>
+                    <tr key={s.id || s._id || `session-${i}`}>
                       <td style={styles.td}>{s.mentorId?.name || s.mentorId?.email || 'Mentor'}</td>
                       <td style={styles.td}>
                         {new Date(s.date || s.createdAt).toLocaleDateString()}
@@ -593,7 +598,7 @@ export default function ProfilePage() {
             (profile.achievements?.length ? (
               <div style={{ padding: '0.5rem 0' }}>
                 {profile.achievements.map((a, i) => (
-                  <span key={i} style={styles.achieveBadge}>
+                  <span key={a.id || a._id || a.title || `achieve-${i}`} style={styles.achieveBadge}>
                     {a.icon || '★'} {a.title || a.name || a}
                   </span>
                 ))}
@@ -661,7 +666,7 @@ export default function ProfilePage() {
                 placeholder="https://yourportfolio.com"
               />
               <div style={styles.modalBtns}>
-                <button onClick={() => setEditing(false)} style={styles.btnOutline}>
+                <button onClick={() => { setEditing(false); setSaveError(null); }} style={styles.btnOutline}>
                   Cancel
                 </button>
                 <button

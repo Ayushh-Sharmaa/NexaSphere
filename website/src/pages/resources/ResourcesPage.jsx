@@ -12,6 +12,7 @@ import { getApiBase } from '../../utils/runtimeConfig';
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
 function loadSet(key) {
+  if (typeof window === 'undefined') return new Set();
   try {
     const stored = localStorage.getItem(key);
     if (stored) {
@@ -25,6 +26,7 @@ function loadSet(key) {
 }
 
 function saveSet(key, set) {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(key, JSON.stringify([...set]));
   } catch {

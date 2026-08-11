@@ -103,6 +103,12 @@ export default function AccountSettingsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = 'error') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 5000);
+  };
   const navigate = useNavigate();
 
   const handleExport = async () => {
@@ -120,7 +126,7 @@ export default function AccountSettingsPage() {
       link.click();
       link.remove();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to export data');
+      showFeedback(err.response?.data?.error || 'Failed to export data', 'error');
     } finally {
       setExporting(false);
     }
@@ -131,10 +137,9 @@ export default function AccountSettingsPage() {
     try {
       setDeleting(true);
       await apiClient.delete('/api/auth/me');
-      alert('Your account has been successfully deleted.');
       window.location.href = '/login';
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete account');
+      showFeedback(err.response?.data?.error || 'Failed to delete account', 'error');
       setDeleting(false);
     }
   };
@@ -142,6 +147,41 @@ export default function AccountSettingsPage() {
   return (
     <div style={styles.page}>
       <div style={styles.container}>
+        {feedback && (
+          <div
+            role="status"
+            style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: feedback.type === 'error' ? '#f87171' : '#34d399',
+              border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
+            }}
+          >
+            <span>{feedback.type === 'error' ? '⚠️' : '✅'} {feedback.message}</span>
+            <button
+              onClick={() => setFeedback(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                fontSize: '1.1rem',
+                marginLeft: '12px',
+              }}
+              aria-label="Dismiss message"
+            >
+              &times;
+            </button>
+          </div>
+        )}
+
         <h1 style={styles.header}>Account Settings</h1>
 
         <div style={styles.section}>

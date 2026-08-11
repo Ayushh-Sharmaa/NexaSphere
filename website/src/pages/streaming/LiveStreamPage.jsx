@@ -106,6 +106,7 @@ function HlsPlayer({ streamUrl, hlsUrl, status }) {
 function ChatPanel({ messages, onSendMessage }) {
   const [input, setInput] = useState('');
   const [userName, setUserName] = useState(() => {
+    if (typeof window === 'undefined') return '';
     try {
       return (localStorage.getItem('stream_chat_name') || '').slice(0, 50);
     } catch {
@@ -139,10 +140,12 @@ function ChatPanel({ messages, onSendMessage }) {
           onChange={(e) => {
             const trimmed = e.target.value.slice(0, 50);
             setUserName(trimmed);
-            try {
-              localStorage.setItem('stream_chat_name', trimmed);
-            } catch {
-              // Ignore QuotaExceededError — name is still stored in state
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem('stream_chat_name', trimmed);
+              } catch {
+                // Ignore QuotaExceededError — name is still stored in state
+              }
             }
           }}
           className="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
