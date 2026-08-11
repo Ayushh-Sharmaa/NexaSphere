@@ -6,11 +6,7 @@
 import express from 'express';
 const router = express.Router();
 import { validate } from '../middleware/validate.js';
-import {
-  rumMetricSchema,
-  keyRotationSchema,
-  testErrorSchema,
-} from '../validators/routes/monitoringSchemas.js';
+import { rumMetricSchema, keyRotationSchema, testErrorSchema } from '../validators/routes/monitoringSchemas.js';
 import { getMetrics } from '../middleware/performanceMonitor.js';
 import {
   getErrorStats,
@@ -29,6 +25,7 @@ import { databaseFailoverManager } from '../utils/databaseFailoverManager.js';
 import { apiSecurityManager } from '../utils/apiSecurityManager.js';
 import { deploymentStatus } from '../utils/serviceStatus.js';
 import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.js';
+import { recordPageLoad } from '../observability/metrics.js';
 
 function requireMonitoringAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -106,8 +103,12 @@ router.get('/status-history', async (req, res) => {
     const downtimeEventsCount = incidents.filter((i) => i.status !== 'resolved').length;
     const uptimePercentage = downtimeEventsCount > 0 ? 99.85 : 100.0;
 
+    const activeIncident = incidents.find((i) => !i.resolvedAt);
+    const systemStatus = activeIncident ? 'downtime' : 'operational';
 
     // Calculate simulated overall uptime
+    const downtimeEventsCount = incidents.filter((i) => i.status !== 'resolved').length;
+    const uptimePercentage = downtimeEventsCount > 0 ? 99.85 : 100.0;
 
     sendSuccess(res, {
       status: systemStatus,
@@ -305,6 +306,9 @@ router.get('/backup-status', requireMonitoringAuth, (req, res) => {
       data: {
         status: 'unknown',
         message: 'Backup probe not configured. Wire to your backup provider API.',
+router.get('/backup-status', requireMonitoringAuth, (req, res) => {
+  try {
+    res.status(200).json({
       success: true,
       data: {
         lastBackupTime: new Date().toISOString(),
@@ -314,7 +318,14 @@ router.get('/backup-status', requireMonitoringAuth, (req, res) => {
         backupStorage: 'configured',
         totalBackups: 7,
       },
+      timestamp: new Date(),
+    });
+  } catch (error) {
+    logger.error('Error fetching backup status', {
+      error: error.message,
+    });
 
+    sendError(req, res, 'Failed to fetch backup status', 500, 'INTERNAL_ERROR');
   }
 });
 
@@ -340,6 +351,7 @@ router.get('/traces', requireMonitoringAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch traces',
+    res.status(500).json({
       success: false,
       error: 'Failed to fetch backup status',
     });
@@ -720,6 +732,10 @@ router.get('/security/report', (req, res) => {
 
 router.get('/deployment-status', (req, res) => {
   sendSuccess(res, deploymentStatus);
+  res.json(deploymentStatus);
+ * GET /api/monitoring/failover-status
+ * Monitor critical service health and failover readiness
+ */
 router.get('/failover-status', requireMonitoringAuth, (req, res) => {
   try {
     res.status(200).json({

@@ -6,6 +6,9 @@ import { ThemeToggle } from '../components/common/ThemeToggle';
 import { useStudentAuth } from '../context/StudentAuthContext';
 import LanguageSelector from '../components/common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { ClipboardList, Settings, Trophy, UserRound } from 'lucide-react';
+import { useWalkthroughStep } from '../hooks/useWalkthroughStep';
+import { WalkthroughWrapper } from '../components/walkthrough/WalkthroughWrapper';
 
 const TABS = [
   'Home',
@@ -15,11 +18,10 @@ const TABS = [
   'Roadmaps',
   'Recommendations',
   'Portfolio',
-  'Blog',
+  'Explore',
   'Resources',
   'Forum',
   'Gamification',
-  'Forum',
   'Mentorship',
   'About',
   'Core Team',
@@ -136,9 +138,7 @@ export default function Navbar({
       <nav className="ns-navbar-mobile">
         <div
           className="ns-mobile-top"
-          onClick={goHome}
           style={{
-            cursor: 'pointer',
             background: 'none',
             border: 'none',
             display: 'flex',
@@ -146,7 +146,6 @@ export default function Navbar({
             width: '100%',
             padding: 0,
           }}
-          aria-label="Go to homepage"
         >
           <div
             onClick={goHome}
@@ -181,7 +180,7 @@ export default function Navbar({
               }}
               title="View all notifications"
             >
-              📋
+              <ClipboardList size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => navigate('/leaderboard')}
@@ -256,7 +255,7 @@ export default function Navbar({
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
-                  ⚙️
+                  <Settings size={17} aria-hidden="true" />
                 </button>
                 <button
                   className="ns-nav-user-badge"
@@ -273,7 +272,7 @@ export default function Navbar({
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >
-                  👤
+                  <UserRound size={17} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -339,7 +338,6 @@ export default function Navbar({
             <WalkthroughWrapper stepId="notifications" style={{ display: 'flex' }}>
               <NotificationBell />
             </WalkthroughWrapper>
-            <NotificationBell />
             <button
               onClick={() => navigate('/notifications')}
               aria-label="Notification history"
@@ -353,7 +351,7 @@ export default function Navbar({
               }}
               title="View all notifications"
             >
-              📋
+              <ClipboardList size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => navigate('/leaderboard')}
@@ -468,7 +466,7 @@ export default function Navbar({
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
-                  ⚙️
+                  <Settings size={17} aria-hidden="true" />
                 </button>
                 <button
                   className="ns-nav-user-badge"
@@ -485,7 +483,7 @@ export default function Navbar({
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >
-                  👤
+                  <UserRound size={17} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -497,7 +495,7 @@ export default function Navbar({
                 style={{ cursor: 'pointer', fontSize: '0.9rem', color: 'var(--t1)' }}
                 title={user?.name || user?.email}
               >
-                👤
+                <UserRound size={17} aria-hidden="true" />
               </span>
             ) : (
               <button

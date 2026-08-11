@@ -19,6 +19,8 @@ if (process.env.REDIS_URL) {
     maxRetriesPerRequest: null, // Required by BullMQ
   connection = new IORedis(process.env.REDIS_URL, {
     maxRetriesPerRequest: null,
+  });
+}
 
 export const bulkOperationsQueueName = 'bulk-operations';
 
@@ -351,7 +353,7 @@ class BulkOperationsService {
                 },
               });
             } catch (emailErr) {
-              logger.error({ userEmail: user.email, err: emailErr.message }, 'Failed to send welcome email during bulk import');
+              console.error(`Failed to send welcome email to ${user.email}:`, emailErr.message);
             }
 
             oldState.push({ type: 'insert', table: 'users', key: id, data: null });
@@ -386,7 +388,7 @@ class BulkOperationsService {
         },
       });
     } catch (emailErr) {
-      logger.error({ err: emailErr.message }, 'Failed to send bulk import status email');
+      console.error('Failed to send import status email:', emailErr.message);
     }
 
     this.updateJobProgress(

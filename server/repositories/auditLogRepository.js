@@ -123,7 +123,7 @@ class AuditLogRepository {
         if (attempt === delays.length) {
           logger.error('Failed to insert audit log', { error: err.message, logEntry });
           return null;
-        return;
+        }
         await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
       }
     }

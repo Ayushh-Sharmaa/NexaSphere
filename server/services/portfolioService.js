@@ -33,6 +33,7 @@ const ACHIEVEMENT_DEFS = {
     tier: 'bronze',
     source: 'system',
   },
+  'social-butterfly': {
     name: 'Social Butterfly',
     description: 'Linked 3+ social accounts',
     tier: 'silver',

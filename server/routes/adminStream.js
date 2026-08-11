@@ -119,4 +119,5 @@ router.get('/emergency-alert', requireAdmin, (req, res) => {
   }
 });
 
+});
 export default router;

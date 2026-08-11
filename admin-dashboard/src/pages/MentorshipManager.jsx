@@ -54,20 +54,6 @@ export function MentorshipManager() {
 
   const filteredMentorships =
     activeTab === 'all' ? mentorships : mentorships.filter((m) => m.status === activeTab);
-  useEffect(() => { load(); }, [load]);
-
-  const handleStatus = async (id, status) => {
-    try {
-      await api.mentorship.updateStatus(id, status);
-      await load();
-    } catch (e) {
-      setError(e.message);
-    }
-  };
-
-  const filteredMentorships = activeTab === 'all'
-    ? mentorships
-    : mentorships.filter(m => m.status === activeTab);
 
   if (loading) {
     return (
@@ -75,7 +61,6 @@ export function MentorshipManager() {
         <div className="page-header">
           <h2 className="page-title">Mentorship Management</h2>
         </div>
-        <div className="page-header"><h2 className="page-title">Mentorship Management</h2></div>
         <Skeleton lines={8} />
       </div>
     );
@@ -87,7 +72,6 @@ export function MentorshipManager() {
         <div className="page-header">
           <h2 className="page-title">Mentorship Management</h2>
         </div>
-        <div className="page-header"><h2 className="page-title">Mentorship Management</h2></div>
         <div className="page-error">{error}</div>
       </div>
     );
@@ -108,10 +92,6 @@ export function MentorshipManager() {
             className={`btn btn-sm ${tab === 'mentors' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setTab('mentors')}
           >
-          <button className={`btn btn-sm ${tab === 'mentorships' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('mentorships')}>
-            Mentorships ({mentorships.length})
-          </button>
-          <button className={`btn btn-sm ${tab === 'mentors' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('mentors')}>
             Mentors ({mentors.length})
           </button>
         </div>
@@ -121,7 +101,6 @@ export function MentorshipManager() {
         <>
           <div className="tabs" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             {['all', 'pending', 'active', 'completed', 'rejected'].map((s) => (
-            {['all', 'pending', 'active', 'completed', 'rejected'].map(s => (
               <button
                 key={s}
                 className={`btn btn-sm ${activeTab === s ? 'btn-primary' : 'btn-secondary'}`}
@@ -137,7 +116,6 @@ export function MentorshipManager() {
           ) : (
             <div className="list">
               {filteredMentorships.map((m) => (
-              {filteredMentorships.map(m => (
                 <div key={m.id} className="list-item">
                   <div className="list-item-left">
                     <div className="item-name">
@@ -175,18 +153,6 @@ export function MentorshipManager() {
                           disabled={updating === m.id}
                         >
                           {updating === m.id ? '…' : <AdminIcon name="X" size={16} />}
-                      {m.menteeGoals && <><br />Goals: {m.menteeGoals}</>}
-                    </div>
-                  </div>
-                  <div className="list-item-right">
-                    <span className={`status-badge ${statusColors[m.status] || ''}`}>{m.status}</span>
-                    {m.status === 'pending' && (
-                      <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
-                        <button className="btn-icon" title="Approve" onClick={() => handleStatus(m.id, 'active')}>
-                          <AdminIcon name="Check" size={16} />
-                        </button>
-                        <button className="btn-icon danger" title="Reject" onClick={() => handleStatus(m.id, 'rejected')}>
-                          <AdminIcon name="X" size={16} />
                         </button>
                       </div>
                     )}
@@ -198,8 +164,6 @@ export function MentorshipManager() {
                         disabled={updating === m.id}
                       >
                         {updating === m.id ? 'Completing…' : 'Mark Complete'}
-                      <button className="btn btn-sm btn-secondary" style={{ marginLeft: '8px' }} onClick={() => handleStatus(m.id, 'completed')}>
-                        Mark Complete
                       </button>
                     )}
                   </div>
@@ -217,7 +181,6 @@ export function MentorshipManager() {
           ) : (
             <div className="list">
               {mentors.map((m) => (
-              {mentors.map(m => (
                 <div key={m.id} className="list-item">
                   <div className="list-item-left">
                     <div className="item-name">{m.name}</div>
@@ -230,7 +193,6 @@ export function MentorshipManager() {
                     <span
                       className={`status-badge ${m.isAvailable ? 'status-badge-success' : 'status-badge-muted'}`}
                     >
-                    <span className={`status-badge ${m.isAvailable ? 'status-badge-success' : 'status-badge-muted'}`}>
                       {m.isAvailable ? 'Available' : 'Unavailable'}
                     </span>
                   </div>

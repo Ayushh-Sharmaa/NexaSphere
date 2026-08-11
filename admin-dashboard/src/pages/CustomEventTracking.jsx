@@ -29,14 +29,6 @@ function Sparkline({ data, color = '#6366f1' }) {
     .map((v, i) => {
       const x = pad + (i / Math.max(values.length - 1, 1)) * (w - pad * 2);
       const y = h - pad - (v / max) * (h - pad * 2);
-  if (!data || data.length === 0) return <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>No data</span>;
-  const values = data.map((d) => d.count);
-  const max = Math.max(...values, 1);
-  const w = 120, h = 36, pad = 2;
-  const points = values
-    .map((v, i) => {
-      const x = pad + (i / Math.max(values.length - 1, 1)) * (w - pad * 2);
-      const y = h - pad - ((v / max) * (h - pad * 2));
       return `${x},${y}`;
     })
     .join(' ');
@@ -95,9 +87,6 @@ function PropertyBuilder({ properties, onChange }) {
                 whiteSpace: 'nowrap',
               }}
             >
-              {PROPERTY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
               <input
                 type="checkbox"
                 checked={prop.required || false}
@@ -108,7 +97,6 @@ function PropertyBuilder({ properties, onChange }) {
             <button onClick={() => removeProp(idx)} style={dangerBtnStyle}>
               ✕
             </button>
-            <button onClick={() => removeProp(idx)} style={dangerBtnStyle}>✕</button>
           </div>
         ))}
       </div>
@@ -135,16 +123,6 @@ function EventDefinitionCard({ definition, onSelect, onEdit, onDelete }) {
         gap: '10px',
       }}
     >
-    <div style={{
-      background: '#fff',
-      borderRadius: '12px',
-      padding: '18px 20px',
-      border: '1px solid #e2e8f0',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px',
-    }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -161,14 +139,6 @@ function EventDefinitionCard({ definition, onSelect, onEdit, onDelete }) {
                 color: definition.is_active ? '#15803d' : '#dc2626',
               }}
             >
-            <span style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: '10px',
-              background: definition.is_active ? '#dcfce7' : '#fee2e2',
-              color: definition.is_active ? '#15803d' : '#dc2626',
-            }}>
               {definition.is_active ? 'Active' : 'Inactive'}
             </span>
           </div>
@@ -185,8 +155,6 @@ function EventDefinitionCard({ definition, onSelect, onEdit, onDelete }) {
           <button onClick={() => onDelete(definition.id)} style={dangerBtnStyle} title="Delete">
             🗑
           </button>
-          <button onClick={() => onEdit(definition)} style={ghostBtnStyle} title="Edit">✏️</button>
-          <button onClick={() => onDelete(definition.id)} style={dangerBtnStyle} title="Delete">🗑</button>
         </div>
       </div>
       <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
@@ -219,8 +187,6 @@ function AnalyticsDashboard({ definition, onBack }) {
           `${API_BASE}/api/admin/custom-events/definitions/${definition.id}/logs?page=${logsPage}&limit=20`,
           { credentials: 'include' }
         ),
-        fetch(`${API_BASE}/api/admin/custom-events/definitions/${definition.id}/analytics?days=${days}`, { credentials: 'include' }),
-        fetch(`${API_BASE}/api/admin/custom-events/definitions/${definition.id}/logs?page=${logsPage}&limit=20`, { credentials: 'include' }),
       ]);
       if (analyticsRes.ok) {
         const d = await analyticsRes.json();
@@ -238,7 +204,6 @@ function AnalyticsDashboard({ definition, onBack }) {
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
-  useEffect(() => { fetchAnalytics(); }, [fetchAnalytics]);
 
   function handleExport() {
     window.location.href = `${API_BASE}/api/admin/custom-events/definitions/${definition.id}/export`;
@@ -268,12 +233,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                 {definition.description}
               </p>
             )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={onBack} style={ghostBtnStyle}>← Back</button>
-          <div>
-            <h3 style={{ margin: 0, fontWeight: 700, color: '#1e293b' }}>{definition.name}</h3>
-            {definition.description && <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>{definition.description}</p>}
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -290,7 +249,6 @@ function AnalyticsDashboard({ definition, onBack }) {
           <button onClick={handleExport} style={primaryBtnStyle}>
             ⬇ Export CSV
           </button>
-          <button onClick={handleExport} style={primaryBtnStyle}>⬇ Export CSV</button>
         </div>
       </div>
 
@@ -309,11 +267,6 @@ function AnalyticsDashboard({ definition, onBack }) {
               marginBottom: '24px',
             }}
           >
-        <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>Loading analytics…</div>
-      ) : (
-        <>
-          {/* KPI Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             {[
               { label: 'Total (in range)', value: analytics?.total ?? 0, icon: '📊' },
               { label: 'All-Time Total', value: analytics?.allTimeTotal ?? 0, icon: '📈' },
@@ -330,13 +283,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                   boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
-              <div key={label} style={{
-                background: '#fff',
-                borderRadius: '12px',
-                padding: '16px 20px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              }}>
                 <div style={{ fontSize: '1.4rem', marginBottom: '6px' }}>{icon}</div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1e293b' }}>
                   {value.toLocaleString()}
@@ -344,7 +290,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                 <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '2px' }}>
                   {label}
                 </div>
-                <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '2px' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -373,13 +318,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                   overflowX: 'auto',
                 }}
               >
-          <div style={{
-            background: '#fff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0',
-            marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          }}>
-            <h4 style={{ margin: '0 0 16px', color: '#1e293b', fontWeight: 600 }}>Daily Occurrences (Last {days} days)</h4>
-            {analytics?.dailyBreakdown?.length > 0 ? (
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', height: '100px', overflowX: 'auto' }}>
                 {(() => {
                   const breakdown = analytics.dailyBreakdown;
                   const max = Math.max(...breakdown.map((d) => d.count), 1);
@@ -405,7 +343,6 @@ function AnalyticsDashboard({ definition, onBack }) {
               <div style={{ color: '#94a3b8', textAlign: 'center', padding: '20px' }}>
                 No occurrences in this period.
               </div>
-              <div style={{ color: '#94a3b8', textAlign: 'center', padding: '20px' }}>No occurrences in this period.</div>
             )}
           </div>
 
@@ -427,11 +364,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                 marginBottom: '16px',
               }}
             >
-          <div style={{
-            background: '#fff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h4 style={{ margin: 0, color: '#1e293b', fontWeight: 600 }}>
                 Recent Logs ({logs?.total?.toLocaleString() ?? 0} total)
               </h4>
@@ -443,7 +375,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                 >
                   ← Prev
                 </button>
-                >← Prev</button>
                 <span style={{ padding: '4px 8px', fontSize: '0.875rem', color: '#64748b' }}>
                   Page {logsPage}
                 </span>
@@ -454,9 +385,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                 >
                   Next →
                 </button>
-                  disabled={logs && (logsPage * 20) >= logs.total}
-                  style={ghostBtnStyle}
-                >Next →</button>
               </div>
             </div>
             {logs?.logs?.length > 0 ? (
@@ -472,7 +400,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                           {p}
                         </th>
                       ))}
-                      {propNames.map((p) => <th key={p} style={thStyle}>{p}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -495,15 +422,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                                 color: '#64748b',
                               }}
                             >
-                      const props = typeof log.properties === 'string'
-                        ? JSON.parse(log.properties)
-                        : log.properties || {};
-                      return (
-                        <tr key={log.id} style={{ borderBottom: '1px solid #f8fafc' }}>
-                          <td style={tdStyle}>{formatDate(log.occurred_at)}</td>
-                          <td style={tdStyle}>{log.user_id || <em style={{ color: '#94a3b8' }}>anon</em>}</td>
-                          <td style={tdStyle}>
-                            <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#64748b' }}>
                               {(log.session_id || '').slice(0, 12)}…
                             </span>
                           </td>
@@ -514,7 +432,6 @@ function AnalyticsDashboard({ definition, onBack }) {
                               ) : (
                                 <em style={{ color: '#cbd5e1' }}>—</em>
                               )}
-                              {props[p] !== undefined ? String(props[p]) : <em style={{ color: '#cbd5e1' }}>—</em>}
                             </td>
                           ))}
                         </tr>
@@ -527,7 +444,6 @@ function AnalyticsDashboard({ definition, onBack }) {
               <div style={{ color: '#94a3b8', textAlign: 'center', padding: '24px' }}>
                 No logs yet.
               </div>
-              <div style={{ color: '#94a3b8', textAlign: 'center', padding: '24px' }}>No logs yet.</div>
             )}
           </div>
         </>
@@ -555,7 +471,6 @@ export function CustomEventTracking() {
       const res = await fetch(`${API_BASE}/api/admin/custom-events/definitions`, {
         credentials: 'include',
       });
-      const res = await fetch(`${API_BASE}/api/admin/custom-events/definitions`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setDefinitions(data.definitions || []);
@@ -568,7 +483,6 @@ export function CustomEventTracking() {
   useEffect(() => {
     fetchDefinitions();
   }, [fetchDefinitions]);
-  useEffect(() => { fetchDefinitions(); }, [fetchDefinitions]);
 
   function openCreate() {
     setEditingDef(null);
@@ -584,7 +498,6 @@ export function CustomEventTracking() {
       description: def.description || '',
       properties: def.properties || [],
     });
-    setForm({ name: def.name, description: def.description || '', properties: def.properties || [] });
     setError(null);
     setShowForm(true);
   }
@@ -594,7 +507,6 @@ export function CustomEventTracking() {
       setError('Event name is required');
       return;
     }
-    if (!form.name.trim()) { setError('Event name is required'); return; }
     setSaving(true);
     setError(null);
     try {
@@ -613,7 +525,6 @@ export function CustomEventTracking() {
         setError(data.error || 'Failed to save');
         return;
       }
-      if (!res.ok) { setError(data.error || 'Failed to save'); return; }
       setShowForm(false);
       fetchDefinitions();
     } catch (err) {
@@ -653,7 +564,6 @@ export function CustomEventTracking() {
           marginBottom: '24px',
         }}
       >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h2 style={{ margin: 0, fontWeight: 700, color: '#1e293b', fontSize: '1.5rem' }}>
             🎯 Custom Event Tracking
@@ -665,7 +575,6 @@ export function CustomEventTracking() {
         <button onClick={openCreate} style={primaryBtnStyle}>
           + New Event
         </button>
-        <button onClick={openCreate} style={primaryBtnStyle}>+ New Event</button>
       </div>
 
       {/* Create / Edit Form Modal */}
@@ -682,11 +591,6 @@ export function CustomEventTracking() {
               boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
             }}
           >
-          <div style={{
-            background: '#fff', borderRadius: '16px', padding: '28px',
-            width: '560px', maxHeight: '85vh', overflowY: 'auto',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-          }}>
             <h3 style={{ margin: '0 0 20px', color: '#1e293b', fontWeight: 700 }}>
               {editingDef ? 'Edit Event' : 'Create Custom Event'}
             </h3>
@@ -702,7 +606,6 @@ export function CustomEventTracking() {
                 width: '100%',
                 boxSizing: 'border-box',
               }}
-              style={{ ...inputStyle, marginBottom: '14px', width: '100%', boxSizing: 'border-box' }}
             />
 
             <label style={labelStyle}>Description</label>
@@ -718,7 +621,6 @@ export function CustomEventTracking() {
                 boxSizing: 'border-box',
                 resize: 'vertical',
               }}
-              style={{ ...inputStyle, marginBottom: '14px', width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
             />
 
             <label style={labelStyle}>Event Properties</label>
@@ -744,10 +646,6 @@ export function CustomEventTracking() {
               <button onClick={() => setShowForm(false)} style={ghostBtnStyle}>
                 Cancel
               </button>
-            {error && <div style={{ color: '#dc2626', fontSize: '0.85rem', marginTop: '12px' }}>⚠ {error}</div>}
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowForm(false)} style={ghostBtnStyle}>Cancel</button>
               <button onClick={handleSave} disabled={saving} style={primaryBtnStyle}>
                 {saving ? 'Saving…' : editingDef ? 'Save Changes' : 'Create Event'}
               </button>
@@ -772,10 +670,6 @@ export function CustomEventTracking() {
             color: '#94a3b8',
           }}
         >
-        <div style={{
-          background: '#fff', borderRadius: '12px', padding: '60px', textAlign: 'center',
-          border: '1px dashed #cbd5e1', color: '#94a3b8',
-        }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🎯</div>
           <p style={{ fontWeight: 600, color: '#64748b', marginBottom: '16px' }}>
             No custom events yet.
@@ -792,10 +686,6 @@ export function CustomEventTracking() {
             gap: '16px',
           }}
         >
-          <button onClick={openCreate} style={primaryBtnStyle}>Create Your First Event</button>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
           {definitions.map((def) => (
             <EventDefinitionCard
               key={def.id}

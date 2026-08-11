@@ -1,6 +1,9 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import pg from 'pg';
+import assert from "node:assert/strict";
+import test from "node:test";
+import pg from "pg";
 
 // Configure dummy environment variables before importing the repository
 process.env.DATABASE_URL = "postgresql://localhost/dummy_test_db";
@@ -49,13 +52,19 @@ pg.Pool = class MockPool {
           return { rows: [], rowCount: 1 };
         }
         return { rows: [], rowCount: 0 };
+      },
       release: () => {},
+    };
+  }
+};
 
 // Now import the repository
+import {
   createAdminSession,
   getAdminSession,
   revokeAdminSession,
   cleanupExpiredAdminSessions,
+} from "../repositories/adminSessionsRepository.js";
 
 test.beforeEach(() => {
   executedQueries = [];

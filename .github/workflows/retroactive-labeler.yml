@@ -1,33 +1,64 @@
-name: GSSoC — Retroactive Labeler
+name: Retroactive Labeler
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Run daily as a fallback to continue if rate limits stop it
 
 jobs:
-  label-past-items:
-    name: Label Past PRs and Issues
+  label-issues:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       issues: write
-
+      pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Apply Retroactive Labels
+        uses: actions/github-script@v7
         with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install @octokit/rest
-
-      - name: Run Retroactive Labeler Script
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: node scripts/retroactive-labeler.js
+          script: |
+            const labelsToAdd = ['gssoc', 'gssoc approved', 'level', 'backlog size'];
+            
+            // Fetch all open issues and PRs (GitHub API considers PRs as issues for labels)
+            const iterator = github.paginate.iterator(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+            
+            let processed = 0;
+            
+            for await (const { data: issues } of iterator) {
+              for (const issue of issues) {
+                // Determine missing labels
+                const currentLabels = issue.labels.map(l => typeof l === 'string' ? l : l.name);
+                const missingLabels = labelsToAdd.filter(l => !currentLabels.includes(l));
+                
+                if (missingLabels.length > 0) {
+                  console.log(`Adding labels to #${issue.number}...`);
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    labels: missingLabels
+                  });
+                  processed++;
+                  
+                  // Rate limit checking
+                  const { data: rateLimit } = await github.rest.rateLimit.get();
+                  const remaining = rateLimit.resources.core.remaining;
+                  
+                  if (remaining < 50) {
+                    const resetTime = rateLimit.resources.core.reset * 1000;
+                    const waitTime = resetTime - Date.now() + 5000; // 5s buffer
+                    console.log(`Rate limit running low (${remaining} remaining). Sleeping for ${waitTime}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, Math.max(0, waitTime)));
+                  }
+                  
+                  // Basic throttle to avoid secondary rate limits (1 request per second)
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+              }
+            }
+            
+            console.log(`Successfully processed and labeled ${processed} issues/PRs.`);

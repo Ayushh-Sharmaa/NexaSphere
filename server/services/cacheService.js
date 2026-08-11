@@ -1,6 +1,4 @@
 import Redis from 'ioredis';
-import crypto from 'crypto';
-import logger from '../utils/logger.js';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -18,11 +16,11 @@ function getClient() {
     });
 
     client.on('error', (err) => {
-      logger.error('[cache-service] Redis error:', err.message);
+      console.error('[cache-service] Redis error:', err.message);
     });
 
     client.on('connect', () => {
-      logger.info('[cache-service] Connected to Redis');
+      console.log('[cache-service] Connected to Redis');
     });
   }
   return client;
@@ -36,7 +34,7 @@ export const cacheService = {
       const data = await getClient().get(key);
       return data ? JSON.parse(data) : null;
     } catch (err) {
-      logger.error('[cache-service] Get error:', err.message);
+      console.error('[cache-service] Get error:', err.message);
       return null;
     }
   },
@@ -47,7 +45,7 @@ export const cacheService = {
       await getClient().setex(key, ttl, serialized);
       return true;
     } catch (err) {
-      logger.error('[cache-service] Set error:', err.message);
+      console.error('[cache-service] Set error:', err.message);
       return false;
     }
   },
@@ -57,7 +55,7 @@ export const cacheService = {
       await getClient().del(key);
       return true;
     } catch (err) {
-      logger.error('[cache-service] Del error:', err.message);
+      console.error('[cache-service] Del error:', err.message);
       return false;
     }
   },
@@ -70,7 +68,7 @@ export const cacheService = {
       }
       return keys.length;
     } catch (err) {
-      logger.error('[cache-service] DelPattern error:', err.message);
+      console.error('[cache-service] DelPattern error:', err.message);
       return 0;
     }
   },
@@ -86,6 +84,8 @@ export const cacheService = {
   buildKey(prefix, id) {
     return `cache:${prefix}:${id}`;
   },
+import pg from "pg";
+import { withDb } from "../repositories/db.js";
 
 // In-memory cache store
 // Entry shape: { value, expiresAt, version }
@@ -95,6 +95,7 @@ const cacheStore = new Map();
 const cacheVersions = new Map();
 
 // Default cache TTL: 5 minutes (300,000 ms)
+const DEFAULT_TTL = 300000;
 
 // Aggressive cache TTL: 30 seconds (30,000 ms)
 const AGGRESSIVE_TTL = 30000;
@@ -106,7 +107,7 @@ let notificationSyncCallback = null;
  * Generate a unique version string/timestamp
  */
 function nextVersion() {
-  return `${Date.now()}-${crypto.randomUUID()}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 /**
@@ -130,7 +131,7 @@ export function localEvict(channel) {
     evictedCount++;
   }
 
-  logger.info(
+  console.log(
     `[Cache Service] Local cache evicted for channel "${channel}" (${evictedCount} entries). New version: ${version}`
   );
 }
@@ -148,7 +149,7 @@ export async function invalidateCache(channel) {
       await client.query(`NOTIFY cache_invalidation, '${escapedPayload}'`);
     });
   } catch (err) {
-    logger.warn(
+    console.warn(
       `[Cache Service] Distributed invalidation broadcast failed for channel "${channel}" (handled locally):`,
       err.message
     );
@@ -159,7 +160,7 @@ export async function invalidateCache(channel) {
  * Handle incoming distributed invalidation
  */
 function handleIncomingInvalidation(channel) {
-  logger.info(
+  console.log(
     `[Cache Service] Received distributed invalidation notification for channel "${channel}"`
   );
   localEvict(channel);
@@ -183,7 +184,7 @@ export async function broadcastNotificationSync(action, userId, payload) {
       await client.query(`NOTIFY notification_sync, '${escapedMessage}'`);
     });
   } catch (err) {
-    logger.warn(
+    console.warn(
       "[Cache Service] Distributed notification sync broadcast failed:",
       err.message
     );
@@ -195,7 +196,7 @@ export async function broadcastNotificationSync(action, userId, payload) {
  */
 function handleIncomingNotificationSync(msg) {
   if (notificationSyncCallback) {
-    logger.info(
+    console.log(
       `[Cache Service] Received distributed notification sync event: ${msg.action} for user: ${msg.userId}`
     );
     notificationSyncCallback(msg.action, msg.userId, msg.payload);
@@ -208,7 +209,7 @@ function handleIncomingNotificationSync(msg) {
 export async function initCacheListener() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    logger.info(
+    console.log(
       "[Cache Service] DATABASE_URL not set. Running in local-only cache consistency mode."
     );
     return;
@@ -236,7 +237,7 @@ export async function initCacheListener() {
           handleIncomingNotificationSync(JSON.parse(msg.payload));
         }
       } catch (err) {
-        logger.error(
+        console.error(
           "[Cache Service] Error processing distributed event:",
           err.message
         );
@@ -244,18 +245,18 @@ export async function initCacheListener() {
     });
 
     pgListener.on("error", (err) => {
-      logger.error(
+      console.error(
         "[Cache Service] Listener client error, reconnecting...",
         err.message
       );
       setTimeout(initCacheListener, 5000);
     });
 
-    logger.info(
+    console.log(
       "[Cache Service] PostgreSQL cache and notification synchronization listener started."
     );
   } catch (err) {
-    logger.error(
+    console.error(
       "[Cache Service] Failed to initialize PostgreSQL listener:",
       err.message
     );
@@ -314,9 +315,9 @@ export async function closeCacheListener() {
   if (pgListener) {
     try {
       await pgListener.end();
-      logger.info("[Cache Service] PostgreSQL listener connection closed.");
+      console.log("[Cache Service] PostgreSQL listener connection closed.");
     } catch (err) {
-      logger.error(
+      console.error(
         "[Cache Service] Error closing listener connection:",
         err.message
       );

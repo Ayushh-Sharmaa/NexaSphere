@@ -5,12 +5,6 @@ import {
   SUPABASE_URL,
   SUPABASE_SERVICE_KEY,
 } from "../storage/supabaseClient.js";
-import {
-  supabaseRequest,
-  HAS_SUPABASE,
-  SUPABASE_URL,
-  SUPABASE_SERVICE_KEY,
-} from "../storage/supabaseClient.js";
 import { tracedFetch } from "../config/appContext.js";
 import { readContent, writeContent } from "../storage/contentFileStore.js";
 

@@ -29,7 +29,10 @@ function generateErrorFingerprint(error, context = {}) {
   const message = error?.message || 'Unknown error';
   const endpoint = `${context.method || 'UNKNOWN'} ${context.url || 'unknown'}`;
 
-  return crypto.createHash('sha1').update(`${name}:${message}:${endpoint}`).digest('hex');
+  return crypto
+    .createHash('sha1')
+    .update(`${name}:${message}:${endpoint}`)
+    .digest('hex');
 }
 
 /**
@@ -104,10 +107,12 @@ async function logError(error, context = {}) {
     userId: context.userId,
     requestPath: context.url,
     tags: { status: errorData.status, endpoint },
+  logger.error(error.message || 'Error logged', { 
     error, 
     ...errorData, 
     userId: context.userId,
     requestPath: context.url,
+  logger.error(error.message || 'Error logged', { 
     error, 
     ...errorData, 
     userId: context.userId,
@@ -362,7 +367,7 @@ export const checkCriticalSecurityAlerts = () => {
   const criticalIssues = securityPatchManager.getCriticalVulnerabilities();
 
   if (criticalIssues.length > 0) {
-    logger.error(`[SECURITY ALERT] ${criticalIssues.length} critical patches required`);
+    console.error(`[SECURITY ALERT] ${criticalIssues.length} critical patches required`);
   }
 
   return criticalIssues;
@@ -373,7 +378,7 @@ export const checkEncryptionCompliance = () => {
   const status = encryptionManager.getEncryptionStatus();
 
   if (status.status !== 'SECURE') {
-    logger.error('[SECURITY ALERT] Encryption compliance issue detected');
+    console.error('[SECURITY ALERT] Encryption compliance issue detected');
   }
 
   return status;
@@ -382,7 +387,6 @@ export const checkEncryptionCompliance = () => {
 export { logError, getErrorStats, getRecentErrors, getEndpointErrors, getUserErrors, clearErrors };
 export const predictServiceFailure = (history) => {
   // simple prediction logic
-}
 export {
   logError,
   getErrorStats,

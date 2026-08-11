@@ -603,5 +603,3 @@ export default function ScheduledTasksManager() {
     </div>
   );
 }
-
-export default ScheduledTasksManager;

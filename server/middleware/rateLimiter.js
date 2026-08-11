@@ -89,12 +89,8 @@ export const apiRateLimiter = rateLimit({
     res.status(options.statusCode).json({
       error: clientErrorMessage,
     });
-
-
-// ---------------------------------------------------------------------------
-// Form submission rate limiter — applied to membership, recruitment, core-team
-// ---------------------------------------------------------------------------
-}
+  },
+});
 export const formRateLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === 'test',
   windowMs: FORM_WINDOW_MS,
@@ -115,7 +111,8 @@ export const formRateLimiter = rateLimit({
     res.status(options.statusCode).json({
       error: 'Too many form submissions from this IP, please try again later.',
     });
-  }
+  },
+});
 
 // Standard rate limiter for all /api/ routes: 60 requests per IP per minute
 
@@ -200,16 +197,6 @@ export const subscriptionRateLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-// Portfolio update rate limiter — 10 requests per IP per 15 minutes
-// Portfolio update rate limiter — 10 requests per IP per 15 minutes
-export const portfolioRateLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'test',
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  requestPropertyName: 'portfolioRateLimit',
-  store: createRateLimitStore('rate-limit:portfolio:'),
   handler: (req, res, next, options) => {
     logger.warn("Push-subscription rate limit exceeded", {
       ip: req.ip,
@@ -221,31 +208,41 @@ export const portfolioRateLimiter = rateLimit({
     });
   },
 });
-// Portfolio update rate limiter — 10 requests per IP per 15 minutes
-  message: {
-    error:
-      "Too many activity auth attempts from this IP, please try again after 15 minutes.",
-  },
-});
 
-
-// Sync rate limiter: 30 requests per minute per IP.
-export const syncRateLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute
+export const portfolioRateLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'test',
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRateLimitStore('rate-limit:sync:'),
+  requestPropertyName: 'portfolioRateLimit',
+  store: createRateLimitStore('rate-limit:portfolio:'),
   handler: (req, res, next, options) => {
-    logger.warn('Activity auth rate limit exceeded', {
+    logger.warn("Portfolio update rate limit exceeded", {
       ip: req.ip,
       path: req.originalUrl || req.path,
       method: req.method,
     });
     res.status(options.statusCode).json({
-      error: 'Too many activity authentication attempts. Please try again later.',
+      error: "Too many portfolio updates from this IP, please try again after 15 minutes.",
     });
   },
 });
 
-// Sync rate limiter: 30 requests per minute per IP.
+export const syncRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createRateLimitStore('rate-limit:sync:'),
+  handler: (req, res, next, options) => {
+    logger.warn('Sync rate limit exceeded', {
+      ip: req.ip,
+      path: req.originalUrl || req.path,
+      method: req.method,
+    });
+    res.status(options.statusCode).json({
+      error: 'Too many sync attempts. Please try again later.',
+    });
+  },
+});

@@ -28,6 +28,7 @@ function validateProperties(properties) {
 // Event Definitions CRUD
 // ---------------------------------------------------------------------------
 
+}
 export const createEventDefinition = wrapAsync(async (req, res) => {
   const { name, description, properties = [] } = req.body;
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -36,9 +37,6 @@ export const createEventDefinition = wrapAsync(async (req, res) => {
   const propError = validateProperties(properties);
   if (propError) return sendError(req, res, propError, 400, 'VALIDATION_ERROR');
     return res.status(400).json({ error: 'Event name is required' });
-  }
-  const propError = validateProperties(properties);
-  if (propError) return res.status(400).json({ error: propError });
 
   const createdBy = req.adminSession?.username || 'unknown';
   const definition = await customEventRepository.createDefinition({
@@ -131,8 +129,6 @@ export const getEventAnalytics = wrapAsync(async (req, res) => {
   return sendSuccess(res, { definition, analytics });
   if (!definition) return res.status(404).json({ error: 'Event definition not found' });
 
-  const analytics = await customEventRepository.getEventAnalytics(id, { days });
-  return res.json({ success: true, definition, analytics });
 });
 
 export const getRecentLogs = wrapAsync(async (req, res) => {
@@ -173,17 +169,6 @@ export const exportEventData = wrapAsync(async (req, res) => {
     ...logs.map((log) => {
       const props =
         typeof log.properties === 'string' ? JSON.parse(log.properties) : log.properties || {};
-      const props = typeof log.properties === 'string'
-        ? JSON.parse(log.properties)
-        : log.properties || {};
-      let props = log.properties || {};
-      if (typeof props === 'string') {
-        try {
-          props = JSON.parse(props);
-        } catch (e) {
-          props = {};
-        }
-      }
       return [
         log.id,
         log.user_id || '',

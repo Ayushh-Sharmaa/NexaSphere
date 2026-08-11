@@ -59,7 +59,7 @@ import { CircuitBreakerManager } from "./pages/CircuitBreakerManager";
 import { WaitingRoomManager } from "./pages/WaitingRoomManager";
 import UserGroups from "./pages/UserGroups";
 import { RolesManager } from "./pages/RolesManager";
-import { ScheduledTasksManager } from "./pages/ScheduledTasksManager";
+import ScheduledTasksManager from "./pages/ScheduledTasksManager";
 import { BackupsManager } from "./pages/BackupsManager";
 import { ResourcesManager } from "./pages/ResourcesManager";
 import { ComplianceManager } from "./pages/ComplianceManager";
@@ -128,8 +128,7 @@ function DashboardLayout() {
     </div>
   );
 }
-import { BrowserRouter } from "react-router-dom";
-import DashboardIndex from "./DashboardIndex";
+
 
 export default function App() {
   return (

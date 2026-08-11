@@ -26,8 +26,7 @@ export function Toast() {
         ? next.slice(next.length - MAX_TOASTS)
         : next;
     });
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, type, message }]);
+
     setTimeout(
       () => setToasts((prev) => prev.filter((t) => t.id !== id)),
       3000

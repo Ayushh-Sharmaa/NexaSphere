@@ -83,5 +83,4 @@ test('sqlInjectionGuard still blocks real injection payloads', async (t) => {
       assert.equal(statusCode, 400, 'should respond with 400');
     });
   }
-
-}
+});

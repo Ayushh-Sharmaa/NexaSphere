@@ -230,9 +230,6 @@ export const auth = {
   },
 
   async verifySession() {
-    const token = this.getToken();
-    if (!token && !this.isOfflineMode()) return false;
-
     // Offline sessions are always considered valid locally
     if (this.isOfflineMode()) return true;
 

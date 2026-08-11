@@ -24,6 +24,7 @@ const LEGAL_LINKS = [
   { label: 'Join', path: '/join' },
   { label: 'Apply', path: '/apply' },
   { label: 'Contact', path: '/contact' },
+  { label: 'Accessibility', path: '/accessibility' },
 ];
 
 export default function Footer({ onAdmin }) {

@@ -29,6 +29,7 @@ import './styles/pwa.css';
 import './styles/aurora.css';
 import './styles/motion.css';
 import './styles/accessibility.css';
+import './styles/material-system.css';
 import './i18n';
 
 // Core structural elements
@@ -604,6 +605,7 @@ function MainRouter({
         Mentorship: '/mentorship',
         Sponsors: '/sponsors',
         Recommendations: '/recommendations',
+        Gamification: '/gamification',
       };
       const targetPath = routeMap[tab];
       if (targetPath) {

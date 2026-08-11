@@ -20,19 +20,8 @@ export function DashboardHome() {
       ),
     [scopes]
   );
-import { useState, useEffect } from "react";
-import { api } from "../services/api";
-import { Skeleton } from "../components/Skeleton";
-import { AdminIcon } from "../components/AdminIcon";
-
-export function DashboardHome() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setError(false);
     Promise.all([
       api.events.getAll().catch(() => ({ events: [] })),
       api.coreTeam.getAll().catch(() => ({ members: [] })),
@@ -46,29 +35,9 @@ export function DashboardHome() {
         upcomingEvents: events.filter((e) => e.status === 'upcoming').length,
         teamMembers: team.length,
         totalApplications: applications.length,
-      api.events.getAll(),
-      api.coreTeam.getAll(),
-      api.membership.getAll(),
-    ])
-      .then(([eventsData, teamData, membershipData]) => {
-        const events = eventsData?.events ?? [];
-        const team = teamData?.members ?? teamData ?? [];
-        const applications = membershipData?.responses ?? [];
-
-        setStats({
-          totalEvents: events.length,
-          upcomingEvents: events.filter((e) => e.status === "upcoming").length,
-          teamMembers: team.length,
-          totalApplications: applications.length,
-        });
-      })
-      .catch((err) => {
-        console.error("Failed to load dashboard stats", err);
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
       });
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -130,26 +99,11 @@ export function DashboardHome() {
           <DashboardCardSkeleton />
           <DashboardCardSkeleton />
         </div>
-      ) : error ? (
-        <div className="page-error">
-          <p>
-            Failed to load dashboard statistics. The server might be
-            unreachable.
-          </p>
-          <button
-            className="btn-secondary"
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </button>
-          <Skeleton height={100} count={4} />
-        </div>
       ) : (
         <div className="stats-grid tour-analytics-overview">
           <div className="stat-card">
             <span className="stat-icon">
               <AdminIcon name="Calendar" size={28} aria-hidden="true" />
-              <AdminIcon name="Calendar" size={28} />
             </span>
             <div>
               <div className="stat-value">{stats.totalEvents}</div>
@@ -177,16 +131,7 @@ export function DashboardHome() {
           <div className="stat-card">
             <span className="stat-icon">
               <AdminIcon name="Users" size={28} aria-hidden="true" />
-              <AdminIcon name="Users" size={28} />
             </span>
-          <span className="stat-icon"><AdminIcon name="Clock" size={28} /></span>
-           <div>
-          <div className="stat-value">{stats.upcomingEvents}</div>
-          <div className="stat-label">Upcoming Events</div>
-         </div>
-        </div>
-          <div className="stat-card">
-            <span className="stat-icon"><AdminIcon name="Users" size={28} /></span>
             <div>
               <div className="stat-value">{stats.teamMembers}</div>
               <div className="stat-label">
@@ -201,7 +146,6 @@ export function DashboardHome() {
           <div className="stat-card">
             <span className="stat-icon">
               <AdminIcon name="FileText" size={28} aria-hidden="true" />
-              <AdminIcon name="FileText" size={28} />
             </span>
             <div>
               <div className="stat-value">{stats.totalApplications}</div>
@@ -260,17 +204,6 @@ export function DashboardHome() {
             aria-label="View membership applications"
           >
             <AdminIcon name="FileText" size={18} aria-hidden="true" /> Membership
-          <a href="/dashboard/events" className="quick-card">
-            <AdminIcon name="Calendar" size={18} /> Events
-          </a>
-          <a href="/dashboard/activity-events" className="quick-card">
-            <AdminIcon name="Target" size={18} /> Activities
-          </a>
-          <a href="/dashboard/core-team" className="quick-card">
-            <AdminIcon name="Users" size={18} /> Team
-          </a>
-          <a href="/dashboard/membership" className="quick-card">
-            <AdminIcon name="FileText" size={18} /> Membership
           </a>
         </div>
         <div

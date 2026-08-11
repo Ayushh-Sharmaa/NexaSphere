@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../../../utils/apiClient.js';
-import { getApiBase } from '../../../../utils/runtimeConfig';
+import apiClient from '../../../utils/apiClient.js';
+import { getApiBase } from '../../../utils/runtimeConfig';
 import {
   LineChart,
   Line,

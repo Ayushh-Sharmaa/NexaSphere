@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import apiClient from '../../../../utils/apiClient.js';
-import { getApiBase } from '../../../../utils/runtimeConfig';
+import apiClient from '../../../utils/apiClient.js';
+import { getApiBase } from '../../../utils/runtimeConfig';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 

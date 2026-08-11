@@ -462,6 +462,7 @@ export const analyticsRepository = {
     });
   },
 
+  /**
    * Get all events metrics for dashboard
    */
   async getAllEventsMetrics() {

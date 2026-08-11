@@ -151,8 +151,3 @@ export const manuallyPromote = async (req, res) => {
     return sendError(req, res, 'Failed to promote user from waitlist.', 500, 'INTERNAL_ERROR');
   }
 };
-      success: false,
-      message: "Failed to update registration deadline.",
-    });
-  }
-};

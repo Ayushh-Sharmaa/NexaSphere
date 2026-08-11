@@ -17,11 +17,6 @@ export const dashboardController = {
       const mentorships = await mentorshipRepository.countMentorshipsByEmail(email);
 
       return sendSuccess(res, {
-      return res.json({
-        eventCount: registrations,
-        registrationCount: registrations,
-        forumPostCount: threads + replies,
-        mentorshipCount: mentorships,
       });
     } catch (err) {
       console.error(err);
@@ -75,7 +70,6 @@ export const dashboardController = {
 
       return sendError(req, res, 'Failed to load quests', 500, 'INTERNAL_ERROR');
       return res.json(quests);
-    } catch (err) {
       console.error(err);
 
       return res.status(500).json({
@@ -107,7 +101,6 @@ export const dashboardController = {
 
       return sendError(req, res, 'Failed to load leaderboard', 500, 'INTERNAL_ERROR');
       return res.json(leaderboard);
-    } catch (err) {
       console.error(err);
 
       return res.status(500).json({
