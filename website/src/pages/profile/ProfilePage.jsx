@@ -265,6 +265,25 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const res = await fetch('/api/auth/profile/avatar', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Failed to upload avatar');
+      const data = await res.json();
+      setProfile((prev) => ({ ...prev, avatar: data.avatar }));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (loading)
     return (
       <div style={styles.page}>
@@ -334,13 +353,25 @@ export default function ProfilePage() {
         {/* Header */}
         <div style={styles.header}>
           <div>
-            {profile.avatar ? (
-              <img src={profile.avatar} alt="avatar" style={styles.avatar} />
-            ) : (
-              <div style={styles.avatarFallback}>
-                {(profile.fullName || profile.name || 'U')[0].toUpperCase()}
-              </div>
-            )}
+            <div
+              style={{ position: 'relative', cursor: 'pointer' }}
+              onClick={() => document.getElementById('avatar-upload-input').click()}
+            >
+              {profile.avatar ? (
+                <img src={profile.avatar} alt="avatar" style={styles.avatar} />
+              ) : (
+                <div style={styles.avatarFallback}>
+                  {(profile.fullName || profile.name || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <input
+                id="avatar-upload-input"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleAvatarUpload}
+              />
+            </div>
           </div>
           <div style={styles.headerInfo}>
             <div style={styles.name}>{profile.fullName || profile.name}</div>
