@@ -1951,7 +1951,7 @@
 
 .ns-footer-text {
   font-size: 13px;
-  color: rgba(100, 116, 139, 0.85) !important;
+  color: var(--t2) !important;
   text-align: center;
   margin: 0;
   line-height: 1.7;
