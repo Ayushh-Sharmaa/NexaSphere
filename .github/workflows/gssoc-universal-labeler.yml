@@ -1,0 +1,92 @@
+name: GSSoC Universal Auto-Labeler
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  universal-labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Auto-Label and Sync
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const contextPayload = context.payload;
+            const isIssue = !!contextPayload.issue;
+            const item = isIssue ? contextPayload.issue : contextPayload.pull_request;
+            const issue_number = item.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            console.log(`Processing #${issue_number} - Type: ${isIssue ? 'Issue' : 'PR'}`);
+            
+            const body = (item.body || '').toLowerCase();
+            const title = (item.title || '').toLowerCase();
+            const textToParse = `${title} \n ${body}`;
+            
+            const labelsToAdd = new Set();
+            
+            // 1. Mandatory Event Labels
+            labelsToAdd.add("GSSoC'26");
+            labelsToAdd.add("NSOC'26");
+            
+            // 2. Level Labels
+            if (textToParse.includes('level: beginner') || textToParse.includes('beginner')) labelsToAdd.add('level:beginner');
+            if (textToParse.includes('level: intermediate') || textToParse.includes('intermediate')) labelsToAdd.add('level:intermediate');
+            if (textToParse.includes('level: advanced') || textToParse.includes('advanced')) labelsToAdd.add('level:advanced');
+            if (textToParse.includes('level: critical') || textToParse.includes('critical')) labelsToAdd.add('level:critical');
+            
+            // 3. Priority Labels
+            if (textToParse.includes('priority: high') || textToParse.includes('high priority')) labelsToAdd.add('priority:high');
+            if (textToParse.includes('priority: medium') || textToParse.includes('medium priority')) labelsToAdd.add('priority:medium');
+            if (textToParse.includes('priority: low') || textToParse.includes('low priority')) labelsToAdd.add('priority:low');
+            
+            // 4. Good First Issue
+            if (textToParse.includes('good first issue')) labelsToAdd.add('good first issue');
+            
+            // 5. Mentor Assignment
+            const mentorMatch = body.match(/mentor:\s*@?([a-zA-Z0-9-]+)/i);
+            if (mentorMatch) {
+              labelsToAdd.add(`mentor:${mentorMatch[1]}`);
+            }
+            
+            // 6. PR Size Labels (Only for PRs)
+            if (!isIssue) {
+              try {
+                const { data: prInfo } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: issue_number
+                });
+                const totalChanges = prInfo.additions + prInfo.deletions;
+                if (totalChanges < 50) labelsToAdd.add('size/XS');
+                else if (totalChanges < 250) labelsToAdd.add('size/S');
+                else if (totalChanges < 1000) labelsToAdd.add('size/M');
+                else if (totalChanges < 2000) labelsToAdd.add('size/L');
+                else labelsToAdd.add('size/XL');
+              } catch (err) {
+                console.log('Failed to fetch PR size:', err.message);
+              }
+            }
+            
+            // 7. Apply the Labels!
+            const currentLabels = item.labels.map(l => typeof l === 'string' ? l : l.name);
+            const labelsArray = Array.from(labelsToAdd).filter(l => !currentLabels.includes(l));
+            
+            if (labelsArray.length > 0) {
+              console.log(`Adding labels: ${labelsArray.join(', ')}`);
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: labelsArray
+              });
+            } else {
+              console.log('No missing labels to add.');
+            }
