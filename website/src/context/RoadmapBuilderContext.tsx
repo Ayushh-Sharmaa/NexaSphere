@@ -98,7 +98,6 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
     } finally {
       isHydrated.current = true;
-      console.error('Failed to load roadmap from localStorage:', e);
     }
   }, []);
 
@@ -107,6 +106,15 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
     if (!isHydrated.current) return;
     // Skip empty initial state saving to prevent overwriting
     if (nodes.length === 0 && roadmapTitle === 'My Custom Path') return;
+
+    // Skip saving if we just reset to default state, to prevent overwriting the removeItem
+    if (
+      roadmapTitle === 'New Learning Path' &&
+      roadmapDescription === 'Custom learning flow created on NexaSphere.' &&
+      nodes === defaultNodes
+    ) {
+      return;
+    }
 
     const stateToSave = {
       title: roadmapTitle,
@@ -146,8 +154,8 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
           baseX = Math.max(10, Math.min(baseX, 1800 - 220 - 10));
           baseY = Math.max(10, Math.min(baseY, 1200 - 90 - 10));
 
-          finalX = baseX;
-          finalY = baseY;
+          if (finalX === undefined) finalX = baseX;
+          if (finalY === undefined) finalY = baseY;
 
           // Collision Avoidance & Staggered Spawning
           const OFFSET = 40;
