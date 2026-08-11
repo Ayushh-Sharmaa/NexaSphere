@@ -8,6 +8,7 @@ import google.generativeai as genai
 import asyncio
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
+load_dotenv()
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -18,8 +19,19 @@ from slowapi.errors import RateLimitExceeded
 from observability.metrics import collect_celery_queue_depth
 from observability.tracing import init_tracing
 from prompts.system_prompt import SYSTEM_PROMPT
-from routers import certificates, forms, health, notifications, portfolio, recommend, review, webhooks, sync
-from routers.membership import router as membership_router
+from routers import (
+    certificates,
+    forms,
+    health,
+    notifications,
+    notification_anomalies,
+    portfolio,
+    recommend,
+    review,
+    webhooks,
+    sync,
+)
+
 from services.sync_worker import periodic_sync_worker
 from utils.security import limiter
 
@@ -134,6 +146,7 @@ app.include_router(certificates.router)
 app.include_router(notifications.router)
 app.include_router(health.router)
 app.include_router(portfolio.router)
+app.include_router(notification_anomalies.router)
 # 3. CORS Configuration
 origins = os.getenv("CORS_ORIGIN", "http://localhost:5173,http://localhost:5174,https://nexasphere-glbajaj.vercel.app,https://admin-nexasphere.vercel.app,https://nexa-sphere-sigma.vercel.app,https://admin-dashboard-navy-pi-22.vercel.app").split(",")
 
@@ -172,7 +185,6 @@ app.include_router(notifications.router)
 app.include_router(health.router)
 app.include_router(portfolio.router)
 app.include_router(review.router)
-app.include_router(membership_router)
 
 
 class ChatRequest(BaseModel):
