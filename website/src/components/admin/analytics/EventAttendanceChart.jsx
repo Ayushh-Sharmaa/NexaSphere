@@ -14,11 +14,50 @@ import { linearDecimate } from '../../../utils/dataDecimation';
 const EventAttendanceChart = React.memo(function EventAttendanceChart({ data = [] }) {
   const decimatedData = useMemo(() => linearDecimate(data, 100), [data]);
 
+  const handleExportCSV = () => {
+    if (!data || data.length === 0) return;
+    const headers = ['Event Name', 'Capacity', 'Attendance', 'Waitlist'];
+    const csvContent = [
+      headers.join(','),
+      ...data.map((row) =>
+        `"${(row.name || '').replace(/"/g, '""')}","${row.capacity || 0}","${row.attendance || 0}","${row.waitlist || 0}"`
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'event_attendance.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <section className="chart-container">
-      <div className="chart-header">
-        <h2>Event Attendance</h2>
-        <p>Capacity, attendance, and waitlist comparison.</p>
+      <div className="chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h2>Event Attendance</h2>
+          <p>Capacity, attendance, and waitlist comparison.</p>
+        </div>
+        <button 
+          onClick={handleExportCSV}
+          disabled={!data || data.length === 0}
+          style={{
+            padding: '6px 12px',
+            fontSize: '0.85rem',
+            borderRadius: '6px',
+            background: 'var(--c1, #cc1111)',
+            color: '#fff',
+            border: 'none',
+            cursor: (!data || data.length === 0) ? 'not-allowed' : 'pointer',
+            opacity: (!data || data.length === 0) ? 0.6 : 1,
+            fontFamily: 'inherit'
+          }}
+        >
+          Export CSV
+        </button>
       </div>
 
       {data.length > 0 ? (
