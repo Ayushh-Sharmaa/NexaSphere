@@ -33,6 +33,12 @@ export default function WebhooksPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "info") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 5000);
+  };
 
   // Form State
   const [showAddForm, setShowAddForm] = useState(false);
@@ -110,7 +116,7 @@ export default function WebhooksPage() {
       setFormData({ name: '', url: '', secret: '', events: [] });
       fetchWebhooks();
     } catch (err) {
-      alert(err.message);
+      showFeedback(err.message, "error");
     } finally {
       setSubmitting(false);
     }
@@ -128,7 +134,7 @@ export default function WebhooksPage() {
       }
       fetchWebhooks();
     } catch (err) {
-      alert(err.message);
+      showFeedback(err.message, "error");
     }
   };
 
@@ -136,12 +142,12 @@ export default function WebhooksPage() {
     try {
       const res = await fetch(buildUrl(`/api/webhooks/${id}/test`), { method: 'POST' });
       if (!res.ok) throw new Error('Failed to send test payload');
-      alert('Test webhook payload dispatched successfully!');
+      showFeedback('Test webhook payload dispatched successfully!', 'success');
       if (selectedWebhook?.id === id) {
         handleSelectWebhook(selectedWebhook);
       }
     } catch (err) {
-      alert(err.message);
+      showFeedback(err.message, 'error');
     }
   };
 
@@ -151,17 +157,34 @@ export default function WebhooksPage() {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to replay webhook delivery');
-      alert('Webhook delivery replayed successfully!');
+      showFeedback('Webhook delivery replayed successfully!', 'success');
       if (selectedWebhook) {
         handleSelectWebhook(selectedWebhook);
       }
     } catch (err) {
-      alert(err.message);
+      showFeedback(err.message, 'error');
     }
   };
 
   return (
     <div style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto', color: 'var(--t1)' }}>
+      {feedback && (
+        <div
+          role="status"
+          style={{
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            backgroundColor: feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+            color: feedback.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
+          }}
+        >
+          {feedback.message}
+        </div>
+      )}
       <div
         style={{
           display: 'flex',
