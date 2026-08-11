@@ -977,16 +977,19 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     try {
       const base = getApiBase();
       const url = `${base}/api/content/events/${event.id}/register`;
-      const idempotencyKey =
-        typeof crypto !== 'undefined' && crypto.randomUUID
+      let idempotencyKey = typeof window !== 'undefined' ? sessionStorage.getItem(registrationKey) : null;
+      if (!idempotencyKey || idempotencyKey === 'confirmed') {
+        idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : `reg-${event.id}-${Date.now().toString(36)}`;
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(registrationKey, idempotencyKey);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(registrationKey, idempotencyKey);
+        }
       }
+
       const data = await apiClient(url, {
         method: 'POST',
-        timeout: 5000,
+        timeout: 10000,
         headers: {
           'Content-Type': 'application/json',
           'Idempotency-Key': idempotencyKey,
@@ -994,7 +997,21 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         },
         body: JSON.stringify(regForm),
       });
-      if (data.ticket) {
+
+      if (data?.queued) {
+        setRegStatus('confirmed');
+        setRegTicket({
+          ticketData: regForm,
+          registrationId: `NS-OFFLINE-${event.id}-${Date.now().toString(36).toUpperCase()}`,
+          eventName: event.name,
+          eventDate: event.dateText ?? event.date,
+          offline: true
+        });
+        showNotification('Registration saved offline. Will sync when you reconnect.');
+        return;
+      }
+
+      if (data?.ticket) {
         setRegTicket(data.ticket);
         setRegStatus('confirmed');
         if (typeof window !== 'undefined') {
