@@ -10,8 +10,19 @@ function wrapAsync(fn) {
     });
 }
 
+function requireAdmin(req, res) {
+  const user = req.studentUser || req.user;
+  if (!user || (user.role !== 'admin' && !user.isAdmin)) {
+    sendError(req, res, 'Admin access required', 403, 'FORBIDDEN');
+    return false;
+  }
+  return true;
+}
+
 // POST /api/pricing/config/:eventId
 export const upsertPricing = wrapAsync(async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
   const { eventId } = req.params;
   const { basePrice, minPrice, maxPrice, capacity, eventDate } = req.body;
 
@@ -61,6 +72,8 @@ export const getPriceTransparency = wrapAsync(async (req, res) => {
 
 // POST /api/pricing/recalculate/:eventId
 export const recalculatePrice = wrapAsync(async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
   const { eventId } = req.params;
   const result = await dynamicPricingService.recalculatePrice(eventId);
   sendSuccess(res, { result });
@@ -69,6 +82,8 @@ export const recalculatePrice = wrapAsync(async (req, res) => {
 
 // POST /api/pricing/override/:eventId
 export const setAdminOverride = wrapAsync(async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
   const { eventId } = req.params;
   const { overridePrice } = req.body; // pass null to clear
 
@@ -79,6 +94,8 @@ export const setAdminOverride = wrapAsync(async (req, res) => {
 
 // GET /api/pricing/analytics/all
 export const getAnalytics = wrapAsync(async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
   const analytics = await dynamicPricingService.getPricingAnalytics();
   sendSuccess(res, { analytics });
   res.json({ success: true, analytics });
