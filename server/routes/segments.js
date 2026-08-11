@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as userSegmentsController from '../controllers/userSegmentsController.js';
 import { validate } from '../middleware/validate.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import {
   idParamsSchema,
   createSegmentBodySchema,
@@ -8,6 +9,8 @@ import {
 } from '../validators/routes/segmentsSchemas.js';
 
 const router = Router();
+
+router.use(requireAdmin);
 
 router.get('/', userSegmentsController.getSegments);
 router.post('/', validate(createSegmentBodySchema), userSegmentsController.createSegment);
