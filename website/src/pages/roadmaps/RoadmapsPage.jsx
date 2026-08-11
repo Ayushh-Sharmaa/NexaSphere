@@ -319,9 +319,8 @@ export default function RoadmapsPage({ onBack }) {
                 <div className="resources-vertical-stack">
                   {selectedNode.tutorials.map((tutorial, idx) => (
                     <a
-                      key={`tutorial-${selectedNode.id}-${tutorial.url}`}
-                      aria-label="Interactive element"
-                      key={idx}
+                      key={tutorial.url || `tutorial-${selectedNode.id}-${idx}`}
+                      aria-label="Interactive element" 
                       href={tutorial.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -345,9 +344,8 @@ export default function RoadmapsPage({ onBack }) {
                 <div className="resources-vertical-stack">
                   {selectedNode.practice.map((item, idx) => (
                     <a
-                      key={`practice-${selectedNode.id}-${item.url}`}
-                      aria-label="Interactive element"
-                      key={idx}
+                      key={item.url || `practice-${selectedNode.id}-${idx}`}
+                      aria-label="Interactive element" 
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
