@@ -23,8 +23,26 @@ export default function EventsList() {
 
   const { page, setPage, resetPage } = usePaginationParams();
 
+  // Stale-while-revalidate cache: restore from sessionStorage on mount
+  const cacheKey = `events_page_${page}_${search}`;
+
   useEffect(() => {
     let cancelled = false;
+
+    // Show stale data from cache immediately
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const { events: cachedEvents, total: cachedTotal } = JSON.parse(cached);
+        if (!cancelled) {
+          setEvents(cachedEvents || []);
+          setTotalItems(cachedTotal || 0);
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+
     setLoading(true);
 
     axiosInstance
@@ -33,8 +51,12 @@ export default function EventsList() {
       )
       .then(({ data }) => {
         if (!cancelled) {
-          setEvents(data.events || []);
-          setTotalItems(data.total || 0);
+          const eventsData = data.events || [];
+          const totalData = data.total || 0;
+          setEvents(eventsData);
+          setTotalItems(totalData);
+          // Cache fresh data for next visit
+          sessionStorage.setItem(cacheKey, JSON.stringify({ events: eventsData, total: totalData }));
         }
       })
       .catch((err) => console.error("Failed to fetch events:", err))
