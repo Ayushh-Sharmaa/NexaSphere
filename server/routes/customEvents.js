@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import { apiRateLimiter } from '../middleware/rateLimiter.js';
 import {
   createEventDefinition,
@@ -14,7 +14,7 @@ import {
 } from '../controllers/customEventController.js';
 
 const router = Router();
-const adminAuth = [apiRateLimiter, adminAuthMiddleware.requireAdmin];
+const adminAuth = [apiRateLimiter, requireAdmin];
 
 // Event Definitions (no-code creation)
 router.get('/definitions', adminAuth, listEventDefinitions);
