@@ -1,0 +1,97 @@
+name: Universal Auto Labeler
+
+on:
+  issues:
+    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened, closed]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *' # Hourly fallback for rate-limit continuations
+
+jobs:
+  label-everything:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Apply Universal Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelsToAdd = ['gssoc', 'gssoc approved', 'level', 'backlog size'];
+            
+            // If this is triggered by a specific issue/PR, just label that one
+            if (context.eventName === 'issues' || context.eventName === 'pull_request') {
+              const issue_number = context.payload.issue ? context.payload.issue.number : context.payload.pull_request.number;
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number
+              });
+              
+              const currentLabels = issue.labels.map(l => typeof l === 'string' ? l : l.name);
+              const missingLabels = labelsToAdd.filter(l => !currentLabels.includes(l));
+              
+              if (missingLabels.length > 0) {
+                console.log(`Adding missing labels to #${issue_number}`);
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue_number,
+                  labels: missingLabels
+                });
+              }
+              return;
+            }
+            
+            // Otherwise (workflow_dispatch or cron), retroactively process ALL issues and PRs (open and closed)
+            console.log("Running massive retroactive check on ALL issues and PRs (Open & Closed)...");
+            
+            const iterator = github.paginate.iterator(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+            
+            let processed = 0;
+            
+            for await (const { data: issues } of iterator) {
+              for (const issue of issues) {
+                const currentLabels = issue.labels.map(l => typeof l === 'string' ? l : l.name);
+                const missingLabels = labelsToAdd.filter(l => !currentLabels.includes(l));
+                
+                if (missingLabels.length > 0) {
+                  console.log(`Adding labels to #${issue.number}...`);
+                  try {
+                    await github.rest.issues.addLabels({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      labels: missingLabels
+                    });
+                    processed++;
+                  } catch (err) {
+                    console.error(`Failed to label #${issue.number}: ${err.message}`);
+                  }
+                  
+                  // ZERO MANUAL INTERRUPTION: Automatically sleep if we get close to the GitHub API rate limit
+                  const { data: rateLimit } = await github.rest.rateLimit.get();
+                  const remaining = rateLimit.resources.core.remaining;
+                  
+                  if (remaining < 50) {
+                    const resetTime = rateLimit.resources.core.reset * 1000;
+                    const waitTime = resetTime - Date.now() + 5000; // Wait until exact reset time + 5s buffer
+                    console.log(`Rate limit running low (${remaining} remaining). Sleeping automatically for ${waitTime}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, Math.max(0, waitTime)));
+                  }
+                  
+                  // Basic throttle to avoid GitHub secondary abuse limits
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                }
+              }
+            }
+            
+            console.log(`Successfully processed and labeled ${processed} missing issues/PRs.`);
