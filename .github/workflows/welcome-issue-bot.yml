@@ -1,0 +1,72 @@
+name: GSSoC — Welcome Issue Bot
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When a first-time contributor opens their first issue, posts a friendly
+# welcome comment with contribution guidelines and next steps.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [opened]
+
+concurrency:
+  group: welcome-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  welcome-first-timer:
+    name: Welcome First-Time Issue Author
+    runs-on: ubuntu-latest
+    if: >-
+      !endsWith(github.event.issue.user.login, '[bot]')
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check if first issue and welcome
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issue  = context.payload.issue;
+            const author = issue.user.login;
+
+            // ── Check if this user has previously opened issues or PRs ────────
+            const { data: previousActivity } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} author:${author}`,
+            });
+
+            // The current issue will appear in results, so check for > 1
+            if (previousActivity.total_count > 1) {
+              console.log(`⏭️  @${author} has prior activity (${previousActivity.total_count} items) — skipping welcome`);
+              return;
+            }
+
+            // ── Post first-time welcome comment ───────────────────────────────
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: issue.number,
+              body: [
+                `## 👋 Welcome to NexaSphere, @${author}!`,
+                ``,
+                `It's great to see your first issue — thanks for helping improve the project! 🎉`,
+                ``,
+                `**Here are some resources to get you started:**`,
+                ``,
+                `| Resource | Link |`,
+                `|----------|------|`,
+                `| 📋 Contributing Guide | [CONTRIBUTING.md](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md) |`,
+                `| 📖 Documentation | [docs/](https://github.com/${owner}/${repo}/tree/main/docs) |`,
+                `| 🏷️ Good First Issues | [Browse open issues](https://github.com/${owner}/${repo}/labels/good%20first%20issue) |`,
+                `| 💬 Community | Join our [Discord](https://discord.gg/gssoc) for real-time help |`,
+                ``,
+                `**Next steps for this issue:**`,
+                `1. A maintainer will review and label your issue`,
+                `2. If it's valid, comment \`/assign\` to request assignment`,
+                `3. Fork, code, and open a PR with \`Closes #${issue.number}\``,
+                ``,
+                `> 💡 **Tip:** Check existing issues first to avoid duplicates!`,
+                ``,
+                `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+              ].join('\n'),
+            });
+            console.log(`👋 Welcomed first-time issue author @${author} on issue #${issue.number}`);

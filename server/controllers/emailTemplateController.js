@@ -42,7 +42,9 @@ export const emailTemplateController = {
         try {
           const templatePath = path.join(__dirname, '..', 'services', 'templates', `${name}.ejs`);
           const body = await fs.readFile(templatePath, 'utf-8');
-          return sendSuccess(res, { template: { name, subject: 'Default Subject', body, is_default: true } });
+          return sendSuccess(res, {
+            template: { name, subject: 'Default Subject', body, is_default: true },
+          });
         } catch (err) {
           return sendError(req, res, 'Template not found', 404, 'NOT_FOUND');
         }
@@ -98,7 +100,13 @@ export const emailTemplateController = {
       return sendSuccess(res, { html });
     } catch (error) {
       console.error('Error previewing template:', error);
-      return sendError(req, res, error.message || 'Error rendering template', 500, 'INTERNAL_ERROR');
+      return sendError(
+        req,
+        res,
+        error.message || 'Error rendering template',
+        500,
+        'INTERNAL_ERROR'
+      );
     }
   },
 

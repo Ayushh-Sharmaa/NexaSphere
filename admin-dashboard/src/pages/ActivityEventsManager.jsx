@@ -1,27 +1,26 @@
-import { useState, useEffect, useCallback } from "react";
-import { api } from "../services/api";
-import { useEventListener } from "../hooks/useEventListener";
-import { EVENTS } from "../services/eventEmitter";
-import { ActivityEventForm } from "../components/ActivityEventForm";
-import { Skeleton } from "../components/Skeleton";
-import { AdminIcon } from "../components/AdminIcon";
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
+import { useEventListener } from '../hooks/useEventListener';
+import { EVENTS } from '../services/eventEmitter';
+import { ActivityEventForm } from '../components/ActivityEventForm';
+import { Skeleton } from '../components/Skeleton';
+import { AdminIcon } from '../components/AdminIcon';
 
 const ACTIVITIES = [
-  { key: "hackathon", name: "Hackathon" },
-  { key: "codathon", name: "Codathon" },
-  { key: "ideathon", name: "Ideathon" },
-  { key: "promptathon", name: "Promptathon" },
-  { key: "workshop", name: "Workshop" },
-  { key: "insight-session", name: "Insight Session" },
-  { key: "open-source-day", name: "Open Source Day" },
-  { key: "tech-debate", name: "Tech Debate" },
+  { key: 'hackathon', name: 'Hackathon' },
+  { key: 'codathon', name: 'Codathon' },
+  { key: 'ideathon', name: 'Ideathon' },
+  { key: 'promptathon', name: 'Promptathon' },
+  { key: 'workshop', name: 'Workshop' },
+  { key: 'insight-session', name: 'Insight Session' },
+  { key: 'open-source-day', name: 'Open Source Day' },
+  { key: 'tech-debate', name: 'Tech Debate' },
 ];
 
 export function ActivityEventsManager() {
   const [selected, setSelected] = useState(ACTIVITIES[0].key);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -35,12 +34,6 @@ export function ActivityEventsManager() {
       const data = await api.activityEvents.getAll(key);
       setEvents(data?.events ?? []);
     } catch (e) {
-    setError(null);
-    try {
-      const data = await api.activityEvents.getAll(key);
-      setEvents(data?.events ?? []);
-    } catch (err) {
-      setError(err.message);
       setEvents([]);
       setError(e.message || 'Failed to load activity events.');
     } finally {
@@ -68,8 +61,6 @@ export function ActivityEventsManager() {
     useCallback(
       ({ activityKey, eventId }) => {
         if (activityKey === selected) setEvents((prev) => prev.filter((e) => e.id !== eventId));
-        if (activityKey === selected)
-          setEvents((prev) => prev.filter((e) => e.id !== eventId));
       },
       [selected]
     )
@@ -78,8 +69,6 @@ export function ActivityEventsManager() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const eventId = deleteTarget.id;
-  const handleDelete = async (eventId) => {
-    if (!confirm("Delete this activity event?")) return;
     setDeleting(eventId);
     setDeleteError('');
     try {
@@ -87,7 +76,6 @@ export function ActivityEventsManager() {
       setDeleteTarget(null);
     } catch {
       setDeleteError('Failed to delete activity event. Please try again.');
-      // Notification is handled by api.js
     } finally {
       setDeleting(null);
     }
@@ -108,7 +96,7 @@ export function ActivityEventsManager() {
         {ACTIVITIES.map((a) => (
           <button
             key={a.key}
-            className={`tab${selected === a.key ? " active" : ""}`}
+            className={`tab${selected === a.key ? ' active' : ''}`}
             onClick={() => setSelected(a.key)}
           >
             {a.name}
@@ -116,17 +104,9 @@ export function ActivityEventsManager() {
         ))}
       </div>
 
-      {showForm && (
-        <ActivityEventForm
-          activityKey={selected}
-          onClose={() => setShowForm(false)}
-        />
-      )}
+      {showForm && <ActivityEventForm activityKey={selected} onClose={() => setShowForm(false)} />}
 
       {loading && <Skeleton height={64} count={3} />}
-      {error && (
-        <div className="page-error">Failed to load activities: {error}</div>
-      )}
 
       {error && <div className="page-error">{error}</div>}
 
@@ -142,8 +122,7 @@ export function ActivityEventsManager() {
                   <div className="item-name">{event.name}</div>
                   <div className="item-meta">
                     {event.date && `${event.date}`}
-                    {event.participants &&
-                      ` · ${event.participants} participants`}
+                    {event.participants && ` · ${event.participants} participants`}
                   </div>
                 </div>
               </div>
@@ -157,11 +136,7 @@ export function ActivityEventsManager() {
                   disabled={deleting === event.id}
                   aria-label="Delete activity event"
                 >
-                  {deleting === event.id ? (
-                    "..."
-                  ) : (
-                    <AdminIcon name="Trash" size={16} />
-                  )}
+                  {deleting === event.id ? '...' : <AdminIcon name="Trash" size={16} />}
                 </button>
               </div>
             </div>

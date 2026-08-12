@@ -1,0 +1,120 @@
+name: GSSoC — Ping Spam Detection
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Detects when contributors repeatedly ping maintainers in issue/PR comments.
+# Warns on 2nd ping, adds spam label on 3rd+ ping.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: ping-spam-${{ github.event.issue.number }}-${{ github.actor }}
+  cancel-in-progress: false
+
+jobs:
+  detect-ping-spam:
+    name: Detect Ping Spam
+    runs-on: ubuntu-latest
+    if: >-
+      !endsWith(github.event.comment.user.login, '[bot]')
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check for maintainer ping spam
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const comment   = context.payload.comment;
+            const issue     = context.payload.issue;
+            const issueNum  = issue.number;
+            const commenter = comment.user.login;
+            const body      = comment.body || '';
+
+            // ── Maintainers to check for pings ────────────────────────────────
+            const MAINTAINERS = ['S3DFX-CYBER', 'Ayushh-Sharmaa'];
+
+            // Skip if commenter is a maintainer themselves
+            if (MAINTAINERS.includes(commenter)) return;
+
+            // ── Check if this comment pings any maintainer ────────────────────
+            const pingsInThisComment = MAINTAINERS.filter(m => body.includes(`@${m}`));
+            if (pingsInThisComment.length === 0) {
+              console.log('⏭️  No maintainer pings in this comment — skipping');
+              return;
+            }
+
+            // ── Count all prior pings in this issue thread from this commenter ─
+            const { data: allComments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: issueNum, per_page: 100,
+            });
+
+            let pingCount = 0;
+            for (const c of allComments) {
+              if (c.user.login !== commenter) continue;
+              if (MAINTAINERS.some(m => (c.body || '').includes(`@${m}`))) {
+                pingCount++;
+              }
+            }
+
+            console.log(`📊 @${commenter} has pinged maintainers ${pingCount} time(s) on issue #${issueNum}`);
+
+            // ── Ensure labels exist ───────────────────────────────────────────
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+            await ensureLabel('ping-spam', 'ee0701', 'Contributor is repeatedly pinging maintainers');
+
+            if (pingCount === 2) {
+              // ── 2nd ping: post a reminder ─────────────────────────────────
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issueNum,
+                body: [
+                  `## ⚠️ Ping Policy Reminder`,
+                  ``,
+                  `Hey @${commenter}! 👋 Please be mindful of our **ping policy**:`,
+                  ``,
+                  `- Maintainers and mentors review issues on a **rolling basis**`,
+                  `- Please allow **24–72 hours** before following up`,
+                  `- Repeated pings without allowing adequate time may result in your issue being deprioritized`,
+                  ``,
+                  `We'll get to your issue as soon as we can — thanks for your patience! 🙏`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              console.log(`⚠️  Warned @${commenter} about ping policy on issue #${issueNum}`);
+
+            } else if (pingCount >= 3) {
+              // ── 3rd+ ping: add spam label ─────────────────────────────────
+              const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                owner, repo, issue_number: issueNum,
+              });
+              if (!currentLabels.some(l => l.name === 'ping-spam')) {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issueNum, labels: ['ping-spam'],
+                });
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issueNum,
+                  body: [
+                    `## 🚫 Ping Spam Detected`,
+                    ``,
+                    `@${commenter}, this issue has been flagged for **repeated pinging** of maintainers (${pingCount} times).`,
+                    ``,
+                    `The \`ping-spam\` label has been applied. A maintainer will review this situation.`,
+                    ``,
+                    `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                  ].join('\n'),
+                });
+                console.log(`🚫 Applied ping-spam label on issue #${issueNum} — @${commenter} has pinged ${pingCount} times`);
+              }
+            }

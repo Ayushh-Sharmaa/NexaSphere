@@ -22,19 +22,22 @@ class IntrusionDetectionService {
     this.blockedIps = new Map();
 
     // Clean up expired entries every 5 minutes
-    setInterval(() => {
-      const now = Date.now();
-      for (const [ip, data] of this.ipScores.entries()) {
-        if (now - data.updatedAt > CORRELATION_WINDOW_MS) {
-          this.ipScores.delete(ip);
+    setInterval(
+      () => {
+        const now = Date.now();
+        for (const [ip, data] of this.ipScores.entries()) {
+          if (now - data.updatedAt > CORRELATION_WINDOW_MS) {
+            this.ipScores.delete(ip);
+          }
         }
-      }
-      for (const [ip, data] of this.blockedIps.entries()) {
-        if (now - data.blockedAt > BLOCK_DURATION_MS) {
-          this.blockedIps.delete(ip);
+        for (const [ip, data] of this.blockedIps.entries()) {
+          if (now - data.blockedAt > BLOCK_DURATION_MS) {
+            this.blockedIps.delete(ip);
+          }
         }
-      }
-    }, 5 * 60 * 1000).unref();
+      },
+      5 * 60 * 1000
+    ).unref();
   }
 
   /**
@@ -46,21 +49,24 @@ class IntrusionDetectionService {
    */
   async reportEvent(eventType, ip, userId = null, metadata = {}) {
     if (!ip) return;
-    
+
     // Ignore if already blocked locally
     if (this.blockedIps.has(ip)) {
-      return; 
+      return;
     }
 
     const currentScore = this.ipScores.get(ip)?.score || 0;
     const newScore = currentScore + eventType.score;
-    
+
     this.ipScores.set(ip, { score: newScore, updatedAt: Date.now() });
-    
-    logger.warn(`Security Event: ${eventType.name} from IP ${ip} (Score: ${newScore}/${THREAT_THRESHOLD})`, {
-      userId,
-      ...metadata,
-    });
+
+    logger.warn(
+      `Security Event: ${eventType.name} from IP ${ip} (Score: ${newScore}/${THREAT_THRESHOLD})`,
+      {
+        userId,
+        ...metadata,
+      }
+    );
 
     if (newScore >= THREAT_THRESHOLD) {
       await this.blockIp(ip, `Threat threshold exceeded (${newScore}) due to ${eventType.name}`);
@@ -74,9 +80,9 @@ class IntrusionDetectionService {
    */
   async blockIp(ip, reason) {
     if (this.blockedIps.has(ip)) return;
-    
+
     this.blockedIps.set(ip, { reason, blockedAt: Date.now() });
-    
+
     // Optional Redis backup for multi-instance synchronization
     try {
       const client = getRedisClient();
@@ -86,9 +92,9 @@ class IntrusionDetectionService {
     } catch (err) {
       logger.error('Redis error while blocking IP:', err);
     }
-    
+
     logger.error(`🚨 INTRUSION DETECTION: IP ${ip} blocked. Reason: ${reason}`);
-    
+
     // Attempt admin notification
     try {
       await notificationsService.sendAdminNotification({
@@ -109,7 +115,7 @@ class IntrusionDetectionService {
    */
   async isBlocked(ip) {
     if (!ip) return false;
-    
+
     // Check local memory first
     const localBlock = this.blockedIps.get(ip);
     if (localBlock) {
@@ -119,7 +125,7 @@ class IntrusionDetectionService {
         this.blockedIps.delete(ip);
       }
     }
-    
+
     // Check Redis as fallback (e.g. blocked by another instance)
     try {
       const client = getRedisClient();
@@ -134,10 +140,10 @@ class IntrusionDetectionService {
     } catch (err) {
       // Fail open if Redis is down
     }
-    
+
     return false;
   }
-  
+
   // For testing purposes
   _reset() {
     this.ipScores.clear();

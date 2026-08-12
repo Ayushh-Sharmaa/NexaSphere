@@ -21,7 +21,6 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@v7
-        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'npm'
@@ -78,7 +77,6 @@ jobs:
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@de09aeac2ace6599ec9b11ef87558759a496bac4 # v25 — v42 does not exist
-        uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}

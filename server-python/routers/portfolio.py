@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set
 from uuid import UUID
@@ -60,37 +61,8 @@ class PortfolioResponse(BaseModel):
 class PortfoliosListResponse(BaseModel):
     portfolios: List[PortfolioResponse]
     total: int
-
-
-# ──────────────────────────────────────────────
-# Mock fallback data
-# ──────────────────────────────────────────────
-
-MOCK_PORTFOLIOS = [
-    {
-        "id": "00000000-0000-0000-0000-000000000001",
-        "member_id": "00000000-0000-0000-0000-000000000001",
-        "full_name": "Rajesh Puripanda",
-        "role": "Community Member",
-        "github_username": "rajesh-puripanda",
-        "leetcode_username": "rajesh_puripanda",
-        "cached_github_stats": {
-            "public_repos": 24,
-            "followers": 89,
-            "avatar_url": "https://avatars.githubusercontent.com/u/0?v=4",
-            "bio": "Full-stack developer passionate about open source and distributed systems.",
-        },
-        "cached_leetcode_stats": {
-            "totalSolved": 187,
-            "easySolved": 98,
-            "mediumSolved": 72,
-            "hardSolved": 17,
-            "ranking": 45231,
-        },
-        "last_synced_at": datetime.now(timezone.utc).isoformat(),
-        "is_cached": True,
-    }
-]
+    available: bool = True
+    source: str = "database"
 
 
 def _db_available() -> bool:
@@ -100,7 +72,7 @@ def _db_available() -> bool:
             conn.execute(text("SELECT 1"))
         return True
     except (OperationalError, ProgrammingError) as e:
-        logger.warning("Database unavailable — falling back to mock data: %s", e)
+        logger.warning("Database unavailable: %s", e)
         return False
 
 
@@ -111,17 +83,30 @@ def _db_available() -> bool:
 
 @router.get("", response_model=PortfoliosListResponse)
 async def list_portfolios(db: Session = Depends(get_db)):
-    """Return all member portfolios. Falls back to mock data if DB is down."""
+    """Return all member portfolios. Raises 503 if the database is
+    unavailable — never returns mock/sample data disguised as real
+    portfolios, since that could mislead clients into displaying a
+    fake member profile as if it were live data."""
     if not _db_available():
-        return PortfoliosListResponse(portfolios=MOCK_PORTFOLIOS, total=len(MOCK_PORTFOLIOS))
+        raise HTTPException(
+            status_code=503,
+            detail="Portfolio database is currently unavailable. Please try again later.",
+        )
 
     records = db.query(MemberPortfolio).all()
     if not records:
-        return PortfoliosListResponse(portfolios=[], total=0)
+        return PortfoliosListResponse(
+            portfolios=[],
+            total=0,
+            available=True,
+            source="database",
+        )
 
     return PortfoliosListResponse(
         portfolios=[PortfolioResponse.model_validate(r) for r in records],
         total=len(records),
+        available=True,
+        source="database",
     )
 
 

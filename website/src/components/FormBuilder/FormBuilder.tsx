@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { SortableField } from './SortableField';
 import { Sidebar } from './Sidebar';
 import { LogicEditor } from './LogicEditor';
@@ -21,8 +33,8 @@ export const FormBuilder = () => {
 
     if (active.id !== over?.id) {
       setFields((items) => {
-        const oldIndex = items.findIndex(item => item.id === active.id);
-        const newIndex = items.findIndex(item => item.id === over.id);
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -35,7 +47,7 @@ export const FormBuilder = () => {
       type,
       label: `New ${type} Field`,
       required: false,
-      options: []
+      options: [],
     };
     setFields([...fields, newField]);
   };
@@ -46,17 +58,14 @@ export const FormBuilder = () => {
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm border">
           <h2 className="text-2xl font-bold mb-6">Form Builder</h2>
-          <DndContext 
+          <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <SortableContext 
-              items={fields.map(f => f.id)}
-              strategy={verticalListSortingStrategy}
-            >
+            <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-4">
-                {fields.map(field => (
+                {fields.map((field) => (
                   <SortableField key={field.id} field={field} />
                 ))}
               </div>

@@ -3,10 +3,7 @@ import { syncController } from '../controllers/syncController.js';
 import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 import { apiRateLimiter, syncRateLimiter } from '../middleware/rateLimiter.js';
 import { validate } from '../middleware/validate.js';
-import {
-  syncBatchSchema,
-  resolveConflictsSchema,
-} from '../validators/routes/syncSchemas.js';
+import { syncBatchSchema, resolveConflictsSchema } from '../validators/routes/syncSchemas.js';
 
 const router = Router();
 
@@ -27,7 +24,6 @@ router.post(
   syncController.resolveConflicts
 );
 
-const router = Router();
 
 router.get('/api/sync/status', syncController.getSyncStatus);
 router.get('/api/sync/updates', syncController.getUpdates);

@@ -1,19 +1,3 @@
-// ============================================================
-// Request Deduplication Cache
-// Fix #859: Prevents duplicate concurrent GET requests for the same URL
-// Usage: wrap fetch calls with deduplicatedFetch() instead of fetch()
-//
-// const _inFlight = new Map();
-// export function deduplicatedFetch(url, options = {}) {
-//   const method = (options.method || 'GET').toUpperCase();
-//   if (method !== 'GET') return fetch(url, options);
-//   if (_inFlight.has(url)) return _inFlight.get(url);
-//   const promise = fetch(url, options).finally(() => _inFlight.delete(url));
-//   _inFlight.set(url, promise);
-//   return promise;
-// }
-// ============================================================
-
 /**
  * admin-dashboard/src/services/api.js
  *
@@ -38,10 +22,6 @@
 import { eventEmitter, EVENTS } from './eventEmitter';
 import { auth } from './auth';
 import { broadcastContentUpdate, initAdminSocket } from './socketClient';
-import { eventEmitter, EVENTS } from "./eventEmitter";
-import { auth } from "./auth";
-import { eventEmitter, EVENTS } from './eventEmitter';
-import { auth } from './auth';
 
 // Team images are served from the main app's public dir.
 // Using URL strings avoids broken asset imports in the admin monorepo build.
@@ -63,18 +43,6 @@ const asthaImg = teamImg('astha.png');
 const aryaImg = teamImg('arya.png');
 const roshniImg = teamImg('roshni.png');
 const vikasImg = teamImg('vikas.png');
-const ayushImg = teamImg("ayush.png");
-const tanishkImg = teamImg("tanishk.png");
-const tusharImg = teamImg("tushar.png");
-const swayamImg = teamImg("swayam.png");
-const aryanImg = teamImg("aryan.png");
-const vartikaImg = teamImg("vartika.png");
-const ankitImg = teamImg("ankit.png");
-const surjeetImg = teamImg("surjeet.png");
-const asthaImg = teamImg("astha.png");
-const aryaImg = teamImg("arya.png");
-const roshniImg = teamImg("roshni.png");
-const vikasImg = teamImg("vikas.png");
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
@@ -106,42 +74,6 @@ try {
       }
     }
     localStorage.setItem('ns_db_schema_version', String(SCHEMA_VERSION));
-  }
-} catch (e) {
-  if (import.meta.env.DEV) console.error('Migration failed', e);
-// Migration: If user has old 3-member seed OR fake photos, upgrade to full official 12-member seed
-try {
-  const oldTeamRaw = localStorage.getItem('ns_db_core_team');
-  if (oldTeamRaw) {
-    const oldTeam = JSON.parse(oldTeamRaw);
-    const hasFakePhotos =
-      oldTeam.length > 0 &&
-      typeof oldTeam[0].photo === 'string' &&
-      oldTeam[0].photo.startsWith('http');
-    if (oldTeam.length === 3 || hasFakePhotos) {
-      localStorage.removeItem('ns_db_core_team');
-      localStorage.removeItem('ns_db_events');
-// Migration: uses schema version key to avoid silent data loss
-const SCHEMA_VERSION = 2;
-try {
-  const storedVersion = parseInt(
-    localStorage.getItem("ns_db_schema_version") || "0",
-    10
-  );
-  if (storedVersion < SCHEMA_VERSION) {
-    const oldTeamRaw = localStorage.getItem("ns_db_core_team");
-    if (oldTeamRaw) {
-      const oldTeam = JSON.parse(oldTeamRaw);
-      const hasFakePhotos =
-        oldTeam.length > 0 &&
-        typeof oldTeam[0].photo === "string" &&
-        oldTeam[0].photo.startsWith("http");
-      if (oldTeam.length === 3 || hasFakePhotos) {
-        localStorage.removeItem("ns_db_core_team");
-        localStorage.removeItem("ns_db_events");
-      }
-    }
-    localStorage.setItem("ns_db_schema_version", String(SCHEMA_VERSION));
   }
 } catch (e) {
   if (import.meta.env.DEV) console.error('Migration failed', e);
@@ -185,24 +117,6 @@ const getDb = (key, defaultVal) => {
           capacity: 30,
           hasDetailPage: true,
           gradientColors: ['#0369a1', '#0ea5e9'],
-          id: "1",
-          name: "KSS #153 — Knowledge Sharing Session",
-          shortName: "KSS #153",
-          date: "March 14, 2025",
-          description: "NexaSphere's inaugural Knowledge Sharing Session.",
-          status: 'completed',
-          icon: 'Brain',
-          tags: ['AI', 'Learning'],
-        },
-        {
-          id: '2',
-          name: 'Workshop: Git & GitHub',
-          shortName: 'Git & GitHub',
-          date: 'April 24',
-          description: 'Version control mastery for every developer.',
-          status: 'upcoming',
-          icon: 'Wrench',
-          tags: ['Git', 'GitHub'],
         },
       ];
       setDb(key, initialEvents);
@@ -215,87 +129,6 @@ const getDb = (key, defaultVal) => {
           name: 'Ayush Sharma',
           role: 'Organiser',
           branch: 'CSE (AI & ML)',
-          photo: ayushImg,
-        },
-        {
-          id: '2',
-          name: 'Tanishk Bansal',
-          role: 'Organiser',
-          branch: 'CSE',
-          photo: tanishkImg,
-        },
-        {
-          id: '4',
-          name: 'Tushar Goswami',
-          role: 'Core Team Member',
-          branch: 'CSE (AI & ML)',
-          photo: tusharImg,
-        },
-        {
-          id: '3',
-          name: 'Swayam Dwivedi',
-          role: 'Core Team Member',
-          branch: 'CSE',
-          photo: swayamImg,
-        },
-        {
-          id: '5',
-          name: 'Aryan Singh',
-          role: 'Core Team Member',
-          branch: 'CS (AI & ML)',
-          photo: aryanImg,
-        },
-        {
-          id: '11',
-          name: 'Vartika Sharma',
-          role: 'Core Team Member',
-          branch: 'CS',
-          photo: vartikaImg,
-        },
-        {
-          id: '6',
-          name: 'Arya Kaushik',
-          role: 'Core Team Member',
-          branch: 'CS (AI & ML)',
-          photo: aryaImg,
-        },
-        {
-          id: '7',
-          name: 'Astha Shukla',
-          role: 'Core Team Member',
-          branch: 'CS (AI & ML)',
-          photo: asthaImg,
-        },
-        {
-          id: '8',
-          name: 'Ankit Singh',
-          role: 'Core Team Member',
-          branch: 'CS',
-          photo: ankitImg,
-        },
-        {
-          id: '9',
-          name: 'Vikas Kumar Sharma',
-          role: 'Core Team Member',
-          branch: 'CSE',
-          photo: vikasImg,
-        },
-        {
-          id: '10',
-          name: 'Suryjeet Singh',
-          role: 'Core Team Member',
-          branch: 'CS',
-          photo: surjeetImg,
-        },
-        {
-          id: '12',
-          name: 'Roshni Gupta',
-          role: 'Core Team Member',
-          branch: 'CST',
-          id: "1",
-          name: "Ayush Sharma",
-          role: "Organiser",
-          branch: "CSE (AI & ML)",
           photo: ayushImg,
         },
         {
@@ -522,23 +355,6 @@ export async function fetchWithAuth(url, options = {}) {
 
   if (!isOffline) {
     // --- ONLINE: real API call ---
-/**
- * Core HTTP helper for authenticated admin API requests.
- *
- * Issue #225 fix:
- *  - When online (isOfflineMode() === false), ALL requests go to the live server.
- *  - If the live request fails (network error, 5xx, etc.), an error toast is
- *    shown immediately and the error is rethrown. We never silently fall back
- *    to the local mock database for online sessions.
- *  - The offline mock database is ONLY used when isOfflineMode() === true,
- *    i.e. the user explicitly entered offline mode via the intentional fallback
- *    in auth.login() when the server was unreachable during development.
- */
-async function fetchWithAuth(url, options = {}) {
-  const isOffline = auth.isOfflineMode();
-
-  if (!isOffline) {
-    // --- LIVE MODE: all requests go to the real backend ---
     try {
       const method = (options.method || 'GET').toUpperCase();
       const headers = {
@@ -548,18 +364,10 @@ async function fetchWithAuth(url, options = {}) {
       if (shouldIncludeCsrf(method)) {
         headers['X-CSRF-Token'] = getCsrfToken();
       }
-      const csrfToken = localStorage.getItem('ns_csrf_token');
       const res = await fetch(`${API_BASE}${url}`, {
         ...options,
         credentials: 'include',
         headers,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getToken()}`,
-          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
       });
 
       if (res.status === 401) {
@@ -570,51 +378,20 @@ async function fetchWithAuth(url, options = {}) {
             isLoggingOut = false;
           }, 3000);
         }
-        throw new Error("Session expired. Please log in again.");
         throw new Error('Session expired');
       }
-
       if (res.status === 204) return null;
-
       if (!res.ok) {
-        let errorMessage = `Request failed (${res.status})`;
-        try {
-          const errData = await res.json();
-          errorMessage = errData.error || errData.message || errorMessage;
-        } catch (parseErr) {
-          // Fallback to status text if JSON parsing fails
-          errorMessage = res.statusText || errorMessage;
-        }
-        throw new Error(errorMessage);
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Request failed (${res.status})`);
       }
-
       return res.json();
     } catch (e) {
-      // Differentiate between network errors (failed to fetch) and thrown Errors
-      const isNetworkError =
-        e instanceof TypeError && e.message.toLowerCase().includes("fetch");
-      const message = isNetworkError
-        ? "Network error: Cannot reach the server. Please check your connection."
-        : e.message || "API request failed.";
-
-      // Show a visible error toast so the admin knows the operation failed.
-      // We intentionally do NOT fall back to local storage here.
-      eventEmitter.emit(EVENTS.NOTIFY, {
-        type: "error",
-        message:
-          message +
-          (options.method && options.method !== "GET"
-            ? " Changes were not saved."
-            : ""),
-      });
-
-      // Re-throw so calling code (forms, hooks) can display inline errors too.
-      throw new Error(message);
+      throw e;
     }
   }
 
   // --- OFFLINE MOCK DATABASE ---
-  // Only reached when auth.isOfflineMode() === true (intentional offline session).
   return new Promise((resolve) => {
     setTimeout(() => {
       const method = options.method || 'GET';
@@ -764,11 +541,6 @@ async function fetchWithAuth(url, options = {}) {
         let events = getDb('events', []);
         if (method === 'GET') resolve({ events });
         if (method === 'POST') {
-      // /api/admin/events
-      if (url.startsWith('/api/admin/events')) {
-        let events = getDb('events', []);
-        if (method === 'GET') resolve({ events });
-        if (method === 'POST') {
           const newEv = { ...body, id: Date.now().toString() };
           events = [newEv, ...events];
           setDb('events', events);
@@ -776,16 +548,6 @@ async function fetchWithAuth(url, options = {}) {
         }
         if (method === 'PUT') {
           const id = url.split('/').pop();
-          events = events.map((e) => (e.id === id ? { ...body, id } : e));
-          setDb('events', events);
-          resolve({ ...body, id });
-        }
-        if (method === 'DELETE') {
-          const id = url.split('/').pop();
-          events = events.filter((e) => e.id !== id);
-          setDb('events', events);
-        if (method === "PUT") {
-          const id = url.split("/").pop();
           events = events.map((e) => (e.id === id ? { ...body, id } : e));
           setDb('events', events);
           resolve({ ...body, id });
@@ -959,9 +721,6 @@ async function fetchWithAuth(url, options = {}) {
         if (method === 'DELETE') {
           allActs[activityKey] = acts.filter((e) => e.id !== eventId);
           setDb('activity_events', allActs);
-        if (method === "DELETE") {
-          allActs[activityKey] = acts.filter((e) => e.id !== eventId);
-          setDb('activity_events', allActs);
           resolve({ success: true });
         }
       }
@@ -982,12 +741,6 @@ async function fetchWithAuth(url, options = {}) {
           setDb('core_team', team);
           resolve({ ...body, id });
         }
-        if (method === 'DELETE') {
-          const id = url.split('/').pop();
-          team = team.filter((m) => m.id !== id);
-          setDb('core_team', team);
-        if (method === "DELETE") {
-          const id = url.split("/").pop();
         if (method === 'DELETE') {
           const id = url.split('/').pop();
           team = team.filter((m) => m.id !== id);
@@ -1084,32 +837,6 @@ async function fetchWithAuth(url, options = {}) {
           queue = queue.filter((e) => e.id !== entryId);
           setDb(`waiting_${eventId}`, queue);
           resolve({ ok: true });
-        }
-      }
-
-      // /api/admin/portfolios
-      else if (url.startsWith('/api/admin/portfolios')) {
-        let portfolios = getDb('portfolios', []);
-        if (method === 'GET') {
-          const queryParams = new URLSearchParams(url.split('?')[1] || '');
-          const username = queryParams.get('username');
-          if (username) {
-            const found = portfolios.find((p) => p.username === username);
-            resolve({ portfolios: found ? [found] : [] });
-          } else {
-            resolve({ portfolios });
-          }
-        }
-        if (method === 'DELETE' && url.includes('/achievements/')) {
-          resolve({ ok: true });
-        }
-        if (method === 'POST' && url.includes('/achievements')) {
-          const newAch = {
-            ...body,
-            id: Date.now().toString(),
-            awarded_at: new Date().toISOString(),
-          };
-          resolve({ achievement: newAch });
         }
       }
 
@@ -1288,21 +1015,6 @@ async function fetchWithAuth(url, options = {}) {
           departmentBreakdown: [],
           yearBreakdown: [],
           waitlist: [],
-      // /api/admin/membership
-      else if (url.startsWith('/api/admin/membership')) {
-        resolve({
-          responses: [
-            {
-              timestamp: new Date().toISOString(),
-              fullName: 'Test User',
-              collegeEmail: 'test@glbajaj.org',
-              rollNumber: '21001',
-              course: 'B.Tech',
-              branch: 'CSE',
-              groupsSelected: 'Web, AI',
-              submittedAt: new Date().toISOString(),
-            },
-          ],
         });
       }
 
@@ -1464,52 +1176,9 @@ async function fetchWithAuth(url, options = {}) {
           resolve({ result: { durationMs: 480 } });
         } else if (method === 'DELETE') {
           resolve({ success: true });
-      // /api/admin/reports/engagement
-      else if (url.startsWith('/api/admin/reports/engagement')) {
-        if (method === 'GET') {
-          // Generate mock engagement data
-          const seedUsers = Array.from({ length: 45 }, (_, i) => {
-            const eventsAttended = Math.floor(Math.random() * 15);
-            const portfolioCompletion = Math.floor(Math.random() * 101);
-            const activeDays30 = Math.floor(Math.random() * 31);
-            const activeDays90 = Math.floor(Math.random() * 91);
-            
-            // Engagement scoring logic:
-            // 40% based on active days in last 30 days (max 30 points -> scaled to 40)
-            // 30% based on events attended (max 10 events -> scaled to 30)
-            // 30% based on portfolio completion (max 100 -> scaled to 30)
-            const score30 = Math.min((activeDays30 / 30) * 40, 40);
-            const scoreEvents = Math.min((eventsAttended / 10) * 30, 30);
-            const scorePortfolio = (portfolioCompletion / 100) * 30;
-            const engagementScore = Math.round(score30 + scoreEvents + scorePortfolio);
-            
-            // Inactive user detection:
-            // Less than 2 active days in the last 30 days AND attended 0 events
-            const isInactive = activeDays30 < 2 && eventsAttended === 0;
-
-            return {
-              id: `user-${i + 1}`,
-              name: `Community Member ${i + 1}`,
-              eventsAttended,
-              portfolioCompletion,
-              activeDays30,
-              activeDays90,
-              engagementScore,
-              status: isInactive ? 'Inactive' : 'Active',
-            };
-          });
-          
-          // Sort by engagement score descending
-          seedUsers.sort((a, b) => b.engagementScore - a.engagementScore);
-          
-          resolve({ users: seedUsers });
         }
       }
-    }
-        });
-      }
     }, 300); // simulate slight network delay
-    }, 300);
   });
 }
 
@@ -1572,101 +1241,16 @@ export const api = {
       const query = new URLSearchParams(params).toString();
       return fetchWithAuth(`/api/admin/events/${eventId}/registrations${query ? `?${query}` : ''}`);
     },
-    list: (eventId) => fetchWithAuth(`/api/admin/events/${eventId}/registrations`),
     markAttendance: (eventId, payload) =>
       fetchWithAuth(`/api/admin/events/${eventId}/attendance`, {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
     analytics: (eventId) => fetchWithAuth(`/api/admin/events/${eventId}/analytics`),
-
-    // Offline Check-in Methods
-    downloadOfflineList: async (eventId) => {
-      const result = await fetchWithAuth(`/api/admin/events/${eventId}/registrations?limit=10000`);
-      if (result && result.registrations) {
-        localStorage.setItem(
-          `ns_offline_attendees_${eventId}`,
-          JSON.stringify(result.registrations)
-        );
-        return result.registrations;
-      }
-      return [];
-    },
-    getOfflineList: (eventId) => {
-      return safeJsonParse(localStorage.getItem(`ns_offline_attendees_${eventId}`), []);
-    },
-    getPendingSync: (eventId) => {
-      return safeJsonParse(localStorage.getItem(`ns_offline_pending_${eventId}`), []);
-    },
-    markOfflineAttendance: (eventId, email) => {
-      const attendees = safeJsonParse(localStorage.getItem(`ns_offline_attendees_${eventId}`), []);
-      const index = attendees.findIndex((a) => a.email.toLowerCase() === email.toLowerCase());
-      let attendeeData = null;
-      if (index >= 0) {
-        if (attendees[index].attended) {
-          return { error: 'Already marked present', already_attended: true };
-        }
-        attendees[index].attended = true;
-        attendees[index].attended_at = new Date().toISOString();
-        attendeeData = attendees[index];
-        localStorage.setItem(`ns_offline_attendees_${eventId}`, JSON.stringify(attendees));
-      } else {
-        return { error: 'Attendee not found in offline list' };
-      }
-
-      const pending = safeJsonParse(localStorage.getItem(`ns_offline_pending_${eventId}`), []);
-      pending.push({ email, timestamp: new Date().toISOString() });
-      localStorage.setItem(`ns_offline_pending_${eventId}`, JSON.stringify(pending));
-
-      return {
-        already_attended: false,
-        full_name: attendeeData.full_name,
-        email: attendeeData.email,
-      };
-    },
-    syncPending: async (eventId) => {
-      const pending = safeJsonParse(localStorage.getItem(`ns_offline_pending_${eventId}`), []);
-      if (pending.length === 0) return { success: true, count: 0 };
-
-      let successCount = 0;
-      let errors = [];
-      let remaining = [];
-
-      for (const item of pending) {
-        try {
-          await fetchWithAuth(`/api/admin/events/${eventId}/attendance`, {
-            method: 'POST',
-            body: JSON.stringify({ email: item.email }),
-          });
-          successCount++;
-        } catch (e) {
-          errors.push(e.message);
-          remaining.push(item);
-        }
-      }
-
-      if (remaining.length === 0) {
-        localStorage.removeItem(`ns_offline_pending_${eventId}`);
-      } else {
-        localStorage.setItem(`ns_offline_pending_${eventId}`, JSON.stringify(remaining));
-      }
-
-      return { success: errors.length === 0, count: successCount, errors };
-    },
   },
   events: {
     getAll: () => fetchWithAuth('/api/admin/events'),
     recommendations: () => fetchWithAuth('/api/admin/events/recommendations'),
-    create: async (event) => {
-      if (auth.isOfflineMode()) {
-        eventEmitter.emit(EVENTS.NOTIFY, {
-          type: 'warning',
-          message: 'Offline — changes not saved to server',
-        });
-      }
-      const result = await fetchWithAuth('/api/admin/events', {
-        method: 'POST',
-    getAll: () => fetchWithAuth("/api/admin/events"),
     create: async (event) => {
       if (auth.isOfflineMode()) {
         eventEmitter.emit(EVENTS.NOTIFY, {
@@ -1685,9 +1269,6 @@ export const api = {
       });
       broadcastContentUpdate('events');
       notifyContentUpdated('ns_db_events');
-        type: "success",
-        message: "Event created",
-      });
       return result;
     },
     update: async (id, event) => {
@@ -1695,12 +1276,6 @@ export const api = {
         eventEmitter.emit(EVENTS.NOTIFY, {
           type: 'warning',
           message: 'Offline — changes not saved to server',
-        });
-      }
-      const result = await fetchWithAuth(`/api/admin/events/${id}`, {
-        method: 'PUT',
-          type: "warning",
-          message: "Offline — changes not saved to server",
         });
       }
       const result = await fetchWithAuth(`/api/admin/events/${id}`, {
@@ -1714,9 +1289,6 @@ export const api = {
       });
       broadcastContentUpdate('events');
       notifyContentUpdated('ns_db_events');
-        type: "success",
-        message: "Event updated",
-      });
       return result;
     },
     delete: async (id) => {
@@ -1743,16 +1315,6 @@ export const api = {
       });
       broadcastContentUpdate('events');
       notifyContentUpdated('ns_db_events');
-          type: "warning",
-          message: "Offline — changes not saved to server",
-        });
-      }
-      await fetchWithAuth(`/api/admin/events/${id}`, { method: 'DELETE' });
-      eventEmitter.emit(EVENTS.EVENT_DELETED, { id });
-      eventEmitter.emit(EVENTS.NOTIFY, {
-        type: 'success',
-        message: 'Event deleted',
-      });
     },
   },
 
@@ -1769,14 +1331,6 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(event),
       });
-          type: "warning",
-          message: "Offline — changes not saved to server",
-        });
-      }
-      const result = await fetchWithAuth(`/api/admin/activity-events/${activityKey}`, {
-        method: 'POST',
-        body: JSON.stringify(event),
-      });
       eventEmitter.emit(EVENTS.ACTIVITY_EVENT_CREATED, {
         activityKey,
         event: result,
@@ -1787,23 +1341,12 @@ export const api = {
       });
       broadcastContentUpdate('activities');
       notifyContentUpdated('ns_db_events');
-        type: "success",
-        message: "Activity event added",
-      });
-      return result;
     },
     delete: async (activityKey, eventId) => {
       if (auth.isOfflineMode()) {
         eventEmitter.emit(EVENTS.NOTIFY, {
           type: 'warning',
           message: 'Offline — changes not saved to server',
-        });
-      }
-      await fetchWithAuth(`/api/admin/activity-events/${activityKey}/${eventId}`, {
-        method: 'DELETE',
-      });
-          type: "warning",
-          message: "Offline — changes not saved to server",
         });
       }
       await fetchWithAuth(`/api/admin/activity-events/${activityKey}/${eventId}`, {
@@ -1819,40 +1362,28 @@ export const api = {
       });
       broadcastContentUpdate('activities');
       notifyContentUpdated('ns_db_events');
-        type: "success",
-        message: "Activity event deleted",
-      });
     },
   },
 
   coreTeam: {
-    getAll: async ({ page = 1, limit = 50 } = {}) => {
-      const result = await fetchWithAuth(
-        `/api/admin/core-team?page=${page}&limit=${limit}`,
-      );
-      // Support both the paginated envelope { members, pagination } and the
-      // legacy bare-array shape so the dashboard stays compatible during any
-      // rolling deployment.
-      const members = result?.members ?? (Array.isArray(result) ? result : []);
-      const pagination = result?.pagination ?? null;
+    getAll: async () => {
+      const result = await fetchWithAuth('/api/admin/core-team');
+      const members = result?.members ?? result ?? [];
 
-      if (members.length === 0 && page === 1) {
+      // If Java DB is empty, seed it with the official team data
+      // (photos are bundled assets and can't live in Java, so we always merge)
+      if (members.length === 0) {
+        // Return the local seeded team so admin always sees the real team
         const seeded = getDb('core_team', []);
-        return { members: seeded, pagination };
+        return { members: seeded };
       }
-      return { members, pagination };
+      return { members };
     },
     add: async (member) => {
       if (auth.isOfflineMode()) {
         eventEmitter.emit(EVENTS.NOTIFY, {
           type: 'warning',
           message: 'Offline — changes not saved to server',
-        });
-      }
-      const result = await fetchWithAuth('/api/admin/core-team', {
-        method: 'POST',
-          type: "warning",
-          message: "Offline — changes not saved to server",
         });
       }
       const result = await fetchWithAuth('/api/admin/core-team', {
@@ -1885,18 +1416,12 @@ export const api = {
       });
       broadcastContentUpdate('team');
       notifyContentUpdated('ns_db_core_team');
-        type: "success",
-        message: "Member added",
-      });
-      return result;
     },
     remove: async (id) => {
       if (auth.isOfflineMode()) {
         eventEmitter.emit(EVENTS.NOTIFY, {
           type: 'warning',
           message: 'Offline — changes not saved to server',
-          type: "warning",
-          message: "Offline — changes not saved to server",
         });
       }
       await fetchWithAuth(`/api/admin/core-team/${id}`, { method: 'DELETE' });
@@ -1907,9 +1432,6 @@ export const api = {
       });
       broadcastContentUpdate('team');
       notifyContentUpdated('ns_db_core_team');
-        type: "success",
-        message: "Member removed",
-      });
     },
   },
 
@@ -2340,10 +1862,6 @@ export const api = {
       fetchWithAuth('/api/sync/resync', {
         method: 'POST',
       }),
-    getAll: () => fetchWithAuth("/api/admin/membership"),
-    getAll: () => fetchWithAuth('/api/admin/membership'),
-  reports: {
-    getEngagement: () => fetchWithAuth('/api/admin/reports/engagement'),
   },
 };
 

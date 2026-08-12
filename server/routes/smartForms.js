@@ -1,6 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { sendSuccess, sendError } from '../utils/responseHelper.js';
+import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -9,7 +10,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const forms = await prisma.form.findMany({
-      include: { fields: true }
+      include: { fields: true },
     });
     sendSuccess(res, forms);
   } catch (error) {
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new dynamic form
-router.post('/', async (req, res) => {
+router.post('/', requireStudentAuth, async (req, res) => {
   try {
     const { title, description, eventId, fields, logic } = req.body;
     const form = await prisma.form.create({
@@ -27,13 +28,15 @@ router.post('/', async (req, res) => {
         description,
         eventId,
         fields: {
-          create: fields
+          create: fields,
         },
-        logic: logic ? {
-          create: logic
-        } : undefined
+        logic: logic
+          ? {
+              create: logic,
+            }
+          : undefined,
       },
-      include: { fields: true, logic: true }
+      include: { fields: true, logic: true },
     });
     sendSuccess(res, form, 201);
   } catch (error) {
@@ -42,23 +45,28 @@ router.post('/', async (req, res) => {
 });
 
 // Submit a form response
-router.post('/:id/responses', async (req, res) => {
+router.post('/:id/responses', requireStudentAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { answers, userId } = req.body;
-    
+    const { answers } = req.body;
+    const userId = req.studentUser?.sub || req.user?.id;
+
+    if (!userId) {
+      return sendError(req, res, 'Authentication required', 401, 'UNAUTHORIZED');
+    }
+
     const response = await prisma.formResponse.create({
       data: {
         formId: id,
         userId,
         answers: {
-          create: answers.map(ans => ({
+          create: answers.map((ans) => ({
             fieldId: ans.fieldId,
-            value: ans.value
-          }))
-        }
+            value: ans.value,
+          })),
+        },
       },
-      include: { answers: true }
+      include: { answers: true },
     });
     sendSuccess(res, response, 201);
   } catch (error) {
@@ -72,7 +80,7 @@ router.get('/:id/responses', async (req, res) => {
     const { id } = req.params;
     const responses = await prisma.formResponse.findMany({
       where: { formId: id },
-      include: { answers: { include: { field: true } } }
+      include: { answers: { include: { field: true } } },
     });
     sendSuccess(res, responses);
   } catch (error) {

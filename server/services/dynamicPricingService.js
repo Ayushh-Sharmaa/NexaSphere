@@ -22,6 +22,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { computeDynamicPrice } from './pricingAlgorithm.js';
+import logger from '../utils/logger.js';
 
 const prisma = new PrismaClient();
 
@@ -203,7 +204,7 @@ export const dynamicPricingService = {
           isLoyal = true;
         }
       } catch (err) {
-        console.error('Error fetching loyalty count:', err);
+        logger.error('Error fetching loyalty count:', { error: err?.message });
       }
     }
 

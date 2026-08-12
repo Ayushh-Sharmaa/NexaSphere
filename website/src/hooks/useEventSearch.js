@@ -234,5 +234,4 @@ export function useEventSearch(activities, events) {
     addRecentSearch,
     removeRecentSearch,
   };
-  return { query, setQuery, filter, setFilter, results, loading, apiError, clearSearch };
 }

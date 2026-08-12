@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -6,8 +6,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
 
     if (token && role) {
       setUser({ token, role });
@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (data) => {
-    localStorage.setItem("token", data.accessToken);
-    localStorage.setItem("role", data.role);
+    localStorage.setItem('token', data.accessToken);
+    localStorage.setItem('role', data.role);
 
     setUser({
       token: data.accessToken,

@@ -1,83 +1,63 @@
-import crypto from 'crypto';
-import { sendSuccess, sendError } from '../utils/responseHelper.js';
-import { studentUsersRepository } from '../repositories/studentUsersRepository.js';
-import { eventsRepository } from '../repositories/eventsRepository.js';
-import { sendEmail } from '../services/emailService.js';
-import { renderCertificatePdf } from '../services/certificates/certificatePdfGenerator.js';
-import { uploadCertificatePdfToS3 } from '../services/certificates/s3Storage.js';
-import { PrismaClient } from '@prisma/client';
-import { generateQrCodeImageBuffer, buildVerificationUrl } from '../services/certificates/qrGenerator.js';
-import { renderCertificatePdf } from '../services/certificates/certificatePdfGenerator.js';
-import { uploadCertificatePdfToS3, uploadQrCodeToS3, downloadCertificatePdfFromS3 } from '../services/certificates/s3Storage.js';
-import { buildBadgeAssertion } from '../services/certificates/openBadgesGenerator.js';
-import { PrismaClient } from '@prisma/client';
+import crypto from "crypto";
+import { sendSuccess, sendError } from "../utils/responseHelper.js";
+import { studentUsersRepository } from "../repositories/studentUsersRepository.js";
+import { eventsRepository } from "../repositories/eventsRepository.js";
+import { sendEmail } from "../services/emailService.js";
+import { renderCertificatePdf } from "../services/certificates/certificatePdfGenerator.js";
+import {
+  uploadCertificatePdfToS3,
+  uploadQrCodeToS3,
+  downloadCertificatePdfFromS3,
+  getCertificateStreamFromS3,
+} from "../services/certificates/s3Storage.js";
+import { PrismaClient } from "@prisma/client";
+import {
+  generateQrCodeImageBuffer,
+  buildVerificationUrl,
+} from "../services/certificates/qrGenerator.js";
+import { buildBadgeAssertion } from "../services/certificates/openBadgesGenerator.js";
 
 const prisma = new PrismaClient();
-import { buildBadgeAssertion } from '../services/certificates/openBadgesGenerator.js';
-import { generateQrCodeImageBuffer, buildVerificationUrl } from '../services/certificates/qrGenerator.js';
-import { renderCertificatePdf } from '../services/certificates/certificatePdfGenerator.js';
-import { uploadCertificatePdfToS3, uploadQrCodeToS3 } from '../services/certificates/s3Storage.js';
 
 // --- Helpers ---
 function buildCertificateCode({ userId, eventId }) {
   return crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(`${userId}:${eventId}:${Date.now()}`)
-    .digest('hex')
+    .digest("hex")
     .slice(0, 16)
     .toUpperCase();
 }
 
 function buildVerifyUrl(code) {
-  const baseUrl = process.env.PUBLIC_APP_URL || process.env.APP_URL || '';
-  return baseUrl ? `${baseUrl.replace(/\/$/, '')}/certificates/verify/${code}` : '';
+  const baseUrl = process.env.PUBLIC_APP_URL || process.env.APP_URL || "";
+  return baseUrl
+    ? `${baseUrl.replace(/\/$/, "")}/certificates/verify/${code}`
+    : "";
 }
 
 // --- Controllers ---
 export async function verifyCertificate(req, res) {
   const { code } = req.params;
 
-  // TODO: lookup certificate by code.
-  // Placeholder response shape per acceptance criteria.
-  return sendSuccess(res, {
-  return res.json({
-    ok: true,
-    certificate: {
-      code,
-      attendeeName: 'Demo Attendee',
-      eventName: 'Demo Workshop',
-      date: new Date().toISOString().slice(0, 10),
-      completionCriteria: 'Completed workshop requirements',
-      status: 'PENDING',
-      verified: false,
-      verifiedAt: null,
-      expiresAt: null,
-    },
-  });
-}
-
-export async function getMyCertificates(req, res) {
-  // TODO: use req.studentUser / DB
-  return sendSuccess(res, {
-  return res.json({
-    certificates: [],
-  });
   try {
     const certificate = await prisma.certificate.findUnique({
       where: { code },
-      include: { user: true },
+      include: { user: true, event: true },
     });
 
     if (!certificate) {
-      return sendError(req, res, 'Certificate not found', 404, 'NOT_FOUND');
+      return sendError(req, res, "Certificate not found", 404, "NOT_FOUND");
     }
 
     return sendSuccess(res, {
       certificate: {
         code: certificate.code,
         attendeeName: certificate.attendeeName || certificate.user?.name,
-        eventName: certificate.eventName,
-        date: certificate.date.toISOString().slice(0, 10),
+        eventName: certificate.eventName || certificate.event?.name,
+        date:
+          certificate.date?.toISOString().slice(0, 10) ||
+          certificate.issuedAt?.toISOString().slice(0, 10),
         completionCriteria: certificate.completionCriteria,
         status: certificate.status,
         verified: certificate.verified,
@@ -88,80 +68,91 @@ export async function getMyCertificates(req, res) {
       },
     });
   } catch (error) {
-    return sendError(req, res, 'Error verifying certificate', 500, 'VERIFICATION_ERROR');
+    return sendError(
+      req,
+      res,
+      "Error verifying certificate",
+      500,
+      "VERIFICATION_ERROR"
+    );
   }
 }
 
 export async function getMyCertificates(req, res) {
-  try {
-    const certificate = await prisma.certificate.findUnique({
-      where: { code },
-      include: { user: true },
-    });
-
-    if (!certificate) {
-      return sendError(req, res, 'Certificate not found', 404, 'NOT_FOUND');
-    }
-
-    return sendSuccess(res, {
-      certificate: {
-        code: certificate.code,
-        attendeeName: certificate.attendeeName || certificate.user?.name,
-        eventName: certificate.eventName,
-        date: certificate.date.toISOString().slice(0, 10),
-        completionCriteria: certificate.completionCriteria,
-        status: certificate.status,
-        verified: certificate.verified,
-        verifiedAt: certificate.verifiedAt,
-        expiresAt: certificate.expiresAt,
-      },
-    });
-  } catch (error) {
-    return sendError(req, res, 'Error verifying certificate', 500, 'VERIFICATION_ERROR');
-  }
-}
-
-export async function getMyCertificates(req, res) {
-  const userId = req.user?.id;
-  if (!userId) return sendError(req, res, 'Unauthorized', 401, 'UNAUTHORIZED');
+  const userId = req.user?.id || req.studentUser?.id;
+  if (!userId) return sendError(req, res, "Unauthorized", 401, "UNAUTHORIZED");
 
   try {
     const certificates = await prisma.certificate.findMany({
       where: { userId },
+      include: { event: true },
+      orderBy: { issuedAt: "desc" },
     });
-    return sendSuccess(res, { certificates });
+
+    const formatted = certificates.map((cert) => ({
+      id: cert.id,
+      code: cert.code,
+      eventName: cert.eventName || cert.event?.name,
+      date:
+        cert.date?.toISOString().slice(0, 10) ||
+        cert.issuedAt?.toISOString().slice(0, 10),
+      status: cert.status,
+      verified: cert.verified,
+      pdfUrl: cert.pdfUrl,
+      qrUrl: cert.qrUrl,
+    }));
+
+    return sendSuccess(res, { certificates: formatted });
   } catch (error) {
-    return sendError(req, res, 'Failed to fetch certificates', 500);
+    return sendError(req, res, "Failed to fetch certificates", 500);
   }
 }
 
 export async function downloadCertificatePdf(req, res) {
-  // TODO: stream from S3
-  return sendError(req, res, 'PDF download not implemented yet (S3 + storage layer TODO).', 501, 'NOT_IMPLEMENTED');
-  return res
-    .status(501)
-    .json({ error: 'PDF download not implemented yet (S3 + storage layer TODO).' });
+  try {
+    const { id } = req.params;
+
+    // We fetch the certificate to get the correct eventId and code for the S3 key
+    const certificate = await prisma.certificate.findUnique({
+      where: { id },
+    });
+
+    if (!certificate) {
+      return sendError(req, res, "Certificate not found", 404, "NOT_FOUND");
+    }
+
+    const key = `certificates/${certificate.eventId}/${certificate.code}.pdf`;
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="certificate-${certificate.code}.pdf"`
+    );
+    res.setHeader("Content-Type", "application/pdf");
+
+    const fileStream = getCertificateStreamFromS3({ key });
+
+    fileStream.on("error", (err) => {
+      console.error("[CertificateDownload] S3 stream error:", err);
+      if (!res.headersSent) {
+        return sendError(
+          req,
+          res,
+          "Failed to download certificate from S3.",
+          500
+        );
+      }
+      res.end();
+    });
+
+    fileStream.pipe(res);
+  } catch (err) {
+    console.error("[CertificateDownload] Error initiating stream:", err);
+    return sendError(req, res, "Internal Server Error", 500);
+  }
 }
 
 export async function getOpenBadge(req, res) {
   const { id } = req.params;
-
-  const assertion = buildBadgeAssertion({
-    id,
-    badgeId: 'default-badge-class',
-    recipient: {
-      email: 'demo@example.com',
-      name: 'Demo Attendee',
-    },
-    verificationUrl: `${process.env.PUBLIC_APP_URL || ''}/certificates/verify/${id}`,
-    issuedOn: new Date().toISOString(),
-  });
-
-  return sendSuccess(res, {
-  return res.json({
-    id,
-    openBadges: assertion,
-  });
 
   try {
     const certificate = await prisma.certificate.findUnique({
@@ -169,18 +160,19 @@ export async function getOpenBadge(req, res) {
       include: { user: true },
     });
 
-    if (!certificate) return sendError(req, res, 'Certificate not found', 404, 'NOT_FOUND');
+    if (!certificate)
+      return sendError(req, res, "Certificate not found", 404, "NOT_FOUND");
 
     const verifyUrl = buildVerificationUrl({ code: certificate.code });
     const assertion = buildBadgeAssertion({
       id: certificate.id,
-      badgeId: 'default-badge-class',
+      badgeId: "default-badge-class",
       recipient: {
-        email: certificate.user?.email || 'unknown@example.com',
+        email: certificate.user?.email || "unknown@example.com",
         name: certificate.attendeeName || certificate.user?.name,
       },
       verificationUrl: verifyUrl,
-      issuedOn: certificate.date.toISOString(),
+      issuedOn: (certificate.date || certificate.issuedAt).toISOString(),
     });
 
     return sendSuccess(res, {
@@ -188,53 +180,54 @@ export async function getOpenBadge(req, res) {
       openBadges: assertion,
     });
   } catch (error) {
-    return sendError(req, res, 'Failed to generate OpenBadge assertion', 500);
+    return sendError(req, res, "Failed to generate OpenBadge assertion", 500);
   }
 }
 
 export async function getCertificateVerificationShare(req, res) {
   const { id } = req.params;
-  const verifyUrl = `${process.env.PUBLIC_APP_URL || 'https://nexasphere.com'}/verify/cert/${id}`;
+  const verifyUrl = `${process.env.PUBLIC_APP_URL || "https://nexasphere.com"}/verify/cert/${id}`;
 
   return sendSuccess(res, {
-  return res.json({
     id,
     linkedin: {
       shareUrl: verifyUrl,
     },
     twitter: {
-      text: 'I earned a digital badge!',
+      text: "I earned a digital badge!",
       shareUrl: verifyUrl,
     },
-    embeddableHtml: `<div data-badge-id=\"${id}\"></div>`,
+    embeddableHtml: `<div data-badge-id="${id}"></div>`,
   });
 }
 
-// Admin issuance trigger (placeholder)
 export async function issueCertificates(req, res) {
   const body = req.body || {};
   const eventId = body.eventId;
   const attendeeIds = Array.isArray(body.attendeeIds) ? body.attendeeIds : [];
 
   if (!eventId || attendeeIds.length === 0) {
-    return sendError(req, res, 'eventId and attendeeIds[] are required', 400, 'VALIDATION_ERROR');
-    return res.status(400).json({ error: 'eventId and attendeeIds[] are required' });
+    return sendError(
+      req,
+      res,
+      "eventId and attendeeIds[] are required",
+      400,
+      "VALIDATION_ERROR"
+    );
   }
 
   const event = await eventsRepository.getById(eventId);
   if (!event) {
-    return res.status(404).json({ error: 'Event not found' });
+    return sendError(req, res, "Event not found", 404, "NOT_FOUND");
   }
 
-  return sendSuccess(res, { issued });
-  return res.json({ ok: true, issued });
   const issued = [];
   const skipped = [];
 
   for (const userId of attendeeIds) {
     const attendee = await studentUsersRepository.findById(userId);
     if (!attendee?.email) {
-      skipped.push({ userId, reason: 'missing attendee email' });
+      skipped.push({ userId, reason: "missing attendee email" });
       continue;
     }
 
@@ -248,29 +241,32 @@ export async function issueCertificates(req, res) {
       verifyUrl,
     });
 
-    let storage = { key: null, url: '' };
+    let storage = { key: null, url: "" };
     const certificateKey = `certificates/${eventId}/${code}.pdf`;
     try {
-      storage = await uploadCertificatePdfToS3({ buffer: pdfBuffer, key: certificateKey });
+      storage = await uploadCertificatePdfToS3({
+        buffer: pdfBuffer,
+        key: certificateKey,
+      });
     } catch (err) {
-      storage = { key: certificateKey, url: '' };
+      storage = { key: certificateKey, url: "" };
     }
 
     const emailResult = await sendEmail({
       to: attendee.email,
       subject: `Your NexaSphere certificate for ${event.name}`,
-      templateName: 'attendance-confirmation',
+      templateName: "attendance-confirmation",
       data: {
         name: attendee.full_name || attendee.email,
         eventName: event.name,
         certificateCode: code,
-        verifyUrl: verifyUrl || storage.url || '',
+        verifyUrl: verifyUrl || storage.url || "",
       },
       attachments: [
         {
-          filename: `${event.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-${code}.pdf`,
+          filename: `${event.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${code}.pdf`,
           content: pdfBuffer,
-          contentType: 'application/pdf',
+          contentType: "application/pdf",
         },
       ],
     });
@@ -281,58 +277,11 @@ export async function issueCertificates(req, res) {
       eventId,
       eventName: event.name,
       code,
-      status: emailResult.success ? 'ISSUED_AND_EMAILED' : 'ISSUED',
+      status: emailResult.success ? "ISSUED_AND_EMAILED" : "ISSUED",
       certificateUrl: storage.url || null,
       verifyUrl: verifyUrl || null,
     });
   }
 
-  return res.json({ ok: true, eventId, eventName: event.name, issued, skipped });
-  try {
-    const issued = [];
-    for (const userId of attendeeIds) {
-      const code = buildCertificateCode({ userId, eventId });
-
-  try {
-    const issued = [];
-    for (const userId of attendeeIds) {
-      const code = buildCertificateCode({ userId, eventId });
-
-      const verifyUrl = buildVerificationUrl({ code });
-      const qrBuffer = await generateQrCodeImageBuffer({ url: verifyUrl });
-      const pdfBuffer = await renderCertificatePdf({ variables: { code, verifyUrl } });
-
-      const qrUpload = await uploadQrCodeToS3({ buffer: qrBuffer, key: `certificates/qr-${code}.png` });
-      const pdfUpload = await uploadCertificatePdfToS3({ buffer: pdfBuffer, key: `certificates/${code}.pdf` });
-
-  try {
-    const issued = [];
-    for (const userId of attendeeIds) {
-      const code = buildCertificateCode({ userId, eventId });
-
-      const cert = await prisma.certificate.create({
-        data: {
-          code,
-          userId,
-          eventId,
-          status: 'ISSUED',
-          qrUrl: qrUpload.url || qrUpload.key,
-          pdfUrl: pdfUpload.url || pdfUpload.key,
-        },
-      });
-      issued.push(cert);
-      // Note: Full persistence is handled in Issue 3770 PR.
-      issued.push({
-        userId,
-        eventId,
-        code,
-        status: 'ISSUED',
-        qrUrl: qrUpload.url || qrUpload.key,
-        pdfUrl: pdfUpload.url || pdfUpload.key,
-      });
-    }
-    return sendSuccess(res, { issued });
-  } catch (error) {
-    return sendError(req, res, 'Failed to issue certificates', 500);
-  }
+  return sendSuccess(res, { issued, skipped });
 }

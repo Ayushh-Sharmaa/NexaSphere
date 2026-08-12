@@ -3,7 +3,6 @@ import { supabaseRequest } from '../storage/supabaseClient.js';
 import notificationsService from './notificationsService.js';
 import gamificationService from './gamificationService.js';
 
-
 /**
  * Service for Learning Path logic, progress tracking, and nudges.
  */
@@ -82,8 +81,6 @@ export const learningPathService = {
           });
         }
       }
-      
-      await gamificationService.evaluateLearningProgress(enrollment.user_id, percent, newCount);
     }
 
     const [updated] = await learningPathsRepository.updateProgress(userPathId, updates);

@@ -323,7 +323,6 @@ export class FinancialService {
     const totalVariance = totalBudgeted - totalActual;
 
     const utilization = totalBudgeted > 0 ? totalActual / totalBudgeted : 0;
-    const utilization = totalBudgeted > 0 ? (totalActual / totalBudgeted) : 0;
     let alert = null;
     if (utilization >= 0.9) {
       alert = { alertLevel: '90%' };
@@ -540,7 +539,6 @@ export class FinancialService {
       (sum, r) => sum + (r.isRefunded ? 0 : r.amount - r.taxAmount),
       0
     );
-    const totalBeforeTax = revenues.reduce((sum, r) => sum + (r.isRefunded ? 0 : (r.amount - r.taxAmount)), 0);
     const totalRevenue = revenues.reduce((sum, r) => sum + (r.isRefunded ? 0 : r.amount), 0);
 
     return {

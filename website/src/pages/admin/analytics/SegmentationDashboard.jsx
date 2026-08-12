@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../../../utils/apiClient.js';
-import { getApiBase } from '../../../../utils/runtimeConfig';
+import apiClient from '../../../utils/apiClient.js';
+import { getApiBase } from '../../../utils/runtimeConfig';
 import {
   LineChart,
   Line,
@@ -21,6 +21,12 @@ export default function SegmentationDashboard() {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [condition, setCondition] = useState('events_count');
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = 'info') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 5000);
+  };
 
   useEffect(() => {
     fetchSegments();
@@ -55,7 +61,7 @@ export default function SegmentationDashboard() {
       setDesc('');
       fetchSegments();
     } catch (err) {
-      alert('Error creating segment: ' + err.message);
+      showFeedback('Error creating segment: ' + err.message, 'error');
     }
   };
 
@@ -67,9 +73,9 @@ export default function SegmentationDashboard() {
         credentials: 'include',
         body: JSON.stringify({ action, template: 'default' }),
       });
-      alert(`Action successful: ${res.count} users affected.`);
+      showFeedback(`Action successful: ${res.count} users affected.`, 'success');
     } catch (err) {
-      alert('Action failed: ' + err.message);
+      showFeedback('Action failed: ' + err.message, 'error');
     }
   };
 

@@ -26,6 +26,7 @@ Activity pages — each domain's detail page with conducted and upcoming events.
 
 1. Create `src/data/activities/<name>.js` with the activity object (see `activities/README.md` for schema)
 2. Register it in `src/data/activities/index.js`:
+
    ```js
    import myActivity from './<name>.js';
    export const activityPages = {
@@ -33,4 +34,5 @@ Activity pages — each domain's detail page with conducted and upcoming events.
      'My Activity Title': myActivity,
    };
    ```
+
 3. Add a card entry in `src/data/activitiesData.js` with a matching `title`

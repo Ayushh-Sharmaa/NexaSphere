@@ -57,11 +57,6 @@ export function EventRegistrations() {
     setPageSize(newPageSize);
     setPage(1);
   };
-      .list(selectedEventId)
-      .then((data) => setRegistrations(data?.registrations || []))
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [selectedEventId]);
 
   const handleAttendance = async (reg) => {
     try {
@@ -168,50 +163,6 @@ export function EventRegistrations() {
             loading={loading}
           />
         </>
-      {!loading && !error && selectedEventId && registrations.length === 0 && (
-        <div className="empty-state">No registrations for this event yet.</div>
-      )}
-
-      {registrations.length > 0 && (
-        <div className="list">
-          {registrations.map((reg) => (
-            <div key={reg.id} className="list-item">
-              <div className="list-item-left">
-                <div>
-                  <div className="item-name">{reg.full_name}</div>
-                  <div className="item-meta">
-                    {reg.email}
-                    {reg.department && ` · ${reg.department}`}
-                    {reg.year && ` · ${reg.year}`}
-                    {reg.team_name && ` · Team: ${reg.team_name}`}
-                  </div>
-                </div>
-              </div>
-              <div className="list-item-right">
-                <span
-                  className="status-badge"
-                  style={{ background: STATUS_COLORS[reg.status] || '#6b7280' }}
-                >
-                  {reg.attended ? 'Attended' : reg.status}
-                </span>
-                {!reg.attended && reg.status === 'confirmed' && (
-                  <button
-                    className="btn-primary"
-                    style={{ fontSize: '0.78rem', padding: '6px 14px' }}
-                    onClick={() => handleAttendance(reg)}
-                  >
-                    Mark Present
-                  </button>
-                )}
-                <AdminIcon
-                  name={reg.attended ? 'CheckCircle' : 'Circle'}
-                  size={16}
-                  style={{ color: reg.attended ? '#22c55e' : 'var(--admin-text-muted, #666)' }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
       )}
     </div>
   );

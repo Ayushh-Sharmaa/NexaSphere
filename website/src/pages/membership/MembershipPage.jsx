@@ -73,6 +73,7 @@ function Input({
   type = 'text',
   maxLength,
   inputMode: inputModeProp,
+  autoComplete,
   onPaste,
 }) {
   return (
@@ -84,8 +85,10 @@ function Input({
       type={type}
       maxLength={maxLength}
       inputMode={inputModeProp || (type === 'tel' ? 'numeric' : undefined)}
+      autoComplete={autoComplete}
       style={{
         width: '100%',
+        minHeight: '44px',
         padding: '12px 14px',
         background: 'var(--card2)',
         border: '1px solid var(--bdr2)',
@@ -117,6 +120,7 @@ function TextArea({ value, onChange, placeholder, rows = 5 }) {
       rows={rows}
       style={{
         width: '100%',
+        minHeight: '96px',
         padding: '12px 14px',
         background: 'var(--card2)',
         border: '1px solid var(--bdr2)',
@@ -582,6 +586,7 @@ export default function MembershipPage({ onBack }) {
                 onChange={(v) => set('fullName', v.replace(/[^a-zA-Z\s.\-']/g, ''))}
                 placeholder="Your full name"
                 maxLength={60}
+                autoComplete="name"
               />
             </Field>
 
@@ -592,6 +597,7 @@ export default function MembershipPage({ onBack }) {
                 placeholder="yourname@glbajajgroup.org"
                 type="email"
                 maxLength={100}
+                autoComplete="email"
               />
               {form.collegeEmail && !form.collegeEmail.endsWith('@glbajajgroup.org') && (
                 <div style={{ color: '#ef4444', fontSize: '.82rem', marginTop: 4 }}>
@@ -614,6 +620,8 @@ export default function MembershipPage({ onBack }) {
                 }
                 placeholder="e.g. 2301234"
                 maxLength={15}
+                inputMode="numeric"
+                autoComplete="off"
               />
             </Field>
 
@@ -643,6 +651,7 @@ export default function MembershipPage({ onBack }) {
                       onChange={(v) => set('courseOther', v.replace(/[^a-zA-Z0-9\s\-&().]/g, ''))}
                       placeholder="Specify your course"
                       maxLength={60}
+                      autoComplete="organization-title"
                     />
                   )}
                 </div>
@@ -667,6 +676,7 @@ export default function MembershipPage({ onBack }) {
                       onChange={(v) => set('branchOther', v.replace(/[^a-zA-Z0-9\s\-&().]/g, ''))}
                       placeholder="Specify your branch"
                       maxLength={60}
+                      autoComplete="organization-title"
                     />
                   )}
                 </div>
@@ -698,6 +708,7 @@ export default function MembershipPage({ onBack }) {
                       value={form.sectionOther}
                       onChange={(v) => set('sectionOther', v)}
                       placeholder="Type your section manually..."
+                      autoComplete="off"
                     />
                   </div>
                 )}
@@ -738,6 +749,7 @@ export default function MembershipPage({ onBack }) {
                 type="tel"
                 inputMode="numeric"
                 maxLength={10}
+                autoComplete="tel"
               />
             </Field>
           </div>
@@ -835,9 +847,27 @@ export default function MembershipPage({ onBack }) {
           transition:width .35s cubic-bezier(.22,1,.36,1);
         }
         .member-body { padding:22px 18px 18px; }
+        .member-actions {
+          margin-top:22px;
+          display:flex;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        }
         @media (min-width:720px){
           .member-body  { padding:26px 26px 22px; }
           .member-topbar{ padding:18px 26px 14px; }
+        }
+        @media (max-width:640px){
+          .member-actions {
+            flex-direction:column-reverse;
+            align-items:stretch;
+          }
+          .member-actions .btn {
+            width:100%;
+            min-height:52px;
+            justify-content:center;
+          }
         }
       `}</style>
 
@@ -1252,6 +1282,7 @@ export default function MembershipPage({ onBack }) {
                 ) : null}
 
                 <div
+                  className="member-actions"
                   style={{
                     marginTop: 22,
                     display: 'flex',

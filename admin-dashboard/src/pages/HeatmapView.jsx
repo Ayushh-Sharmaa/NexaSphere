@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import 'heatmap.js';
+import React, { useState, useEffect, useRef } from "react";
+import "heatmap.js";
 
 export function HeatmapView() {
-  const [url, setUrl] = useState('/');
+  const [url, setUrl] = useState("/");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const containerRef = useRef(null);
@@ -11,16 +11,16 @@ export function HeatmapView() {
   const fetchHeatmap = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE}/api/admin/analytics/heatmap?url=${encodeURIComponent(url)}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      if (!res.ok) throw new Error('Failed to fetch heatmap data');
+      if (!res.ok) throw new Error("Failed to fetch heatmap data");
       const points = await res.json();
       setData(points);
       renderHeatmap(points);
@@ -64,8 +64,8 @@ export function HeatmapView() {
   }, []);
 
   return (
-    <div style={{ marginTop: '2rem' }}>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+    <div style={{ marginTop: "2rem" }}>
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
         <input
           type="text"
           value={url}
@@ -74,23 +74,23 @@ export function HeatmapView() {
           className="input-field"
           style={{
             flex: 1,
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            color: '#000',
-            background: '#fff'
+            padding: "8px 12px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            color: "#000",
+            background: "#fff",
           }}
         />
-        <button 
+        <button
           onClick={fetchHeatmap}
           style={{
-            background: '#6366f1',
-            color: '#fff',
-            padding: '8px 16px',
-            borderRadius: '6px',
+            background: "#6366f1",
+            color: "#fff",
+            padding: "8px 16px",
+            borderRadius: "6px",
             fontWeight: 600,
-            cursor: 'pointer',
-            border: 'none'
+            cursor: "pointer",
+            border: "none",
           }}
         >
           Generate
@@ -102,26 +102,26 @@ export function HeatmapView() {
       <div
         ref={containerRef}
         style={{
-          width: '100%',
-          height: '600px',
-          background: '#fff',
-          border: '1px solid #ccc',
-          position: 'relative',
-          overflow: 'hidden',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          width: "100%",
+          height: "600px",
+          background: "#fff",
+          border: "1px solid #ccc",
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "8px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
         }}
       >
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ccc',
-            pointerEvents: 'none',
-            zIndex: 0
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#ccc",
+            pointerEvents: "none",
+            zIndex: 0,
           }}
         >
           [ Heatmap Overlay Container - {url} ]

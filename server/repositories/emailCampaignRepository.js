@@ -381,7 +381,6 @@ export const emailCampaignRepository = {
         params.push(criteria.groupId);
       }
 
-      let joinCount = 0;
       if (criteria.groupId) {
         query += ` JOIN user_group_members ugm ON s.id = ugm.student_id`;
       }

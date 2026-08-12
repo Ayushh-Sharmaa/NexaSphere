@@ -1,39 +1,43 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
+const { requireStudentAuth } = require('../middleware/studentAuthMiddleware');
+const { requireAdmin } = require('../middleware/adminAuthMiddleware');
 
-const maintenanceController = require("../controllers/maintenanceController");
+const maintenanceController = require('../controllers/maintenanceController');
 
-// Maintenance CRUD
-router.get("/", maintenanceController.getAllMaintenance);
-router.get("/:id", maintenanceController.getMaintenanceById);
-router.post("/", maintenanceController.createMaintenance);
-router.put("/:id", maintenanceController.updateMaintenance);
-router.delete("/:id", maintenanceController.deleteMaintenance);
+// Public Maintenance Status (no auth required)
+router.get('/public', maintenanceController.getPublicStatus);
 
-// Maintenance Actions
-router.post("/:id/start", maintenanceController.startMaintenance);
-router.post("/:id/complete", maintenanceController.completeMaintenance);
-router.post("/emergency", maintenanceController.emergencyMaintenance);
+// Countdown Timer (public)
+router.get('/countdown/:id', maintenanceController.getCountdown);
 
-// Public Maintenance Status
-router.get("/public", maintenanceController.getPublicStatus);
+// Status Banner (public)
+router.get('/banner', maintenanceController.getStatusBanner);
 
-// Maintenance History
-router.get("/history", maintenanceController.getHistory);
+// Service Impact (public)
+router.get('/services', maintenanceController.getServiceImpact);
 
-// Countdown Timer
-router.get("/countdown/:id", maintenanceController.getCountdown);
+router.use(requireStudentAuth);
 
-// Notifications
-router.post("/notify", maintenanceController.sendNotifications);
+// Maintenance CRUD (admin only)
+router.get('/', requireAdmin, maintenanceController.getAllMaintenance);
+router.get('/:id', requireAdmin, maintenanceController.getMaintenanceById);
+router.post('/', requireAdmin, maintenanceController.createMaintenance);
+router.put('/:id', requireAdmin, maintenanceController.updateMaintenance);
+router.delete('/:id', requireAdmin, maintenanceController.deleteMaintenance);
 
-// Admin Approval
-router.post("/approve/:id", maintenanceController.approveMaintenance);
+// Maintenance Actions (admin only)
+router.post('/:id/start', requireAdmin, maintenanceController.startMaintenance);
+router.post('/:id/complete', requireAdmin, maintenanceController.completeMaintenance);
+router.post('/emergency', requireAdmin, maintenanceController.emergencyMaintenance);
 
-// Status Banner
-router.get("/banner", maintenanceController.getStatusBanner);
+// Maintenance History (admin only)
+router.get('/history', requireAdmin, maintenanceController.getHistory);
 
-// Service Impact
-router.get("/services", maintenanceController.getServiceImpact);
+// Notifications (admin only)
+router.post('/notify', requireAdmin, maintenanceController.sendNotifications);
+
+// Admin Approval (admin only)
+router.post('/approve/:id', requireAdmin, maintenanceController.approveMaintenance);
 
 module.exports = router;

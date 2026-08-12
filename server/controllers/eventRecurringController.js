@@ -18,8 +18,8 @@ export const createSeries = async (req, res) => {
     // Parse RRule
     const rule = RRule.fromString(rruleString);
     const startDate = new Date(eventTemplate.date);
-    
-    // Rrule requires dtstart to be passed inside options if not in string, 
+
+    // Rrule requires dtstart to be passed inside options if not in string,
     // but typically it's safer to just set it via options.
     const ruleOptions = RRule.parseString(rruleString);
     ruleOptions.dtstart = startDate;
@@ -42,7 +42,7 @@ export const createSeries = async (req, res) => {
     for (let i = 0; i < occurrences.length; i++) {
       const occurrenceDate = occurrences[i];
       const eventId = `${eventTemplate.shortName || 'event'}-${seriesId.split('-')[0]}-${i + 1}`;
-      
+
       const newEvent = {
         ...eventTemplate,
         id: eventId,
@@ -63,9 +63,9 @@ export const createSeries = async (req, res) => {
         action: 'event_series.create',
         targetId: seriesId,
         targetType: 'EventSeries',
-        details: { 
-          count: createdEvents.length, 
-          rrule: rruleString 
+        details: {
+          count: createdEvents.length,
+          rrule: rruleString,
         },
       };
     }
@@ -74,7 +74,7 @@ export const createSeries = async (req, res) => {
       message: 'Series created successfully',
       seriesId,
       count: createdEvents.length,
-      events: createdEvents
+      events: createdEvents,
     });
   } catch (error) {
     console.error('Error creating event series:', error);
@@ -112,7 +112,7 @@ export const updateSeries = async (req, res) => {
 export const deleteSeries = async (req, res) => {
   try {
     const { seriesId } = req.params;
-    
+
     if (!seriesId) {
       return res.status(400).json({ error: 'seriesId is required' });
     }

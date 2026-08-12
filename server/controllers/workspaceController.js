@@ -1,4 +1,4 @@
-const workspaceService = require("../services/workspaceService");
+const workspaceService = require('../services/workspaceService');
 
 // Get All Workspaces
 const getAllWorkspaces = async (req, res) => {
@@ -12,7 +12,7 @@ const getAllWorkspaces = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch workspaces.",
+      message: 'Failed to fetch workspaces.',
       error: error.message,
     });
   }
@@ -26,7 +26,7 @@ const getWorkspaceById = async (req, res) => {
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: "Workspace not found.",
+        message: 'Workspace not found.',
       });
     }
 
@@ -37,7 +37,7 @@ const getWorkspaceById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch workspace.",
+      message: 'Failed to fetch workspace.',
       error: error.message,
     });
   }
@@ -50,13 +50,13 @@ const createWorkspace = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Workspace created successfully.",
+      message: 'Workspace created successfully.',
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create workspace.",
+      message: 'Failed to create workspace.',
       error: error.message,
     });
   }
@@ -65,27 +65,24 @@ const createWorkspace = async (req, res) => {
 // Update Workspace
 const updateWorkspace = async (req, res) => {
   try {
-    const workspace = await workspaceService.updateWorkspace(
-      req.params.id,
-      req.body
-    );
+    const workspace = await workspaceService.updateWorkspace(req.params.id, req.body);
 
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: "Workspace not found.",
+        message: 'Workspace not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Workspace updated successfully.",
+      message: 'Workspace updated successfully.',
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to update workspace.",
+      message: 'Failed to update workspace.',
       error: error.message,
     });
   }
@@ -99,19 +96,19 @@ const deleteWorkspace = async (req, res) => {
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: "Workspace not found.",
+        message: 'Workspace not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Workspace deleted successfully.",
+      message: 'Workspace deleted successfully.',
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to delete workspace.",
+      message: 'Failed to delete workspace.',
       error: error.message,
     });
   }
@@ -129,7 +126,7 @@ const getDocuments = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch documents.",
+      message: 'Failed to fetch documents.',
       error: error.message,
     });
   }
@@ -137,20 +134,17 @@ const getDocuments = async (req, res) => {
 
 const uploadDocument = async (req, res) => {
   try {
-    const document = await workspaceService.uploadDocument(
-      req.params.id,
-      req.body
-    );
+    const document = await workspaceService.uploadDocument(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: "Document uploaded successfully.",
+      message: 'Document uploaded successfully.',
       data: document,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to upload document.",
+      message: 'Failed to upload document.',
       error: error.message,
     });
   }
@@ -168,7 +162,7 @@ const getDiscussions = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch discussions.",
+      message: 'Failed to fetch discussions.',
       error: error.message,
     });
   }
@@ -176,20 +170,17 @@ const getDiscussions = async (req, res) => {
 
 const addDiscussion = async (req, res) => {
   try {
-    const discussion = await workspaceService.addDiscussion(
-      req.params.id,
-      req.body
-    );
+    const discussion = await workspaceService.addDiscussion(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: "Discussion added successfully.",
+      message: 'Discussion added successfully.',
       data: discussion,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to add discussion.",
+      message: 'Failed to add discussion.',
       error: error.message,
     });
   }
@@ -207,7 +198,7 @@ const getCalendar = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch calendar.",
+      message: 'Failed to fetch calendar.',
       error: error.message,
     });
   }
@@ -220,13 +211,13 @@ const createTask = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Task created successfully.",
+      message: 'Task created successfully.',
       data: task,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create task.",
+      message: 'Failed to create task.',
       error: error.message,
     });
   }
@@ -243,7 +234,7 @@ const getTasks = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch tasks.",
+      message: 'Failed to fetch tasks.',
       error: error.message,
     });
   }
@@ -252,20 +243,17 @@ const getTasks = async (req, res) => {
 // Meeting Notes
 const addMeetingNotes = async (req, res) => {
   try {
-    const notes = await workspaceService.addMeetingNotes(
-      req.params.id,
-      req.body
-    );
+    const notes = await workspaceService.addMeetingNotes(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: "Meeting notes added successfully.",
+      message: 'Meeting notes added successfully.',
       data: notes,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to add meeting notes.",
+      message: 'Failed to add meeting notes.',
       error: error.message,
     });
   }
@@ -278,13 +266,13 @@ const createPoll = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Poll created successfully.",
+      message: 'Poll created successfully.',
       data: poll,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create poll.",
+      message: 'Failed to create poll.',
       error: error.message,
     });
   }
@@ -293,20 +281,17 @@ const createPoll = async (req, res) => {
 // Announcements
 const createAnnouncement = async (req, res) => {
   try {
-    const announcement = await workspaceService.createAnnouncement(
-      req.params.id,
-      req.body
-    );
+    const announcement = await workspaceService.createAnnouncement(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: "Announcement created successfully.",
+      message: 'Announcement created successfully.',
       data: announcement,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create announcement.",
+      message: 'Failed to create announcement.',
       error: error.message,
     });
   }
@@ -324,7 +309,7 @@ const getTimeline = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch timeline.",
+      message: 'Failed to fetch timeline.',
       error: error.message,
     });
   }
@@ -342,7 +327,7 @@ const getBookmarks = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch bookmarks.",
+      message: 'Failed to fetch bookmarks.',
       error: error.message,
     });
   }
@@ -360,7 +345,7 @@ const getAnalytics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch workspace analytics.",
+      message: 'Failed to fetch workspace analytics.',
       error: error.message,
     });
   }

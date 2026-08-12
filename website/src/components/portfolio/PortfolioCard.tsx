@@ -169,7 +169,6 @@ export default function PortfolioCard({ portfolio }: PortfolioCardProps) {
       <div className="p-5">
         <div className="flex items-center gap-4 mb-4">
           {cached_github_stats?.avatar_url ? (
-            <img loading="lazy"
             <img
               loading="lazy"
               src={cached_github_stats.avatar_url}

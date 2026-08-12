@@ -1,5 +1,5 @@
-import platformAnalyticsService from "../services/platformAnalyticsService.js";
-import { sendSuccess } from "../utils/responseHelper.js";
+import platformAnalyticsService from '../services/platformAnalyticsService.js';
+import { sendSuccess } from '../utils/responseHelper.js';
 
 export const getDashboardOverview = (req, res) => {
   sendSuccess(res, platformAnalyticsService.getDashboardOverview());

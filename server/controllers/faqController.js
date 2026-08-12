@@ -19,13 +19,17 @@ export const faqController = {
   async trackView(req, res) {
     try {
       const { id } = req.params;
-      await faqRepository.incrementViews(id);
+      const success = await faqRepository.incrementViews(id);
+      if (!success) {
+        return sendError(req, res, 'FAQ not found', 404, 'NOT_FOUND');
+      }
       return sendSuccess(res, { success: true });
     } catch (err) {
       console.error('Error tracking FAQ view:', err);
       return sendError(req, res, 'Internal server error', 500, 'INTERNAL_ERROR');
     }
   },
+
 
   // Admin endpoint: list all
   async adminGetFAQs(req, res) {

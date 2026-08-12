@@ -8,7 +8,7 @@ exports.up = (pgm) => {
       type: 'timestamptz',
       notNull: true,
       default: pgm.func('now()'),
-    }
+    },
   });
 
   pgm.createIndex('search_analytics', 'query');

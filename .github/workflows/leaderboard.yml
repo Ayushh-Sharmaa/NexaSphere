@@ -1,0 +1,128 @@
+name: GSSoC — Contributor Leaderboard
+
+# ─────────────────────────────────────────────────────────────────────────────
+# After every merged PR, updates the contributor leaderboard showing
+# merged PR counts and rankings. Posts/updates a leaderboard comment
+# on a designated pinned issue.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [closed]
+  workflow_dispatch:
+
+concurrency:
+  group: contributor-leaderboard
+  cancel-in-progress: true
+
+jobs:
+  update-leaderboard:
+    name: Update Contributor Leaderboard
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.merged == true
+    permissions:
+      issues: write
+      pull-requests: read
+
+    steps:
+      - name: Generate and post leaderboard
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const LEADERBOARD_ISSUE_TITLE = 'GSSoC\'26 — Contributor Leaderboard 🏆';
+            const BOT_MARKER = '<!-- gssoc-leaderboard-bot -->';
+            const EXCLUDE_LOGINS = new Set(['github-actions[bot]', 'dependabot[bot]',
+                                            'Ayushh-Sharmaa', 'S3DFX-CYBER']);
+
+            // ── Fetch all merged PRs ──────────────────────────────────────────
+            let page = 1;
+            const mergedByUser = {};
+
+            while (true) {
+              const { data: prs } = await github.rest.pulls.list({
+                owner, repo, state: 'closed', per_page: 100, page,
+              });
+              if (prs.length === 0) break;
+
+              for (const pr of prs) {
+                if (!pr.merged_at) continue;
+                const login = pr.user.login;
+                if (EXCLUDE_LOGINS.has(login) || login.endsWith('[bot]')) continue;
+                mergedByUser[login] = (mergedByUser[login] || 0) + 1;
+              }
+              page++;
+            }
+
+            // ── Sort contributors by merged PR count ──────────────────────────
+            const sorted = Object.entries(mergedByUser)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 30);
+
+            // ── Build leaderboard markdown ────────────────────────────────────
+            const medals  = ['🥇', '🥈', '🥉'];
+            const rows = sorted.map(([login, count], i) => {
+              const rank  = i < 3 ? medals[i] : `**${i + 1}**`;
+              const avatar = `![${login}](https://github.com/${login}.png?size=24)`;
+              return `| ${rank} | ${avatar} [@${login}](https://github.com/${login}) | ${count} |`;
+            });
+
+            const now = new Date().toUTCString();
+            const leaderboard = [
+              BOT_MARKER,
+              `## 🏆 GSSoC'26 Contributor Leaderboard`,
+              ``,
+              `> 🕐 Last updated: ${now}`,
+              ``,
+              `| Rank | Contributor | Merged PRs |`,
+              `|------|-------------|-----------|`,
+              ...rows,
+              ``,
+              sorted.length === 0 ? `_No merged PRs yet — be the first! 🚀_` : ``,
+              ``,
+              `_Auto-updated on every merged PR · GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+            ].join('\n');
+
+            // ── Find or create the leaderboard issue ──────────────────────────
+            const { data: searchResult } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} is:issue in:title "${LEADERBOARD_ISSUE_TITLE}"`,
+            });
+
+            let leaderboardIssueNum;
+            if (searchResult.total_count > 0) {
+              leaderboardIssueNum = searchResult.items[0].number;
+            } else {
+              const { data: newIssue } = await github.rest.issues.create({
+                owner, repo,
+                title: LEADERBOARD_ISSUE_TITLE,
+                body: `This issue is pinned and auto-updated with the contributor leaderboard.\n\n${leaderboard}`,
+                labels: ['no-stale'],
+              });
+              leaderboardIssueNum = newIssue.number;
+              console.log(`✅ Created leaderboard issue #${leaderboardIssueNum}`);
+              return;
+            }
+
+            // ── Find existing leaderboard comment or post new one ─────────────
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: leaderboardIssueNum, per_page: 100,
+            });
+            const existingComment = comments.find(c =>
+              c.user.login === 'github-actions[bot]' && (c.body || '').includes(BOT_MARKER)
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existingComment.id, body: leaderboard,
+              });
+              console.log(`🔄 Updated leaderboard comment on issue #${leaderboardIssueNum}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: leaderboardIssueNum, body: leaderboard,
+              });
+              console.log(`✅ Posted new leaderboard comment on issue #${leaderboardIssueNum}`);
+            }
+
+            console.log(`🏆 Leaderboard updated — ${sorted.length} contributors ranked`);

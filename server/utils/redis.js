@@ -38,7 +38,7 @@ export function getRedisClient() {
     if (!process.env.REDIS_URL) {
       return null;
     }
-    const redisUrl = process.env.REDIS_URL;
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
     redisClient = new Redis(redisUrl, {
       retryStrategy(times) {
         if (times > 10) {
@@ -51,8 +51,6 @@ export function getRedisClient() {
       enableReadyCheck: true,
       lazyConnect: false,
     });
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    redisClient = new Redis(redisUrl);
 
     redisClient.on('error', (err) => {
       logger.error('Redis connection error:', err);

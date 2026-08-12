@@ -1,0 +1,103 @@
+name: GSSoC — Assignment Timeout Escalation
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When a mentor hasn't approved a queued assignment within 24 hours,
+# escalates to the Project Admin automatically.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:
+
+concurrency:
+  group: assignment-timeout-escalation
+  cancel-in-progress: true
+
+jobs:
+  escalate-pending:
+    name: Escalate Pending Assignments
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check and escalate timed-out assignment requests
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const TIMEOUT_HOURS = 24;
+            const cutoff = Date.now() - TIMEOUT_HOURS * 60 * 60 * 1000;
+
+            // ── Ensure escalated label exists ─────────────────────────────────
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+            await ensureLabel('escalated',          'b60205', 'Assignment escalated to Project Admin');
+            await ensureLabel('pending-assignment', 'fbca04', 'Assignment pending mentor approval');
+
+            // ── Find issues with pending-assignment label ──────────────────────
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', labels: 'pending-assignment', per_page: 100,
+            });
+
+            let escalated = 0;
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+
+              // Skip already-escalated issues
+              const labelNames = issue.labels.map(l => l.name);
+              if (labelNames.includes('escalated')) continue;
+
+              // Find the pending-assignment comment (most recent bot comment with "Assignment Request Queued")
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: issue.number, per_page: 100,
+              });
+
+              const pendingComment = [...comments].reverse().find(c =>
+                c.user.login === 'github-actions[bot]' &&
+                (c.body || '').includes('Assignment Request Queued')
+              );
+
+              if (!pendingComment) continue;
+
+              const commentAge = Date.now() - new Date(pendingComment.created_at).getTime();
+              if (commentAge < TIMEOUT_HOURS * 60 * 60 * 1000) continue;
+
+              // ── Mentor hasn't responded in 24h — escalate ─────────────────
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: issue.number, labels: ['escalated'],
+              });
+
+              const hoursWaited = Math.floor(commentAge / (1000 * 60 * 60));
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: [
+                  `## ⚠️ Assignment Escalation — ${hoursWaited}h Timeout`,
+                  ``,
+                  `This assignment request has been **pending for ${hoursWaited} hours** with no mentor response.`,
+                  ``,
+                  `@S3DFX-CYBER — please review this assignment request manually.`,
+                  ``,
+                  `| Field | Value |`,
+                  `|-------|-------|`,
+                  `| 📌 Issue | #${issue.number} |`,
+                  `| ⏰ Pending since | ${new Date(pendingComment.created_at).toUTCString()} |`,
+                  `| 🏷️ Status | \`pending-assignment\` → \`escalated\` |`,
+                  ``,
+                  `_GSSoC'26 automation · Escalated after ${TIMEOUT_HOURS}h — Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+
+              console.log(`🚨 Escalated issue #${issue.number} — pending ${hoursWaited}h`);
+              escalated++;
+            }
+
+            console.log(`✅ Escalation check complete — ${escalated} issue(s) escalated`);

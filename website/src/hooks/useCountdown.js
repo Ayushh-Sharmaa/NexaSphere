@@ -41,8 +41,8 @@ export default function useCountdown({
     const startTime = start?.getTime();
     const endTime = end?.getTime();
 
-    let status = 'upcoming';
-    let remaining = 0;
+    let status;
+    let remaining;
 
     const isCompleted = endTime && now > endTime;
     const isLive = startTime && now >= startTime && (!endTime || now <= endTime);

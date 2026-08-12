@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { api } from '../../services/api';
-import { exportToCSV, exportToPDF } from '../../utils/exportUtils';
+import React, { useState } from "react";
+import { api } from "../../services/api";
+import { exportToCSV, exportToPDF } from "../../utils/exportUtils";
 
 export function CustomReportBuilder() {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [metric, setMetric] = useState('page_views');
-  const [timeRange, setTimeRange] = useState('30d');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [metric, setMetric] = useState("page_views");
+  const [timeRange, setTimeRange] = useState("30d");
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,10 +16,10 @@ export function CustomReportBuilder() {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE}/api/admin/analytics/reports/execute`,
         {
-          method: 'POST',
-          credentials: 'include',
+          method: "POST",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ metric, timeRange }),
         }
@@ -34,20 +34,27 @@ export function CustomReportBuilder() {
   };
 
   const handleSaveReport = async () => {
-    if (!name) return alert('Please enter a report name');
+    if (!name) return alert("Please enter a report name");
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE}/api/admin/analytics/reports`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, description, config: { metric, timeRange } }),
-      });
-      alert('Report saved successfully');
+      await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/admin/analytics/reports`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            description,
+            config: { metric, timeRange },
+          }),
+        }
+      );
+      alert("Report saved successfully");
     } catch (e) {
       console.error(e);
-      alert('Failed to save report');
+      alert("Failed to save report");
     }
   };
 
@@ -119,7 +126,7 @@ export function CustomReportBuilder() {
           onClick={handleRunReport}
           className="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700"
         >
-          {loading ? 'Running...' : 'Run Query'}
+          {loading ? "Running..." : "Run Query"}
         </button>
         <button
           onClick={handleSaveReport}
@@ -132,7 +139,9 @@ export function CustomReportBuilder() {
       {reportData && (
         <div className="mt-4 border-t pt-4">
           <div className="flex justify-between items-center mb-4">
-            <h4 className="font-semibold">Query Results ({reportData.length} rows)</h4>
+            <h4 className="font-semibold">
+              Query Results ({reportData.length} rows)
+            </h4>
             <div className="flex gap-2">
               <button
                 onClick={handleExportCSV}

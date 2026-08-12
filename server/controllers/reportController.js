@@ -17,8 +17,6 @@ const prisma = new PrismaClient();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARCHIVE_DIR = path.join(__dirname, '../../reports');
 
-
-
 // ─── Email transport ──────────────────────────────────────────────────────────
 
 function getTransport() {

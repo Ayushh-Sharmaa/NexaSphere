@@ -25,12 +25,6 @@ jobs:
 
       - name: Deploy to Vercel Preview
         uses: amondnet/vercel-action@de09aeac2ace6599ec9b11ef87558759a496bac4 # v42.3.0
-        uses: amondnet/vercel-action@16e87c0a08142b0d0d33b76aeaf20823c381b9b9 # v25
-        uses: amondnet/vercel-action@de09aeac2ace6599ec9b11ef87558759a496bac4 # v42.3.0
-        uses: actions/checkout@v6
-
-      - name: Deploy to Vercel Preview
-        uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -48,11 +42,6 @@ jobs:
 
       - name: Deploy to Render
         uses: johnbeynon/render-deploy-action@a63fe3b2c1d880fad347a6ec2923b97e700755fe # v0.0.8
-        uses: johnbeynon/render-deploy-action@a0588f9aca995a15d69a72cb2bfbf37c12e5b540 # v0.0.8
-        uses: actions/checkout@v6
-
-      - name: Deploy to Render
-        uses: johnbeynon/render-deploy-action@v0.0.9
         with:
           service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
           api-key: ${{ secrets.RENDER_API_KEY }}
@@ -69,16 +58,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
-  validate-staging-db:
-    name: Validate Staging Database Schema
-    runs-on: ubuntu-latest
-    needs: deploy-backend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -159,7 +138,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
-        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'

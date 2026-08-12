@@ -6,6 +6,12 @@ export default function SyncDashboard({ token }) {
   const [syncStatus, setSyncStatus] = useState(null);
   const [conflicts, setConflicts] = useState(null);
   const [forceSyncing, setForceSyncing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   const fetchData = async () => {
     try {
@@ -13,7 +19,7 @@ export default function SyncDashboard({ token }) {
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const [statusRes, conflictsRes] = await Promise.all([
         fetch(`${base}/api/admin/sync-status`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${base}/api/admin/conflicts`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${base}/api/admin/conflicts`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const statusData = await statusRes.json();
@@ -41,14 +47,14 @@ export default function SyncDashboard({ token }) {
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const res = await fetch(`${base}/api/admin/sync/force`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to force sync');
-      alert(data.data.message);
+      showFeedback(data.data.message, 'success');
       await fetchData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showFeedback(`Error: ${err.message}`, 'error');
     } finally {
       setForceSyncing(false);
     }
@@ -58,43 +64,82 @@ export default function SyncDashboard({ token }) {
   if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
-    <div style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', color: 'var(--t1)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+    <div
+      style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', color: 'var(--t1)' }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+        }}
+      >
         <h2 style={{ margin: 0, color: 'white' }}>Database Sync Status</h2>
-        <button 
-          className="btn btn-primary" 
-          onClick={handleForceSync} 
-          disabled={forceSyncing}
-        >
+        <button className="btn btn-primary" onClick={handleForceSync} disabled={forceSyncing}>
           {forceSyncing ? 'Syncing...' : 'Force Sync All Nodes'}
         </button>
       </div>
 
       {syncStatus?.metrics && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem',
+            marginBottom: '2rem',
+          }}
+        >
+          <div
+            style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}
+          >
             <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--t2)' }}>Average Delay</h4>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{syncStatus.metrics.averageDelayMs} ms</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+              {syncStatus.metrics.averageDelayMs} ms
+            </div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}>
+          <div
+            style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}
+          >
             <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--t2)' }}>Pending Changes</h4>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{syncStatus.metrics.totalPendingChanges}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+              {syncStatus.metrics.totalPendingChanges}
+            </div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}>
+          <div
+            style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}
+          >
             <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--t2)' }}>Conflicting Records</h4>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: syncStatus.metrics.conflictingRecords > 0 ? '#ef4444' : '#10b981' }}>
+            <div
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                color: syncStatus.metrics.conflictingRecords > 0 ? '#ef4444' : '#10b981',
+              }}
+            >
               {syncStatus.metrics.conflictingRecords}
             </div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}>
+          <div
+            style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px' }}
+          >
             <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--t2)' }}>Last Successful Sync</h4>
-            <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>{new Date(syncStatus.metrics.lastSuccessfulSync).toLocaleString()}</div>
+            <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+              {new Date(syncStatus.metrics.lastSuccessfulSync).toLocaleString()}
+            </div>
           </div>
         </div>
       )}
 
       <h3 style={{ marginBottom: '1rem' }}>Distributed Nodes Status</h3>
-      <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', overflow: 'hidden', marginBottom: '2rem' }}>
+      <div
+        style={{
+          background: 'rgba(0,0,0,0.2)',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          marginBottom: '2rem',
+        }}
+      >
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
@@ -110,7 +155,13 @@ export default function SyncDashboard({ token }) {
               <tr key={node.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{node.id}</td>
                 <td style={{ padding: '1rem' }}>{node.region}</td>
-                <td style={{ padding: '1rem', color: node.status === 'ONLINE' ? '#10b981' : '#f59e0b', fontWeight: 'bold' }}>
+                <td
+                  style={{
+                    padding: '1rem',
+                    color: node.status === 'ONLINE' ? '#10b981' : '#f59e0b',
+                    fontWeight: 'bold',
+                  }}
+                >
                   {node.status}
                 </td>
                 <td style={{ padding: '1rem' }}>{node.delayMs}</td>
@@ -139,7 +190,9 @@ export default function SyncDashboard({ token }) {
                   <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{conflict.table}</td>
                   <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{conflict.recordId}</td>
                   <td style={{ padding: '1rem', color: '#ef4444' }}>{conflict.conflictType}</td>
-                  <td style={{ padding: '1rem' }}>{conflict.resolved ? 'Resolved' : 'Pending Action'}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {conflict.resolved ? 'Resolved' : 'Pending Action'}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -13,9 +13,6 @@ import { sendSuccess, sendError } from '../utils/responseHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import { eventsRepository } from '../repositories/eventsRepository.js';
-import { coreTeamService } from '../services/coreTeamService.js';
-import { activityEventsService } from '../services/activityEventsService.js';
 
 export const searchController = {
   async search(req, res) {
@@ -28,7 +25,6 @@ export const searchController = {
 
       if (!q || q.length < 2) {
         return sendSuccess(res, { results: [], total: 0, page, limit });
-        return res.json({ results: [], total: 0, page, limit });
       }
 
       const { isTypesenseEnabled, typesenseClient } = await import('../config/typesense.js');
@@ -146,17 +142,7 @@ export const searchController = {
         let allItems = [];
         if (type === 'all' || type === 'events') {
           const events = await eventsRepository.list({ page: 1, limit: 100 });
-          const matched = (events?.rows || []).map((ev) => ({
-      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
-
-      if (!q || q.length < 2) {
-        return res.json({ results: [], total: 0 });
-      }
-
-      const query = q.toLowerCase();
-      let results = [];
-
-      if (type === 'all' || type === 'events') {
+        if (type === 'all' || type === 'events') {
         const events = await eventsRepository.list({ page: 1, limit: 100 });
         const matched = (events?.rows || [])
           .filter(
@@ -181,11 +167,7 @@ export const searchController = {
           allItems = [...allItems, ...matched];
         }
 
-        if (type === 'all' || type === 'members') {
-          const members = await coreTeamService.listMembers();
-          const matched = (members || []).map((m) => ({
-        results = [...results, ...matched];
-      }
+
 
       if (type === 'all' || type === 'members') {
         const members = await coreTeamService.listMembers();
@@ -209,11 +191,7 @@ export const searchController = {
           allItems = [...allItems, ...matched];
         }
 
-        if (type === 'all' || type === 'activities') {
-          const activities = await activityEventsService.listAllActivities();
-          const matched = Object.entries(activities || {}).map(([key, a]) => ({
-        results = [...results, ...matched];
-      }
+
 
       if (type === 'all' || type === 'activities') {
         const activities = await activityEventsService.listAllActivities();
@@ -400,20 +378,9 @@ export const searchController = {
 
       return sendSuccess(res, { results, total: allResultsCount, query: q });
 
-      return res.json({ results, total: trueTotal, page, limit, query: q });
     } catch (err) {
       console.error('Search error:', err);
       return sendError(req, res, 'Search failed', 500, 'INTERNAL_ERROR', { results: [], total: 0 });
-        results = [...results, ...matched];
-      }
-
-      const trueTotal = results.length;
-      results = results.slice(0, limit);
-
-      return res.json({ results, total: trueTotal, query: q });
-    } catch (err) {
-      console.error('Search error:', err);
-      return res.status(500).json({ error: 'Search failed', results: [], total: 0 });
     }
   },
 
@@ -452,10 +419,6 @@ export const searchController = {
         trending: [],
         popularSearches: [],
       });
-      return res.json({ trending: sorted });
-    } catch (err) {
-      console.error('Trending error:', err);
-      return res.status(500).json({ error: 'Failed to fetch trending', trending: [] });
     }
   },
 

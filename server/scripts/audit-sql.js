@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 const reposDir = path.join(__dirname, '..', 'repositories');
 
 const files = fs.readdirSync(reposDir).filter((f) => f.endsWith('.js'));
-const files = fs.readdirSync(reposDir).filter(f => f.endsWith('.js'));
 let vulnerabilitiesFound = 0;
 
 for (const file of files) {
@@ -98,3 +97,7 @@ console.log(
 );
 console.log(`Audit complete. Found ${vulnerabilitiesFound} potential SQL injection vulnerabilities.`);
 process.exit(vulnerabilitiesFound > 0 ? 1 : 0);
+
+}
+}
+}

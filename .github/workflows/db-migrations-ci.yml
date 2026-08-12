@@ -20,28 +20,27 @@ on:
 
 jobs:
   validate-nodejs-migrations:
+    name: Validate Node.js Migrations
     runs-on: ubuntu-latest
-
     services:
       postgres:
-        image: postgres:16
+        image: postgres:15
         env:
-          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexasphere_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
@@ -49,45 +48,58 @@ jobs:
 
       - name: Install dependencies
         working-directory: server
-        run: npm install --legacy-peer-deps
+        run: npm install
 
       - name: Run migrations
         working-directory: server
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/nexasphere_test
-        run: npm run migrate:latest || true
+        run: npm run migrate:latest
 
       - name: Verify schema
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/nexasphere_test
         run: |
-          npm --prefix server run migrate -- --version || true
-          psql $DATABASE_URL -c "SELECT count(*) as migration_count FROM pgmigrations;" || true
-          psql $DATABASE_URL -c "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename;" || true
+          npm --prefix server run migrate -- --version
+          psql $DATABASE_URL -c "SELECT count(*) as migration_count FROM pgmigrations;"
+          psql $DATABASE_URL -c "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename;"
 
       - name: Validate database schema and constraints
         working-directory: server
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/nexasphere_test
-        run: npm run db:validate || true
+        run: npm run db:validate
 
       - name: Test rollback
         working-directory: server
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/nexasphere_test
         run: |
-          npm run migrate:rollback || true
-          echo "Migration rollback step completed"
-
-      - run: echo "Success"
+          npm run migrate:rollback
+          echo "Migration rollback successful"
 
   validate-java-migrations:
+    name: Validate Java Migrations
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexasphere_test_java
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -117,31 +129,28 @@ jobs:
         run: |
           grep -A 10 "<artifactId>flyway" server-java/pom.xml
 
-      - run: echo "Success"
-
   validate-python-migrations:
+    name: Validate Python Migrations
     runs-on: ubuntu-latest
-
     services:
       postgres:
-        image: postgres:16
+        image: postgres:15
         env:
-          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexasphere_test_py
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -165,22 +174,23 @@ jobs:
         run: |
           echo "Checking Alembic current version..."
           alembic current || true
-          echo "Checking migration history..."
-          alembic history || true
+          echo "Generating SQL for pending migrations..."
+          alembic upgrade head --sql --autogenerate 2>/dev/null | head -50 || true
 
       - name: Test migration dry-run
         working-directory: server-python
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexasphere_test_py
         run: |
-          python -c "from sqlalchemy import create_engine; engine = create_engine('postgresql://postgres:postgres@localhost:5432/nexasphere_test_py'); conn = engine.connect(); print('Database connection successful'); conn.close()"
-
-      - run: echo "Success"
+          # Initialize DB schema if needed
+          python -c "from sqlalchemy import create_engine; create_engine('${{ env.DATABASE_URL }}').connect()"
+          echo "Database connection successful"
 
   check-migration-documentation:
+    name: Check Migration Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Verify DATABASE_MIGRATIONS.md exists
         run: |
@@ -217,9 +227,23 @@ jobs:
           echo "Checking Python alembic.ini..."
           [ -f "server-python/alembic.ini" ] && echo "✓ Found" || echo "❌ Missing"
 
-      - run: echo "Success"
-
   summary:
+    name: Migration Validation Summary
     runs-on: ubuntu-latest
+    needs:
+      - validate-nodejs-migrations
+      - validate-java-migrations
+      - validate-python-migrations
+      - check-migration-documentation
+    if: always()
     steps:
-      - run: echo "Success"
+      - name: Check job results
+        run: |
+          if [ "${{ needs.validate-nodejs-migrations.result }}" == "failure" ] || \
+             [ "${{ needs.validate-java-migrations.result }}" == "failure" ] || \
+             [ "${{ needs.validate-python-migrations.result }}" == "failure" ] || \
+             [ "${{ needs.check-migration-documentation.result }}" == "failure" ]; then
+            echo "❌ One or more migration validation checks failed"
+            exit 1
+          fi
+          echo "✅ All migration validation checks passed"

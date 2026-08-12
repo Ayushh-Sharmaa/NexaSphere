@@ -4,8 +4,7 @@
  */
 
 import { Router } from 'express';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
-import adminAuthMiddleware from '../middleware/adminAuthMiddleware.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import { auditToolsRepository } from '../repositories/auditToolsRepository.js';
 import { runComplianceAudit } from '../services/complianceAuditEngine.js';
 import { apiRateLimiter } from '../middleware/rateLimiter.js';
@@ -15,7 +14,7 @@ import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.j
 
 const router = Router();
 
-const adminAuth = [apiRateLimiter, adminAuthMiddleware.requireAdmin];
+const adminAuth = [apiRateLimiter, requireAdmin];
 
 function safePagination(query) {
   const limit = Math.min(parseInt(query.limit, 10) || 50, 200);
@@ -35,7 +34,6 @@ router.post('/audit/run', adminAuth, async (req, res) => {
     const { runType, targetScope = {}, metadata = {} } = req.body || {};
     const parsedRunType = parseRunType(runType);
     if (!parsedRunType) return sendError(req, res, 'Invalid runType', 400, 'VALIDATION_ERROR');
-    if (!parsedRunType) return res.status(400).json({ error: 'Invalid runType' });
 
     const actorId = req.adminSession?.username || req.adminSession?.userId || 'admin';
 
@@ -50,9 +48,6 @@ router.post('/audit/run', adminAuth, async (req, res) => {
     return sendSuccess(res, { run: result }, 201);
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.status(201).json({ run: result });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -69,9 +64,6 @@ router.get('/admin/audit/runs', adminAuth, async (req, res) => {
     return sendSuccess(res, { runs });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.json({ runs });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -86,9 +78,6 @@ router.get('/admin/audit/runs/:runId', adminAuth, async (req, res) => {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
     if (!run) return res.status(404).json({ error: 'Run not found' });
     const issues = await auditToolsRepository.listIssues({ runId, limit: 2000, offset: 0 });
-    return res.json({ run, issues });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -132,9 +121,6 @@ router.get('/admin/audit/issues', adminAuth, async (req, res) => {
     return sendSuccess(res, { issues });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.json({ issues });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -206,9 +192,6 @@ router.post('/admin/audit/remediations', adminAuth, async (req, res) => {
     return sendSuccess(res, { remediation: rem }, 201);
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.status(201).json({ remediation: rem });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -237,10 +220,6 @@ router.patch('/admin/audit/remediations/:remediationId', adminAuth, async (req, 
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
     if (!rem) return res.status(404).json({ error: 'Remediation not found' });
-
-    return res.json({ remediation: rem });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -258,9 +237,6 @@ router.get('/admin/audit/remediations', adminAuth, async (req, res) => {
     return sendSuccess(res, { remediations });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.json({ remediations });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -276,9 +252,6 @@ router.get('/admin/audit/trends', adminAuth, async (req, res) => {
     return sendSuccess(res, { trends });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
-    return res.json({ trends });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 

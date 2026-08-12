@@ -15,6 +15,7 @@ import { fallbackCategories, fallbackThreads } from '../../data/forumData.js';
 import Footer from '../../shared/Footer';
 import { EmptyState } from '../../components/EmptyState';
 import { ForumPostSkeleton } from '../../components/ui/skeleton/ForumPostSkeleton';
+import TrendingHashtags from '../../components/forum/TrendingHashtags';
 
 export default function ForumPage({ onBack }) {
   const navigate = useNavigate();
@@ -244,121 +245,143 @@ export default function ForumPage({ onBack }) {
           </select>
         </div>
 
-        {loading ? (
-          <ForumPostSkeleton count={5} />
-        ) : filteredThreads.length === 0 ? (
-          <EmptyState
-            title="No Threads Found"
-            description="No threads match your current filters. Try adjusting your search or selecting a different category."
-            action={
-              <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-                Start a New Discussion
-              </button>
-            }
-          />
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {filteredThreads.map((thread) => (
-              <div
-                key={thread.id}
-                onClick={() => navigate(`/forum/${thread.id}`)}
-                style={{
-                  padding: '16px 20px',
-                  borderRadius: 12,
-                  border: '1px solid var(--bdr)',
-                  background: 'var(--surface)',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  opacity: thread.status === 'rejected' ? 0.5 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.boxShadow = '';
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                  <div style={{ textAlign: 'center', minWidth: 50 }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{thread.upvotes || 0}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>votes</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 700, marginTop: 4 }}>
-                      {thread.replyCount || 0}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      replies
-                    </div>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
-                    >
-                      {thread.isPinned && (
-                        <span style={{ fontSize: '0.75rem', color: '#CC1111' }}>📌 Pinned</span>
-                      )}
-                      {thread.isAnswered && (
-                        <span style={{ fontSize: '0.75rem', color: '#22c55e' }}>✅ Answered</span>
-                      )}
-                      {thread.isLocked && (
-                        <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>🔒 Locked</span>
-                      )}
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          padding: '2px 8px',
-                          borderRadius: 12,
-                          background: 'rgba(204,17,17,0.1)',
-                          color: '#CC1111',
-                        }}
-                      >
-                        {thread.categoryName || 'General'}
-                      </span>
-                    </div>
-                    <h3 style={{ margin: '4px 0', fontSize: '1.05rem', fontWeight: 600 }}>
-                      {thread.title}
-                    </h3>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: '0.875rem',
-                        color: 'var(--text-secondary)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {thread.content}
-                    </p>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                      {(thread.tags || []).map((tag) => (
-                        <span
-                          key={tag}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {loading ? (
+              <ForumPostSkeleton count={5} />
+            ) : filteredThreads.length === 0 ? (
+              <EmptyState
+                title="No Threads Found"
+                description="No threads match your current filters. Try adjusting your search or selecting a different category."
+                action={
+                  <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+                    Start a New Discussion
+                  </button>
+                }
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {filteredThreads.map((thread) => (
+                  <div
+                    key={thread.id}
+                    onClick={() => navigate(`/forum/${thread.id}`)}
+                    style={{
+                      padding: '16px 20px',
+                      borderRadius: 12,
+                      border: '1px solid var(--bdr)',
+                      background: 'var(--surface)',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      opacity: thread.status === 'rejected' ? 0.5 : 1,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.boxShadow = '';
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                      <div style={{ textAlign: 'center', minWidth: 50 }}>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                          {thread.upvotes || 0}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          votes
+                        </div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700, marginTop: 4 }}>
+                          {thread.replyCount || 0}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          replies
+                        </div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
                           style={{
-                            fontSize: '0.75rem',
-                            padding: '2px 8px',
-                            borderRadius: 12,
-                            background: 'rgba(123,111,255,0.1)',
-                            color: 'var(--text-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            flexWrap: 'wrap',
                           }}
                         >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div
-                      style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 8 }}
-                    >
-                      by {thread.authorName} · {formatThreadDate(thread.createdAt)}
-                      by {thread.authorName} · {new Date(thread.createdAt).toLocaleDateString()}
+                          {thread.isPinned && (
+                            <span style={{ fontSize: '0.75rem', color: '#CC1111' }}>📌 Pinned</span>
+                          )}
+                          {thread.isAnswered && (
+                            <span style={{ fontSize: '0.75rem', color: '#22c55e' }}>
+                              ✅ Answered
+                            </span>
+                          )}
+                          {thread.isLocked && (
+                            <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>🔒 Locked</span>
+                          )}
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: 12,
+                              background: 'rgba(204,17,17,0.1)',
+                              color: '#CC1111',
+                            }}
+                          >
+                            {thread.categoryName || 'General'}
+                          </span>
+                        </div>
+                        <h3 style={{ margin: '4px 0', fontSize: '1.05rem', fontWeight: 600 }}>
+                          {thread.title}
+                        </h3>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: '0.875rem',
+                            color: 'var(--text-secondary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {thread.content}
+                        </p>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                          {(thread.tags || []).map((tag) => (
+                            <span
+                              key={tag}
+                              style={{
+                                fontSize: '0.75rem',
+                                padding: '2px 8px',
+                                borderRadius: 12,
+                                background: 'rgba(123,111,255,0.1)',
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '0.8rem',
+                            color: 'var(--text-secondary)',
+                            marginTop: 8,
+                          }}
+                        >
+                          by {thread.authorName} · {formatThreadDate(thread.createdAt)}
+                          by {thread.authorName} · {new Date(thread.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+          <div className="hidden lg:block lg:col-span-1">
+            <TrendingHashtags />
+          </div>
+        </div>
       </div>
 
       {showCreateModal && (

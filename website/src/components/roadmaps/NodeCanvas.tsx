@@ -124,7 +124,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
 
       // Avoid self-references or circular connections
       if (node.prerequisites.includes(connectSourceId)) {
-        alert('Prerequisite connection already exists.');
         setMessage('Prerequisite connection already exists.');
         setConnectSourceId(null);
         return;
@@ -142,9 +141,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
       };
 
       if (hasCycle(node.id, connectSourceId)) {
-        alert(
-          'Invalid Connection: Adding this prerequisite will create a circular dependency loop!'
-        );
         setMessage(
           'Invalid connection: adding this prerequisite will create a circular dependency loop.'
         );

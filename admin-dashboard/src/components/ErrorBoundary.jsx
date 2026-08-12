@@ -10,7 +10,7 @@
  *   children  - Component tree to guard
  */
 
-import React from 'react';
+import React from "react";
 
 const ALERT_TRIANGLE = (
   <svg
@@ -31,29 +31,29 @@ const ALERT_TRIANGLE = (
 );
 
 function DefaultFallback({ error, resetError }) {
-  const isDev = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
+  const isDev = typeof import.meta !== "undefined" && import.meta.env?.DEV;
 
   return (
     <div
       role="alert"
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '60px 24px',
-        minHeight: '300px',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        padding: "60px 24px",
+        minHeight: "300px",
       }}
     >
-      <div style={{ marginBottom: '16px' }}>{ALERT_TRIANGLE}</div>
+      <div style={{ marginBottom: "16px" }}>{ALERT_TRIANGLE}</div>
 
       <h2
         style={{
-          fontSize: '1.25rem',
+          fontSize: "1.25rem",
           fontWeight: 700,
-          color: 'var(--text, #e2e8f0)',
-          marginBottom: '10px',
+          color: "var(--text, #e2e8f0)",
+          marginBottom: "10px",
         }}
       >
         Something went wrong
@@ -61,11 +61,11 @@ function DefaultFallback({ error, resetError }) {
 
       <p
         style={{
-          fontSize: '0.9rem',
-          color: 'var(--text-secondary, #94a3b8)',
-          maxWidth: '400px',
+          fontSize: "0.9rem",
+          color: "var(--text-secondary, #94a3b8)",
+          maxWidth: "400px",
           lineHeight: 1.6,
-          marginBottom: '20px',
+          marginBottom: "20px",
         }}
       >
         An unexpected error occurred while loading this page. Please try again.
@@ -74,49 +74,58 @@ function DefaultFallback({ error, resetError }) {
       {error && isDev && (
         <details
           style={{
-            whiteSpace: 'pre-wrap',
-            background: 'var(--surface, #1e293b)',
-            padding: '10px 14px',
-            borderRadius: '6px',
-            maxWidth: '480px',
-            marginBottom: '20px',
-            fontSize: '0.8rem',
-            fontFamily: 'monospace',
-            color: '#ff5555',
-            textAlign: 'left',
-            border: '1px solid rgba(255,68,68,0.15)',
-            width: '100%',
+            whiteSpace: "pre-wrap",
+            background: "var(--surface, #1e293b)",
+            padding: "10px 14px",
+            borderRadius: "6px",
+            maxWidth: "480px",
+            marginBottom: "20px",
+            fontSize: "0.8rem",
+            fontFamily: "monospace",
+            color: "#ff5555",
+            textAlign: "left",
+            border: "1px solid rgba(255,68,68,0.15)",
+            width: "100%",
           }}
         >
-          <summary style={{ cursor: 'pointer', fontWeight: 600, marginBottom: '6px' }}>
+          <summary
+            style={{ cursor: "pointer", fontWeight: 600, marginBottom: "6px" }}
+          >
             Error Details
           </summary>
           {error.toString()}
         </details>
       )}
 
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
         <button
           onClick={resetError}
           className="btn btn-primary"
           aria-label="Retry"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         >
           Try Again
         </button>
         <button
           onClick={() => {
-            window.location.href = '/dashboard';
+            window.location.href = "/dashboard";
           }}
           aria-label="Go to dashboard"
           style={{
-            cursor: 'pointer',
-            padding: '0.6rem 1.2rem',
-            fontSize: '0.85rem',
-            background: 'var(--surface2, #334155)',
-            color: 'var(--text, #e2e8f0)',
-            border: '1px solid var(--surface2, #334155)',
-            borderRadius: '6px',
+            cursor: "pointer",
+            padding: "0.6rem 1.2rem",
+            fontSize: "0.85rem",
+            background: "var(--surface2, #334155)",
+            color: "var(--text, #e2e8f0)",
+            border: "1px solid var(--surface2, #334155)",
+            borderRadius: "6px",
           }}
         >
           Go to Dashboard
@@ -138,9 +147,9 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught:', error, errorInfo);
+      console.error("ErrorBoundary caught:", error, errorInfo);
     }
-    if (typeof this.props.onError === 'function') {
+    if (typeof this.props.onError === "function") {
       this.props.onError(error, errorInfo);
     }
   }
@@ -158,7 +167,7 @@ class ErrorBoundary extends React.Component {
         if (React.isValidElement(fallback)) {
           return fallback;
         }
-        if (typeof fallback === 'function') {
+        if (typeof fallback === "function") {
           return fallback({ error, resetError: this.resetError });
         }
       }

@@ -25,30 +25,6 @@ const optionalText = (max) =>
       const text = String(value ?? '').trim();
       return text ? sanitizeText(text, max) : null;
     });
-function toSafeString(value, max = 4000) {
-  return String(value ?? '').trim().slice(0, max);
-}
-
-function normalizePhone(value) {
-  return String(value || '').replace(/[^\d]/g, '');
-}
-
-function validateWhatsApp(str) {
-  const v = String(str || '').trim();
-  if (!/^\d{10}$/.test(v)) throw new Error('WhatsApp must be exactly 10 digits');
-  return v;
-}
-
-function validateSection(str) {
-  const v = String(str || '').trim().toUpperCase();
-  if (!/^[A-Z]$/.test(v)) throw new Error('Section must be a single letter (A-Z)');
-  return v;
-}
-const optionalText = (max) => z.string().trim().max(max).optional().transform((value) => {
-  const text = String(value ?? '').trim();
-  return text ? toSafeString(text, max) : null;
-});
-
 const coreTeamMemberBaseSchema = z.object({
   id: z.string().trim().min(1).max(120).optional(),
   name: z.string().trim().min(1, 'name is required').max(100),

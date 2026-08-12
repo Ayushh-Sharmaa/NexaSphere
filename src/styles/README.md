@@ -8,7 +8,7 @@ Three CSS files — each with a clear, distinct responsibility.
 
 **CSS variables, body reset, fonts, layout utilities, scroll UI.**
 
-### To change colors site-wide — edit `:root {}` at the top:
+### To change colors site-wide — edit `:root {}` at the top
 
 ```css
 --cyan: #00d4ff; /* Primary accent — headings, borders, glows */
@@ -18,7 +18,7 @@ Three CSS files — each with a clear, distinct responsibility.
 --bg-card: #0d1229; /* Card background */
 ```
 
-### Also contains:
+### Also contains
 
 - Scrollbar styling
 - Scroll progress bar (`#scroll-progress`)
@@ -52,7 +52,7 @@ Add any of these to an element — it will animate in when scrolled into view:
 `letterDrop` `neonFlicker` `scanline` `dataStream` `countUp`
 `warp` `blink` `cardFlipIn` `hexSpin` `sectionReveal`
 
-### To adjust scroll reveal speed:
+### To adjust scroll reveal speed
 
 ```css
 .reveal {
@@ -68,7 +68,7 @@ Add any of these to an element — it will animate in when scrolled into view:
 
 **Styles for every component — buttons, navbar, cards, modal, timeline, hero, footer, copy popup.**
 
-### Sections inside:
+### Sections inside
 
 - Buttons (`.btn`, `.btn-primary`, `.btn-outline`, `.btn-linkedin`, `.btn-whatsapp`, etc.)
 - Navbar — desktop (`.ns-navbar`) and mobile (`.ns-navbar-mobile`)

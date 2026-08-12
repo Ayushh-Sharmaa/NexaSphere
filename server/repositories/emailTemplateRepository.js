@@ -10,7 +10,9 @@ export const emailTemplateRepository = {
 
   async getByName(name) {
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM email_templates WHERE name = $1 LIMIT 1', [name]);
+      const { rows } = await client.query('SELECT * FROM email_templates WHERE name = $1 LIMIT 1', [
+        name,
+      ]);
       return rows[0] || null;
     });
   },
@@ -33,7 +35,10 @@ export const emailTemplateRepository = {
 
   async deleteTemplate(name) {
     return withDb(async (client) => {
-      const { rows } = await client.query('DELETE FROM email_templates WHERE name = $1 RETURNING *', [name]);
+      const { rows } = await client.query(
+        'DELETE FROM email_templates WHERE name = $1 RETURNING *',
+        [name]
+      );
       return rows[0] || null;
     });
   },

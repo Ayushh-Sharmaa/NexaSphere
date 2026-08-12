@@ -33,30 +33,12 @@ const memBlacklist = new Set((process.env.RATE_LIMIT_BLACKLIST || '').split(',')
 const memAbuse = new Map(); // ip → { count, resetAt }
 const memAutoblock = new Map(); // ip → unblocksAt (ms)
 import { createClient } from 'redis';
-import logger from '../utils/logger.js';
 
 // ── config ──────────────────────────────────────────────────────────────────
-const ABUSE_THRESHOLD = 300; // requests within the window that trigger auto-block
-const ABUSE_WINDOW_SEC = 60;
-const AUTOBLOCK_TTL_SEC = 3600; // 1 hour auto-block
-const DELAY_80_MS = 100;
-const DELAY_90_MS = 500;
 
 // ── redis client helper ─────────────────────────────────────────────────────
-async function getRedis() {
-  try {
-    return getRedisClient();
-  } catch {
-    logger.warn('ThrottleMiddleware: Redis unavailable, falling back to in-memory');
-    return null;
-  }
-}
 
 // ── in-memory fallback stores ────────────────────────────────────────────────
-const memWhitelist = new Set((process.env.RATE_LIMIT_WHITELIST || '').split(',').filter(Boolean));
-const memBlacklist = new Set((process.env.RATE_LIMIT_BLACKLIST || '').split(',').filter(Boolean));
-const memAbuse = new Map(); // ip → { count, resetAt }
-const memAutoblock = new Map(); // ip → unblocksAt (ms)
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function delay(ms) {
@@ -139,10 +121,8 @@ async function recordAndCheckAbuse(ip, redis) {
  */
 export async function throttleMiddleware(req, res, next) {
   const ip = clientIp(req);
-  const ip    = clientIp(req);
   const redis = await getRedis();
 
-  try {
     // 1. whitelist — skip all limits
     if (await isWhitelisted(ip, redis)) return next();
 
@@ -199,8 +179,6 @@ export async function throttleMiddleware(req, res, next) {
     }
 
     next();
-  } catch (err) {
-    logger.error('ThrottleMiddleware error', { err: err.message });
     next(); // fail open — never block legitimate traffic due to middleware errors
   }
 }

@@ -22,7 +22,7 @@ export default function JoinRequestModal({ team, onClose, onSubmit }) {
   };
   // Store the element that triggered the modal so focus can be
   // returned to it when the modal closes.
-  const triggerRef = useRef(document.activeElement);
+  const triggerRef = useRef(typeof document !== 'undefined' ? document.activeElement : null);
 
   // Reset form state whenever the modal opens (team changes)
   // This ensures users start with a fresh form each time they open the modal
@@ -167,7 +167,6 @@ export default function JoinRequestModal({ team, onClose, onSubmit }) {
               &times;
             </button>
           </div>
-          <p style={{ margin: '8px 0 0 0', color: 'var(--c1)', fontSize: '0.9rem' }}>
           <p
             id="modal-description"
             style={{ margin: '8px 0 0 0', color: 'var(--c1)', fontSize: '0.9rem' }}

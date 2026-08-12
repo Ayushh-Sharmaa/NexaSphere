@@ -100,11 +100,3 @@ export function clearPasskeyAttempts(username, ip) {
   failedPasskeyAttemptsByIp.delete(ipKey);
   failedPasskeyAttemptsByUsername.delete(userKey);
 }
-// It seems the conflict markers are split! Let's just do a string replace
-let targetJs = js.replace(
-  /<<<<<<< HEAD[\s\S]*?function clearPasskeyAttempts/m,
-  replacement + '\nfunction clearPasskeyAttempts'
-);
-fs.writeFileSync('server/index.js', targetJs);
-}
-}

@@ -19,13 +19,11 @@ export function AmaCard({ ama }) {
       }}
     >
       <div className="ama-card-header">
-        <span className={`ama-status-badge ${ama.status}`}>
-          {ama.status}
-        </span>
+        <span className={`ama-status-badge ${ama.status}`}>{ama.status}</span>
       </div>
-      
+
       <h3 className="ama-card-topic">{ama.topic}</h3>
-      
+
       <div className="ama-card-mentor">
         <img src={ama.mentor.avatar} alt={ama.mentor.name} className="ama-card-avatar" />
         <div className="ama-card-mentor-info">

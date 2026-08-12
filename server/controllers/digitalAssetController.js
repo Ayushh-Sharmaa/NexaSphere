@@ -1,4 +1,4 @@
-const digitalAssetService = require("../services/digitalAssetService");
+const digitalAssetService = require('../services/digitalAssetService');
 
 // Get All Assets
 const getAllAssets = async (req, res) => {
@@ -12,7 +12,7 @@ const getAllAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch assets.",
+      message: 'Failed to fetch assets.',
       error: error.message,
     });
   }
@@ -26,7 +26,7 @@ const getAssetById = async (req, res) => {
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: "Asset not found.",
+        message: 'Asset not found.',
       });
     }
 
@@ -37,7 +37,7 @@ const getAssetById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch asset.",
+      message: 'Failed to fetch asset.',
       error: error.message,
     });
   }
@@ -50,13 +50,13 @@ const uploadAsset = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Asset uploaded successfully.",
+      message: 'Asset uploaded successfully.',
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to upload asset.",
+      message: 'Failed to upload asset.',
       error: error.message,
     });
   }
@@ -65,27 +65,24 @@ const uploadAsset = async (req, res) => {
 // Update Asset
 const updateAsset = async (req, res) => {
   try {
-    const asset = await digitalAssetService.updateAsset(
-      req.params.id,
-      req.body
-    );
+    const asset = await digitalAssetService.updateAsset(req.params.id, req.body);
 
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: "Asset not found.",
+        message: 'Asset not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Asset updated successfully.",
+      message: 'Asset updated successfully.',
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to update asset.",
+      message: 'Failed to update asset.',
       error: error.message,
     });
   }
@@ -99,19 +96,19 @@ const deleteAsset = async (req, res) => {
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: "Asset not found.",
+        message: 'Asset not found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Asset deleted successfully.",
+      message: 'Asset deleted successfully.',
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to delete asset.",
+      message: 'Failed to delete asset.',
       error: error.message,
     });
   }
@@ -129,7 +126,7 @@ const searchAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to search assets.",
+      message: 'Failed to search assets.',
       error: error.message,
     });
   }
@@ -138,9 +135,7 @@ const searchAssets = async (req, res) => {
 // Get Assets By Category
 const getAssetsByCategory = async (req, res) => {
   try {
-    const assets = await digitalAssetService.getAssetsByCategory(
-      req.params.category
-    );
+    const assets = await digitalAssetService.getAssetsByCategory(req.params.category);
 
     res.status(200).json({
       success: true,
@@ -149,7 +144,7 @@ const getAssetsByCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch assets by category.",
+      message: 'Failed to fetch assets by category.',
       error: error.message,
     });
   }
@@ -167,7 +162,7 @@ const getFolders = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch folders.",
+      message: 'Failed to fetch folders.',
       error: error.message,
     });
   }
@@ -180,13 +175,13 @@ const createFolder = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Folder created successfully.",
+      message: 'Folder created successfully.',
       data: folder,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create folder.",
+      message: 'Failed to create folder.',
       error: error.message,
     });
   }
@@ -204,7 +199,7 @@ const detectDuplicates = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to detect duplicate assets.",
+      message: 'Failed to detect duplicate assets.',
       error: error.message,
     });
   }
@@ -222,7 +217,7 @@ const generateAITags = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to generate AI tags.",
+      message: 'Failed to generate AI tags.',
       error: error.message,
     });
   }
@@ -240,7 +235,7 @@ const getVersionHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch version history.",
+      message: 'Failed to fetch version history.',
       error: error.message,
     });
   }
@@ -258,7 +253,7 @@ const previewAsset = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to preview asset.",
+      message: 'Failed to preview asset.',
       error: error.message,
     });
   }
@@ -271,13 +266,13 @@ const bulkUpload = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Assets uploaded successfully.",
+      message: 'Assets uploaded successfully.',
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Bulk upload failed.",
+      message: 'Bulk upload failed.',
       error: error.message,
     });
   }
@@ -295,7 +290,7 @@ const bulkDownload = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Bulk download failed.",
+      message: 'Bulk download failed.',
       error: error.message,
     });
   }
@@ -308,13 +303,13 @@ const shareAsset = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Asset shared successfully.",
+      message: 'Asset shared successfully.',
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to share asset.",
+      message: 'Failed to share asset.',
       error: error.message,
     });
   }
@@ -332,7 +327,7 @@ const getStorageAnalytics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch storage analytics.",
+      message: 'Failed to fetch storage analytics.',
       error: error.message,
     });
   }
@@ -350,7 +345,7 @@ const getExpiringAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch expiring assets.",
+      message: 'Failed to fetch expiring assets.',
       error: error.message,
     });
   }

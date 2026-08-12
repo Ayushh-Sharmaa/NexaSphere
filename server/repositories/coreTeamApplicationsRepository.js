@@ -4,7 +4,6 @@
  * Uses the same Supabase/pg pattern as other repositories.
  */
 import { withDb } from './db.js';
-import { withDb } from '../utils/db.js';
 
 const HAS_SUPABASE = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_KEY);
 
@@ -48,10 +47,6 @@ export const coreTeamApplicationsRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const result = await client.query(`SELECT * FROM core_team_applications WHERE id = $1`, [id]);
-      const result = await client.query(
-        `SELECT * FROM core_team_applications WHERE id = $1`,
-        [id]
-      );
       return result.rows[0] ?? null;
     });
   },

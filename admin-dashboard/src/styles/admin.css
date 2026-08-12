@@ -55,6 +55,47 @@ body {
   line-height: 1.5;
 }
 
+button,
+input,
+select,
+textarea,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-icon,
+[role='button'] {
+  min-height: 44px;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+  touch-action: manipulation;
+}
+
+textarea {
+  min-height: 96px;
+}
+
+select {
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="color"],
+input[type="range"],
+input[type="file"] {
+  min-height: 0;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+}
+
 /* ── Layout ── */
 .app-layout {
   display: flex;
@@ -768,8 +809,8 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 10px 12px;
+  font-size: 16px;
   font-family: inherit;
   transition: border-color 0.15s;
   width: 100%;
@@ -1328,7 +1369,6 @@ body {
   color: #fff;
 }
 
-
 /* ── Moderation Manager Styles ── */
 .moderation-queue {
   display: flex;
@@ -1838,6 +1878,41 @@ body {
   .filter-group {
     flex-direction: column;
   }
+
+  .form {
+    gap: 18px;
+  }
+
+  .form-row {
+    gap: 8px;
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea,
+  .search-input,
+  .filter-group select,
+  .modal-body textarea {
+    min-height: 48px;
+    padding: 13px 14px;
+  }
+
+  .form-actions,
+  .modal-footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  button[type='submit'],
+  .form-actions .btn-primary,
+  .form-actions .btn-success,
+  .modal-footer .btn-primary,
+  .modal-footer .btn-success {
+    width: 100%;
+    min-height: 52px;
+    justify-content: center;
+    font-size: 1rem;
+  }
 }
 
 /* ── Admin Stats Grid ─────────────────────────────── */
@@ -1856,7 +1931,9 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
@@ -1956,4 +2033,3 @@ body {
   --text2: #374151;
   --text-muted: #4b5563;
 }
-

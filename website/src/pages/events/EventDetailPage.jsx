@@ -486,6 +486,12 @@ function QRTicketCard({ event, ticket, color, rgb, onCalendarDownload }) {
   const [showCalendarMenu, setShowCalendarMenu] = useState(false);
   const [showReminderMenu, setShowReminderMenu] = useState(false);
   const [reminderSet, setReminderSet] = useState('');
+  const [reminderFeedback, setReminderFeedback] = useState(null);
+
+  const showReminderFeedback = (msg, type = 'info') => {
+    setReminderFeedback({ msg, type });
+    setTimeout(() => setReminderFeedback(null), 5000);
+  };
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -894,6 +900,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     year: '',
     teamName: '',
     teamSize: '',
+    attendanceMode: 'in_person',
   });
   const [regStatus, setRegStatus] = useState('idle');
   const [regError, setRegError] = useState('');
@@ -948,15 +955,16 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         }, delay);
         setReminderSet(label);
         setShowReminderMenu(false);
-        alert(`Reminder set for ${label} before the event!`);
+        showReminderFeedback(`Reminder set for ${label} before the event!`, 'success');
       } else {
-        alert('This event is too close or has already started.');
+        showReminderFeedback('This event is too close or has already started.', 'error');
       }
     } else {
-      alert('Please enable notifications in your browser settings to use reminders.');
+      showReminderFeedback('Please enable notifications in your browser settings to use reminders.', 'error');
     }
   };
 
+  const status = event.status === 'completed' ? 'completed' : (event.status === 'upcoming' || event.status === 'registration_open') ? 'upcoming' : event.status;
   const isUpcoming = event.status === 'upcoming' || event.status === 'registration_open';
   const eventEnd = event.endDate ?? event.startDate ?? event.date;
   const isInFuture = eventEnd ? new Date(eventEnd) > new Date() : isUpcoming;
@@ -976,16 +984,19 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     try {
       const base = getApiBase();
       const url = `${base}/api/content/events/${event.id}/register`;
-      const idempotencyKey =
-        typeof crypto !== 'undefined' && crypto.randomUUID
+      let idempotencyKey = typeof window !== 'undefined' ? sessionStorage.getItem(registrationKey) : null;
+      if (!idempotencyKey || idempotencyKey === 'confirmed') {
+        idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : `reg-${event.id}-${Date.now().toString(36)}`;
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(registrationKey, idempotencyKey);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(registrationKey, idempotencyKey);
+        }
       }
+
       const data = await apiClient(url, {
         method: 'POST',
-        timeout: 5000,
+        timeout: 10000,
         headers: {
           'Content-Type': 'application/json',
           'Idempotency-Key': idempotencyKey,
@@ -993,7 +1004,21 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         },
         body: JSON.stringify(regForm),
       });
-      if (data.ticket) {
+
+      if (data?.queued) {
+        setRegStatus('confirmed');
+        setRegTicket({
+          ticketData: regForm,
+          registrationId: `NS-OFFLINE-${event.id}-${Date.now().toString(36).toUpperCase()}`,
+          eventName: event.name,
+          eventDate: event.dateText ?? event.date,
+          offline: true
+        });
+        showNotification('Registration saved offline. Will sync when you reconnect.');
+        return;
+      }
+
+      if (data?.ticket) {
         setRegTicket(data.ticket);
         setRegStatus('confirmed');
         if (typeof window !== 'undefined') {
@@ -1013,13 +1038,17 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
           sessionStorage.setItem(registrationKey, 'confirmed');
         }
         // Store in localStorage for retrieval
-        try {
-          const stored = JSON.parse(localStorage.getItem('ns_registrations') || '[]');
-          stored.push(localTicket);
-          localStorage.setItem('ns_registrations', JSON.stringify(stored.slice(-20)));
-        } catch (error) {
-          if (import.meta.env.DEV) {
-            console.warn('[EventDetailPage] Failed to persist local registration:', error);
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem('ns_registrations');
+            const parsed = raw ? JSON.parse(raw) : [];
+            const stored = Array.isArray(parsed) ? parsed : [];
+            stored.push(localTicket);
+            localStorage.setItem('ns_registrations', JSON.stringify(stored.slice(-20)));
+          } catch (error) {
+            if (import.meta.env.DEV) {
+              console.warn('[EventDetailPage] Failed to persist local registration:', error);
+            }
           }
         }
       }
@@ -1270,7 +1299,23 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   >
                     <DynamicIcon name="Bell" size={14} />
                   </button>
-                  {showReminderMenu && (
+                  {reminderFeedback && (
+        <div
+          role="status"
+          style={{
+            padding: "8px 12px",
+            borderRadius: "6px",
+            fontSize: "0.85rem",
+            marginBottom: "8px",
+            backgroundColor: reminderFeedback.type === "error" ? "rgba(239, 68, 68, 0.15)" : "rgba(16, 185, 129, 0.15)",
+            color: reminderFeedback.type === "error" ? "#f87171" : "#34d399",
+            border: `1px solid ${reminderFeedback.type === "error" ? "#ef4444" : "#10b981"}`,
+          }}
+        >
+          {reminderFeedback.msg}
+        </div>
+      )}
+      {showReminderMenu && (
                     <div
                       style={{
                         position: 'absolute',
@@ -1472,6 +1517,38 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(overview) }}
                 />
+
+                {/* Show Video Link if Registered and Hybrid */}
+                {regStatus === 'confirmed' && event.isHybrid && event.videoLink && (
+                  <div
+                    style={{
+                      marginTop: '24px',
+                      padding: '16px',
+                      background: `rgba(${rgb},0.08)`,
+                      border: `1px solid rgba(${rgb},0.2)`,
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
+                      Virtual Attendance Link
+                    </h4>
+                    <a
+                      href={event.videoLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color,
+                        fontWeight: 'bold',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <DynamicIcon name="Video" size={16} /> Join Virtual Session
+                    </a>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -1756,6 +1833,62 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                       fontFamily: 'Rajdhani,sans-serif',
                     }}
                   />
+
+                  {event.isHybrid && (
+                    <div style={{ padding: '8px 0' }}>
+                      <label
+                        style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        How will you attend?
+                      </label>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <label
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="attendanceMode"
+                            value="in_person"
+                            checked={regForm.attendanceMode === 'in_person'}
+                            onChange={handleRegField('attendanceMode')}
+                            style={{ accentColor: color }}
+                          />
+                          In-Person
+                        </label>
+                        <label
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="attendanceMode"
+                            value="virtual"
+                            checked={regForm.attendanceMode === 'virtual'}
+                            onChange={handleRegField('attendanceMode')}
+                            style={{ accentColor: color }}
+                          />
+                          Virtually
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <select
                       value={regForm.department}

@@ -1,0 +1,80 @@
+name: Automated Performance Benchmarking
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'components/**'
+      - 'api/**'
+      - 'server.js'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'components/**'
+      - 'api/**'
+      - 'server.js'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write # Needed to push benchmark results to gh-pages branch
+  pull-requests: write # Needed to comment on PRs in case of regression
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Benchmarks
+        id: run_benchmarks
+        run: |
+          # Replace this with your actual benchmark command
+          # Example: npm run bench | tee benchmark-output.txt
+          # For now, we generate a placeholder benchmarkjs style output
+          echo "Simulated Benchmark x 10,000 ops/sec ±1.5% (80 runs sampled)" > benchmark-output.txt
+
+      - name: Store and Compare Benchmark Result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: 'Application Benchmarks'
+          tool: 'benchmarkjs'
+          output-file-path: benchmark-output.txt
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically to track history
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+          # Display results in the GitHub Actions Job Summary
+          summary-always: true
+
+      - name: Upload Benchmark Artifact
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: benchmark-report
+          path: benchmark-output.txt
+          retention-days: 14

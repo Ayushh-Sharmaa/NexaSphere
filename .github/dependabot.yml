@@ -36,53 +36,8 @@ updates:
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
 
-updates:
-  # Root package
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-
-updates:
-  # Root package
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "security"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]  # No breaking changes
-
-  # Website frontend
-  - package-ecosystem: "npm"
-    directory: "/website"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "frontend"
-
-  # Server backend
-  - package-ecosystem: "npm"
-    directory: "/server"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "backend"
-
-  # GitHub Actions update 
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
-      - "github-actions"
-
+      interval: 'weekly'
+    open-pull-requests-limit: 10

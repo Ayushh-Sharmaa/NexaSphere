@@ -13,6 +13,7 @@ import { protectedActionRateLimiter } from '../middleware/authRateLimiter.js';
 import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 import notificationsService from '../services/notificationsService.js';
 import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.js';
+import { getAuthorizationUrl, fetchLinkedInData } from '../utils/linkedinHelper.js';
 
 const router = Router();
 
@@ -128,6 +129,63 @@ function clearPasskeyAttempts(username, ip) {
 // ── Routes ─────────────────────────────────────────────────────────────────
 
 /**
+ * GET /api/portfolio/linkedin/auth
+ * Initiates the LinkedIn OAuth flow.
+ */
+router.get('/portfolio/linkedin/auth', (req, res) => {
+  const state = Math.random().toString(36).substring(7);
+  // Ideally, store the state in session or a cookie to verify it later to prevent CSRF
+  const authUrl = getAuthorizationUrl(state);
+  res.redirect(authUrl);
+});
+
+/**
+ * GET /api/portfolio/linkedin/callback
+ * Handles the callback from LinkedIn OAuth.
+ */
+router.get('/portfolio/linkedin/callback', async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+
+  if (error) {
+    return res.status(400).send(`
+      <script>
+        window.opener.postMessage({ type: 'LINKEDIN_ERROR', payload: '${error_description || error}' }, '*');
+        window.close();
+      </script>
+    `);
+  }
+
+  if (!code) {
+    return res.status(400).send(`
+      <script>
+        window.opener.postMessage({ type: 'LINKEDIN_ERROR', payload: 'Authorization code missing.' }, '*');
+        window.close();
+      </script>
+    `);
+  }
+
+  try {
+    const data = await fetchLinkedInData(code);
+
+    // Send data back to the popup opener (PortfolioBuilder)
+    res.send(`
+      <script>
+        window.opener.postMessage({ type: 'LINKEDIN_SUCCESS', payload: ${JSON.stringify(data)} }, '*');
+        window.close();
+      </script>
+    `);
+  } catch (err) {
+    console.error('LinkedIn OAuth Error:', err);
+    res.status(500).send(`
+      <script>
+        window.opener.postMessage({ type: 'LINKEDIN_ERROR', payload: 'Failed to fetch LinkedIn data' }, '*');
+        window.close();
+      </script>
+    `);
+  }
+});
+
+/**
  * GET /api/portfolio/github-repos/:username — Server-side GitHub repository import.
  * Keeps GitHub API credentials off the browser and avoids unauthenticated client calls.
  */
@@ -142,10 +200,6 @@ router.get('/portfolio/github-repos/:username', async (req, res) => {
 
   const token = getGitHubToken();
   if (!token) {
-    return sendError(req, res, 'GitHub repository import is unavailable because the server token is not configured.', 503, 'DEPENDENCY_ERROR');
-    return res.status(503).json({
-      error: 'GitHub repository import is unavailable because the server token is not configured.',
-    });
     return sendError(
       req,
       res,
@@ -198,23 +252,6 @@ router.get('/portfolio/github-repos/:username', async (req, res) => {
     }
 
     if (!response.ok) {
-      return sendError(req, res, `GitHub API error: ${response.status} ${response.statusText}`, response.status, 'DEPENDENCY_ERROR');
-      return res.status(response.status).json({
-        error: 'GitHub rate limit reached. Please try again later.',
-        rateLimitReset: resetDate,
-      });
-    }
-
-    if (response.status === 404) {
-      return res.status(404).json({
-        error: `GitHub user "${username}" not found. Please check the username and try again.`,
-      });
-    }
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: `GitHub API error: ${response.status} ${response.statusText}`,
-      });
       return sendError(
         req,
         res,
@@ -229,13 +266,6 @@ router.get('/portfolio/github-repos/:username', async (req, res) => {
     return sendSuccess(res, repos);
   } catch (err) {
     console.error('Error fetching GitHub repositories:', err);
-    return sendError(req, res, 'Failed to fetch repositories from GitHub.', 502, 'DEPENDENCY_ERROR');
-    return res.json(repos);
-  } catch (err) {
-    console.error('Error fetching GitHub repositories:', err);
-    return res.status(502).json({
-      error: 'Failed to fetch repositories from GitHub.',
-    });
     return sendError(
       req,
       res,
@@ -331,7 +361,6 @@ router.post(
       }
 
       return sendSuccess(res, { success: true, message: 'Skill endorsed successfully' });
-      return res.json({ success: true, message: 'Skill endorsed successfully' });
     } catch (err) {
       if (
         err.message === 'You have already endorsed this skill' ||
@@ -342,10 +371,6 @@ router.post(
       }
       console.error('Error endorsing skill:', err);
       return sendError(req, res, 'Internal server error', 500, 'INTERNAL_ERROR');
-        return res.status(400).json({ error: err.message });
-      }
-      console.error('Error endorsing skill:', err);
-      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
@@ -356,7 +381,6 @@ router.post(
  * brute-force lockout on repeated failed passkey attempts.
  */
 router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
-  try {
     const body = req.body || {};
     const ip = String(req.ip || 'unknown').trim();
 
@@ -426,27 +450,19 @@ router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
 
     // If projects are saved, push real-time project approval notification
     if (saved && Array.isArray(saved.projects) && saved.projects.length > 0) {
-      try {
         const { emitToRoom } = await import('../config/socket.js');
         const lastProject = saved.projects[saved.projects.length - 1];
         emitToRoom(`user-${String(username).toLowerCase()}`, 'project-approved', {
           projectName: lastProject.name,
         });
-      } catch (socketErr) {
-        console.warn(
           '[Portfolio] Could not emit project-approved notification:',
           socketErr.message
-        );
       }
-    }
 
     return sendSuccess(res, { ok: true, portfolio: saved });
         console.warn('[Portfolio] Could not emit project-approved notification:', socketErr.message);
-      }
-    }
 
     return res.json({ ok: true, portfolio: saved });
-  } catch (err) {
     if (err.code === '23505') {
       return sendError(
         req,
@@ -458,7 +474,6 @@ router.put('/portfolio', protectedActionRateLimiter, async (req, res) => {
     }
     console.error('Error saving portfolio:', err);
     return sendError(req, res, err.message || 'Internal server error', 500, 'INTERNAL_ERROR');
-  }
 });
 
 export default router;

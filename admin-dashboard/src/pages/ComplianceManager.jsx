@@ -79,7 +79,6 @@ function DocumentsTab({ documents, load, showToast }) {
               <div className="list-item-meta">
                 Version: {doc.version} · Effective: {new Date(doc.effectiveDate).toLocaleString()} ·{' '}
                 {doc.archived ? 'Archived' : 'Active'}
-                Version: {doc.version} · Effective: {new Date(doc.effectiveDate).toLocaleString()} · {doc.archived ? 'Archived' : 'Active'}
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666', marginTop: 4 }}>
                 {doc.summary || 'No summary provided.'}
@@ -97,7 +96,6 @@ function DocumentsTab({ documents, load, showToast }) {
         {documents.length === 0 && (
           <div style={{ color: '#888', padding: 20 }}>No documents found.</div>
         )}
-        {documents.length === 0 && <div style={{ color: '#888', padding: 20 }}>No documents found.</div>}
       </div>
 
       {showModal && (
@@ -132,12 +130,6 @@ function DocumentsTab({ documents, load, showToast }) {
                     <option key={k} value={k}>
                       {v}
                     </option>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
-              <div>
-                <label>Document Type</label>
-                <select className="input" style={{ width: '100%', padding: 8 }} value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}>
-                  {Object.entries(DOC_TYPES).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
                   ))}
                 </select>
               </div>
@@ -150,7 +142,6 @@ function DocumentsTab({ documents, load, showToast }) {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
-                <input required className="input" style={{ width: '100%', padding: 8 }} value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ flex: 1 }}>
@@ -162,7 +153,6 @@ function DocumentsTab({ documents, load, showToast }) {
                     value={formData.version}
                     onChange={(e) => setFormData({ ...formData, version: e.target.value })}
                   />
-                  <input required className="input" style={{ width: '100%', padding: 8 }} value={formData.version} onChange={(e) => setFormData({ ...formData, version: e.target.value })} />
                 </div>
               </div>
               <div>
@@ -195,15 +185,6 @@ function DocumentsTab({ documents, load, showToast }) {
                 <button type="submit" className="btn btn-primary">
                   Create Version
                 </button>
-                <textarea className="input" style={{ width: '100%', padding: 8, minHeight: 60 }} value={formData.summary} onChange={(e) => setFormData({ ...formData, summary: e.target.value })} />
-              </div>
-              <div>
-                <label>Full Content (Legal text)</label>
-                <textarea required className="input" style={{ width: '100%', padding: 8, minHeight: 150 }} value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} />
-              </div>
-              <div className="modal-actions" style={{ marginTop: 20 }}>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Create Version</button>
               </div>
             </form>
           </div>
@@ -260,7 +241,6 @@ function GDPRTab({ requests, load, showToast }) {
                 >
                   {req.status}
                 </strong>
-                Status: <strong style={{ color: req.status === 'pending' ? '#f59e0b' : req.status === 'completed' ? '#10b981' : '#ef4444' }}>{req.status}</strong>
                 {req.notes && ` — Notes: ${req.notes}`}
               </div>
             </div>
@@ -278,8 +258,6 @@ function GDPRTab({ requests, load, showToast }) {
                 >
                   Reject
                 </button>
-                <button className="btn btn-sm btn-success" onClick={() => handleProcess(req.id, 'completed')}>Complete</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleProcess(req.id, 'rejected')}>Reject</button>
               </div>
             )}
           </div>
@@ -287,7 +265,6 @@ function GDPRTab({ requests, load, showToast }) {
         {requests.length === 0 && (
           <div style={{ color: '#888', padding: 20 }}>No GDPR requests found.</div>
         )}
-        {requests.length === 0 && <div style={{ color: '#888', padding: 20 }}>No GDPR requests found.</div>}
       </div>
     </div>
   );
@@ -315,7 +292,6 @@ function AuditTab({ logs }) {
               <td style={{ padding: 8, whiteSpace: 'nowrap' }}>
                 {new Date(log.timestamp).toLocaleString()}
               </td>
-              <td style={{ padding: 8, whiteSpace: 'nowrap' }}>{new Date(log.timestamp).toLocaleString()}</td>
               <td style={{ padding: 8, fontWeight: 500 }}>{log.action}</td>
               <td style={{ padding: 8 }}>{log.actorId}</td>
               <td style={{ padding: 8 }}>{log.targetId || '-'}</td>
@@ -329,7 +305,6 @@ function AuditTab({ logs }) {
               </td>
             </tr>
           )}
-          {logs.length === 0 && <tr><td colSpan={5} style={{ padding: 20, textAlign: 'center', color: '#888' }}>No audit logs found.</td></tr>}
         </tbody>
       </table>
     </div>
@@ -380,20 +355,6 @@ export function ComplianceManager() {
         const res = await fetch(`${API_BASE}/api/compliance/admin/acceptances`, {
           credentials: 'include',
         });
-      const statsRes = await fetch(`${API_BASE}/api/compliance/admin/stats`, { credentials: 'include' });
-      if (statsRes.ok) setStats(await statsRes.json());
-
-      if (activeTab === 'documents') {
-        const res = await fetch(`${API_BASE}/api/compliance/admin/documents`, { credentials: 'include' });
-        if (res.ok) setDocuments((await res.json()).documents);
-      } else if (activeTab === 'gdpr') {
-        const res = await fetch(`${API_BASE}/api/compliance/admin/gdpr`, { credentials: 'include' });
-        if (res.ok) setGdprReqs((await res.json()).items);
-      } else if (activeTab === 'audit') {
-        const res = await fetch(`${API_BASE}/api/compliance/admin/audit`, { credentials: 'include' });
-        if (res.ok) setAuditLogs((await res.json()).items);
-      } else if (activeTab === 'acceptances') {
-        const res = await fetch(`${API_BASE}/api/compliance/admin/acceptances`, { credentials: 'include' });
         if (res.ok) setAcceptances((await res.json()).items);
       }
     } catch (err) {
@@ -510,26 +471,6 @@ export function ComplianceManager() {
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>
               {stats.auditLogEntries}
             </div>
-        <p className="page-subtitle">Manage legal documents, track acceptances, and handle GDPR requests</p>
-      </div>
-
-      {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Active Docs</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{stats.totalDocuments}</div>
-          </div>
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Acceptances</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{stats.totalAcceptances}</div>
-          </div>
-          <div style={{ background: '#fffbeb', padding: 16, borderRadius: 8, border: '1px solid #fef3c7' }}>
-            <div style={{ fontSize: '0.8rem', color: '#b45309', fontWeight: 600, textTransform: 'uppercase' }}>Pending GDPR</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706' }}>{stats.pendingGdprRequests}</div>
-          </div>
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Audit Logs</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{stats.auditLogEntries}</div>
           </div>
         </div>
       )}
@@ -564,10 +505,6 @@ export function ComplianceManager() {
       )}
       {activeTab === 'audit' && <AuditTab logs={auditLogs} />}
 
-      {activeTab === 'documents' && <DocumentsTab documents={documents} load={loadData} showToast={showToast} />}
-      {activeTab === 'gdpr' && <GDPRTab requests={gdprReqs} load={loadData} showToast={showToast} />}
-      {activeTab === 'audit' && <AuditTab logs={auditLogs} />}
-      
       {activeTab === 'acceptances' && (
         <div>
           <h3 style={{ marginBottom: 20 }}>User Acceptances</h3>
@@ -598,7 +535,6 @@ export function ComplianceManager() {
                   </td>
                 </tr>
               )}
-              {acceptances.length === 0 && <tr><td colSpan={5} style={{ padding: 20, textAlign: 'center', color: '#888' }}>No acceptances recorded yet.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -618,12 +554,6 @@ export function ComplianceManager() {
             zIndex: 9999,
           }}
         >
-        <div style={{
-          position: 'fixed', bottom: 20, right: 20,
-          background: toast.type === 'error' ? '#ef4444' : '#10b981',
-          color: 'white', padding: '12px 24px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          zIndex: 9999
-        }}>
           {toast.message}
         </div>
       )}

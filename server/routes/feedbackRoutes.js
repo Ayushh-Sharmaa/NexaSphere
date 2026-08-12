@@ -11,8 +11,11 @@ import {
   submitFeedbackSchema,
   createActionItemSchema,
 } from '../validators/routes/feedbackRoutesSchemas.js';
+import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 
 const router = express.Router();
+
+router.use(requireStudentAuth);
 
 router.post('/', validate(submitFeedbackSchema), submitFeedback);
 router.get('/analytics/:eventId', getFeedbackAnalytics);

@@ -1,0 +1,114 @@
+name: GSSoC — PR Validator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Validates every PR has a linked issue, correct template sections, and checklist.
+# Safe: uses pull_request_target so write token works for fork PRs.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+concurrency:
+  group: pr-validator-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate-pr:
+    name: Validate PR Structure
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Validate PR body and apply labels
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr     = context.payload.pull_request;
+            const prNum  = pr.number;
+            const author = pr.user.login;
+            const body   = pr.body || '';
+
+            // ── Skip admins ───────────────────────────────────────────────────
+            const ADMINS = ['Ayushh-Sharmaa', 'S3DFX-CYBER'];
+            if (ADMINS.includes(author)) {
+              console.log(`⏭️  Admin PR from @${author} — skipping strict validation.`);
+              return;
+            }
+
+            // ── Label helpers ─────────────────────────────────────────────────
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+            async function addLabel(name) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: prNum, labels: [name] });
+            }
+            async function removeLabel(name) {
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: prNum, name });
+              } catch (_) {}
+            }
+
+            await ensureLabel('needs-pr-fixes', 'e4e669', 'PR requires fixes before review');
+            await ensureLabel('pr-valid',       '0e8a16', 'PR passes all structural checks');
+
+            // ── Run validation checks ─────────────────────────────────────────
+            const failures = [];
+
+            // Check 1: linked issue
+            const linkedIssueMatch = body.match(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s*#(\d+)/i);
+            if (!linkedIssueMatch) {
+              failures.push('❌ **Missing linked issue** — Add `Closes #ISSUE_NUMBER` to your PR description');
+            }
+
+            // Check 2: non-empty description
+            const descMatch = body.match(/##?\s*description\s*\n+([\s\S]*?)(?:\n##|$)/i);
+            if (!descMatch || descMatch[1].trim().length < 10) {
+              failures.push('❌ **Empty or missing Description section** — Describe what your PR does');
+            }
+
+            // Check 3: checklist section present
+            const hasChecklist = /- \[[ xX]\]/.test(body);
+            if (!hasChecklist) {
+              failures.push('❌ **Missing checklist** — Include a checklist with `- [ ]` items');
+            }
+
+            // ── Post result ───────────────────────────────────────────────────
+            if (failures.length > 0) {
+              await removeLabel('pr-valid');
+              await addLabel('needs-pr-fixes');
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNum,
+                body: [
+                  `## ⚠️ PR Validation Failed`,
+                  ``,
+                  `Hey @${author}! Your PR has **${failures.length} issue(s)** that need to be fixed:`,
+                  ``,
+                  failures.join('\n'),
+                  ``,
+                  `**Please edit your PR description** to address these points, then push an update.`,
+                  ``,
+                  `> 📋 Use the [PR template](https://github.com/${owner}/${repo}/blob/main/.github/pull_request_template.md) as a guide.`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+              console.log(`❌ PR #${prNum} failed validation: ${failures.length} issue(s)`);
+            } else {
+              await removeLabel('needs-pr-fixes');
+              await addLabel('pr-valid');
+              console.log(`✅ PR #${prNum} passed all validation checks`);
+            }

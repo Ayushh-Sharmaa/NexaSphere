@@ -4,7 +4,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { supabaseRequest, HAS_SUPABASE } from '../storage/supabaseClient.js';
 import { validate } from '../middleware/validate.js';
-import { customFunnelSchema, saveReportSchema, executeReportSchema } from '../validators/routes/analyticsRouteSchemas.js';
+import {
+  customFunnelSchema,
+  saveReportSchema,
+  executeReportSchema,
+} from '../validators/routes/analyticsRouteSchemas.js';
 import { sendSuccess, sendError } from '../utils/responseHelper.js';
 import {
   getDashboardSummary,
@@ -93,14 +97,11 @@ const router = Router();
  * GET /
  * Returns a high-level summary of events, activity events, and core team members.
  */
-router.get('/', async (_req, res) => {
-  try {
-    const content = await getCachedContent();
 router.get('/', (req, res) => {
   sendSuccess(res, { ok: true, message: 'Analytics endpoint is available.' });
 });
 
-router.get('/stats', async (_req, res) => {
+router.get('/stats', async (req, res) => {
   try {
     let totalUsers = null;
     let activeRegistrations = null;
@@ -113,33 +114,17 @@ router.get('/stats', async (_req, res) => {
         supabaseRequest('form_submissions?select=id,college_email'),
       ]);
 
-      upcomingEvents = events.filter((e) => e.status === 'upcoming').length;
-    const upcomingEvents = events.filter((e) => e.status === 'upcoming');
-    const completedEvents = events.filter((e) => e.status === 'completed');
       upcomingEvents = events.filter(e => e.status === 'upcoming').length;
       activeRegistrations = submissions.length;
 
       const uniqueEmails = new Set(submissions.map((s) => s.college_email).filter(Boolean));
       totalUsers = uniqueEmails.size > 0 ? uniqueEmails.size : submissions.length;
     } else {
-      const content = await readContentSafe();
+      const content = await getCachedContent();
       upcomingEvents = (content.events || []).filter((e) => e.status === 'upcoming').length;
     }
 
     sendSuccess(res, { totalUsers, activeRegistrations, upcomingEvents, conversionRate });
-    return res.json({
-      overview: {
-        totalEvents: events.length,
-        upcomingEvents: upcomingEvents.length,
-        completedEvents: completedEvents.length,
-        totalActivityEvents,
-        totalCoreTeamMembers: coreTeam.length,
-      },
-      activityEventCounts,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Failed to generate analytics' });
-    res.json({ totalUsers, activeRegistrations, upcomingEvents, conversionRate });
   } catch (error) {
     sendError(req, res, error.message || 'Failed to generate stats', 500, 'INTERNAL_ERROR');
   }
@@ -147,14 +132,6 @@ router.get('/stats', async (_req, res) => {
 
 router.get('/growth', async (_req, res) => {
   try {
-    const content = await getCachedContent();
-    const events = content.events || [];
-
-    const tagFrequency = {};
-    for (const event of events) {
-      const tags = Array.isArray(event.tags) ? event.tags : [];
-      for (const tag of tags) {
-        tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
     let growth = [];
 
     if (HAS_SUPABASE) {
@@ -170,7 +147,7 @@ router.get('/growth', async (_req, res) => {
       }
 
       growth = Object.keys(dailyCounts)
-        .sort()
+        .sort((a, b) => a - b)
         .map((date) => ({
           date,
           registrations: dailyCounts[date],
@@ -208,14 +185,6 @@ router.get('/events', async (_req, res) => {
     }
 
     sendSuccess(res, eventStats);
-    return res.json({
-      total: events.length,
-      statusBreakdown,
-      tagFrequency,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Failed to generate event analytics' });
-    res.json(eventStats);
   } catch (error) {
     sendError(req, res, error.message || 'Failed to generate events data', 500, 'INTERNAL_ERROR');
   }

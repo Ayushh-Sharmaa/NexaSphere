@@ -94,7 +94,6 @@ class AuditLogRepository {
 
     const delays = [100, 500, 1000];
 
-    const delays = [100, 500, 1000];
 
     for (let attempt = 0; attempt <= delays.length; attempt++) {
       try {
@@ -124,14 +123,6 @@ class AuditLogRepository {
         if (attempt === delays.length) {
           logger.error('Failed to insert audit log', { error: err.message, logEntry });
           return null;
-            ]
-          );
-        });
-        return;
-      } catch (err) {
-        if (attempt === delays.length) {
-          logger.error('Failed to insert audit log', { error: err.message, logEntry });
-          return;
         }
         await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
       }

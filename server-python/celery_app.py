@@ -28,12 +28,22 @@ app.conf.update(
 def precompute_recommendations(user_id: str):
     logger.info(f"Starting async recommendation pre-computation for user: {user_id}")
     try:
-        # Compute hybrid recommendations
+        from services.recommendation_logic import fixtures_allowed
+
         recommendations = compute_hybrid_recommendations(user_id, num_recommendations=5)
-        
-        # Store in Redis
+
+        # Never cache empty results or development fixture payloads
+        if not recommendations or fixtures_allowed():
+            logger.info(
+                "Skipping recommendation cache for user %s (empty=%s fixtures=%s)",
+                user_id,
+                not recommendations,
+                fixtures_allowed(),
+            )
+            return recommendations
+
         r_client = redis.from_url(redis_url)
-        cache_key = f"recs:events:{user_id}"
+        cache_key = f"recs:events:{user_id}:5"
         r_client.setex(cache_key, 3600, json.dumps(recommendations))
         logger.info(f"Successfully cached pre-computed recommendations for user: {user_id}")
         return recommendations

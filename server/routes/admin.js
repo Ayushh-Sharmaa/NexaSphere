@@ -29,8 +29,6 @@ import {
   getReadOnlyStatus,
   createIncidentLog,
 } from '../routes/readOnlyMode.js';
-} from '../utils/readOnlyMode.js';
-} from './readOnlyMode.js';
 
 import {
   getServiceStatus,
@@ -52,7 +50,6 @@ import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.j
 const router = Router();
 const adminAuth = adminAuthMiddleware.requireAdmin;
 router.use(apiRateLimiter);
-const adminAuth = [adminAuthMiddleware.requireAdmin];
 
 /**
  * Raw membership fetch helper, wrapped in a circuit breaker to protect
@@ -97,9 +94,6 @@ router.get('/membership', adminAuth, async (req, res) => {
           method: 'GET',
         }
       );
-      const data = await supabaseBreaker.execute('form_submissions?form_type=eq.membership&order=created_at.desc', {
-        method: 'GET',
-      });
       const responses = (data || []).map((row) => ({
         submittedAt: row.created_at,
         formType: row.form_type,
@@ -114,17 +108,10 @@ router.get('/membership', adminAuth, async (req, res) => {
         console.warn(
           '[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script'
         );
-      return res.json({ responses });
-    } catch (err) {
-      if (err.code === 'CIRCUIT_OPEN') {
-        console.warn('[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script');
-      } else {
-        console.error('[Membership] Failed to fetch from Supabase:', err.message);
-      }
       // Fall through to Google Apps Script fallback
     }
   }
-
+}
   // Fallback: Google Apps Script (legacy path)
   const scriptUrl = process.env.MEMBERSHIP_SCRIPT_URL;
   const secret = process.env.MEMBERSHIP_SECRET;
@@ -146,7 +133,6 @@ router.get('/membership', adminAuth, async (req, res) => {
       throw new Error(`Google Apps Script returned ${response.status}`);
     }
 
-    const data = await response.json();
     return res.json({ responses: data.responses || [] });
   } catch (err) {
     if (err.code === 'CIRCUIT_OPEN') {
@@ -157,11 +143,6 @@ router.get('/membership', adminAuth, async (req, res) => {
     }
     console.error('[Membership] Failed to fetch responses from Google Apps Script:', err.message);
     return sendError(req, res, 'Failed to fetch membership responses', 500, 'INTERNAL_ERROR');
-      console.warn('[Membership] Google Apps Script circuit breaker is OPEN, returning empty responses');
-      return res.json({ responses: [] });
-    }
-    console.error('[Membership] Failed to fetch responses from Google Apps Script:', err.message);
-    return res.status(500).json({ error: 'Failed to fetch membership responses' });
   }
 });
 
@@ -265,12 +246,6 @@ router.post('/api/admin/read-only-disable', adminAuth, (req, res) => {
 
 router.get('/api/admin/read-only-log', adminAuth, (req, res) => {
   sendSuccess(res, createIncidentLog());
-router.get('/api/admin/read-only-status', adminAuth, (req, res) => {
-  res.json(getReadOnlyStatus());
-});
-
-router.get('/api/admin/read-only-log', adminAuth, (req, res) => {
-  res.json(createIncidentLog());
 });
 
 router.get('/api/admin/service-status', adminAuth, (req, res) => {
@@ -356,7 +331,6 @@ router.get('/api/admin/reports/engagement', adminAuth, async (req, res) => {
   });
   seedUsers.sort((a, b) => b.engagementScore - a.engagementScore);
   sendSuccess(res, { users: seedUsers });
-  res.json({ users: seedUsers });
 });
 
 router.get('/api/admin/reports/revenue', adminAuth, async (req, res) => {
@@ -407,7 +381,7 @@ router.post(
     const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
     const inviteUrl = `${baseUrl}/api/auth/google?token=${token}`;
 
-    return sendSuccess(res, { token, inviteUrl });
+    return sendSuccess(res, { inviteUrl });
   }
 );
 router.get('/sessions', adminAuth, adminAuthMiddleware.getSecurityOverview);
@@ -475,14 +449,7 @@ router.get('/admin/stats', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     res.status(500).json({ error: 'Failed to fetch platform statistics' });
-    res.json(report);
-  } catch (error) {
-    res.status(500).json({ error: error.message || 'Failed to generate revenue report' });
   }
 });
-
-router.get('/sessions', adminAuth, adminAuthMiddleware.getSecurityOverview);
-router.delete('/sessions/:sessionId', adminAuth, adminAuthMiddleware.revokeSession);
-router.delete('/sessions', adminAuth, adminAuthMiddleware.logoutOtherSessions);
 
 export default router;

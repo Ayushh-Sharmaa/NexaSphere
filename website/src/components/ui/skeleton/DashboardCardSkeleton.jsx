@@ -6,7 +6,7 @@ export const DashboardCardSkeleton = ({ count = 1 }) => {
     <>
       {Array.from({ length: count }).map((_, i) => (
         <div
-          key={i}
+          key={`dashboard-card-skeleton-${i}`}
           style={{
             background: 'var(--bg-card, rgba(255, 255, 255, 0.03))',
             border: '1px solid var(--bdr, rgba(255, 255, 255, 0.05))',

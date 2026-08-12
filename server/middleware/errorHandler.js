@@ -16,7 +16,6 @@ import { ErrorCodes } from '../utils/errors.js';
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-import { logError } from '../services/errorTrackingService.js';
 
 function resolveUserId(req) {
   return req.user?.id || req.adminSession?.username || null;
@@ -64,13 +63,7 @@ const errorHandler = (err, req, res, next) => {
   // ---- Tracking & instrumentation ----
   const trackedError = trackError(err);
   logger.error('Tracked Error', trackedError);
-import logger from '../utils/logger.js';
-import { captureException } from '../utils/sentry.js';
-import { sendSlackAlert } from '../utils/slack.js';
 
-const errorHandler = (err, req, res, next) => {
-  const status = err.statusCode || err.status || 500;
-  const message = err.message || 'Internal Server Error';
 
   const errorLog = {
     status,
@@ -121,11 +114,9 @@ const errorHandler = (err, req, res, next) => {
     extra: { errorLog },
   });
 
-  // Slack alert for ≥500 only (avoids noise from 401 scanners, etc.)
-  if (status >= 500) {
-    const pathOnly = req.originalUrl.split('?')[0];
   // Send Slack alert for critical errors
   if (status >= 500 || (status === 401 && !req.user && !req.adminSession)) {
+    const pathOnly = req.originalUrl.split('?')[0];
     sendSlackAlert({
       title: `${status} Error Detected`,
       message,
@@ -220,10 +211,6 @@ const asyncHandler = (fn) => (req, res, next) => {
   });
 };
 
+
 export { errorHandler, notFoundHandler, validationErrorHandler, asyncHandler };
-export {
-  errorHandler,
-  notFoundHandler,
-  validationErrorHandler,
-  asyncHandler,
-};
+

@@ -32,10 +32,9 @@ jobs:
         contains(github.event.comment.body, 'can i take this')
       )
     runs-on: ubuntu-latest
-
     steps:
       - name: Assign commenter (first come, first served)
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

@@ -8,7 +8,9 @@ export const LogicEditor = ({ fields }) => {
         <p className="text-sm text-gray-500">Add fields to configure logic.</p>
       ) : (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">Configure show/hide rules based on previous answers.</p>
+          <p className="text-sm text-gray-600">
+            Configure show/hide rules based on previous answers.
+          </p>
           <button className="w-full bg-blue-50 text-blue-600 border border-blue-200 rounded-md py-2 text-sm font-medium hover:bg-blue-100">
             + Add Rule
           </button>

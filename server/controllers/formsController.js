@@ -39,7 +39,6 @@ export function makeHandleForm(formType) {
 // tabMap in formsService.appendFormToSheet. Any other value is rejected
 // with 400 before reaching the service layer or being written to Supabase
 // or Google Sheets.
-const ALLOWED_FORM_TYPES = new Set(['membership', 'recruitment', 'core_team']);
 
 export const handleFormByParam = wrapAsync(async (req, res) => {
   const formType = req.params?.formType;

@@ -2,14 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { eventsService } from '../services/eventsService.js';
-import { eventsService } from "../services/eventsService.js";
 import {
   readContent,
   writeContent,
   DEFAULT_CONTENT,
   ensureContentFile,
 } from '../storage/contentFileStore.js';
-} from "../storage/contentFileStore.js";
 import { setWithDbOverride } from "../repositories/db.js";
 
 test.before(async () => {
@@ -149,10 +147,6 @@ test("eventsService CRU and delete (file store)", async () => {
       "list should include created event"
     );
 
-    const updated = await eventsService.updateEvent(created.id, {
-      name: "TS Updated",
-      description: "new",
-    });
     assert.equal(updated.name, "TS Updated");
 
     const deleted = await eventsService.deleteEvent(created.id);
@@ -170,3 +164,6 @@ test("eventsService CRU and delete (file store)", async () => {
     setWithDbOverride(null);
   }
 });
+
+}
+);

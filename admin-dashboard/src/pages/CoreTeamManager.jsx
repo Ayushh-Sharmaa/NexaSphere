@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import { api } from "../services/api";
-import { useEventListener } from "../hooks/useEventListener";
-import { EVENTS } from "../services/eventEmitter";
-import { CoreTeamForm } from "../components/CoreTeamForm";
-import { Skeleton } from "../components/Skeleton";
-import { AdminIcon } from "../components/AdminIcon";
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
+import { useEventListener } from '../hooks/useEventListener';
+import { EVENTS } from '../services/eventEmitter';
+import { CoreTeamForm } from '../components/CoreTeamForm';
+import { Skeleton } from '../components/Skeleton';
+import { AdminIcon } from '../components/AdminIcon';
 
 export function CoreTeamManager() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -65,35 +64,6 @@ export function CoreTeamManager() {
   const handleRemove = async () => {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
-    setLoading(true);
-    setError(null);
-    api.coreTeam
-      .getAll()
-      .then((data) => setMembers(data?.members ?? []))
-      .catch((err) => {
-        setError(err.message);
-        setMembers([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEventListener(
-    EVENTS.CORE_TEAM_MEMBER_ADDED,
-    useCallback((member) => {
-      setMembers((prev) => [...prev, member]);
-      setShowForm(false);
-    }, [])
-  );
-
-  useEventListener(
-    EVENTS.CORE_TEAM_MEMBER_REMOVED,
-    useCallback(({ id }) => {
-      setMembers((prev) => prev.filter((m) => m.id !== id));
-    }, [])
-  );
-
-  const handleRemove = async (id) => {
-    if (!confirm("Remove this member?")) return;
     setDeleting(id);
     setDeleteError('');
     try {
@@ -101,7 +71,6 @@ export function CoreTeamManager() {
       setDeleteTarget(null);
     } catch {
       setDeleteError('Failed to remove member. Please try again.');
-      // Notification handled by api.js
     } finally {
       setDeleting(null);
     }
@@ -118,7 +87,6 @@ export function CoreTeamManager() {
             setShowForm(true);
           }}
         >
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
           + Add Member
         </button>
       </div>
@@ -134,9 +102,6 @@ export function CoreTeamManager() {
       )}
 
       {loading && <Skeleton height={72} count={4} />}
-      {error && (
-        <div className="page-error">Failed to load core team: {error}</div>
-      )}
 
       {!loading && (
         <>
@@ -210,7 +175,12 @@ export function CoreTeamManager() {
             {filteredMembers.map((member) => (
               <div key={member.id} className="team-card animate-fade-in">
                 {member.photo ? (
-                  <img loading="lazy" src={member.photo} alt={member.name} className="team-avatar" />
+                  <img
+                    loading="lazy"
+                    src={member.photo}
+                    alt={member.name}
+                    className="team-avatar"
+                  />
                 ) : (
                   <div className="team-avatar-placeholder">{member.name?.[0]}</div>
                 )}
@@ -243,29 +213,6 @@ export function CoreTeamManager() {
                   >
                     {deleting === member.id ? '...' : <AdminIcon name="Trash" size={16} />}
                   </button>
-      {!loading && !error && (
-        <div className="team-grid">
-          {members.length === 0 && (
-            <div className="empty-state">No team members yet.</div>
-          )}
-          {members.map((member) => (
-            <div key={member.id} className="team-card">
-              {member.photo ? (
-                <img
-                  src={member.photo}
-                  alt={member.name}
-                  className="team-avatar"
-                />
-              ) : (
-                <div className="team-avatar-placeholder">
-                  {member.name?.[0]}
-                </div>
-              )}
-              <div className="team-info">
-                <div className="item-name">{member.name}</div>
-                <div className="item-meta">{member.role}</div>
-                <div className="item-meta">
-                  {member.branch} {member.year && `· ${member.year}`}
                 </div>
               </div>
             ))}
@@ -289,11 +236,6 @@ export function CoreTeamManager() {
                 aria-label="Close"
               >
                 <AdminIcon name="X" size={16} />
-                {deleting === member.id ? (
-                  "..."
-                ) : (
-                  <AdminIcon name="Trash" size={16} />
-                )}
               </button>
             </div>
             <p className="page-subtitle" style={{ marginBottom: 16 }}>

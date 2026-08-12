@@ -9,7 +9,7 @@ export const searchAnalyticsRepository = {
          values ($1, $2, $3, now())`,
         [query, resultCount, userId]
       );
-    }).catch(e => {
+    }).catch((e) => {
       // Non-blocking failure
       console.warn('Failed to log search analytics:', e.message);
     });
@@ -28,5 +28,5 @@ export const searchAnalyticsRepository = {
       );
       return rows;
     }).catch(() => []);
-  }
+  },
 };

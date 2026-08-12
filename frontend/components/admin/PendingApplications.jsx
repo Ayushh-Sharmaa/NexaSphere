@@ -41,18 +41,24 @@ const PendingApplications = () => {
       {applications.length === 0 ? (
         <p>No pending applications</p>
       ) : (
-        applications.map(app => (
+        applications.map((app) => (
           <Card key={app._id} className="mb-3">
             <Card.Body>
               <div className="d-flex justify-content-between">
                 <div>
                   <h5>{app.userId.name}</h5>
                   <p className="text-muted">{app.userId.email}</p>
-                  <p>Role: <strong>{app.role}</strong></p>
+                  <p>
+                    Role: <strong>{app.role}</strong>
+                  </p>
                   <p>Applied: {new Date(app.appliedAt).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <Button variant="success" className="me-2" onClick={() => handleReview(app, 'approve')}>
+                  <Button
+                    variant="success"
+                    className="me-2"
+                    onClick={() => handleReview(app, 'approve')}
+                  >
                     Approve
                   </Button>
                   <Button variant="danger" onClick={() => handleReview(app, 'reject')}>
@@ -82,7 +88,9 @@ const PendingApplications = () => {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
           <Button
             variant={action === 'approve' ? 'success' : 'danger'}
             onClick={submitReview}

@@ -31,85 +31,6 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import GamificationDashboard from './components/gamification/GamificationDashboard';
 import RecommendationWidget from './components/recommendation/RecommendationWidget';
 
-import InterviewDashboard from "./pages/Interview/InterviewDashboard";
-import QuizInterface from "./pages/Interview/QuizInterface";
-import CodingEditor from "./pages/Interview/CodingEditor";
-import AnalyticsDashboard from "./pages/Interview/AnalyticsDashboard";
-
-import ParticleBackground       from './shared/ParticleBackground';
-import GeometricGridBackground  from './shared/GeometricGridBackground';
-import ScrollProgress           from './shared/ScrollProgress';
-import Navbar                   from './shared/Navbar';
-import HeroSection              from './pages/home/HeroSection';
-import ActivitiesSection        from './pages/activities/ActivitiesSection';
-import EventsSection            from './pages/events/EventsSection';
-import AboutSection             from './pages/about/AboutSection';
-import TeamSection              from './pages/team/TeamSection';
-import Footer                   from './shared/Footer';
-import ActivityDetailPage       from './pages/activities/ActivityDetailPage';
-import EventDetailPage          from './pages/events/EventDetailPage';
-import CinematicOpening         from './shared/CinematicOpening';
-import Chatbot                  from './shared/Chatbot';
-
-
-
-import SearchBar             from './components/SearchBar';
-import InterviewDashboard    from './pages/Interview/InterviewDashboard';
-import QuizInterface         from './pages/Interview/QuizInterface';
-import CodingEditor          from './pages/Interview/CodingEditor';
-import AnalyticsDashboard    from './pages/Interview/AnalyticsDashboard';
-
-import ParticleBackground      from './shared/ParticleBackground';
-
-import SearchBar from './components/SearchBar';
-import FloatingDock from "./components/common/FloatingDock";
-import ParticleBackground  from './shared/ParticleBackground';
-
-import GeometricGridBackground from './shared/GeometricGridBackground';
-import ScrollProgress      from './shared/ScrollProgress';
-import Navbar              from './shared/Navbar';
-import HeroSection         from './pages/home/HeroSection';
-import ActivitiesSection   from './pages/activities/ActivitiesSection';
-import EventsSection       from './pages/events/EventsSection';
-import AboutSection        from './pages/about/AboutSection';
-import TeamSection         from './pages/team/TeamSection';
-import Footer              from './shared/Footer';
-import ActivityDetailPage  from './pages/activities/ActivityDetailPage';
-import EventDetailPage     from './pages/events/EventDetailPage';
-import CinematicOpening    from './shared/CinematicOpening';
-import Chatbot             from './shared/Chatbot';
-
-import './styles/portfolio.css';
-import './styles/aurora.css';
-import './styles/motion.css';
-
-import SearchBar            from './components/SearchBar';
-import ParticleBackground   from './shared/ParticleBackground';
-import GeometricGridBackground from './shared/GeometricGridBackground';
-import ScrollProgress       from './shared/ScrollProgress';
-import Navbar               from './shared/Navbar';
-import HeroSection          from './pages/home/HeroSection';
-import ActivitiesSection    from './pages/activities/ActivitiesSection';
-import EventsSection        from './pages/events/EventsSection';
-import AboutSection         from './pages/about/AboutSection';
-import TeamSection          from './pages/team/TeamSection';
-import Footer               from './shared/Footer';
-import ActivityDetailPage   from './pages/activities/ActivityDetailPage';
-import EventDetailPage      from './pages/events/EventDetailPage';
-import CinematicOpening     from './shared/CinematicOpening';
-import Chatbot              from './shared/Chatbot';
-import ScrollProgress          from './shared/ScrollProgress';
-import Navbar                  from './shared/Navbar';
-import HeroSection             from './pages/home/HeroSection';
-import ActivitiesSection       from './pages/activities/ActivitiesSection';
-import EventsSection           from './pages/events/EventsSection';
-import AboutSection            from './pages/about/AboutSection';
-import TeamSection             from './pages/team/TeamSection';
-import Footer                  from './shared/Footer';
-import ActivityDetailPage      from './pages/activities/ActivityDetailPage';
-import EventDetailPage         from './pages/events/EventDetailPage';
-import CinematicOpening        from './shared/CinematicOpening';
-import Chatbot                 from './shared/Chatbot';
 import {
   AmbientOrbs,
   SectionDivider,
@@ -1826,7 +1747,7 @@ export default function App() {
   const [wipeOn,       setWipeOn]       = useState(false);
   const [wipePh,       setWipePh]       = useState('out');
   const [page,         setPage]         = useState(null);
-  const [theme,        setTheme]        = useState(() => localStorage.getItem('ns-theme') || 'dark');
+  const [theme,        setTheme]        = useState(() => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark');
   const [eventsData,   setEventsData]   = useState(fallbackEvents);
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [bookmarksOpen,setBookmarksOpen]= useState(false);
@@ -1898,16 +1819,11 @@ function MainApp() {
   const [wipeOn,        setWipeOn]        = useState(false);
   const [wipePh,        setWipePh]        = useState('out');
   const [page,          setPage]          = useState(null);
-  const [theme,         setTheme]         = useState(() => localStorage.getItem('ns-theme') || 'dark');
+  const [theme,         setTheme]         = useState(() => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark');
   const [eventsData,    setEventsData]    = useState(fallbackEvents);
   const [searchOpen,    setSearchOpen]    = useState(false);
   const [bookmarksOpen, setBookmarksOpen] = useState(false);
   const { isOpen: isTerminalOpen, closeTerminal } = useDeveloperMode();
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('ns-theme', theme);
-  }, [theme]);
 
   const { theme, toggleTheme } = useThemeManagement();
   const eventsData = useDynamicEvents(fallbackEvents);
@@ -2024,11 +1940,11 @@ export default function App() {
 
   /* ── Theme: persisted to localStorage ── */
   const [theme, setTheme] = useState(
-    () => localStorage.getItem('ns-theme') || 'dark'
+    () => localStorage.getItem('ns-theme') || localStorage.getItem('nexasphere-theme') || 'dark'
   );
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('ns-theme', theme);
+    localStorage.setItem('nexasphere-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -4243,8 +4159,6 @@ export default function App() {
             onTabChange={handleTabChange}
             onToggleTheme={toggleTheme}
             theme={theme}
-            fontSize={fontSize}
-            onToggleFontSize={toggleFontSize}
           />
         </>
           <svg

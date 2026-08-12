@@ -28,6 +28,7 @@ function validateProperties(properties) {
 // Event Definitions CRUD
 // ---------------------------------------------------------------------------
 
+}
 export const createEventDefinition = wrapAsync(async (req, res) => {
   const { name, description, properties = [] } = req.body;
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -36,9 +37,6 @@ export const createEventDefinition = wrapAsync(async (req, res) => {
   const propError = validateProperties(properties);
   if (propError) return sendError(req, res, propError, 400, 'VALIDATION_ERROR');
     return res.status(400).json({ error: 'Event name is required' });
-  }
-  const propError = validateProperties(properties);
-  if (propError) return res.status(400).json({ error: propError });
 
   const createdBy = req.adminSession?.username || 'unknown';
   const definition = await customEventRepository.createDefinition({
@@ -48,14 +46,12 @@ export const createEventDefinition = wrapAsync(async (req, res) => {
     createdBy,
   });
   return sendSuccess(res, { definition }, 201);
-  return res.status(201).json({ success: true, definition });
 });
 
 export const listEventDefinitions = wrapAsync(async (req, res) => {
   const activeOnly = req.query.active === 'true';
   const definitions = await customEventRepository.listDefinitions({ activeOnly });
   return sendSuccess(res, { definitions });
-  return res.json({ success: true, definitions });
 });
 
 export const getEventDefinition = wrapAsync(async (req, res) => {
@@ -105,13 +101,8 @@ export const logCustomEvent = wrapAsync(async (req, res) => {
 
   const definition = await customEventRepository.getDefinition(eventDefinitionId);
   if (!definition) return sendError(req, res, 'Event definition not found', 404, 'NOT_FOUND');
-  if (!definition.is_active) return sendError(req, res, 'Event definition is inactive', 400, 'VALIDATION_ERROR');
-    return res.status(400).json({ error: 'eventDefinitionId is required' });
-  }
-
-  const definition = await customEventRepository.getDefinition(eventDefinitionId);
-  if (!definition) return res.status(404).json({ error: 'Event definition not found' });
-  if (!definition.is_active) return res.status(400).json({ error: 'Event definition is inactive' });
+  if (!definition.is_active)
+    return sendError(req, res, 'Event definition is inactive', 400, 'VALIDATION_ERROR');
 
   const sessionId = req.headers['x-session-id'] || req.ip;
   const log = await customEventRepository.logEvent({
@@ -121,7 +112,6 @@ export const logCustomEvent = wrapAsync(async (req, res) => {
     properties: properties || {},
   });
   return sendSuccess(res, { log }, 201);
-  return res.status(201).json({ success: true, log });
 });
 
 // ---------------------------------------------------------------------------
@@ -139,8 +129,6 @@ export const getEventAnalytics = wrapAsync(async (req, res) => {
   return sendSuccess(res, { definition, analytics });
   if (!definition) return res.status(404).json({ error: 'Event definition not found' });
 
-  const analytics = await customEventRepository.getEventAnalytics(id, { days });
-  return res.json({ success: true, definition, analytics });
 });
 
 export const getRecentLogs = wrapAsync(async (req, res) => {
@@ -150,7 +138,6 @@ export const getRecentLogs = wrapAsync(async (req, res) => {
 
   const result = await customEventRepository.getRecentLogs(id, { page, limit });
   return sendSuccess(res, { ...result });
-  return res.json({ success: true, ...result });
 });
 
 export const exportEventData = wrapAsync(async (req, res) => {
@@ -182,17 +169,6 @@ export const exportEventData = wrapAsync(async (req, res) => {
     ...logs.map((log) => {
       const props =
         typeof log.properties === 'string' ? JSON.parse(log.properties) : log.properties || {};
-      const props = typeof log.properties === 'string'
-        ? JSON.parse(log.properties)
-        : log.properties || {};
-      let props = log.properties || {};
-      if (typeof props === 'string') {
-        try {
-          props = JSON.parse(props);
-        } catch (e) {
-          props = {};
-        }
-      }
       return [
         log.id,
         log.user_id || '',

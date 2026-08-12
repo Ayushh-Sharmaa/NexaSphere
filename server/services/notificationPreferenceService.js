@@ -11,8 +11,8 @@ export const notificationPreferenceService = {
         digestMode: false,
         quietHours: {
           enabled: false,
-          start: "22:00",
-          end: "07:00",
+          start: '22:00',
+          end: '07:00',
         },
         categories: {
           events: true,
@@ -44,14 +44,14 @@ export const notificationPreferenceService = {
     return [
       {
         id: 1,
-        title: "Event Registration",
+        title: 'Event Registration',
         date: new Date().toISOString(),
       },
       {
         id: 2,
-        title: "Portfolio Updated",
+        title: 'Portfolio Updated',
         date: new Date().toISOString(),
       },
     ];
-  }
+  },
 };

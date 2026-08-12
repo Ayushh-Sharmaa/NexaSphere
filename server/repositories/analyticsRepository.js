@@ -331,6 +331,7 @@ export const analyticsRepository = {
       const res = await query(q, [sessionId, JSON.stringify(eventsJson)]);
       return res.rows[0];
     }
+    });
   },
 
   async getRecording(sessionId) {
@@ -404,26 +405,19 @@ export const analyticsRepository = {
   },
 
   async getCohortData(signupMonth) {
-    const q = `
-      WITH cohort_users AS (
-        SELECT id, created_at
-        FROM users
-        WHERE TO_CHAR(created_at, 'YYYY-MM') = $1
-      ),
-      retention AS (
-        SELECT
-          COUNT(id) as total_users,
-          SUM(retained_30d) as retained_30d_users
-        FROM retention
+    return withDb(async (client) => {
+      const q = `
+        WITH cohort_users AS (
+          SELECT id, created_at FROM users
+          WHERE TO_CHAR(created_at, 'YYYY-MM') = $1
+        )
+        SELECT COUNT(*) as total_users FROM cohort_users
       `;
       const { rows } = await client.query(q, [signupMonth]);
       return rows[0];
     });
   },
 
-  /**
-   * Get event registration metrics
-   */
   async getEventMetrics(eventId) {
     return withDb(async (client) => {
       const { rows } = await client.query(

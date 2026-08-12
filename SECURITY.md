@@ -12,6 +12,7 @@
 Only the current `main` branch receives security patches. Please ensure you are running the latest version before reporting.
 
 ---
+
 | Version | Supported          |
 | ------- | ------------------ |
 | Latest  | :white_check_mark: |
@@ -33,6 +34,7 @@ Contact the maintainers privately through one of these channels:
 | Mentor        | [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa) |
 
 Send a direct message on GitHub or reach out via the GSSoC Discord (project channel) with the subject line: **[SECURITY] NexaSphere — Vulnerability Report**.
+
 1. Go to the **Security** tab of this repository
 2. Click **"Report a vulnerability"**
 3. Fill in the structured form
@@ -52,7 +54,7 @@ Please provide as much detail as possible:
 ### Severity Definitions
 
 | Severity | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | **Critical** | Remote code execution, full auth bypass, mass data exfiltration |
 | **High** | Privilege escalation, significant data exposure, CSRF on critical actions |
 | **Medium** | Limited data exposure, stored XSS, missing rate limiting |
@@ -70,6 +72,7 @@ Please provide as much detail as possible:
 We follow a **coordinated disclosure** policy. We will credit the reporter in the changelog unless they prefer to remain anonymous.
 
 ---
+
 - **Acknowledgment**: Within 48 hours
 - **Initial assessment**: Within 5 business days
 - **Fix timeline**: Depends on severity (Critical: 24–72h, High: 1 week, Medium/Low: next release)
@@ -77,6 +80,7 @@ We follow a **coordinated disclosure** policy. We will credit the reporter in th
 ## Scope
 
 In scope:
+
 - NexaSphere website frontend
 - Admin dashboard
 - Backend API (Express.js)
@@ -85,6 +89,7 @@ In scope:
 - Database query logic
 
 Out of scope:
+
 - Third-party services (Supabase, Vercel, Render)
 - Social engineering attacks
 - DoS via overwhelming legitimate traffic
@@ -194,6 +199,7 @@ Only the latest version of this project is currently supported with security upd
 If you discover a security vulnerability in this project, please do **NOT** open a public issue. Instead, report the vulnerability by emailing the maintainers directly.
 
 Please include the following details in your report:
+
 - A description of the vulnerability and its potential impact.
 - Step-by-step instructions (or a proof-of-concept script) to reproduce the behavior.
 - Any potential mitigations or fixes.
@@ -204,18 +210,20 @@ We thank the security researchers who responsibly disclose vulnerabilities to us
 ## Security Patch Log
 
 | Date | Package | Severity | Fix Applied | PR |
-|------|---------|----------|-------------|-----|
+| ------ | --------- | ---------- | ------------- | ----- |
 | 2026-06-09 | Automated scanning setup | - | Added dependency-scan.yml + dependabot.yml | #1697 |
 | 2026-06-09 | Automated scanning setup | - | Added dependency-scan.yml + dependabot.yml | #1698 |
 
 ## Automated Scanning
 
 This project uses:
+
 - **npm audit** — runs on every push and weekly schedule
 - **Dependabot** — auto-creates PRs for patch updates
 - **GitHub Actions** — fails CI on critical vulnerabilities
 
 To manually run a scan:
+
 ```bash
 npm audit                    # Check vulnerabilities
 npm audit fix                # Auto-fix safe patches

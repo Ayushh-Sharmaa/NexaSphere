@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { api } from '../services/api';
-import { Pagination } from '../components/Pagination';
-import { useToast } from '../hooks/useToast';
+import { useState, useEffect } from "react";
+import { api } from "../services/api";
+import { Pagination } from "../components/Pagination";
+import { useToast } from "../hooks/useToast";
 
 export function ModerationManager() {
   const [flags, setFlags] = useState([]);
   const [appeals, setAppeals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('flags');
+  const [activeTab, setActiveTab] = useState("flags");
   const [selectedFlag, setSelectedFlag] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
-    status: 'pending',
-    flagType: '',
-    severity: '',
-    contentType: '',
+    status: "pending",
+    flagType: "",
+    severity: "",
+    contentType: "",
   });
   const [stats, setStats] = useState(null);
-  const [resolutionNote, setResolutionNote] = useState('');
+  const [resolutionNote, setResolutionNote] = useState("");
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function ModerationManager() {
   const loadData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'flags') {
+      if (activeTab === "flags") {
         const response = await api.moderation.getFlags({
           ...filters,
           limit: 20,
@@ -37,7 +37,7 @@ export function ModerationManager() {
         });
         setFlags(response.flags || []);
         setTotalPages(Math.ceil((response.total || 0) / 20));
-      } else if (activeTab === 'appeals') {
+      } else if (activeTab === "appeals") {
         const response = await api.moderation.getAppeals({
           status: filters.status,
           limit: 20,
@@ -45,12 +45,12 @@ export function ModerationManager() {
         });
         setAppeals(response.appeals || []);
         setTotalPages(Math.ceil((response.total || 0) / 20));
-      } else if (activeTab === 'stats') {
+      } else if (activeTab === "stats") {
         const statsData = await api.moderation.getStats();
         setStats(statsData);
       }
     } catch (error) {
-      showToast(error.message || 'Failed to load moderation data', 'error');
+      showToast(error.message || "Failed to load moderation data", "error");
     } finally {
       setLoading(false);
     }
@@ -59,79 +59,80 @@ export function ModerationManager() {
   const handleApprove = async (flagId) => {
     try {
       await api.moderation.approveFlag(flagId);
-      showToast('Content approved successfully', 'success');
+      showToast("Content approved successfully", "success");
       loadData();
     } catch (error) {
-      showToast(error.message || 'Failed to approve content', 'error');
+      showToast(error.message || "Failed to approve content", "error");
     }
   };
 
   const handleReject = async (flagId, reason) => {
     try {
       await api.moderation.rejectFlag(flagId, reason);
-      showToast('Content rejected successfully', 'success');
+      showToast("Content rejected successfully", "success");
       loadData();
       setShowDetailModal(false);
     } catch (error) {
-      showToast(error.message || 'Failed to reject content', 'error');
+      showToast(error.message || "Failed to reject content", "error");
     }
   };
 
   const handleWarnUser = async (flagId, userId) => {
     try {
       await api.moderation.warnUser(userId);
-      await handleReject(flagId, 'User warned for violating guidelines');
+      await handleReject(flagId, "User warned for violating guidelines");
     } catch (error) {
-      showToast(error.message || 'Failed to warn user', 'error');
+      showToast(error.message || "Failed to warn user", "error");
     }
   };
 
   const handleBanUser = async (flagId, userId) => {
-    if (!window.confirm('Are you sure you want to permanently ban this user?')) return;
+    if (!window.confirm("Are you sure you want to permanently ban this user?"))
+      return;
     try {
       await api.moderation.banUser(userId);
-      await handleReject(flagId, 'User banned for repeated violations');
+      await handleReject(flagId, "User banned for repeated violations");
     } catch (error) {
-      showToast(error.message || 'Failed to ban user', 'error');
+      showToast(error.message || "Failed to ban user", "error");
     }
   };
 
   const handleApproveAppeal = async (appealId) => {
     try {
-      await api.moderation.approveAppeal(appealId, 'Appeal approved');
-      showToast('Appeal approved successfully', 'success');
+      await api.moderation.approveAppeal(appealId, "Appeal approved");
+      showToast("Appeal approved successfully", "success");
       loadData();
     } catch (error) {
-      showToast(error.message || 'Failed to approve appeal', 'error');
+      showToast(error.message || "Failed to approve appeal", "error");
     }
   };
 
   const handleRejectAppeal = async (appealId) => {
     try {
-      await api.moderation.rejectAppeal(appealId, 'Appeal rejected');
-      showToast('Appeal rejected successfully', 'success');
+      await api.moderation.rejectAppeal(appealId, "Appeal rejected");
+      showToast("Appeal rejected successfully", "success");
       loadData();
     } catch (error) {
-      showToast(error.message || 'Failed to reject appeal', 'error');
+      showToast(error.message || "Failed to reject appeal", "error");
     }
   };
 
   const tabs = [
-    { key: 'flags', label: 'Pending Flags' },
-    { key: 'appeals', label: 'Appeals' },
-    { key: 'stats', label: 'Statistics' },
+    { key: "flags", label: "Pending Flags" },
+    { key: "appeals", label: "Appeals" },
+    { key: "stats", label: "Statistics" },
   ];
 
   const getSeverityClass = (severity) => {
     switch (severity) {
-      case 'high':
-        return 'severity-high';
-      case 'medium':
-        return 'severity-medium';
-      case 'low':
-        return 'severity-low';
+      case "high":
+        return "severity-high";
+      case "medium":
+        return "severity-medium";
+      case "low":
+        return "severity-low";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -139,7 +140,9 @@ export function ModerationManager() {
     <div className="page">
       <div className="page-header">
         <h2 className="page-title">Content Moderation Dashboard</h2>
-        <p className="page-subtitle">Review and moderate user-generated content</p>
+        <p className="page-subtitle">
+          Review and moderate user-generated content
+        </p>
       </div>
 
       {/* Tabs */}
@@ -147,7 +150,7 @@ export function ModerationManager() {
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            className={`tab ${activeTab === tab.key ? 'active' : ''}`}
+            className={`tab ${activeTab === tab.key ? "active" : ""}`}
             onClick={() => {
               setActiveTab(tab.key);
               setPage(1);
@@ -163,7 +166,7 @@ export function ModerationManager() {
       ) : (
         <>
           {/* Flags Tab */}
-          {activeTab === 'flags' && (
+          {activeTab === "flags" && (
             <div className="section">
               <div className="section-header">
                 <h3>Pending Content Review Queue</h3>
@@ -195,10 +198,10 @@ export function ModerationManager() {
                     className="btn btn-secondary"
                     onClick={() => {
                       setFilters({
-                        status: 'pending',
-                        flagType: '',
-                        severity: '',
-                        contentType: '',
+                        status: "pending",
+                        flagType: "",
+                        severity: "",
+                        contentType: "",
                       });
                       setPage(1);
                     }}
@@ -218,11 +221,15 @@ export function ModerationManager() {
                     <div key={flag.id} className="flag-card">
                       <div className="flag-header">
                         <div className="flag-meta">
-                          <span className={`severity-badge ${getSeverityClass(flag.severity)}`}>
+                          <span
+                            className={`severity-badge ${getSeverityClass(flag.severity)}`}
+                          >
                             {flag.severity.toUpperCase()}
                           </span>
                           <span className="flag-type">{flag.flagType}</span>
-                          <span className="content-type">{flag.contentType}</span>
+                          <span className="content-type">
+                            {flag.contentType}
+                          </span>
                         </div>
                         <div className="flag-date">
                           {new Date(flag.created_at).toLocaleDateString()}
@@ -230,7 +237,9 @@ export function ModerationManager() {
                       </div>
 
                       <div className="flag-content">
-                        <div className="content-preview">{flag.contentPreview}</div>
+                        <div className="content-preview">
+                          {flag.contentPreview}
+                        </div>
                         <p className="flag-reason">
                           <strong>Reason:</strong> {flag.reason}
                         </p>
@@ -259,7 +268,9 @@ export function ModerationManager() {
                         </button>
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() => handleReject(flag.id, 'Content violates guidelines')}
+                          onClick={() =>
+                            handleReject(flag.id, "Content violates guidelines")
+                          }
                         >
                           Reject Content
                         </button>
@@ -269,12 +280,16 @@ export function ModerationManager() {
                 </div>
               )}
 
-              <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             </div>
           )}
 
           {/* Appeals Tab */}
-          {activeTab === 'appeals' && (
+          {activeTab === "appeals" && (
             <div className="section">
               <div className="section-header">
                 <h3>User Appeals</h3>
@@ -305,12 +320,14 @@ export function ModerationManager() {
                           <td>{appeal.contentPreview}</td>
                           <td>{appeal.reason}</td>
                           <td>
-                            <span className={`status-badge status-${appeal.status}`}>
+                            <span
+                              className={`status-badge status-${appeal.status}`}
+                            >
                               {appeal.status}
                             </span>
                           </td>
                           <td>
-                            {appeal.status === 'pending' && (
+                            {appeal.status === "pending" && (
                               <>
                                 <button
                                   className="btn btn-success btn-xs"
@@ -334,12 +351,16 @@ export function ModerationManager() {
                 </div>
               )}
 
-              <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             </div>
           )}
 
           {/* Statistics Tab */}
-          {activeTab === 'stats' && stats && (
+          {activeTab === "stats" && stats && (
             <div className="section">
               <div className="section-header">
                 <h3>Moderation Statistics</h3>
@@ -396,7 +417,10 @@ export function ModerationManager() {
           <div className="modal">
             <div className="modal-header">
               <h3>Review Content</h3>
-              <button className="close-btn" onClick={() => setShowDetailModal(false)}>
+              <button
+                className="close-btn"
+                onClick={() => setShowDetailModal(false)}
+              >
                 ×
               </button>
             </div>
@@ -446,17 +470,24 @@ export function ModerationManager() {
               </button>
               <button
                 className="btn btn-warning"
-                onClick={() => handleWarnUser(selectedFlag.id, selectedFlag.userId)}
+                onClick={() =>
+                  handleWarnUser(selectedFlag.id, selectedFlag.userId)
+                }
               >
                 Warn User
               </button>
               <button
                 className="btn btn-danger"
-                onClick={() => handleBanUser(selectedFlag.id, selectedFlag.userId)}
+                onClick={() =>
+                  handleBanUser(selectedFlag.id, selectedFlag.userId)
+                }
               >
                 Ban User
               </button>
-              <button className="btn btn-secondary" onClick={() => setShowDetailModal(false)}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDetailModal(false)}
+              >
                 Cancel
               </button>
             </div>

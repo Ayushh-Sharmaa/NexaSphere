@@ -115,3 +115,7 @@ test('Repository applies pagination and role filters to user list queries', asyn
     setWithDbOverride(null);
   }
 });
+
+}
+}
+);

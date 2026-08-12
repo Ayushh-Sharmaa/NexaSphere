@@ -1,11 +1,11 @@
-const eventResourceService = require("../services/eventResourceService");
+const eventResourceService = require('../services/eventResourceService');
 const { sendSuccess, sendError, sendNoContent } = require('../utils/responseHelper.js');
 
 exports.createResource = (req, res) => {
   try {
     const resource = eventResourceService.createResource(req.body);
 
-    return sendSuccess(res, { message: "Resource created successfully.", data: resource }, 201);
+    return sendSuccess(res, { message: 'Resource created successfully.', data: resource }, 201);
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -26,7 +26,7 @@ exports.getResourceById = (req, res) => {
     const resource = eventResourceService.getResourceById(req.params.id);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
     return sendSuccess(res, { data: resource });
@@ -37,16 +37,13 @@ exports.getResourceById = (req, res) => {
 
 exports.updateResource = (req, res) => {
   try {
-    const resource = eventResourceService.updateResource(
-      req.params.id,
-      req.body
-    );
+    const resource = eventResourceService.updateResource(req.params.id, req.body);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Resource updated successfully.", data: resource });
+    return sendSuccess(res, { message: 'Resource updated successfully.', data: resource });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -57,10 +54,10 @@ exports.deleteResource = (req, res) => {
     const deleted = eventResourceService.deleteResource(req.params.id);
 
     if (!deleted) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Resource deleted successfully." });
+    return sendSuccess(res, { message: 'Resource deleted successfully.' });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -75,7 +72,7 @@ exports.reserveResource = (req, res) => {
     );
 
     if (!result) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
     return sendSuccess(res, result);
@@ -86,16 +83,13 @@ exports.reserveResource = (req, res) => {
 
 exports.returnResource = (req, res) => {
   try {
-    const resource = eventResourceService.returnResource(
-      req.params.id,
-      req.body.userId
-    );
+    const resource = eventResourceService.returnResource(req.params.id, req.body.userId);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Resource returned successfully.", data: resource });
+    return sendSuccess(res, { message: 'Resource returned successfully.', data: resource });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -103,16 +97,13 @@ exports.returnResource = (req, res) => {
 
 exports.assignResource = (req, res) => {
   try {
-    const resource = eventResourceService.assignResource(
-      req.params.id,
-      req.body.assignedTo
-    );
+    const resource = eventResourceService.assignResource(req.params.id, req.body.assignedTo);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Resource assigned successfully.", data: resource });
+    return sendSuccess(res, { message: 'Resource assigned successfully.', data: resource });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -120,16 +111,13 @@ exports.assignResource = (req, res) => {
 
 exports.reportDamage = (req, res) => {
   try {
-    const resource = eventResourceService.reportDamage(
-      req.params.id,
-      req.body.report
-    );
+    const resource = eventResourceService.reportDamage(req.params.id, req.body.report);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Damage report submitted.", data: resource });
+    return sendSuccess(res, { message: 'Damage report submitted.', data: resource });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -137,16 +125,13 @@ exports.reportDamage = (req, res) => {
 
 exports.updateMaintenanceStatus = (req, res) => {
   try {
-    const resource = eventResourceService.updateMaintenanceStatus(
-      req.params.id,
-      req.body.status
-    );
+    const resource = eventResourceService.updateMaintenanceStatus(req.params.id, req.body.status);
 
     if (!resource) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
-    return sendSuccess(res, { message: "Maintenance status updated.", data: resource });
+    return sendSuccess(res, { message: 'Maintenance status updated.', data: resource });
   } catch (err) {
     return sendError(req, res, err.message, 500, 'INTERNAL_ERROR');
   }
@@ -154,12 +139,10 @@ exports.updateMaintenanceStatus = (req, res) => {
 
 exports.checkAvailability = (req, res) => {
   try {
-    const availability = eventResourceService.checkAvailability(
-      req.params.id
-    );
+    const availability = eventResourceService.checkAvailability(req.params.id);
 
     if (!availability) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
     return sendSuccess(res, { data: availability });
@@ -193,7 +176,7 @@ exports.generateQRCode = (req, res) => {
     const qr = eventResourceService.generateQRCode(req.params.id);
 
     if (!qr) {
-      return sendError(req, res, "Resource not found", 404, 'NOT_FOUND');
+      return sendError(req, res, 'Resource not found', 404, 'NOT_FOUND');
     }
 
     return sendSuccess(res, { data: qr });

@@ -497,7 +497,7 @@ export default function EventBudgetPage() {
               opacity: tab !== 'budgets' && !selectedBudget ? 0.5 : 1,
             }}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab[0].toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>
@@ -1068,7 +1068,10 @@ export default function EventBudgetPage() {
             aria-labelledby="create-budget-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="create-budget-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="create-budget-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Create Budget
             </h3>
             <label style={labelStyle}>Budget Name *</label>
@@ -1142,7 +1145,10 @@ export default function EventBudgetPage() {
             aria-labelledby="add-expense-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="add-expense-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="add-expense-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Add Expense
             </h3>
             <label style={labelStyle}>Expense Name *</label>
@@ -1214,7 +1220,10 @@ export default function EventBudgetPage() {
             aria-labelledby="add-revenue-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="add-revenue-title" style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}>
+            <h3
+              id="add-revenue-title"
+              style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '600' }}
+            >
               Add Revenue
             </h3>
             <label style={labelStyle}>Revenue Source *</label>

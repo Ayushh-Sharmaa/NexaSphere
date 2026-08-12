@@ -238,9 +238,7 @@ describe('Bulk Routes — User Operations', () => {
   });
 
   it('POST /api/admin/bulk/users/preview returns 400 with missing CSV', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/users/preview')
-      .send({});
+    const res = await request(app).post('/api/admin/bulk/users/preview').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -257,9 +255,7 @@ describe('Bulk Routes — User Operations', () => {
   });
 
   it('POST /api/admin/bulk/users/import returns 400 with missing CSV', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/users/import')
-      .send({});
+    const res = await request(app).post('/api/admin/bulk/users/import').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -275,8 +271,7 @@ describe('Bulk Routes — User Operations', () => {
   });
 
   it('POST /api/admin/bulk/users/upload returns 400 without file', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/users/upload');
+    const res = await request(app).post('/api/admin/bulk/users/upload');
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -311,9 +306,7 @@ describe('Bulk Routes — User Operations', () => {
   });
 
   it('POST /api/admin/bulk/users/role returns 400 with missing userIds', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/users/role')
-      .send({ role: 'admin' });
+    const res = await request(app).post('/api/admin/bulk/users/role').send({ role: 'admin' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -345,9 +338,7 @@ describe('Bulk Routes — User Operations', () => {
   });
 
   it('POST /api/admin/bulk/users/status returns 400 with missing userIds', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/users/status')
-      .send({ status: 'active' });
+    const res = await request(app).post('/api/admin/bulk/users/status').send({ status: 'active' });
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -437,9 +428,7 @@ describe('Bulk Routes — Event Operations', () => {
   });
 
   it('POST /api/admin/bulk/events/preview returns 400 with missing CSV', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/events/preview')
-      .send({});
+    const res = await request(app).post('/api/admin/bulk/events/preview').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -455,9 +444,7 @@ describe('Bulk Routes — Event Operations', () => {
   });
 
   it('POST /api/admin/bulk/events/import returns 400 with missing CSV', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/events/import')
-      .send({});
+    const res = await request(app).post('/api/admin/bulk/events/import').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -473,8 +460,7 @@ describe('Bulk Routes — Event Operations', () => {
   });
 
   it('POST /api/admin/bulk/events/upload returns 400 without file', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/events/upload');
+    const res = await request(app).post('/api/admin/bulk/events/upload');
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });
@@ -552,9 +538,7 @@ describe('Bulk Routes — Event Operations', () => {
   });
 
   it('POST /api/admin/bulk/events/remind returns 400 with missing eventIds', async () => {
-    const res = await request(app)
-      .post('/api/admin/bulk/events/remind')
-      .send({});
+    const res = await request(app).post('/api/admin/bulk/events/remind').send({});
     assert.equal(res.status, 400);
     assert.ok(res.body.error);
   });

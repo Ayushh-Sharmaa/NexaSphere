@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import { Mutex } from 'async-mutex';
 import { HAS_SUPABASE } from './supabaseClient.js';
-import { Mutex } from 'async-mutex';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,7 +41,9 @@ export async function ensureContentFile() {
 
 export async function readContent() {
   if (HAS_SUPABASE) {
-    console.warn('DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.');
+    console.warn(
+      'DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.'
+    );
   }
   await ensureContentFile();
   const raw = await fs.readFile(CONTENT_FILE, 'utf8');
@@ -51,30 +52,14 @@ export async function readContent() {
 
 export async function writeContent(content) {
   if (HAS_SUPABASE) {
-    console.warn('DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.');
+    console.warn(
+      'DEPRECATION WARNING: File-based storage operations are being executed despite HAS_SUPABASE being active. File-based storage is deprecated when Supabase is enabled.'
+    );
   }
   await ensureContentFile();
   const tempPath = `${CONTENT_FILE}.${crypto.randomUUID()}.tmp`;
   await fs.writeFile(tempPath, JSON.stringify(content, null, 2), 'utf8');
   await fs.rename(tempPath, CONTENT_FILE);
-}
-
-const fileMutex = new Mutex();
-
-export async function runWithFileLock(callback) {
-  return await fileMutex.runExclusive(callback);
-}
-
-const fileMutex = new Mutex();
-
-export async function runWithFileLock(callback) {
-  return await fileMutex.runExclusive(callback);
-}
-
-const fileMutex = new Mutex();
-
-export async function runWithFileLock(callback) {
-  return await fileMutex.runExclusive(callback);
 }
 
 const fileMutex = new Mutex();

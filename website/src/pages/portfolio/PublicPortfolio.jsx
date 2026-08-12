@@ -16,6 +16,12 @@ export default function PublicPortfolio({ username, onBack }) {
   const [portfolio, setPortfolio] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [endorseFeedback, setEndorseFeedback] = useState(null);
+
+  const showEndorseFeedback = (message, type = "error") => {
+    setEndorseFeedback({ message, type });
+    setTimeout(() => setEndorseFeedback(null), 4000);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -65,11 +71,11 @@ export default function PublicPortfolio({ username, onBack }) {
 
   const handleEndorse = async (skillName) => {
     if (!user) {
-      alert('You must be signed in as a club member to endorse skills.');
+      showEndorseFeedback('You must be signed in as a club member to endorse skills.', 'error');
       return;
     }
     if (user.username && user.username.toLowerCase() === username.toLowerCase()) {
-      alert('You cannot endorse your own skills.');
+      showEndorseFeedback('You cannot endorse your own skills.', 'error');
       return;
     }
     try {
@@ -79,6 +85,7 @@ export default function PublicPortfolio({ username, onBack }) {
         body: { skillName },
       });
       if (res.success) {
+        showEndorseFeedback(`Successfully endorsed ${skillName}!`, 'success');
         setPortfolio((prev) => {
           const updatedSkills = prev.skills.map((s) => {
             const sName = typeof s === 'string' ? s : s.name;
@@ -94,7 +101,7 @@ export default function PublicPortfolio({ username, onBack }) {
         });
       }
     } catch (err) {
-      alert(err.message || 'Failed to endorse skill');
+      showEndorseFeedback(err.message || 'Failed to endorse skill', 'error');
     }
   };
 
@@ -222,7 +229,6 @@ export default function PublicPortfolio({ username, onBack }) {
         <meta name="twitter:image" content={meta.image} />
       </Helmet>
 
-
       {/* Dynamic floating toolbar above showcase */}
       <div className="action-floating-header no-print">
         <button className="btn btn-outline" onClick={onBack} aria-label="Back to main page">
@@ -259,7 +265,19 @@ export default function PublicPortfolio({ username, onBack }) {
       </div>
 
       {exportError && (
-        <div className="no-print" style={{ color: '#ef4444', textAlign: 'center', margin: '1rem auto', padding: '0.5rem', background: '#fee2e2', borderRadius: '8px', border: '1px solid #f87171', maxWidth: '800px' }}>
+        <div
+          className="no-print"
+          style={{
+            color: '#ef4444',
+            textAlign: 'center',
+            margin: '1rem auto',
+            padding: '0.5rem',
+            background: '#fee2e2',
+            borderRadius: '8px',
+            border: '1px solid #f87171',
+            maxWidth: '800px',
+          }}
+        >
           {exportError}
         </div>
       )}

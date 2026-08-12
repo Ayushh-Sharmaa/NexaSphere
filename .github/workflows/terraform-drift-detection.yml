@@ -42,11 +42,9 @@ jobs:
         id: plan
         run: |
           terraform plan -no-color -detailed-exitcode > plan.txt
-        run: terraform plan -no-color -detailed-exitcode > plan.txt || exit $?
         continue-on-error: true
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-          TF_VAR_environment: ${{ matrix.environment }}
 
       - name: Create Drift Issue
         if: steps.plan.outputs.exitcode == 2

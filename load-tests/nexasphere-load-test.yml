@@ -1,0 +1,47 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      rampTo: 200
+      name: "Ramp to 1000+ concurrent"
+    - duration: 180
+      arrivalRate: 200
+      name: "Sustained peak load"
+    - duration: 60
+      arrivalRate: 500
+      name: "Large event stress spike"
+  http:
+    timeout: 10
+  plugins:
+    metrics-by-endpoint: {}
+
+scenarios:
+  - name: "Browse events"
+    weight: 50
+    flow:
+      - get:
+          url: "/api/content/events"
+
+  - name: "Register for event"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/content/events"
+          capture:
+            - json: "$[0].id"
+              as: "eventId"
+      - post:
+          url: "/api/content/events/{{ eventId }}/register"
+          json:
+            name: "LoadTest User {{ $randomNumber(1, 100000) }}"
+            email: "loadtest{{ $randomNumber(1, 100000) }}@example.com"
+
+  - name: "Browse public users"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/users"

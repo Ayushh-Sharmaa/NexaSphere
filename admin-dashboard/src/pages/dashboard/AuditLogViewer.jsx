@@ -1,25 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getActionColor(action) {
-  const method = String(action || '')
-    .split(' ')[0]
+  const method = String(action || "")
+    .split(" ")[0]
     .toUpperCase();
   switch (method) {
-    case 'POST':
-      return 'bg-green-100 text-green-800';
-    case 'PUT':
-    case 'PATCH':
-      return 'bg-blue-100 text-blue-800';
-    case 'DELETE':
-      return 'bg-red-100 text-red-800';
-    case 'GET':
-      return 'bg-gray-100 text-gray-700';
+    case "POST":
+      return "bg-green-100 text-green-800";
+    case "PUT":
+    case "PATCH":
+      return "bg-blue-100 text-blue-800";
+    case "DELETE":
+      return "bg-red-100 text-red-800";
+    case "GET":
+      return "bg-gray-100 text-gray-700";
     default:
-      return 'bg-yellow-100 text-yellow-800';
+      return "bg-yellow-100 text-yellow-800";
   }
 }
 
@@ -35,29 +35,29 @@ function Badge({ action }) {
 
 function exportCSV(logs) {
   const headers = [
-    'Timestamp',
-    'Admin ID',
-    'Action',
-    'IP Address',
-    'User Agent',
-    'Old State',
-    'New State',
+    "Timestamp",
+    "Admin ID",
+    "Action",
+    "IP Address",
+    "User Agent",
+    "Old State",
+    "New State",
   ];
   const rows = logs.map((l) => [
     new Date(l.timestamp).toISOString(),
     l.admin_id,
     l.action,
-    l.ip_address ?? '',
-    l.user_agent ?? '',
-    l.old_state ? JSON.stringify(l.old_state) : '',
-    l.new_state ? JSON.stringify(l.new_state) : '',
+    l.ip_address ?? "",
+    l.user_agent ?? "",
+    l.old_state ? JSON.stringify(l.old_state) : "",
+    l.new_state ? JSON.stringify(l.new_state) : "",
   ]);
   const csv = [headers, ...rows]
-    .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
-    .join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
+    .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = `audit-logs-${Date.now()}.csv`;
   a.click();
@@ -72,12 +72,16 @@ function StatsBar({ stats }) {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
       <div className="bg-white rounded-lg border p-4">
         <p className="text-sm text-gray-500">Total logs</p>
-        <p className="text-2xl font-bold text-gray-800">{stats.total.toLocaleString()}</p>
+        <p className="text-2xl font-bold text-gray-800">
+          {stats.total.toLocaleString()}
+        </p>
       </div>
       {stats.byAction.slice(0, 3).map(({ action, count }) => (
         <div key={action} className="bg-white rounded-lg border p-4">
           <p className="text-sm text-gray-500 truncate">{action}</p>
-          <p className="text-2xl font-bold text-gray-800">{count.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-gray-800">
+            {count.toLocaleString()}
+          </p>
         </div>
       ))}
     </div>
@@ -106,7 +110,9 @@ function DetailModal({ log, onClose }) {
         <h3 className="text-lg font-semibold mb-4 text-gray-800">Log Detail</h3>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
           <dt className="text-gray-500">Timestamp</dt>
-          <dd className="text-gray-800">{new Date(log.timestamp).toLocaleString()}</dd>
+          <dd className="text-gray-800">
+            {new Date(log.timestamp).toLocaleString()}
+          </dd>
           <dt className="text-gray-500">Admin ID</dt>
           <dd className="text-gray-800 truncate">{log.admin_id}</dd>
           <dt className="text-gray-500">Action</dt>
@@ -114,9 +120,11 @@ function DetailModal({ log, onClose }) {
             <Badge action={log.action} />
           </dd>
           <dt className="text-gray-500">IP Address</dt>
-          <dd className="text-gray-800">{log.ip_address ?? '—'}</dd>
+          <dd className="text-gray-800">{log.ip_address ?? "—"}</dd>
           <dt className="text-gray-500 col-span-2">User Agent</dt>
-          <dd className="text-gray-700 col-span-2 text-xs break-all">{log.user_agent ?? '—'}</dd>
+          <dd className="text-gray-700 col-span-2 text-xs break-all">
+            {log.user_agent ?? "—"}
+          </dd>
         </dl>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -124,7 +132,7 @@ function DetailModal({ log, onClose }) {
               Old State
             </p>
             <pre className="bg-gray-50 rounded p-3 text-xs overflow-auto max-h-48 text-gray-700">
-              {log.old_state ? JSON.stringify(log.old_state, null, 2) : '—'}
+              {log.old_state ? JSON.stringify(log.old_state, null, 2) : "—"}
             </pre>
           </div>
           <div>
@@ -132,7 +140,7 @@ function DetailModal({ log, onClose }) {
               New State
             </p>
             <pre className="bg-gray-50 rounded p-3 text-xs overflow-auto max-h-48 text-gray-700">
-              {log.new_state ? JSON.stringify(log.new_state, null, 2) : '—'}
+              {log.new_state ? JSON.stringify(log.new_state, null, 2) : "—"}
             </pre>
           </div>
         </div>
@@ -150,30 +158,30 @@ export default function AuditLogViewer() {
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
 
   // Filters
-  const [action, setAction] = useState('');
-  const [adminId, setAdminId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [action, setAction] = useState("");
+  const [adminId, setAdminId] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const limit = 50;
 
   const fetchLogs = useCallback(
     async (p = 1) => {
       setLoading(true);
-      setError('');
+      setError("");
       try {
         const params = new URLSearchParams({ page: p, limit });
-        if (action) params.set('action', action);
-        if (adminId) params.set('adminId', adminId);
-        if (startDate) params.set('startDate', startDate);
-        if (endDate) params.set('endDate', endDate);
+        if (action) params.set("action", action);
+        if (adminId) params.set("adminId", adminId);
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
 
         const res = await fetch(`${API_BASE}/api/admin/audit-logs?${params}`, {
-          credentials: 'include',
+          credentials: "include",
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
@@ -182,7 +190,7 @@ export default function AuditLogViewer() {
         setTotalPages(data.totalPages ?? 1);
         setPage(p);
       } catch (err) {
-        setError('Failed to load audit logs. ' + err.message);
+        setError("Failed to load audit logs. " + err.message);
       } finally {
         setLoading(false);
       }
@@ -193,7 +201,7 @@ export default function AuditLogViewer() {
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE}/api/admin/audit-logs/stats`, {
-        credentials: 'include',
+        credentials: "include",
       });
       if (!res.ok) return;
       setStats(await res.json());
@@ -215,15 +223,37 @@ export default function AuditLogViewer() {
 
   const handleExport = async () => {
     const params = new URLSearchParams({ page: 1, limit: 1000 });
-    if (action) params.set('action', action);
-    if (adminId) params.set('adminId', adminId);
-    if (startDate) params.set('startDate', startDate);
-    if (endDate) params.set('endDate', endDate);
+    if (action) params.set("action", action);
+    if (adminId) params.set("adminId", adminId);
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
     const res = await fetch(`${API_BASE}/api/admin/audit-logs?${params}`, {
-      credentials: 'include',
+      credentials: "include",
     });
     const data = await res.json();
     exportCSV(data.logs ?? []);
+  };
+
+  const handleExportPDF = async () => {
+    const url = new URL(`${API_BASE}/api/admin/audit-logs`);
+    url.searchParams.set('limit', 1000);
+    if (adminId) url.searchParams.set('adminId', adminId);
+    if (action) url.searchParams.set('action', action);
+    if (startDate) url.searchParams.set('startDate', startDate);
+    if (endDate) url.searchParams.set('endDate', endDate);
+
+    const res = await fetch(url.toString(), { credentials: 'include' });
+    const data = await res.json();
+    const logs = data.logs ?? [];
+    
+    const columns = ['Timestamp', 'Admin ID', 'Action', 'IP Address'];
+    const rows = logs.map((l) => [
+      new Date(l.timestamp).toLocaleString(),
+      l.admin_id,
+      l.action,
+      l.ip_address || '-',
+    ]);
+    exportToPDF(columns, rows, `audit-logs-${Date.now()}`);
   };
 
   return (
@@ -236,12 +266,20 @@ export default function AuditLogViewer() {
             Admin activity trail — {total.toLocaleString()} total records
           </p>
         </div>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
-        >
-          ↓ Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -302,7 +340,13 @@ export default function AuditLogViewer() {
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
-              {['Timestamp', 'Admin ID', 'Action', 'IP Address', 'User Agent'].map((h) => (
+              {[
+                "Timestamp",
+                "Admin ID",
+                "Action",
+                "IP Address",
+                "User Agent",
+              ].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -341,9 +385,11 @@ export default function AuditLogViewer() {
                   <td className="px-4 py-3">
                     <Badge action={log.action} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{log.ip_address ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {log.ip_address ?? "—"}
+                  </td>
                   <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-[220px]">
-                    {log.user_agent ?? '—'}
+                    {log.user_agent ?? "—"}
                   </td>
                 </tr>
               ))

@@ -1,12 +1,19 @@
+function resolveEventDates(event) {
+  const start = event.startDate ? new Date(event.startDate) : new Date(event.date || '');
+  const end = event.endDate
+    ? new Date(event.endDate)
+    : start && new Date(start.getTime() + 60 * 60 * 1000);
+  if (!start || Number.isNaN(start.getTime()) || !end || Number.isNaN(end.getTime())) return null;
+  return { start, end };
+}
+
 export function downloadICS(event) {
-  const startDate = new Date(event.date || Date.now());
-  if (isNaN(startDate.getTime())) {
+  const dates = resolveEventDates(event);
+  if (!dates) {
     console.error('Invalid event date for ICS export.');
     return;
   }
-
-  // Default to 1 hour duration
-  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+  const { start: startDate, end: endDate } = dates;
 
   const formatDate = (date) => {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -41,20 +48,22 @@ const formatDateForUrl = (date) => {
 };
 
 export function generateGoogleCalendarUrl(event) {
-  const startDate = new Date(event.date || Date.now());
-  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+  const dates = resolveEventDates(event);
+  if (!dates) return null;
+  const { start: startDate, end: endDate } = dates;
 
   const title = encodeURIComponent(event.name || 'NexaSphere Event');
   const details = encodeURIComponent(event.description || event.overview || '');
   const location = encodeURIComponent(event.location || 'GL Bajaj Group of Institutions, Mathura');
-  const dates = `${formatDateForUrl(startDate)}/${formatDateForUrl(endDate)}`;
+  const dateStr = `${formatDateForUrl(startDate)}/${formatDateForUrl(endDate)}`;
 
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dateStr}&details=${details}&location=${location}`;
 }
 
 export function generateOutlookCalendarUrl(event) {
-  const startDate = new Date(event.date || Date.now());
-  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+  const dates = resolveEventDates(event);
+  if (!dates) return null;
+  const { start: startDate, end: endDate } = dates;
 
   const title = encodeURIComponent(event.name || 'NexaSphere Event');
   const details = encodeURIComponent(event.description || event.overview || '');

@@ -57,12 +57,17 @@ export default function SubscriptionPage({ onBack }) {
   const [showInvoice, setShowInvoice] = useState(false);
   const [lastInvoice, setLastInvoice] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   const isMountedRef = useRef(true);
-  useEffect(() => {
-    isMountedRef.current = true;
   const subscribeDelayRef = useRef(null);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       if (subscribeDelayRef.current) {
@@ -74,7 +79,7 @@ export default function SubscriptionPage({ onBack }) {
   const handleSubscribe = async (tierId) => {
     if (tierId === 'free') return;
     if (!isAuthenticated) {
-      alert('Please log in to subscribe');
+      showFeedback('Please log in to subscribe', 'error');
       return;
     }
     setLoading(true);

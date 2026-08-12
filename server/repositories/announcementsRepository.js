@@ -76,6 +76,7 @@ export const announcementsRepository = {
           }
           if (
             ann.target_graduation_year &&
+            user.graduationYear != null &&
             Number(ann.target_graduation_year) !== Number(user.graduationYear)
           ) {
             return false;

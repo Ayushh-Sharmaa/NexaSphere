@@ -12,8 +12,6 @@ import {
 } from "../services/socket";
 
 let socket = null;
-const eventHandlers = {};
-let currentSocketUrl = '';
 let currentSocketUrl = "";
 let warnedMissingSocketConfig = false;
 
@@ -32,216 +30,62 @@ export function initializeSocket(serverUrl = getSocketServerUrl()) {
     return null;
   }
 
-  const socket = tsInitSocket(resolvedUrl);
-
-  // Register global lifecycle handlers once per socket lifetime
-  if (!socket._jsClientReady) {
-    socket._jsClientReady = true;
-
-    socket.on("connect", () => identifyUser());
-
-    socket.on("connect_error", (error) => {
-      console.error("[Socket.IO] Connection Error:", error);
-      captureHandledException(error, "Socket.IO connect_error:");
-    });
-
-    socket.on("error", (error) => {
-      console.error("[Socket.IO] Error:", error);
-      captureHandledException(error, "Socket.IO error:");
-    });
-
-    socket.on("reconnect_failed", () => {
-      console.error("[Socket.IO] Reconnection failed after max attempts");
-      captureHandledException(
-        new Error("Socket.IO reconnect attempts exhausted"),
-        "Socket.IO reconnect failed:"
-      );
-    });
+  // If already connected to the same URL, return existing socket
+  if (socket && currentSocketUrl === resolvedUrl && socket.connected) {
+    return socket;
   }
 
+  // Disconnect existing socket if URL changed
   if (socket) {
     socket.disconnect();
   }
 
   currentSocketUrl = resolvedUrl;
-  socket = io(resolvedUrl, {
-    path: getSocketPath(),
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    reconnectionAttempts: 8,
-    transports: ["websocket", "polling"],
-    timeout: 5000,
-  });
+  socket = tsInitSocket(resolvedUrl);
 
-const socketOptions = {
-  path: getSocketPath(),
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: 8,
-  transports: ['websocket', 'polling'],
-  timeout: 5000,
-};
+  // Register global lifecycle handlers once per socket lifetime
+  if (!socket._jsClientReady) {
+    socket._jsClientReady = true;
 
-socket = io(resolvedUrl, socketOptions);
-  // Global event handlers - connection lifecycle monitoring
-  socket.on('connect', () => {
-    console.log('[Socket.IO] Connected:', socket.id);
-    identifyUser(); // try to identify if user info is available locally
-  });
+    socket.on("connect", () => {
+      console.log("[Socket.IO] Connected:", socket.id);
+      identifyUser();
+    });
 
-  socket.on('disconnect', (reason) => {
-    console.log('[Socket.IO] Disconnected:', reason);
-  });
+    socket.on("disconnect", (reason) => {
+      console.log("[Socket.IO] Disconnected:", reason);
+    });
 
-  socket.on('reconnect', (attemptNumber) => {
-    console.log('[Socket.IO] Reconnected after', attemptNumber, 'attempts');
-  });
+    socket.on("reconnect", (attemptNumber) => {
+      console.log("[Socket.IO] Reconnected after", attemptNumber, "attempts");
+    });
 
-  socket.on('reconnect_attempt', (attemptNumber) => {
-    console.log('[Socket.IO] Reconnecting attempt:', attemptNumber);
-  });
+    socket.on("reconnect_attempt", (attemptNumber) => {
+      console.log("[Socket.IO] Reconnecting attempt:", attemptNumber);
+    });
 
-  socket.on('reconnect_failed', () => {
-    console.error('[Socket.IO] Reconnection failed');
-  socket.on("connect", () => {
-    identifyUser(); // try to identify if user info is available locally
-  
+    // Named handlers enable Socket.IO to deduplicate if initializeSocket is called twice
+    const handleConnectError = (error) => {
+      console.error("[Socket.IO] Connection Error:", error);
+      captureHandledException(error, "Socket.IO connect_error:");
+    };
+    const handleSocketError = (error) => {
+      console.error("[Socket.IO] Error:", error);
+      captureHandledException(error, "Socket.IO error:");
+    };
+    const handleReconnectFailed = () => {
+      console.error("[Socket.IO] Reconnection failed after max attempts");
+      captureHandledException(
+        new Error("Socket.IO reconnect attempts exhausted"),
+        "Socket.IO reconnect failed:"
+      );
+    };
 
- 
-  socket.on('connect_error', (error) => {
-    console.error('[Socket.IO] Connection Error:', error);
-    captureHandledException(error, 'Socket.IO connect_error:');
-  });
-  
-  socket.on('error', (error) => {
-    console.error('[Socket.IO] Error:', error);
-    captureHandledException(error, 'Socket.IO error:');
-  });
-  
-  socket.on('reconnect_failed', () => {
-    console.error('[Socket.IO] Reconnection failed after max attempts');
-    captureHandledException(
-      new Error('Socket.IO reconnect attempts exhausted'),
-      'Socket.IO reconnect failed:'
-    );
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("[Socket.IO] Reconnection failed");
-  socket.on("connect", () => {
-    identifyUser(); // try to identify if user info is available locally
-  });
-
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connect_error:");
-  });
-
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  });
-
-  socket.on("connect", () => {
-    identifyUser(); // try to identify if user info is available locally
-  });
-
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connect_error:");
-  });
-
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("[Socket.IO] Reconnection failed after max attempts");
-    captureHandledException(
-      new Error("Socket.IO reconnect attempts exhausted"),
-      "Socket.IO reconnect failed:"
-    );
-  });
-
-  function setupEventListeners() {
-    if (!socket) return;
+    socket.on("connect_error", handleConnectError);
+    socket.on("error", handleSocketError);
+    socket.on("reconnect_failed", handleReconnectFailed);
   }
-  // Setup custom event listeners
-  setupEventListeners();
 
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connect_error:");
-  socket.on("connect", () => {
-    identifyUser(); // try to identify if user info is available locally
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("[Socket.IO] Reconnection failed");
-    captureHandledException(
-      new Error("Socket.IO reconnect attempts exhausted"),
-      "Socket.IO reconnect failed:"
-    );
-  });
-
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connection error:");
-  });
-
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  });
-
-  socket.on('connect_error', (error) => {
-    captureHandledException(error, 'Socket.IO connection error:');
-  });
-
-  socket.on('reconnect_failed', () => {
-  socket.on("connect", () => {
-    identifyUser(); // try to identify if user info is available locally
-  });
-
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connect_error:");
-  });
-
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("[Socket.IO] Reconnection failed after max attempts");
-    captureHandledException(
-      new Error("Socket.IO reconnect attempts exhausted"),
-      "Socket.IO reconnect failed:"
-    );
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  socket.on("connect_error", (error) => {
-    console.error("[Socket.IO] Connection Error:", error);
-    captureHandledException(error, "Socket.IO connect_error:");
-  });
-
-  socket.on("error", (error) => {
-    console.error("[Socket.IO] Error:", error);
-    captureHandledException(error, "Socket.IO error:");
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("[Socket.IO] Reconnection failed after max attempts");
-    captureHandledException(
-      new Error("Socket.IO reconnect attempts exhausted"),
-      "Socket.IO reconnect failed:"
-    );
-  });
   return socket;
 }
 

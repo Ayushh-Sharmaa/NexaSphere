@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { getIO, emitToRoom } from '../config/socket.js';
 import logger from '../utils/logger.js';
 
@@ -17,7 +18,7 @@ export const waitingRoomService = {
     if (existing) return { position: queue.indexOf(existing) + 1, total: queue.length };
 
     const entry = {
-      id: `wr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: `wr_${crypto.randomUUID()}`,
       userId: userId || null,
       fullName,
       email,
@@ -66,8 +67,8 @@ export const waitingRoomService = {
       total: queue.length,
     });
     const io = getIO();
-    if (entry.userId) {
-      io.to(entry.userId).emit('waiting:admitted', { eventId, fullName: entry.fullName });
+    if (io && entry.userId) {
+      io.to(`user-${entry.userId}`).emit('waiting:admitted', { eventId, fullName: entry.fullName });
     }
     logger.info('Attendee admitted from waiting room', { eventId, email: entry.email });
     return entry;

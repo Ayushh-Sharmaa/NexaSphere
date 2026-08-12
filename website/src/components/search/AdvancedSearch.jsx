@@ -128,7 +128,12 @@ const AdvancedSearch = () => {
                 <History size={14} /> Recent
               </h4>
               {recentSearches.map((s) => (
-                <button key={s} type="button" className="recent-search-tag" onClick={() => setQuery(s)}>
+                <button
+                  key={s}
+                  type="button"
+                  className="recent-search-tag"
+                  onClick={() => setQuery(s)}
+                >
                   {s}
                 </button>
               ))}

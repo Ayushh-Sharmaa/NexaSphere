@@ -39,10 +39,6 @@ export const customEventRepository = {
       const { rows } = await client.query('SELECT * FROM custom_event_definitions WHERE id = $1', [
         id,
       ]);
-      const { rows } = await client.query(
-        'SELECT * FROM custom_event_definitions WHERE id = $1',
-        [id]
-      );
       return rows[0] || null;
     });
   },
@@ -99,8 +95,6 @@ export const customEventRepository = {
           userId || null,
           sessionId || null,
           JSON.stringify(properties || {}),
-        ]
-      );
       return rows[0];
     });
   },

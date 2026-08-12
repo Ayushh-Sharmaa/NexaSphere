@@ -65,11 +65,9 @@ export function useNotifications() {
         return [
           {
             id: `reg-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-            type: 'connection',
-            title: 'Registration Confirmed! 🎉',
             message: data.eventName
               ? `You are registered for "${data.eventName}"`
-              : 'Your registration has been successfully confirmed.',
+              : "Your registration has been successfully confirmed.",
             type: "connection",
             title: "Registration Confirmed! 🎉",
             message: data.eventName
@@ -87,11 +85,6 @@ export function useNotifications() {
       setNotifications((prev) => [
         {
           id: `waitlist-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-          type: 'mention',
-          title: 'Waitlist Promotion! 🚀',
-          message: data.eventName
-            ? `Great news! You have been promoted for "${data.eventName}"`
-            : 'You have been promoted from the waitlist.',
           type: "mention",
           title: "Waitlist Promotion! 🚀",
           message: data.eventName
@@ -108,11 +101,6 @@ export function useNotifications() {
       setNotifications((prev) => [
         {
           id: `reminder-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-          type: 'system',
-          title: 'Upcoming Event Reminder ⏰',
-          message: data.eventName
-            ? `"${data.eventName}" is starting soon! Don't miss it.`
-            : 'An event is starting shortly.',
           type: "system",
           title: "Upcoming Event Reminder ⏰",
           message: data.eventName
@@ -129,8 +117,6 @@ export function useNotifications() {
       setNotifications((prev) => [
         {
           id: `attendance-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-          type: 'system',
-          title: 'Attendance Confirmed! Check-in ✅',
           type: "system",
           title: "Attendance Confirmed! Check-in ✅",
           message: `Your check-in is complete! You earned ${data.points || 50} points.`,
@@ -157,13 +143,6 @@ export function useNotifications() {
 
     return () => {
       isMounted = false;
-      // Cleanup listeners passing handler references
-      socketClient.off('registration-confirmed', handleRegistration);
-      socketClient.off('waitlist-promotion', handleWaitlist);
-      socketClient.off('event-reminder', handleReminder);
-      socketClient.off('attendance-marked', handleAttendance);
-
-      const storedUser = localStorage.getItem('ns_user');
       socketClient.off("registration-confirmed", handleRegistration);
       socketClient.off("waitlist-promotion", handleWaitlist);
       socketClient.off("event-reminder", handleReminder);
@@ -179,37 +158,20 @@ export function useNotifications() {
         } catch (e) {}
       }
 
-      socketClient.leaveRoom('notifications-room');
-      socketClient.leaveRoom('global-announcements');
       socketClient.leaveRoom("notifications-room");
       socketClient.leaveRoom("global-announcements");
-
-      // DO NOT disconnect the shared socket here
     };
   }, []);
 
   const markAsRead = useCallback((id) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
-    // Persist
-    (async () => {
-      try {
-        const base = import.meta?.env?.VITE_API_BASE || '';
-        await apiClient(base + '/api/notifications/mark-read', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
-    // Persist
     (async () => {
       try {
-        const base = import.meta?.env?.VITE_API_BASE || "";
-        await apiClient(base + "/api/notifications/mark-read", {
+        await fetch(buildUrl(getApiBase(), "/api/notifications/mark-read"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        await fetch(buildUrl(getApiBase(), '/api/notifications/mark-read'), {
-          method: 'POST',
-          headers: getAuthHeaders(),
           body: JSON.stringify({ id }),
         });
       } catch (e) {}
@@ -220,13 +182,12 @@ export function useNotifications() {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     (async () => {
       try {
-        const base = import.meta?.env?.VITE_API_BASE || "";
-        await apiClient(base + "/api/notifications/mark-all-read", {
-          method: "POST",
-        await fetch(buildUrl(getApiBase(), '/api/notifications/mark-all-read'), {
-          method: 'POST',
-          headers: getAuthHeaders(),
-        });
+        await fetch(
+          buildUrl(getApiBase(), "/api/notifications/mark-all-read"),
+          {
+            method: "POST",
+          }
+        );
       } catch (e) {}
     })();
   }, []);
@@ -235,11 +196,8 @@ export function useNotifications() {
     setNotifications([]);
     (async () => {
       try {
-        const base = import.meta?.env?.VITE_API_BASE || "";
-        await apiClient(base + "/api/notifications", { method: "DELETE" });
-        await fetch(buildUrl(getApiBase(), '/api/notifications'), {
-          method: 'DELETE',
-          headers: getAuthHeaders(),
+        await fetch(buildUrl(getApiBase(), "/api/notifications"), {
+          method: "DELETE",
         });
       } catch (e) {}
     })();

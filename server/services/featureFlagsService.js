@@ -148,14 +148,18 @@ class FeatureFlagsService {
 
     // 4. User ID direct target whitelist
     if (context.userId && flag.target_users && flag.target_users.length > 0) {
-      if (flag.target_users.includes(context.userId)) {
+      const normalizedUserId = String(context.userId).trim();
+      const userWhitelist = flag.target_users.map((u) => String(u).trim());
+      if (userWhitelist.includes(normalizedUserId)) {
         return true;
       }
     }
 
     // 5. User Role direct target whitelist
     if (context.role && flag.target_roles && flag.target_roles.length > 0) {
-      if (flag.target_roles.includes(context.role)) {
+      const normalizedRole = String(context.role).trim().toLowerCase();
+      const roleWhitelist = flag.target_roles.map((r) => String(r).trim().toLowerCase());
+      if (roleWhitelist.includes(normalizedRole)) {
         return true;
       }
     }

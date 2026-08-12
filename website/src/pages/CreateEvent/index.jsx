@@ -19,6 +19,9 @@ export default function CreateEvent() {
     endDate: '',
     startTime: '',
     endTime: '',
+    isHybrid: false,
+    videoLink: '',
+    location: '',
   });
 
   // Intercept inbound configuration payloads when navigating from the Template Library
@@ -45,6 +48,9 @@ export default function CreateEvent() {
         endDate: '',
         startTime: '',
         endTime: '',
+        isHybrid: template.isHybrid || false,
+        videoLink: template.videoLink || '',
+        location: template.location || '',
       }));
 
       // Clean the history window entry location states to avoid form reset behaviors on screen refresh
@@ -53,8 +59,11 @@ export default function CreateEvent() {
   }, [location.state]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   return (
@@ -127,6 +136,57 @@ export default function CreateEvent() {
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm"
             />
+          </div>
+        </div>
+
+        <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
+          <h3 className="text-xs font-bold text-blue-800 uppercase tracking-wider">
+            Location & Hybrid Mode
+          </h3>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isHybrid"
+              name="isHybrid"
+              checked={formData.isHybrid}
+              onChange={handleChange}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="isHybrid" className="text-sm font-medium text-gray-700">
+              This is a hybrid event (Virtual + In-Person)
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Physical Location
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="e.g. Room 101 or Virtual only"
+                className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            {formData.isHybrid && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Video Link (Virtual attendees)
+                </label>
+                <input
+                  type="url"
+                  name="videoLink"
+                  value={formData.videoLink}
+                  onChange={handleChange}
+                  placeholder="https://zoom.us/j/..."
+                  className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            )}
           </div>
         </div>
 

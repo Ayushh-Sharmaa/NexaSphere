@@ -2,7 +2,7 @@
 
 **Audit Date:** July 7, 2026  
 **Auditor:** Documentation Audit Agent  
-**Scope:** All `.md` files in the NexaSphere monorepo  
+**Scope:** All `.md` files in the NexaSphere monorepo
 
 ---
 
@@ -11,18 +11,18 @@
 **Total .md files found:** 79  
 **Categories discovered:**
 
-| Category | Count | Description |
-|---|---|---|
-| Root-level docs | 9 | README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, LICENSE, TODO, INSTRUCTIONS, SYNC_GUIDE, SERVER_INTEGRATION_GUIDE, etc. |
-| docs/ (Deep-dive) | 26 | architecture, api-reference, deployment, changelog, feature specs, etc. |
-| docs/guides/ | 9 | SETUP, ARCHITECTURE, WORKFLOWS, CI/CD, security, CORS, etc. |
-| Sub-package READMEs | 15 | server/, website/, admin-dashboard/, server-python/, etc. |
-| src/page READMEs | 12 | pages/home, events, team, contact, activities, etc. |
-| e2e/ testing docs | 3 | IMPLEMENTATION_SUMMARY, QUICKSTART_HISTORY, PROMPT_HISTORY_GUIDE |
-| .github/ workflow docs | 3 | workflows/README, PR template, issue templates |
-| resources/ | 3 | brand, screenshots, resources READMEs |
-| analytics docs | 3 | ANALYTICS_IMPLEMENTATION_SUMMARY, CHECKLIST, QUICK_REFERENCE |
-| Error/Integration | 2 | ERROR_LOGGING_MONITORING_GUIDE, API_DOCUMENTATION_GUIDE |
+| Category               | Count | Description                                                                                                              |
+| ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------ |
+| Root-level docs        | 9     | README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, LICENSE, TODO, INSTRUCTIONS, SYNC_GUIDE, SERVER_INTEGRATION_GUIDE, etc. |
+| docs/ (Deep-dive)      | 26    | architecture, api-reference, deployment, changelog, feature specs, etc.                                                  |
+| docs/guides/           | 9     | SETUP, ARCHITECTURE, WORKFLOWS, CI/CD, security, CORS, etc.                                                              |
+| Sub-package READMEs    | 15    | server/, website/, admin-dashboard/, server-python/, etc.                                                                |
+| src/page READMEs       | 12    | pages/home, events, team, contact, activities, etc.                                                                      |
+| e2e/ testing docs      | 3     | IMPLEMENTATION_SUMMARY, QUICKSTART_HISTORY, PROMPT_HISTORY_GUIDE                                                         |
+| .github/ workflow docs | 3     | workflows/README, PR template, issue templates                                                                           |
+| resources/             | 3     | brand, screenshots, resources READMEs                                                                                    |
+| analytics docs         | 3     | ANALYTICS_IMPLEMENTATION_SUMMARY, CHECKLIST, QUICK_REFERENCE                                                             |
+| Error/Integration      | 2     | ERROR_LOGGING_MONITORING_GUIDE, API_DOCUMENTATION_GUIDE                                                                  |
 
 ---
 
@@ -34,18 +34,18 @@
 
 The backend default port is inconsistently documented. The **actual code** (`server/index.js:1723`) defaults to **8787** when `PORT` env var is not set. However:
 
-| Document | Port Claimed | Line |
-|---|---|---|
-| `README.md` | **8787** ✅ (correct) | Line 307, 325 |
-| `server/.env.example` | **8787** ✅ (correct) | Line 6 |
-| `server/README.md` | **8080** ❌ | Line 29, 420 |
-| `docs/guides/SETUP.md` | **8080** ❌ | Lines 107, 218, 232, 261 |
-| `docs/guides/ARCHITECTURE.md` | **8080** ❌ | Lines 130, 299, 313 |
-| `docs/api-reference.md` | **8787** ✅ | Line 4 |
-| `docs/deployment.md` | **8787** ✅ (default) | Line 94 |
-| `SYNC_GUIDE.md` | **8080** ❌ (refers to Java backend) | Line 13 |
-| `SERVER_INTEGRATION_GUIDE.md` | **3001/8787** ❌ (inconsistent) | Lines 139, 200, 209 |
-| `API_DOCUMENTATION_GUIDE.md` | **3000** ❌ | Lines 352-354, 399, 424 |
+| Document                      | Port Claimed                         | Line                     |
+| ----------------------------- | ------------------------------------ | ------------------------ |
+| `README.md`                   | **8787** ✅ (correct)                | Line 307, 325            |
+| `server/.env.example`         | **8787** ✅ (correct)                | Line 6                   |
+| `server/README.md`            | **8080** ❌                          | Line 29, 420             |
+| `docs/guides/SETUP.md`        | **8080** ❌                          | Lines 107, 218, 232, 261 |
+| `docs/guides/ARCHITECTURE.md` | **8080** ❌                          | Lines 130, 299, 313      |
+| `docs/api-reference.md`       | **8787** ✅                          | Line 4                   |
+| `docs/deployment.md`          | **8787** ✅ (default)                | Line 94                  |
+| `SYNC_GUIDE.md`               | **8080** ❌ (refers to Java backend) | Line 13                  |
+| `SERVER_INTEGRATION_GUIDE.md` | **3001/8787** ❌ (inconsistent)      | Lines 139, 200, 209      |
+| `API_DOCUMENTATION_GUIDE.md`  | **3000** ❌                          | Lines 352-354, 399, 424  |
 
 **Impact:** Contributors following `docs/guides/SETUP.md` or `server/README.md` will try to connect to port 8080 while the server is on 8787, causing connection failures. New contributors will waste significant time debugging.
 
@@ -67,17 +67,17 @@ The backend default port is inconsistently documented. The **actual code** (`ser
 
 The deep-dive architecture guide at `docs/guides/ARCHITECTURE.md` describes a fundamentally different architecture from what actually exists:
 
-- **Auth system mismatch:** 
+- **Auth system mismatch:**
   - `docs/guides/ARCHITECTURE.md` §7 describes **Firebase Authentication** (ID Token via Firebase Admin SDK) as the auth mechanism
   - `README.md` §Stack says: **"Session-based admin auth with timing-safe comparison"** — Firebase is NOT mentioned in the README stack
   - `server/README.md` §9 mentions **both** Firebase AND session-based auth confusingly
   - `CHANGELOG.md` fixes record that Firebase, Next.js, Tailwind CSS, Prisma ORM, Upstash Redis, and NextAuth.js were removed from README because they were incorrect
 
-- **Port discrepancy:** 
+- **Port discrepancy:**
   - Line 35: Backend labeled as `port 8080 dev / Vercel serverless`
   - Actual default is 8787, and it's not deployed serverless on Vercel but on Render
 
-- **Directory structure mismatch:** 
+- **Directory structure mismatch:**
   - §2 Monorepo Layout lists `src/` as the React app root (old structure) — but the actual structure moved frontend code to `website/src/`
   - Lists `app/` directory (Next.js-compatible error boundaries) — this directory doesn't exist at root level
   - Lists `public/` at repo root — the actual `public/` exists but is not described
@@ -116,6 +116,7 @@ There is no section labeled "3." The path is: 1. Code of Conduct → 2. Security
 #### Issue 7: CHANGELOG.md Unreleased Section Lists Items Already Released
 
 The `[Unreleased]` section (lines 10-48) includes items that appear to have already been delivered:
+
 - "`README.md` — complete rewrite" — this is already deployed
 - "`CONTRIBUTING.md` — expanded from 36 lines to full contributor guide" — already deployed
 - The entire GSSoC'26 automation suite (39 workflows) — these are already in `.github/workflows/`
@@ -125,6 +126,7 @@ These should either be moved to a released version or the version needs to be pu
 #### Issue 8: CODE_OF_CONDUCT.md Has Duplicated/Contradictory Content
 
 The file has structural duplication issues:
+
 - Lines 7-8: "We as members..." Pledge paragraph appears **twice** in slightly different wording (British vs American English spelling: "colour" vs "color")
 - Lines 30-48: "Enforcement Responsibilities" section appears twice (first the standard text, then a custom GSSoC-specific version)
 - Lines 69-83: "Enforcement" section defined **three times** — lines 69-73, 74, 76-83
@@ -135,6 +137,7 @@ This is likely caused by merging the standard Contributor Covenant template with
 #### Issue 9: SECURITY.md Describes Redis/Java Architecture Not Matching Current System
 
 The `SECURITY.md` file lines 94-175 describe a **shared Redis session store** architecture for admin authentication between **Java Spring Boot** and **Node.js Express** backends. However:
+
 - The Java backend is described as "experimental" elsewhere
 - The README describes "Session-based admin auth with timing-safe comparison" — not Redis-based
 - There's no Redis configuration in `server/.env.example` aside from `UPSTASH_REDIS_*` (rate limiting only)
@@ -149,6 +152,7 @@ The file `D:\Rishab\open-source\NexaSphere\INSTRUCTIONS.md` (92 lines) and `D:\R
 #### Issue 11: docs/DATABASE_MIGRATIONS.md Has Duplicated Content
 
 Lines 1-85 and 85-172 contain overlapping/duplicated content about migration systems. For example:
+
 - Line 3-4: "NexaSphere uses a multi-stack architecture with three database backends" — then again at line 85
 - Migration tables for Node/Java/Python are listed twice with slightly different versions
 
@@ -161,6 +165,7 @@ This suggests the file was concatenated from two versions.
 #### Issue 12: docs/API_REFERENCE.md Incomplete
 
 The API reference:
+
 - Covers GET/POST/DELETE for events, but **missing PUT/PATCH methods** for updates (though the `API_DOCUMENTATION_GUIDE.md` lists them)
 - **Missing endpoints** documented elsewhere:
   - `POST /api/analytics/overview` (listed in server/README.md)
@@ -174,6 +179,7 @@ The API reference:
 #### Issue 13: TODO.md Lists Unfinished Features as TODO Messages
 
 The file `TODO.md` lists 2 unfinished features with task lists, but these are not TODO comments in the code — they're full feature plans for:
+
 - Event Stream Processing & Real-Time Analytics (#1776) — 13 tasks, none checked
 - Real-Time Collaborative Whiteboard (#1754) — 10 tasks, none checked
 
@@ -191,18 +197,18 @@ The `SYNC_GUIDE.md` describes syncing the system but exclusively references the 
 
 ## 3. MISSING DOCUMENTATION
 
-| Missing Doc | Why It Matters | Impact |
-|---|---|---|
-| **Environment Configuration Guide** | `.env.example` exists but there's no single document explaining ALL environment variables across all services (website, admin, server, infra). Currently it's split across 5+ docs. | Contributors struggle to configure local environment |
-| **Database Schema Reference** | No single document with complete table schemas, relationships, indexes. The prisma/ directory exists but no Prisma schema doc. | Developers writing DB queries don't know the schema without reading raw migration files |
-| **API Testing Guide** | No document explaining how to test API endpoints manually (curl commands, Postman collection) | Slower onboarding for contributors debugging API issues |
-| **Production Runbook** | No operational runbook covering: monitoring dashboards, alert responses, common incidents, scaling procedures | Ops team has no documented recovery procedures |
-| **Component Library/Design System** | No documented inventory of shared UI components, their props, and usage | Duplicated UI code, inconsistent implementation |
-| **Translation/i18n Guide** | The codebase has `i18n.js`, `locales/` directories, and `i18next` dependencies — no documentation for adding translations | Contributors can't add new languages |
-| **Offline Mode Documentation** | README mentions offline mode briefly but no document explaining the full offline architecture | Contributors don't understand the dual data source pattern |
-| **Sentry/Rollbar Monitoring Guide** | ERROR_LOGGING_MONITORING_GUIDE.md exists but lacks links to live dashboards, alert thresholds, or common error patterns | Hard to debug production errors |
-| **Infrastructure/Terraform Docs** | `infra/terraform/README.md` exists but no architecture diagram or resource inventory | Infrastructure changes risk misconfiguration |
-| **CI/CD Pipeline Flow** | docs/guides/WORKFLOWS.md is excellent for individual workflows but no high-level diagram showing the pipeline from commit → test → deploy | Contributors don't understand deployment flow |
+| Missing Doc                         | Why It Matters                                                                                                                                                                      | Impact                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Environment Configuration Guide** | `.env.example` exists but there's no single document explaining ALL environment variables across all services (website, admin, server, infra). Currently it's split across 5+ docs. | Contributors struggle to configure local environment                                    |
+| **Database Schema Reference**       | No single document with complete table schemas, relationships, indexes. The prisma/ directory exists but no Prisma schema doc.                                                      | Developers writing DB queries don't know the schema without reading raw migration files |
+| **API Testing Guide**               | No document explaining how to test API endpoints manually (curl commands, Postman collection)                                                                                       | Slower onboarding for contributors debugging API issues                                 |
+| **Production Runbook**              | No operational runbook covering: monitoring dashboards, alert responses, common incidents, scaling procedures                                                                       | Ops team has no documented recovery procedures                                          |
+| **Component Library/Design System** | No documented inventory of shared UI components, their props, and usage                                                                                                             | Duplicated UI code, inconsistent implementation                                         |
+| **Translation/i18n Guide**          | The codebase has `i18n.js`, `locales/` directories, and `i18next` dependencies — no documentation for adding translations                                                           | Contributors can't add new languages                                                    |
+| **Offline Mode Documentation**      | README mentions offline mode briefly but no document explaining the full offline architecture                                                                                       | Contributors don't understand the dual data source pattern                              |
+| **Sentry/Rollbar Monitoring Guide** | ERROR_LOGGING_MONITORING_GUIDE.md exists but lacks links to live dashboards, alert thresholds, or common error patterns                                                             | Hard to debug production errors                                                         |
+| **Infrastructure/Terraform Docs**   | `infra/terraform/README.md` exists but no architecture diagram or resource inventory                                                                                                | Infrastructure changes risk misconfiguration                                            |
+| **CI/CD Pipeline Flow**             | docs/guides/WORKFLOWS.md is excellent for individual workflows but no high-level diagram showing the pipeline from commit → test → deploy                                           | Contributors don't understand deployment flow                                           |
 
 ---
 
@@ -210,52 +216,52 @@ The `SYNC_GUIDE.md` describes syncing the system but exclusively references the 
 
 ### Inconsistency A: Auth Architecture
 
-| Source | Claim |
-|---|---|
-| README.md (Stack table) | "Session-based admin auth with timing-safe comparison" |
-| server/README.md §9 | **Firebase Admin SDK** (token verification) |
-| docs/guides/ARCHITECTURE.md §7 | Firebase Auth with ID Tokens |
-| SECURITY.md §Admin Session | **Redis shared session store** across Node.js + Java |
-| CONTRIBUTING.md §Environment Variables | `JWT_SECRET` for student tokens |
+| Source                                 | Claim                                                  |
+| -------------------------------------- | ------------------------------------------------------ |
+| README.md (Stack table)                | "Session-based admin auth with timing-safe comparison" |
+| server/README.md §9                    | **Firebase Admin SDK** (token verification)            |
+| docs/guides/ARCHITECTURE.md §7         | Firebase Auth with ID Tokens                           |
+| SECURITY.md §Admin Session             | **Redis shared session store** across Node.js + Java   |
+| CONTRIBUTING.md §Environment Variables | `JWT_SECRET` for student tokens                        |
 
 Three different auth architectures described across the docs. Only one is actually used in `server/index.js`.
 
 ### Inconsistency B: Backend Tech Stack
 
-| Source | Primary Backend |
-|---|---|
-| README.md | Node.js + Express (primary) |
-| docs/INSTRUCTIONS.md | **Java Spring Boot** (primary) |
-| SYNC_GUIDE.md | **Java Spring Boot** (primary) |
-| server/README.md | Node.js + Express |
+| Source                      | Primary Backend                              |
+| --------------------------- | -------------------------------------------- |
+| README.md                   | Node.js + Express (primary)                  |
+| docs/INSTRUCTIONS.md        | **Java Spring Boot** (primary)               |
+| SYNC_GUIDE.md               | **Java Spring Boot** (primary)               |
+| server/README.md            | Node.js + Express                            |
 | docs/guides/ARCHITECTURE.md | Node.js + Express (but also references Java) |
 
 ### Inconsistency C: Deployment Targets
 
-| Source | Deployment |
-|---|---|
-| README.md | Website → Vercel, Backend → Render, Docker |
-| docs/deployment.md | Same |
-| .github/workflows/README.md | GitHub Pages (deploy.yml) |
-| docs/guides/WORKFLOWS.md | GitHub Pages (deploy-github-pages.yml) + Vercel |
+| Source                      | Deployment                                      |
+| --------------------------- | ----------------------------------------------- |
+| README.md                   | Website → Vercel, Backend → Render, Docker      |
+| docs/deployment.md          | Same                                            |
+| .github/workflows/README.md | GitHub Pages (deploy.yml)                       |
+| docs/guides/WORKFLOWS.md    | GitHub Pages (deploy-github-pages.yml) + Vercel |
 
 The README says Vercel for frontend but the workflow README says GitHub Pages.
 
 ### Inconsistency D: Admin Dashboard Port
 
-| Source | Port |
-|---|---|
-| README.md | `http://localhost:5001` |
+| Source        | Port                    |
+| ------------- | ----------------------- |
+| README.md     | `http://localhost:5001` |
 | SYNC_GUIDE.md | `http://localhost:5174` |
 
 ### Inconsistency E: Vite Dev Proxy Port
 
-| Source | Proxy target |
-|---|---|
-| docs/guides/ARCHITECTURE.md (line 130) | `http://localhost:8080` |
-| docs/guides/SETUP.md (line 107) | `http://localhost:8080` |
-| server/.env.example (line 77) | `http://localhost:8080` (BASE_URL) |
-| Actual server default | `8787` |
+| Source                                 | Proxy target                       |
+| -------------------------------------- | ---------------------------------- |
+| docs/guides/ARCHITECTURE.md (line 130) | `http://localhost:8080`            |
+| docs/guides/SETUP.md (line 107)        | `http://localhost:8080`            |
+| server/.env.example (line 77)          | `http://localhost:8080` (BASE_URL) |
+| Actual server default                  | `8787`                             |
 
 ---
 
@@ -298,20 +304,20 @@ The README says Vercel for frontend but the workflow README says GitHub Pages.
 
 ## Summary Statistics
 
-| Metric | Value |
-|---|---|
-| Total .md files | 79 |
-| Doc files with critical port errors | 5 |
-| Doc files with wrong git remote | 1 |
-| Doc files with duplicated content | 3 |
-| Doc files describing deprecated architecture | 4 |
-| Missing essential documentation categories | 10 |
-| Inconsistencies identified | 5 categories |
-| P0 recommendations | 3 |
-| P1 recommendations | 3 |
-| P2 recommendations | 5 |
-| Total actionable recommendations | 11 |
+| Metric                                       | Value        |
+| -------------------------------------------- | ------------ |
+| Total .md files                              | 79           |
+| Doc files with critical port errors          | 5            |
+| Doc files with wrong git remote              | 1            |
+| Doc files with duplicated content            | 3            |
+| Doc files describing deprecated architecture | 4            |
+| Missing essential documentation categories   | 10           |
+| Inconsistencies identified                   | 5 categories |
+| P0 recommendations                           | 3            |
+| P1 recommendations                           | 3            |
+| P2 recommendations                           | 5            |
+| Total actionable recommendations             | 11           |
 
 ---
 
-*Audit completed by Documentation Audit Agent. All findings verified against actual source code and configuration files.*
+_Audit completed by Documentation Audit Agent. All findings verified against actual source code and configuration files._

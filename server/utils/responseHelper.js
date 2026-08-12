@@ -75,14 +75,7 @@ export function sendNoContent(res) {
  * @param {string}  [code='INTERNAL_ERROR'] – Machine-readable error code.
  * @param {*}       [details]          – Optional extra payload.
  */
-export function sendError(
-  req,
-  res,
-  message,
-  status = 500,
-  code = 'INTERNAL_ERROR',
-  details,
-) {
+export function sendError(req, res, message, status = 500, code = 'INTERNAL_ERROR', details) {
   const body = {
     error: {
       code,

@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { featureFlagsService } from '../services/featureFlagsService.js';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import { apiRateLimiter } from '../middleware/rateLimiter.js';
 import logger from '../utils/logger.js';
 import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.js';
 
 const router = Router();
 router.use(apiRateLimiter);
-const adminAuth = [adminAuthMiddleware.requireAdmin];
+const adminAuth = [requireAdmin];
 
 // --- PUBLIC/CLIENT SDK ENDPOINTS ---
 

@@ -13,7 +13,7 @@ const httpServer = createServer((req, res) => {
     "style-src 'self' 'unsafe-inline'", // Often needed for React/Vite dev environments
     "img-src 'self' data:",
     "connect-src 'self' ws: wss: http: https:", // Explicitly allowing external API and WebSocket connections
-    "frame-ancestors 'none'"
+    "frame-ancestors 'none'",
   ].join('; ');
 
   res.setHeader('Content-Security-Policy', cspDirectives);

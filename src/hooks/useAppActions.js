@@ -75,7 +75,6 @@ export function useAppActions(nav, setPage, setActiveTab, mobile) {
     });
   }, [nav, setPage, setActiveTab]);
 
-
   return {
     onNavigate,
     onEvent,
@@ -85,6 +84,5 @@ export function useAppActions(nav, setPage, setActiveTab, mobile) {
     onBackHome,
     openApply,
     openJoin,
-
   };
 }

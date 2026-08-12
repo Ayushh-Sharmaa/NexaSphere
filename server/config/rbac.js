@@ -100,6 +100,21 @@ export const DEFAULT_ROLES = {
     isSystem: true,
     hierarchy: 2,
   },
+  ContentModerator: {
+    name: 'Content Moderator',
+    description: 'Moderate content, manage user reports, approve posts',
+    permissions: [
+      'users:read',
+      'content:read',
+      'content:write',
+      'content:delete',
+      'content:moderate',
+      'content:feature',
+      'events:read',
+    ],
+    isSystem: true,
+    hierarchy: 2,
+  },
   EventOrganizer: {
     name: 'Event Organizer',
     description: 'Create and manage own events, view attendees',
@@ -110,6 +125,21 @@ export const DEFAULT_ROLES = {
       'events:manage-attendees',
       'content:read',
       'content:write',
+      'analytics:read',
+    ],
+    isSystem: true,
+    hierarchy: 3,
+  },
+  EventManager: {
+    name: 'Event Manager',
+    description: 'Manage all events, attendees, and related analytics',
+    permissions: [
+      'users:read',
+      'events:read',
+      'events:write',
+      'events:delete',
+      'events:approve',
+      'events:manage-attendees',
       'analytics:read',
     ],
     isSystem: true,
@@ -126,6 +156,13 @@ export const DEFAULT_ROLES = {
     name: 'Viewer',
     description: 'Read-only access (for public or guest users)',
     permissions: ['users:read', 'events:read', 'content:read'],
+    isSystem: true,
+    hierarchy: 5,
+  },
+  AnalyticsViewer: {
+    name: 'Analytics Viewer',
+    description: 'View and export analytics data',
+    permissions: ['analytics:read', 'analytics:export', 'analytics:reports'],
     isSystem: true,
     hierarchy: 5,
   },
@@ -169,13 +206,4 @@ export function canManageRole(adminRole, targetRole) {
   const targetConfig = DEFAULT_ROLES[targetRole];
   if (!adminConfig || !targetConfig) return false;
   return adminConfig.hierarchy < targetConfig.hierarchy;
-export const ROLES = {
-  SuperAdmin: ['users:read', 'users:write', 'settings:admin', 'events:read', 'events:write'],
-  Moderator: ['users:read', 'events:read', 'events:write'],
-  Editor: ['events:read', 'events:write'],
-  Viewer: ['users:read', 'events:read'],
-};
-
-export function getScopesForRole(role) {
-  return ROLES[role] || [];
 }

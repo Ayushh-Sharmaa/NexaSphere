@@ -45,6 +45,21 @@ export const RoadmapBuilderContext = createContext<RoadmapBuilderContextType | u
 
 const LOCAL_STORAGE_KEY = 'ns-interactive-roadmap-workspace';
 
+const defaultNodes: RoadmapNode[] = [
+  {
+    id: 'node-1',
+    title: 'Getting Started',
+    description:
+      'This is your first learning node. Drag me around, double click or click "Edit" to configure!',
+    x: 200,
+    y: 150,
+    status: 'Not Started',
+    notes: '- Learn the basics\n- Customize this node',
+    resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
+    prerequisites: [],
+  },
+];
+
 export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [nodes, setNodesState] = useState<RoadmapNode[]>([]);
   const [roadmapTitle, setRoadmapTitleState] = useState<string>('My Custom Path');
@@ -72,25 +87,6 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       } else {
         // Load a default node if canvas is empty on first load
-        const defaultNodes: RoadmapNode[] = [
-          {
-            id: 'node-1',
-            title: 'Getting Started',
-            id: 'node-1',
-            title: 'Getting Started',
-            description:
-              'This is your first learning node. Drag me around, double click or click "Edit" to configure!',
-            x: 200,
-            y: 150,
-            status: 'Not Started',
-            notes: '- Learn the basics\n- Customize this node',
-            resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
-            status: 'Not Started',
-            notes: '- Learn the basics\n- Customize this node',
-            resources: [{ title: 'NexaSphere Home', url: 'https://nexasphere.gl' }],
-            prerequisites: [],
-          },
-        ];
         setNodesState(defaultNodes);
       }
     } catch (e) {
@@ -102,7 +98,6 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
     } finally {
       isHydrated.current = true;
-      console.error('Failed to load roadmap from localStorage:', e);
     }
   }, []);
 
@@ -111,6 +106,15 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
     if (!isHydrated.current) return;
     // Skip empty initial state saving to prevent overwriting
     if (nodes.length === 0 && roadmapTitle === 'My Custom Path') return;
+
+    // Skip saving if we just reset to default state, to prevent overwriting the removeItem
+    if (
+      roadmapTitle === 'New Learning Path' &&
+      roadmapDescription === 'Custom learning flow created on NexaSphere.' &&
+      nodes === defaultNodes
+    ) {
+      return;
+    }
 
     const stateToSave = {
       title: roadmapTitle,
@@ -150,8 +154,8 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
           baseX = Math.max(10, Math.min(baseX, 1800 - 220 - 10));
           baseY = Math.max(10, Math.min(baseY, 1200 - 90 - 10));
 
-          finalX = baseX;
-          finalY = baseY;
+          if (finalX === undefined) finalX = baseX;
+          if (finalY === undefined) finalY = baseY;
 
           // Collision Avoidance & Staggered Spawning
           const OFFSET = 40;
@@ -240,7 +244,7 @@ export const RoadmapBuilderProvider: React.FC<{ children: ReactNode }> = ({ chil
   const resetRoadmap = useCallback(() => {
     setRoadmapTitleState('New Learning Path');
     setRoadmapDescriptionState('Custom learning flow created on NexaSphere.');
-    setNodesState([]);
+    setNodesState(defaultNodes);
     setSelectedNodeId(null);
     setActiveNodeId(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);

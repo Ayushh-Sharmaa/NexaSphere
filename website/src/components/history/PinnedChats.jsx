@@ -57,8 +57,11 @@ const PinnedChats = ({
         <div className="pinned-header">
           <h4>📌 Pinned Conversations</h4>
         </div>
-        <div style={{ padding: '12px 16px', color: 'var(--text-secondary, #666)' }}>
-          {loadError}
+        <div
+          className="pinned-error"
+          style={{ color: '#ef4444', padding: '12px 16px', fontSize: '0.9rem' }}
+        >
+          {error}
         </div>
       </div>
     );

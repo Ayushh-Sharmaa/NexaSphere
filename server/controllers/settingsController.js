@@ -24,7 +24,6 @@ try {
   }
 }
 
-const prisma = new PrismaClient();
 const redis = getRedisClient();
 
 // ─── Redis cache helpers ────────────────────────────────────────────────────
@@ -271,16 +270,14 @@ export async function updateSettings(req, res) {
   }
 
   const errors = validateSettings(updates);
-  if (Object.keys(errors).length) return sendError(req, res, 'Validation failed', 422, 'VALIDATION_ERROR', errors);
+  if (Object.keys(errors).length)
+    return sendError(req, res, 'Validation failed', 422, 'VALIDATION_ERROR', errors);
 
   if (preview) return sendSuccess(res, { valid: true, preview: updates });
-    return res.status(400).json({ error: 'updates must be an object' });
   }
 
   const errors = validateSettings(updates);
-  if (Object.keys(errors).length) return res.status(422).json({ errors });
 
-  if (preview) return res.json({ valid: true, preview: updates });
 
   const userId = req.user?.id;
 
@@ -322,9 +319,6 @@ export async function updateSettings(req, res) {
   await prisma.$transaction([...upserts, ...logs]);
   await invalidateCache(env);
 
-  return sendSuccess(res, { success: true, updated: Object.keys(updates) });
-  return res.json({ success: true, updated: Object.keys(updates) });
-}
 
 /**
  * GET /api/admin/settings/history?env=production&key=max_events_per_user_per_month&page=1
@@ -355,8 +349,12 @@ export async function getHistory(req, res) {
     newValue: SECRET_KEYS.has(l.key) ? '***REDACTED***' : l.newValue,
   }));
 
-  return sendSuccess(res, { logs: sanitized, total, page: Number(page), pages: Math.ceil(total / take) });
-  return res.json({ logs: sanitized, total, page: Number(page), pages: Math.ceil(total / take) });
+  return sendSuccess(res, {
+    logs: sanitized,
+    total,
+    page: Number(page),
+    pages: Math.ceil(total / take),
+  });
 }
 
 /**
@@ -373,7 +371,6 @@ export async function rollbackSetting(req, res) {
     return sendError(req, res, 'No previous value to roll back to', 400, 'VALIDATION_ERROR');
   if (!logId) return res.status(400).json({ error: 'logId required' });
 
-  const log = await prisma.settingsChangeLog.findUnique({ where: { id: logId } });
   if (!log) return res.status(404).json({ error: 'Log entry not found' });
   if (log.previousValue === null)
     return res.status(400).json({ error: 'No previous value to roll back to' });
@@ -400,7 +397,6 @@ export async function rollbackSetting(req, res) {
 
   await invalidateCache(log.environment);
   return sendSuccess(res, { success: true, key: log.key, environment: log.environment });
-  return res.json({ success: true, key: log.key, environment: log.environment });
 }
 
 /**
@@ -419,7 +415,6 @@ export async function exportSettings(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', `attachment; filename="settings-${env}-${Date.now()}.json"`);
   return sendSuccess(res, { env, exportedAt: new Date().toISOString(), settings });
-  return res.json({ env, exportedAt: new Date().toISOString(), settings });
 }
 
 /**
@@ -438,8 +433,8 @@ export async function importSettings(req, res) {
   );
 
   const errors = validateSettings(toImport);
-  if (Object.keys(errors).length) return sendError(req, res, 'Validation failed', 422, 'VALIDATION_ERROR', errors);
-  if (Object.keys(errors).length) return res.status(422).json({ errors });
+  if (Object.keys(errors).length)
+    return sendError(req, res, 'Validation failed', 422, 'VALIDATION_ERROR', errors);
 
   // Re-use updateSettings logic
   req.body = { env, updates: toImport };

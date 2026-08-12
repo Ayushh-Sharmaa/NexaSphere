@@ -3,10 +3,10 @@ import json
 import redis
 import logging
 import time
-from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from services.recommendation_logic import compute_hybrid_recommendations
 from services.recommendation_logic import fetch_data_with_sqlalchemy
+from services.recommendation_logic import fixtures_allowed
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -22,18 +22,8 @@ try:
 except (redis.exceptions.ConnectionError, Exception) as e:
     logger.warning(f"Redis unavailable ({e}), using local cache")
 
-FALLBACK_RECOMMENDATIONS = [
-    {"id": "evt_1", "name": "AI Hackathon", "tags": ["AI", "machine learning", "hackathon"], "final_score": 0.0, "content_score": 0.0, "collab_score": 0.0},
-    {"id": "evt_2", "name": "Web Dev Bootcamp", "tags": ["web", "react", "javascript"], "final_score": 0.0, "content_score": 0.0, "collab_score": 0.0},
-    {"id": "evt_3", "name": "Cybersecurity Workshop", "tags": ["security", "networking", "workshop"], "final_score": 0.0, "content_score": 0.0, "collab_score": 0.0},
-    {"id": "evt_4", "name": "Robotics Fest", "tags": ["robotics", "hardware", "iot"], "final_score": 0.0, "content_score": 0.0, "collab_score": 0.0},
-    {"id": "evt_5", "name": "Data Science Summit", "tags": ["data", "AI", "python", "analytics"], "final_score": 0.0, "content_score": 0.0, "collab_score": 0.0},
-]
 
-@router.get("/recommend/events/{user_id}", tags=["Recommendations"], summary="Get Event Recommendations")
-async def recommend_events(user_id: str, limit: int = Query(5, ge=1, le=20)):
-    cache_key = f"recs:events:{user_id}:{limit}"
-
+def _cache_get(cache_key: str):
     if redis_client:
         try:
             cached = redis_client.get(cache_key)
@@ -41,10 +31,39 @@ async def recommend_events(user_id: str, limit: int = Query(5, ge=1, le=20)):
                 return json.loads(cached)
         except Exception as e:
             logger.warning(f"Redis read error: {e}")
-    elif cache_key in LOCAL_CACHE:
-        entry = LOCAL_CACHE[cache_key]
-        if time.time() < entry["expires"]:
-            return entry["data"]
+        return None
+
+    entry = LOCAL_CACHE.get(cache_key)
+    if entry and time.time() < entry["expires"]:
+        return entry["data"]
+    return None
+
+
+def _cache_set(cache_key: str, data, ttl_seconds: int = 1800):
+    """Cache live recommendation payloads only — never fixtures or empty fallbacks."""
+    if not data:
+        return
+    if isinstance(data, dict) and data.get("source") in ("unavailable", "fallback", "fixtures"):
+        return
+    if fixtures_allowed():
+        return
+
+    if redis_client:
+        try:
+            redis_client.setex(cache_key, ttl_seconds, json.dumps(data))
+        except Exception as e:
+            logger.warning(f"Redis write error: {e}")
+    else:
+        LOCAL_CACHE[cache_key] = {"data": data, "expires": time.time() + ttl_seconds}
+
+
+@router.get("/recommend/events/{user_id}", tags=["Recommendations"], summary="Get Event Recommendations")
+async def recommend_events(user_id: str, limit: int = Query(5, ge=1, le=20)):
+    cache_key = f"recs:events:{user_id}:{limit}"
+
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
 
     try:
         from celery_app import precompute_recommendations
@@ -53,21 +72,20 @@ async def recommend_events(user_id: str, limit: int = Query(5, ge=1, le=20)):
         logger.error(f"Celery task failed: {e}")
 
     recs = compute_hybrid_recommendations(user_id, num_recommendations=limit)
-    return recs if recs else FALLBACK_RECOMMENDATIONS[:limit]
+    if not recs:
+        # Empty / unavailable — do not serve or cache fixture fallbacks
+        return []
+
+    if not fixtures_allowed():
+        _cache_set(cache_key, recs)
+    return recs
+
 
 @router.get("/recommend/trending", tags=["Recommendations"], summary="Get Trending Events")
 async def trending_events(limit: int = Query(10, ge=1, le=30)):
     redis_key = "recs:trending"
-    try:
-        if redis_client:
-            cached = redis_client.get(redis_key)
-            if cached:
-                return json.loads(cached)
-    except Exception:
-        pass
 
     if redis_key in LOCAL_CACHE:
-    elif redis_key in LOCAL_CACHE:
         entry = LOCAL_CACHE[redis_key]
         if time.time() < entry["expires"]:
             return entry["data"]
@@ -75,7 +93,7 @@ async def trending_events(limit: int = Query(10, ge=1, le=30)):
     events, _, participations = fetch_data_with_sqlalchemy("__trending__")
 
     if not events:
-        return {"trending": FALLBACK_RECOMMENDATIONS[:limit], "source": "fallback"}
+        return {"trending": [], "source": "unavailable", "available": False}
 
     participation_counts = {}
     for p in participations:
@@ -89,23 +107,20 @@ async def trending_events(limit: int = Query(10, ge=1, le=30)):
 
     scored.sort(key=lambda x: x["popularity"], reverse=True)
 
-    result = {"trending": scored[:limit], "source": "computed"}
-
-    if redis_client:
-        try:
-            redis_client.setex(redis_key, 1800, json.dumps(result))
-        except Exception:
-            pass
-    else:
-        LOCAL_CACHE[redis_key] = {"data": result, "expires": time.time() + 1800}
-
+    result = {
+        "trending": scored[:limit],
+        "source": "fixtures" if fixtures_allowed() else "computed",
+        "available": True,
+    }
+    _cache_set(redis_key, result)
     return result
+
 
 @router.get("/recommend/similar/{event_id}", tags=["Recommendations"], summary="Similar Events")
 async def similar_events(event_id: str, limit: int = Query(5, ge=1, le=20)):
     events, _, _ = fetch_data_with_sqlalchemy("__similar__")
     if not events:
-        return {"similar": []}
+        return {"similar": [], "source": "unavailable", "available": False}
 
     target = next((ev for ev in events if ev["id"] == event_id), None)
     if not target:
@@ -125,4 +140,4 @@ async def similar_events(event_id: str, limit: int = Query(5, ge=1, le=20)):
         scored.append({"id": ev["id"], "name": ev["name"], "tags": ev.get("tags", []), "similarity": round(jaccard, 4)})
 
     scored.sort(key=lambda x: x["similarity"], reverse=True)
-    return {"similar": scored[:limit], "target_id": event_id}
+    return {"similar": scored[:limit], "target_id": event_id, "available": True}

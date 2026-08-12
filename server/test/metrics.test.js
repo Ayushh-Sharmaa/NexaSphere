@@ -3,11 +3,7 @@ import test from 'node:test';
 import express from 'express';
 import { initObservability } from '../observability/index.js';
 import { httpRequestsTotal, recordEventRegistration, register } from '../observability/metrics.js';
-import {
-  httpRequestsTotal,
-  recordEventRegistration,
-  register,
-} from '../observability/metrics.js';
+
 
 test('GET /metrics returns Prometheus text format', async () => {
   const prev = process.env.METRICS_ENABLED;

@@ -1,0 +1,66 @@
+name: Kubernetes Manifest Validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.yaml'
+      - '**.yml'
+  pull_request:
+    paths:
+      - '**.yaml'
+      - '**.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kubeconform:
+    name: Validate Manifests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Kubeconform
+        run: |
+          # Fetch the latest release version of kubeconform
+          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          wget -qO- https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz | tar -xz -C /usr/local/bin kubeconform
+          kubeconform -v
+
+      - name: Run Kubeconform Validation
+        id: validate
+        run: |
+          set -o pipefail
+          # Validates all yaml files in the repository
+          # Ignores .github directory to skip GitHub Actions workflows
+          # Ignores missing schemas to support Custom Resource Definitions (CRDs)
+          kubeconform -summary -ignore-missing-schemas -ignore-filename-pattern '\.github/' -output tap . | tee kubeconform-output.log
+        continue-on-error: true
+
+      - name: Generate Job Summary
+        run: |
+          echo "## Kubeconform Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo '```tap' >> $GITHUB_STEP_SUMMARY
+          cat kubeconform-output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload validation logs on failure
+        if: steps.validate.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: kubeconform-logs
+          path: kubeconform-output.log
+          retention-days: 7
+
+      - name: Fail workflow on validation error
+        if: steps.validate.outcome == 'failure'
+        run: |
+          echo "Kubernetes manifest validation failed! Please check the logs and job summary."
+          exit 1

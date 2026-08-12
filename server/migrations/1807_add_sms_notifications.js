@@ -1,12 +1,12 @@
 export const up = (pgm) => {
   // 1. Add phone_number to users table
   pgm.addColumns('users', {
-    phone_number: { type: 'text' }
+    phone_number: { type: 'text' },
   });
 
   // 2. Add sms boolean to notification_preferences
   pgm.addColumns('notification_preferences', {
-    sms: { type: 'boolean', notNull: true, default: false }
+    sms: { type: 'boolean', notNull: true, default: false },
   });
 
   // 3. Create sms_logs table for admin analytics tracking cost

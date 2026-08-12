@@ -90,11 +90,7 @@ const MODAL_STYLE = {
   overflow: 'auto',
   border: '1px solid #2A2A2A',
 };
-import { useState, useEffect } from 'react';
-import {
-  moderationService,
-  REPUTATION,
-} from '../../services/moderationService';
+import { moderationService, REPUTATION } from '../../services/moderationService';
 
 export default function ModerationDashboard() {
   const [flags, setFlags] = useState([]);
@@ -111,6 +107,12 @@ export default function ModerationDashboard() {
   const [selectedTab, setSelectedTab] = useState('pending');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 5000);
+  };
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
@@ -238,12 +240,13 @@ export default function ModerationDashboard() {
       });
       if (!res.ok) throw new Error('Failed to approve all');
       const data = await res.json();
-      alert(`Approved ${data.approvedCount} items`);
+      showNotification(`Approved ${data.approvedCount} items`);
       fetchFlags();
       fetchStats();
     } catch (err) {
       setError(err.message);
     }
+  };
   const loadData = () => {
     const flagged = moderationService.getFlaggedContent();
     setFlaggedContent(flagged.filter((f) => f.status === selectedTab));
@@ -258,11 +261,6 @@ export default function ModerationDashboard() {
   useEffect(() => {
     loadData();
   }, []);
-
-  const handleResolve = (flagId, action) => {
-    moderationService.resolveFlag(flagId, action);
-    loadData();
-  };
 
   const getSeverityColor = (severity) => {
     const colors = {
@@ -321,6 +319,25 @@ export default function ModerationDashboard() {
           >
             <span style={{ color: '#EF4444' }}>{error}</span>
             <button style={buttonStyle('danger')} onClick={() => setError(null)}>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {notification && (
+          <div
+            role="status"
+            style={{
+              ...cardStyle,
+              border: '1px solid #10B981',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ color: '#10B981' }}>{notification}</span>
+            <button style={buttonStyle('success')} onClick={() => setNotification(null)}>
               Dismiss
             </button>
           </div>
@@ -408,7 +425,7 @@ export default function ModerationDashboard() {
                 borderRadius: '100px',
               }}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab[0].toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -550,14 +567,13 @@ export default function ModerationDashboard() {
 
         {/* Report Content Modal */}
         {showReportModal && (
-          <div style={MODAL_OVERLAY} onClick={() => setShowReportModal(false)} role="dialog" aria-modal="true">
-            <div ref={reportModalRef} style={MODAL_STYLE} onClick={(e) => e.stopPropagation()}>
           <div
             style={MODAL_OVERLAY}
             onClick={() => setShowReportModal(false)}
             onKeyDown={(e) => e.key === 'Escape' && setShowReportModal(false)}
           >
             <div
+              ref={reportModalRef}
               style={MODAL_STYLE}
               role="dialog"
               aria-modal="true"
@@ -656,14 +672,13 @@ export default function ModerationDashboard() {
 
         {/* Resolve Modal */}
         {showResolveModal && selectedFlag && (
-          <div style={MODAL_OVERLAY} onClick={() => setShowResolveModal(false)} role="dialog" aria-modal="true">
-            <div ref={resolveModalRef} style={MODAL_STYLE} onClick={(e) => e.stopPropagation()}>
           <div
             style={MODAL_OVERLAY}
             onClick={() => setShowResolveModal(false)}
             onKeyDown={(e) => e.key === 'Escape' && setShowResolveModal(false)}
           >
             <div
+              ref={resolveModalRef}
               style={MODAL_STYLE}
               role="dialog"
               aria-modal="true"
@@ -690,7 +705,7 @@ export default function ModerationDashboard() {
               >
                 {RESOLUTIONS.map((res) => (
                   <option key={res} value={res}>
-                    {res.charAt(0).toUpperCase() + res.slice(1)}
+                    {res[0].toUpperCase() + res.slice(1)}
                   </option>
                 ))}
               </select>
@@ -724,14 +739,13 @@ export default function ModerationDashboard() {
 
         {/* Add Note Modal */}
         {showNoteModal && (
-          <div style={MODAL_OVERLAY} onClick={() => setShowNoteModal(false)} role="dialog" aria-modal="true">
-            <div ref={noteModalRef} style={MODAL_STYLE} onClick={(e) => e.stopPropagation()}>
           <div
             style={MODAL_OVERLAY}
             onClick={() => setShowNoteModal(false)}
             onKeyDown={(e) => e.key === 'Escape' && setShowNoteModal(false)}
           >
             <div
+              ref={noteModalRef}
               style={MODAL_STYLE}
               role="dialog"
               aria-modal="true"

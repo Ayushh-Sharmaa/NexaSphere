@@ -1,7 +1,10 @@
+import crypto from 'crypto';
+
 /**
  * API Analytics Service
  * Mock implementation for Platform-Wide API Usage Analytics & Developer Portal
  */
+
 
 const apiKeys = [
   {
@@ -33,7 +36,6 @@ const versions = ['v1', 'v2'];
 
 const dashboard = {
   totalRequests: 105432,
-  activeKeys: apiKeys.length,
   averageResponseTime: '180 ms',
   errorRate: '0.8%',
 };
@@ -78,7 +80,10 @@ const sandbox = {
 };
 
 // Dashboard
-const getDashboard = async () => dashboard;
+const getDashboard = async () => ({
+  ...dashboard,
+  activeKeys: apiKeys.filter((k) => k.status === 'Active').length,
+});
 
 // Request Analytics
 const getRequestAnalytics = async () => requestAnalytics;
@@ -106,10 +111,12 @@ const getApiKeys = async () => apiKeys;
 
 // Generate API Key
 const generateApiKey = async (data) => {
+  const nextId = apiKeys.length > 0 ? Math.max(...apiKeys.map((k) => k.id)) + 1 : 1;
+  const secureRandomString = crypto.randomBytes(16).toString('hex');
   const key = {
     id: apiKeys.length + 1,
     name: data.name || 'New API Key',
-    key: `NSX_${Math.random().toString(36).substring(2, 15)}`,
+    key: `NSX_${crypto.randomUUID()}`,
     status: 'Active',
     createdAt: new Date().toISOString(),
   };

@@ -1,0 +1,123 @@
+name: GSSoC — Stale PR Cleanup
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Daily check for stale PRs. Warns after 14 days, closes after 7 more.
+# Never marks PRs with "no-stale" label.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 3 * * *' # Daily at 03:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: stale-pr-check
+  cancel-in-progress: true
+
+jobs:
+  stale-prs:
+    name: Stale PR Detection & Cleanup
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Find and handle stale PRs
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const WARN_DAYS  = 14;
+            const CLOSE_DAYS = 21; // 14 + 7 more
+            const now = Date.now();
+
+            // ── Ensure stale label exists ─────────────────────────────────────
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description });
+                }
+              }
+            }
+            await ensureLabel('stale',    'e4e669', 'No recent activity — may be closed soon');
+            await ensureLabel('no-stale', '0e8a16', 'Exempt from stale auto-closure');
+
+            // ── Fetch all open PRs ────────────────────────────────────────────
+            let page = 1;
+            let warned = 0, closed = 0;
+
+            while (true) {
+              const { data: prs } = await github.rest.pulls.list({
+                owner, repo, state: 'open', per_page: 100, page, sort: 'updated', direction: 'asc',
+              });
+              if (prs.length === 0) break;
+
+              for (const pr of prs) {
+                // Skip bots
+                if (pr.user.login.endsWith('[bot]')) continue;
+
+                // Get current labels
+                const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                  owner, repo, issue_number: pr.number,
+                });
+                const labelNames = labels.map(l => l.name);
+
+                // Skip no-stale PRs
+                if (labelNames.includes('no-stale')) continue;
+
+                // Calculate days since last update
+                const lastUpdated = new Date(pr.updated_at).getTime();
+                const daysSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60 * 24);
+
+                if (daysSinceUpdate >= CLOSE_DAYS && labelNames.includes('stale')) {
+                  // ── Close stale PR ────────────────────────────────────────
+                  await github.rest.issues.createComment({
+                    owner, repo, issue_number: pr.number,
+                    body: [
+                      `## 🔒 PR Closed — Stale`,
+                      ``,
+                      `This PR has been **automatically closed** due to **${CLOSE_DAYS}+ days of inactivity**.`,
+                      ``,
+                      `If you'd like to continue with this work, please reopen the PR and address any pending feedback.`,
+                      ``,
+                      `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                    ].join('\n'),
+                  });
+                  await github.rest.pulls.update({
+                    owner, repo, pull_number: pr.number, state: 'closed',
+                  });
+                  closed++;
+                  console.log(`🔒 Closed stale PR #${pr.number} (${Math.floor(daysSinceUpdate)} days)`);
+
+                } else if (daysSinceUpdate >= WARN_DAYS && !labelNames.includes('stale')) {
+                  // ── Warn about staleness ──────────────────────────────────
+                  await github.rest.issues.addLabels({
+                    owner, repo, issue_number: pr.number, labels: ['stale'],
+                  });
+                  await github.rest.issues.createComment({
+                    owner, repo, issue_number: pr.number,
+                    body: [
+                      `## ⚠️ Stale PR Warning`,
+                      ``,
+                      `Hey @${pr.user.login}! This PR has had **no activity for ${Math.floor(daysSinceUpdate)} days**.`,
+                      ``,
+                      `**Action required:** Please push an update or leave a comment within **7 days**, or this PR will be automatically closed.`,
+                      ``,
+                      `If you need more time, comment below so the maintainer knows you're still working on it.`,
+                      ``,
+                      `_Add the \`no-stale\` label to exempt this PR from auto-closure._`,
+                      ``,
+                      `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                    ].join('\n'),
+                  });
+                  warned++;
+                  console.log(`⚠️  Warned stale PR #${pr.number} (${Math.floor(daysSinceUpdate)} days)`);
+                }
+              }
+              page++;
+            }
+
+            console.log(`✅ Stale check complete — ${warned} warned, ${closed} closed.`);

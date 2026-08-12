@@ -11,8 +11,11 @@ import {
   getRegistrationTrends,
   bulkRegister,
 } from '../controllers/registrationTrackingController.js';
+import { requireStudentAuth } from '../middleware/studentAuthMiddleware.js';
 
 const router = express.Router();
+
+router.use(requireStudentAuth);
 
 // Event Registration Routes
 router.post('/events/:eventId/register', registerForEvent);

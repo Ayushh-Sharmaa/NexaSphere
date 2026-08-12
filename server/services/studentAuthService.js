@@ -10,8 +10,6 @@ function getJwtSecret() {
   return secret;
 }
 const tokenBlacklist = new Map();
-import jwt from 'jsonwebtoken';
-import { studentUsersRepository } from '../repositories/studentUsersRepository.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nexasphere-jwt-dev-secret-change-in-production';
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
@@ -93,15 +91,13 @@ export const studentAuthService = {
       role: user.role,
       scopes: user.scopes?.length ? user.scopes : getScopesForRole(user.role),
     };
-    return jwt.sign(payload, getJwtSecret(), { expiresIn: JWT_EXPIRY });
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    return jwt.sign(payload, getJwtSecret(), { expiresIn: JWT_EXPIRY, algorithm: 'HS256' });
   },
 
   verifyToken(token) {
     try {
       if (tokenBlacklist.has(token)) return null;
-      return jwt.verify(token, getJwtSecret());
-      return jwt.verify(token, JWT_SECRET);
+      return jwt.verify(token, getJwtSecret(), { algorithms: ['HS256'] });
     } catch {
       return null;
     }

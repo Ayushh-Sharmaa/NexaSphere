@@ -9,8 +9,6 @@ import HeatmapView from './analytics/HeatmapView';
 import SessionPlayer from './analytics/SessionPlayer';
 import SegmentationDashboard from './analytics/SegmentationDashboard';
 import SyncDashboard from './SyncDashboard';
-import SegmentationDashboard from './analytics/SegmentationDashboard';
-import CertificateTemplateEditor from './CertificateTemplateEditor';
 import CertificateTemplateEditor from './CertificateTemplateEditor';
 import PortfolioModerationQueue from './PortfolioModerationQueue';
 import QRScanner from './QRScanner';
@@ -90,7 +88,6 @@ export default function AdminPage({ onBack }) {
       fetchAnalytics(token);
     }
   }, [token]);
-  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -245,7 +242,7 @@ export default function AdminPage({ onBack }) {
 
       const result = await res.json();
       if (!res.ok && res.status !== 202) throw new Error(result.error || 'Login failed');
-      
+
       if (result.requiresTwoFactorSetup) {
         setTwoFactorState({ type: 'setup', data: result });
       } else if (result.requiresTwoFactor) {
@@ -267,7 +264,7 @@ export default function AdminPage({ onBack }) {
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const endpoint = type === 'setup' ? '/api/admin/2fa/verify-setup' : '/api/admin/2fa/verify';
       const tokenKey = type === 'setup' ? 'setupToken' : 'challengeToken';
-      
+
       const res = await fetch(`${base}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -279,7 +276,7 @@ export default function AdminPage({ onBack }) {
 
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || '2FA verification failed');
-      
+
       setTwoFactorState(null);
       setTotpCode('');
       setToken(result.token);
@@ -290,9 +287,8 @@ export default function AdminPage({ onBack }) {
     }
   };
 
-  const handleLogout = () => {
-    setToken(null);
   const handleLogout = async () => {
+    setToken(null);
     try {
       const base = getApiBase();
       await fetch(`${base}/api/admin/logout`, {
@@ -325,13 +321,35 @@ export default function AdminPage({ onBack }) {
                 <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>
                   Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy):
                 </p>
-                <img src={twoFactorState.data.qrCodeDataUrl} alt="2FA QR Code" style={{ background: 'white', padding: '1rem', borderRadius: '8px' }} />
+                <img
+                  src={twoFactorState.data.qrCodeDataUrl}
+                  alt="2FA QR Code"
+                  style={{ background: 'white', padding: '1rem', borderRadius: '8px' }}
+                />
                 <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--t2)' }}>
-                  Manual entry key: <strong style={{ userSelect: 'all' }}>{twoFactorState.data.secret}</strong>
+                  Manual entry key:{' '}
+                  <strong style={{ userSelect: 'all' }}>{twoFactorState.data.secret}</strong>
                 </p>
-                <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textAlign: 'left' }}>
-                  <h4 style={{ marginBottom: '0.5rem', color: 'var(--c1)' }}>Backup Codes (Save these!)</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontFamily: 'monospace' }}>
+                <div
+                  style={{
+                    marginTop: '1rem',
+                    padding: '1rem',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    textAlign: 'left',
+                  }}
+                >
+                  <h4 style={{ marginBottom: '0.5rem', color: 'var(--c1)' }}>
+                    Backup Codes (Save these!)
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '0.5rem',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     {twoFactorState.data.backupCodes.map((code) => (
                       <div key={code}>{code}</div>
                     ))}
@@ -362,7 +380,14 @@ export default function AdminPage({ onBack }) {
               </button>
             </form>
             {error && (
-              <p style={{ color: '#f87171', fontSize: '0.9rem', marginTop: '1rem', textAlign: 'center' }}>
+              <p
+                style={{
+                  color: '#f87171',
+                  fontSize: '0.9rem',
+                  marginTop: '1rem',
+                  textAlign: 'center',
+                }}
+              >
                 {error}
               </p>
             )}
@@ -469,12 +494,18 @@ export default function AdminPage({ onBack }) {
           borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        {['overview', 'heatmaps', 'recordings', 'segments', 'security'].map((tab) => (
-        {['overview', 'heatmaps', 'recordings', 'segments', 'sync'].map((tab) => (
-        {['overview', 'heatmaps', 'recordings', 'segments', 'certificates'].map((tab) => (
-        {['overview', 'heatmaps', 'recordings', 'segments', 'moderation'].map((tab) => (
-        {['overview', 'heatmaps', 'recordings', 'segments', 'scanner'].map((tab) => (
-        {['overview', 'heatmaps', 'recordings', 'segments', 'waitlist'].map((tab) => (
+        {[
+          'overview',
+          'heatmaps',
+          'recordings',
+          'segments',
+          'security',
+          'sync',
+          'certificates',
+          'moderation',
+          'scanner',
+          'waitlist',
+        ].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -508,14 +539,12 @@ export default function AdminPage({ onBack }) {
       {activeTab === 'heatmaps' && <HeatmapView />}
       {activeTab === 'recordings' && <SessionPlayer />}
       {activeTab === 'segments' && <SegmentationDashboard />}
-      {loading && <div className="loader-overlay">Loading...</div>}
-
-      <DashboardStats stats={data.stats} />
-
-      <div className="charts-grid">
-        <UserGrowthChart data={data.growth} />
-        <EventAttendanceChart data={data.events} />
       {activeTab === 'security' && <AdminSecuritySettings token={token} />}
+      {activeTab === 'sync' && <SyncDashboard token={token} />}
+      {activeTab === 'certificates' && <CertificateTemplateEditor token={token} />}
+      {activeTab === 'moderation' && <PortfolioModerationQueue token={token} />}
+      {activeTab === 'scanner' && <QRScanner token={token} />}
+      {activeTab === 'waitlist' && <WaitlistManager />}
     </div>
   );
 }
@@ -533,7 +562,7 @@ function AdminSecuritySettings({ token }) {
       setLoading(true);
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const res = await fetch(`${base}/api/admin/2fa/settings/status`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (res.ok) {
@@ -557,11 +586,11 @@ function AdminSecuritySettings({ token }) {
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const res = await fetch(`${base}/api/admin/2fa/settings/setup/init`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to initialize setup');
-      
+
       setSetupData(data);
       setSetupState('verify');
     } catch (err) {
@@ -580,11 +609,11 @@ function AdminSecuritySettings({ token }) {
       const res = await fetch(`${base}/api/admin/2fa/settings/setup/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ setupToken: setupData.setupToken, code: totpCode })
+        body: JSON.stringify({ setupToken: setupData.setupToken, code: totpCode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to verify');
-      
+
       setSetupState(null);
       setSetupData(null);
       setTwoFactorEnabled(true);
@@ -597,18 +626,23 @@ function AdminSecuritySettings({ token }) {
   };
 
   const handleDisable = async () => {
-    if (!window.confirm("Are you sure you want to disable 2FA? This will make your account less secure.")) return;
+    if (
+      !window.confirm(
+        'Are you sure you want to disable 2FA? This will make your account less secure.'
+      )
+    )
+      return;
     try {
       setLoading(true);
       setError(null);
       const base = (import.meta?.env?.VITE_API_BASE || '').replace(/\/+$/, '');
       const res = await fetch(`${base}/api/admin/2fa/settings/disable`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to disable 2FA');
-      
+
       setTwoFactorEnabled(false);
     } catch (err) {
       setError(err.message);
@@ -618,22 +652,37 @@ function AdminSecuritySettings({ token }) {
   };
 
   return (
-    <div style={{ padding: '2rem', background: '#1e293b', borderRadius: '16px', maxWidth: '600px', margin: '0 auto' }}>
+    <div
+      style={{
+        padding: '2rem',
+        background: '#1e293b',
+        borderRadius: '16px',
+        maxWidth: '600px',
+        margin: '0 auto',
+      }}
+    >
       <h2 style={{ marginBottom: '1.5rem', color: 'var(--t1)' }}>Security Settings</h2>
-      
+
       <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
         <h3 style={{ marginBottom: '1rem' }}>Two-Factor Authentication (2FA)</h3>
-        
+
         {loading && !setupState && <p>Loading...</p>}
         {error && <p style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</p>}
-        
+
         {!loading && !setupState && (
           <div>
             <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>
-              Status: <strong style={{ color: twoFactorEnabled ? '#10b981' : '#ef4444' }}>{twoFactorEnabled ? 'Enabled' : 'Disabled'}</strong>
+              Status:{' '}
+              <strong style={{ color: twoFactorEnabled ? '#10b981' : '#ef4444' }}>
+                {twoFactorEnabled ? 'Enabled' : 'Disabled'}
+              </strong>
             </p>
             {twoFactorEnabled ? (
-              <button className="btn btn-outline" style={{ borderColor: '#ef4444', color: '#ef4444' }} onClick={handleDisable}>
+              <button
+                className="btn btn-outline"
+                style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                onClick={handleDisable}
+              >
                 Disable 2FA
               </button>
             ) : (
@@ -646,39 +695,67 @@ function AdminSecuritySettings({ token }) {
 
         {setupState === 'verify' && setupData && (
           <div>
-            <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>Scan the QR code with your authenticator app:</p>
-            <img src={setupData.qrCodeDataUrl} alt="QR Code" style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }} />
-            <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>Or enter this code manually: <strong>{setupData.secret}</strong></p>
-            
-            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-              <h4 style={{ marginBottom: '0.5rem', color: 'var(--c1)' }}>Backup Codes (Save these!)</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontFamily: 'monospace' }}>
-                {setupData.backupCodes.map((c) => <div key={c}>{c}</div>)}
+            <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>
+              Scan the QR code with your authenticator app:
+            </p>
+            <img
+              src={setupData.qrCodeDataUrl}
+              alt="QR Code"
+              style={{
+                background: 'white',
+                padding: '1rem',
+                borderRadius: '8px',
+                marginBottom: '1rem',
+              }}
+            />
+            <p style={{ marginBottom: '1rem', color: 'var(--t2)' }}>
+              Or enter this code manually: <strong>{setupData.secret}</strong>
+            </p>
+
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(0,0,0,0.2)',
+                borderRadius: '8px',
+              }}
+            >
+              <h4 style={{ marginBottom: '0.5rem', color: 'var(--c1)' }}>
+                Backup Codes (Save these!)
+              </h4>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '0.5rem',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {setupData.backupCodes.map((c) => (
+                  <div key={c}>{c}</div>
+                ))}
               </div>
             </div>
 
             <form onSubmit={handleVerifySetup} style={{ display: 'flex', gap: '1rem' }}>
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="6-digit code" 
-                value={totpCode} 
-                onChange={e => setTotpCode(e.target.value)} 
-                required 
+              <input
+                type="text"
+                className="input-field"
+                placeholder="6-digit code"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                required
               />
               <button type="submit" className="btn btn-primary" disabled={loading}>
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
-              <button type="button" className="btn btn-outline" onClick={() => setSetupState(null)}>Cancel</button>
+              <button type="button" className="btn btn-outline" onClick={() => setSetupState(null)}>
+                Cancel
+              </button>
             </form>
           </div>
         )}
       </div>
-      {activeTab === 'sync' && <SyncDashboard token={token} />}
-      {activeTab === 'certificates' && <CertificateTemplateEditor token={token} />}
-      {activeTab === 'moderation' && <PortfolioModerationQueue token={token} />}
-      {activeTab === 'scanner' && <QRScanner token={token} />}
-      {activeTab === 'waitlist' && <WaitlistManager />}
     </div>
   );
 }

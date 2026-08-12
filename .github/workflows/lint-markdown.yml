@@ -26,10 +26,6 @@ jobs:
 
       - name: Run markdownlint
         uses: DavidAnson/markdownlint-cli2-action@v24
-        uses: actions/checkout@v6
-
-      - name: Run markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@v23
         with:
           # Lint all markdown files in the repo, excluding generated/vendor dirs
           globs: |
@@ -38,31 +34,4 @@ jobs:
             !**/node_modules/**
             !website/dist/**
             !admin-dashboard/dist/**
-            !.github/**
-            !test-results/**
-            !**/test-results/**
-          config: '.markdownlint.json'
-name: Markdown Linter
-
-# 1. WHEN to run: Whenever someone opens a Pull Request to the main branch
-on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '**/*.md' # Only run if a Markdown (.md) file was changed
-
-# 2. WHAT to do:
-jobs:
-  lint:
-    runs-on: ubuntu-latest # Run this on a clean, cloud-based computer
-
-    steps:
-      - name: Copy project files
-        uses: actions/checkout@v4 # This grabs your code so the tool can look at it
-
-      - name: Check markdown formatting
-        uses: davidanson/markdownlint-cli2-action@v16 # This is the official community tool
-        with:
-          globs: '**/*.md' # Tell it to scan every single .md file
           config: '.markdownlint.json'

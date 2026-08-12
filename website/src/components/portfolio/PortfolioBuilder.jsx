@@ -5,7 +5,6 @@ import { projectsData } from '../../data/projectsData';
 import { roadmapData } from '../../data/roadmapData';
 import { RepoCardSkeleton } from '../ui/skeleton/RepoCardSkeleton';
 import AdvancedCustomizer from './AdvancedCustomizer';
-import { buildGithubReposUrl } from './githubReposConfig';
 
 export default function PortfolioBuilder() {
   const [username, setUsername] = useState('');
@@ -48,6 +47,7 @@ export default function PortfolioBuilder() {
   const [selectedRoadmaps, setSelectedRoadmaps] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [customProjects, setCustomProjects] = useState([]);
+  const [workExperience, setWorkExperience] = useState([]);
 
   // GitHub Fetching States
   const [ghUsername, setGhUsername] = useState('');
@@ -142,6 +142,7 @@ export default function PortfolioBuilder() {
         setSelectedRoadmaps(data.roadmaps || []);
         setSelectedProjects(data.projects || []);
         setCustomProjects(data.customProjects || []);
+        setWorkExperience(data.workExperience || []);
         setSuccessMsg('Existing portfolio configuration found and loaded!');
       }
     } catch (err) {
@@ -189,6 +190,7 @@ export default function PortfolioBuilder() {
         roadmaps: selectedRoadmaps,
         projects: selectedProjects,
         customProjects,
+        workExperience,
         githubUsername: ghUsername.trim() || undefined,
       };
 
@@ -324,6 +326,44 @@ export default function PortfolioBuilder() {
     });
   };
 
+  const handleLinkedInSync = () => {
+    const base = getApiBase();
+    const width = 600;
+    const height = 700;
+    const left = window.innerWidth / 2 - width / 2;
+    const top = window.innerHeight / 2 - height / 2;
+    const url = base ? `${base}/api/portfolio/linkedin/auth` : `/api/portfolio/linkedin/auth`;
+
+    window.open(url, 'LinkedInSync', `width=${width},height=${height},top=${top},left=${left}`);
+  };
+
+  React.useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LINKEDIN_SUCCESS') {
+        const payload = event.data.payload;
+        setSuccessMsg('LinkedIn data imported successfully!');
+        if (payload.socialLink) {
+          setSocialLinks((prev) => ({ ...prev, linkedin: payload.socialLink }));
+        }
+        if (payload.skills && payload.skills.length > 0) {
+          const newSkills = payload.skills.map((s) => s.name);
+          setSelectedSkills((prev) => {
+            const merged = new Set([...prev, ...newSkills]);
+            return Array.from(merged);
+          });
+        }
+        if (payload.workExperience) {
+          setWorkExperience(payload.workExperience);
+        }
+      } else if (event.data?.type === 'LINKEDIN_ERROR') {
+        setErrorMsg('LinkedIn Import Error: ' + event.data.payload);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   const getPortfolioUrl = () => {
     const base = typeof window !== 'undefined' ? window.location.origin : '';
     return `${base}/p/${encodeURIComponent(username)}`;
@@ -372,284 +412,97 @@ export default function PortfolioBuilder() {
         <div>
           <h1 className="builder-title">Portfolio Builder</h1>
           <p className="builder-subtitle">
-            Instantly generate and customize a stunning developer showcase page directly from your
-            NexaSphere metrics and community milestones.
+            Configure your professional showcase, connect external profiles, and customize widgets
           </p>
         </div>
-        <div style={{ position: 'relative' }}>
-          <input
-            type="file"
-            accept=".pdf,.docx,.txt"
-            ref={resumeInputRef}
-            onChange={handleResumeUpload}
-            style={{ display: 'none' }}
-          />
-          <button
-            type="button"
-            className="ns-btn primary"
-            onClick={() => resumeInputRef.current?.click()}
-            disabled={isParsing}
-            style={{
-              padding: '10px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '0.9rem',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {isParsing ? (
-              <>
-                <svg
-                  className="spinner"
-                  viewBox="0 0 50 50"
-                  style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }}
-                >
-                  <circle
-                    className="path"
-                    cx="25"
-                    cy="25"
-                    r="20"
-                    fill="none"
-                    strokeWidth="5"
-                    stroke="currentColor"
-                    strokeDasharray="31.4 31.4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                Parsing...
-              </>
-            ) : (
-              <>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                Upload Resume (AI Parse)
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleLinkedInSync}
+          className="btn btn-outline"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px' }}
+        >
+          <span>LN</span> Import LinkedIn Profile
+        </button>
       </div>
 
-      <div className="builder-workspace">
-        {/* Controls Panel */}
-        <form onSubmit={handleSave} className="builder-panel">
-          {/* Identity & Credentials */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              1. Registry Credentials
-            </h3>
-
+      <div className="builder-grid">
+        {/* Form Panel */}
+        <form onSubmit={handleSubmit} className="builder-form-panel">
+          <div className="form-section">
+            <h3 className="section-title">Showcase Profile Registry</h3>
             <div className="form-group">
-              <label htmlFor="username-input" className="form-label">
-                Username
-              </label>
+              <label htmlFor="pf-username">Reserved Handle (Username)</label>
               <input
-                id="username-input"
+                id="pf-username"
                 type="text"
                 placeholder="e.g. johndoe"
-                className="form-input"
                 value={username}
-                onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''))}
-                onBlur={handleLoadConfig}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
-              <span className="switch-subtext">
-                Used as your public showcase URL: nexasphere.com/p/your_username
-              </span>
             </div>
-
             <div className="form-group">
-              <label htmlFor="passkey-input" className="form-label">
-                Passkey
-              </label>
+              <label htmlFor="pf-title">Professional Title</label>
               <input
-                id="passkey-input"
-                type="password"
-                placeholder="4+ digit secret passkey"
-                className="form-input"
-                value={passkey}
-                onChange={(e) => setPasskey(e.target.value)}
-                onBlur={handleLoadConfig}
-                required
-              />
-              <span className="switch-subtext">
-                Required to update this portfolio in the future. Keep it safe.
-              </span>
-            </div>
-
-            <div className="switch-group" style={{ marginTop: '16px' }}>
-              <div className="switch-label-container">
-                <span className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Public Visibility
-                </span>
-                <span className="switch-subtext">
-                  Make portfolio visible to anyone with the link
-                </span>
-              </div>
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          {/* Profile Details */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-              </svg>
-              2. Profile Information
-            </h3>
-
-            <div className="form-group">
-              <label htmlFor="title-input" className="form-label">
-                Professional Title
-              </label>
-              <input
-                id="title-input"
+                id="pf-title"
                 type="text"
-                placeholder="e.g. Full Stack Web & AI Developer"
-                className="form-input"
+                placeholder="e.g. Full Stack Architect"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-
             <div className="form-group">
-              <label htmlFor="bio-input" className="form-label">
-                Bio Narrative Summary
-              </label>
+              <label htmlFor="pf-bio">Creative Bio</label>
               <textarea
-                id="bio-input"
-                rows="4"
-                placeholder="Briefly showcase your passion, tech specialization, and developer goals..."
-                className="form-textarea"
+                id="pf-bio"
+                placeholder="Brief description of your expertise, achievements, and goals..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
+                rows={3}
               />
             </div>
           </div>
 
-          {/* Style Customizer */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
-                <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6V18Z" />
-              </svg>
-              3. Visual Theme
-            </h3>
-
-            <AdvancedCustomizer
-              currentConfig={{
-                themeId: theme,
-                colors: customization.colors,
-                typography: customization.typography,
-                spacing: customization.spacing,
-                hero: customization.hero,
-              }}
-              onUpdate={(cfg) => {
-                setTheme(cfg.themeId);
-                setCustomization({
-                  colors: cfg.colors,
-                  typography: cfg.typography,
-                  spacing: cfg.spacing,
-                  hero: cfg.hero,
-                });
-              }}
-            />
-          </div>
-          {/* Section Visibility Toggles */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <line x1="9" y1="3" x2="9" y2="21" />
-              </svg>
-              4. Section Visibility
-            </h3>
-
-            <div className="switch-group">
-              <div className="switch-label-container">
-                <span className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Skills & Quests
-                </span>
-                <span className="switch-subtext">
-                  Showcase tech badges and acquired capabilities
-                </span>
+          {/* Social Profiles */}
+          <div className="form-section">
+            <h3 className="section-title">Federated Social Handshakes</h3>
+            {['github', 'linkedin', 'twitter', 'resume'].map((soc) => (
+              <div className="form-group" key={soc}>
+                <label style={{ textTransform: 'capitalize' }}>
+                  {soc === 'resume' ? 'Resume URL' : `${soc} Link`}
+                </label>
+                <input
+                  type="url"
+                  placeholder={`https://${soc === 'resume' ? 'drive.google.com' : `${soc}.com`}/...`}
+                  value={socialLinks[soc] || ''}
+                  onChange={(e) => setSocialLinks((prev) => ({ ...prev, [soc]: e.target.value }))}
+                />
               </div>
-              <label className="switch">
+            ))}
+          </div>
+
+          {/* Widget Visibility */}
+          <div className="form-section">
+            <h3 className="section-title">Showcase Display Widgets</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
                 <input
                   type="checkbox"
                   checked={visibleSections.skillsAndQuests}
                   onChange={(e) =>
-                    setVisibleSections((prev) => ({ ...prev, skillsAndQuests: e.target.checked }))
+                    setVisibleSections((prev) => ({
+                      ...prev,
+                      skillsAndQuests: e.target.checked,
+                    }))
                   }
                 />
-                <span className="slider"></span>
+                Skills & Quests Badge Panel
               </label>
-            </div>
-
-            <div className="switch-group">
-              <div className="switch-label-container">
-                <span className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Active Roadmaps
-                </span>
-                <span className="switch-subtext">Display curriculum progress graphics</span>
-              </div>
-              <label className="switch">
+              <label
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
                 <input
                   type="checkbox"
                   checked={visibleSections.roadmaps}
@@ -657,18 +510,11 @@ export default function PortfolioBuilder() {
                     setVisibleSections((prev) => ({ ...prev, roadmaps: e.target.checked }))
                   }
                 />
-                <span className="slider"></span>
+                Active Academic Learning Paths
               </label>
-            </div>
-
-            <div className="switch-group">
-              <div className="switch-label-container">
-                <span className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Collaborative Projects
-                </span>
-                <span className="switch-subtext">Feature completed workspace projects</span>
-              </div>
-              <label className="switch">
+              <label
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
                 <input
                   type="checkbox"
                   checked={visibleSections.projects}
@@ -676,342 +522,8 @@ export default function PortfolioBuilder() {
                     setVisibleSections((prev) => ({ ...prev, projects: e.target.checked }))
                   }
                 />
-                <span className="slider"></span>
+                Federated Projects & Repositories
               </label>
-            </div>
-          </div>
-
-          {/* Social Connections */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-              </svg>
-              5. Connect Hub
-            </h3>
-
-            <div className="form-group">
-              <label htmlFor="github-input" className="form-label">
-                GitHub Profile
-              </label>
-              <input
-                id="github-input"
-                type="url"
-                placeholder="https://github.com/..."
-                className="form-input"
-                value={socialLinks.github}
-                onChange={(e) => setSocialLinks((prev) => ({ ...prev, github: e.target.value }))}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="linkedin-input" className="form-label">
-                LinkedIn Profile
-              </label>
-              <input
-                id="linkedin-input"
-                type="url"
-                placeholder="https://linkedin.com/in/..."
-                className="form-input"
-                value={socialLinks.linkedin}
-                onChange={(e) => setSocialLinks((prev) => ({ ...prev, linkedin: e.target.value }))}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="twitter-input" className="form-label">
-                Twitter / X Profile
-              </label>
-              <input
-                id="twitter-input"
-                type="url"
-                placeholder="https://x.com/..."
-                className="form-input"
-                value={socialLinks.twitter}
-                onChange={(e) => setSocialLinks((prev) => ({ ...prev, twitter: e.target.value }))}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="resume-input" className="form-label">
-                Resume Link
-              </label>
-              <input
-                id="resume-input"
-                type="url"
-                placeholder="Google Drive, Dropbox, or custom resume link"
-                className="form-input"
-                value={socialLinks.resume}
-                onChange={(e) => setSocialLinks((prev) => ({ ...prev, resume: e.target.value }))}
-              />
-            </div>
-          </div>
-
-          {/* Achievement Customizer Checklist Panels */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-              6. Display Achievements
-            </h3>
-
-            <div className="form-group">
-              <label className="form-label">Select Skills to Showcase</label>
-              <div className="checklist-grid" role="group" aria-label="Skills options">
-                {availableSkills.map((skill) => {
-                  const isActive = selectedSkills.includes(skill);
-                  return (
-                    <label key={skill} className={`checklist-item ${isActive ? 'active' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => toggleSkill(skill)}
-                      />
-                      {skill}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginTop: '14px' }}>
-              <label className="form-label">Select Active Roadmaps</label>
-              <div className="checklist-grid" role="group" aria-label="Roadmaps options">
-                {availableRoadmaps.map((roadmap) => {
-                  const isActive = selectedRoadmaps.includes(roadmap.key);
-                  return (
-                    <label
-                      key={roadmap.key}
-                      className={`checklist-item ${isActive ? 'active' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => toggleRoadmap(roadmap.key)}
-                      />
-                      {roadmap.title}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginTop: '14px' }}>
-              <label className="form-label">Select Featured Projects</label>
-              <div className="checklist-grid" role="group" aria-label="Projects options">
-                {availableProjects.map((project) => {
-                  const isActive = selectedProjects.includes(project.id);
-                  return (
-                    <label
-                      key={project.id}
-                      className={`checklist-item ${isActive ? 'active' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => toggleProject(project.id)}
-                      />
-                      {project.title}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div
-              className="form-group"
-              style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px dashed var(--bdr2)' }}
-            >
-              <label className="form-label">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  style={{ marginRight: '6px', verticalAlign: 'middle' }}
-                >
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                </svg>
-                Sync with GitHub (Optional)
-              </label>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
-                <input
-                  type="text"
-                  placeholder="GitHub username..."
-                  className="form-input"
-                  value={ghUsername}
-                  onChange={(e) => setGhUsername(e.target.value)}
-                  style={{ flex: 1 }}
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={fetchGithubRepos}
-                  disabled={isFetchingGh || !ghUsername}
-                >
-                  {isFetchingGh ? 'Fetching...' : 'Fetch Repos'}
-                </button>
-              </div>
-
-              {ghError && (
-                <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '12px' }}>
-                  {ghError}
-                </div>
-              )}
-
-              {!ghError && !isFetchingGh && ghRepos.length > 0 && ghUsername && (
-                <div style={{ marginBottom: '12px' }}>
-                  <img
-                    src={`https://ghchart.rshah.org/CC1111/${ghUsername.trim()}`}
-                    alt={`${ghUsername} GitHub contribution graph`}
-                    style={{ width: '100%', borderRadius: 'var(--r2)' }}
-                    loading="lazy"
-                  />
-                </div>
-              )}
-
-              {!ghError && !isFetchingGh && ghFetchAttempted && ghRepos.length === 0 && (
-                <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '12px' }}>
-                  No public repositories found for this GitHub account.
-                </div>
-              )}
-
-              {isFetchingGh ? (
-                <div
-                  className="checklist-grid"
-                  role="group"
-                  aria-label="Loading GitHub Repositories"
-                >
-                  <RepoCardSkeleton count={3} />
-                </div>
-              ) : (
-                ghRepos.length > 0 && (
-                  <div className="checklist-grid" role="group" aria-label="GitHub Repositories">
-                    {ghRepos.map((repo) => {
-                      const isActive = customProjects.some((p) => p.id === repo.id);
-                      return (
-                        <label
-                          key={repo.id}
-                          className={`checklist-item ${isActive ? 'active' : ''}`}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            padding: '10px',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                            <input
-                              type="checkbox"
-                              checked={isActive}
-                              onChange={() => toggleGithubRepo(repo)}
-                            />
-                            <span style={{ fontWeight: 'bold' }}>{repo.name}</span>
-                            {(repo.stargazers_count > 0 || repo.forks_count > 0) && (
-                              <span
-                                style={{
-                                  marginLeft: 'auto',
-                                  fontSize: '0.75rem',
-                                  opacity: 0.8,
-                                  display: 'flex',
-                                  gap: '8px',
-                                }}
-                              >
-                                {repo.stargazers_count > 0 && (
-                                  <span>★ {repo.stargazers_count}</span>
-                                )}
-                                {repo.forks_count > 0 && <span>⑂ {repo.forks_count}</span>}
-                              </span>
-                            )}
-                          </div>
-                          {repo.language && (
-                            <span
-                              style={{
-                                fontSize: '0.75rem',
-                                opacity: 0.7,
-                                marginTop: '4px',
-                                paddingLeft: '24px',
-                              }}
-                            >
-                              {repo.language}
-                            </span>
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-
-          {/* SEO & Optimization metadata */}
-          <div className="builder-section-card">
-            <h3 className="builder-section-title">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                style={{ color: 'var(--c1b)' }}
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              7. SEO Optimization
-            </h3>
-
-            <div className="form-group">
-              <label htmlFor="seo-title" className="form-label">
-                Custom Meta Title
-              </label>
-              <input
-                id="seo-title"
-                type="text"
-                placeholder="e.g. John Doe | Full Stack Engineer Showcase"
-                className="form-input"
-                value={seoMetadata.title}
-                onChange={(e) => setSeoMetadata((prev) => ({ ...prev, title: e.target.value }))}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="seo-desc" className="form-label">
-                Custom Meta Description
-              </label>
-              <textarea
-                id="seo-desc"
-                rows="2"
-                placeholder="Compelling page description for search engines and social shares..."
-                className="form-textarea"
-                value={seoMetadata.description}
-                onChange={(e) =>
-                  setSeoMetadata((prev) => ({ ...prev, description: e.target.value }))
-                }
-              />
             </div>
           </div>
 
@@ -1078,7 +590,7 @@ export default function PortfolioBuilder() {
                   {copied ? 'Copied Showcase Link!' : 'Copy Public URL'}
                 </button>
                 <a
-                  href={`/p/${encodeURIComponent(username)}`}
+                  href={`/p/${username}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary"

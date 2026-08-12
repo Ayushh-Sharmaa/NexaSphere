@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import apiClient from '../../../../utils/apiClient.js';
-import { getApiBase } from '../../../../utils/runtimeConfig';
+import apiClient from '../../../utils/apiClient.js';
+import { getApiBase } from '../../../utils/runtimeConfig';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 
@@ -8,6 +8,12 @@ export default function SessionPlayer() {
   const [recordings, setRecordings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   const playerRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -34,7 +40,7 @@ export default function SessionPlayer() {
     setActiveSessionId(sessionId);
     if (playerRef.current) {
       // Destroy old player
-      containerRef.current.innerHTML = '';
+      containerRef.current.textContent = '';
     }
 
     try {
@@ -44,7 +50,7 @@ export default function SessionPlayer() {
       });
 
       if (!events || events.length < 2) {
-        alert('Not enough events to play');
+        showFeedback('Not enough events to play', 'error');
         return;
       }
 
@@ -59,12 +65,35 @@ export default function SessionPlayer() {
       });
     } catch (e) {
       console.error('Playback error', e);
-      alert('Failed to load session events');
+      showFeedback('Failed to load session events', 'error');
     }
   };
 
   return (
-    <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+      {feedback && (
+        <div
+          role="status"
+          style={{
+            maxWidth: '800px',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            backgroundColor:
+              feedback.type === 'error'
+                ? 'rgba(239, 68, 68, 0.15)'
+                : 'rgba(16, 185, 129, 0.15)',
+            color: feedback.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${
+              feedback.type === 'error' ? '#ef4444' : '#10b981'
+            }`,
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          }}
+        >
+          {feedback.message}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
       <div style={{ width: '300px', flexShrink: 0 }}>
         <h3>Recent Sessions</h3>
         {loading && <p>Loading...</p>}

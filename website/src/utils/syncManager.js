@@ -258,12 +258,16 @@ export function initSyncManager() {
 
   // If we're already online on init and have a queue, sync immediately
   if (navigator.onLine) {
-    getQueue().then((queue) => {
-      if (queue.length > 0) {
-        logger.info(`[SyncManager] Found ${queue.length} queued request(s) on startup — syncing.`);
-        runSync();
-      }
-    });
+    getQueue()
+      .then((queue) => {
+        if (queue.length > 0) {
+          logger.info(
+            `[SyncManager] Found ${queue.length} queued request(s) on startup — syncing.`
+          );
+          runSync();
+        }
+      })
+      .catch((err) => console.error(err));
   }
 
   // Listen for SW-initiated sync messages

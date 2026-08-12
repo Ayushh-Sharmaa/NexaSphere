@@ -1,0 +1,653 @@
+[
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\App.jsx",
+    "errors": [
+      {
+        "line": 600,
+        "column": 9,
+        "message": "Duplicate key 'Explore'.",
+        "ruleId": "no-dupe-keys"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\Cursor.jsx",
+    "errors": [
+      {
+        "line": 76,
+        "column": 13,
+        "message": "The value assigned to 'fy' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      },
+      {
+        "line": 77,
+        "column": 13,
+        "message": "The value assigned to 'scale' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      },
+      {
+        "line": 78,
+        "column": 13,
+        "message": "The value assigned to 'opacity' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      },
+      {
+        "line": 81,
+        "column": 13,
+        "message": "'fy' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 82,
+        "column": 13,
+        "message": "'scale' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 83,
+        "column": 13,
+        "message": "'opacity' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 141,
+        "column": 11,
+        "message": "Duplicate key 'width'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 142,
+        "column": 11,
+        "message": "Duplicate key 'height'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 143,
+        "column": 11,
+        "message": "Duplicate key 'borderRadius'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 144,
+        "column": 11,
+        "message": "Duplicate key 'background'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 146,
+        "column": 11,
+        "message": "Duplicate key 'transform'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 147,
+        "column": 11,
+        "message": "Duplicate key 'transition'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 164,
+        "column": 11,
+        "message": "Duplicate key 'width'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 165,
+        "column": 11,
+        "message": "Duplicate key 'height'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 166,
+        "column": 11,
+        "message": "Duplicate key 'borderRadius'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 167,
+        "column": 11,
+        "message": "Duplicate key 'background'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 168,
+        "column": 11,
+        "message": "Duplicate key 'transform'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 169,
+        "column": 11,
+        "message": "Duplicate key 'filter'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 170,
+        "column": 11,
+        "message": "Duplicate key 'transition'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 187,
+        "column": 11,
+        "message": "Duplicate key 'zIndex'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 188,
+        "column": 11,
+        "message": "Duplicate key 'width'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 189,
+        "column": 11,
+        "message": "Duplicate key 'height'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 190,
+        "column": 11,
+        "message": "Duplicate key 'borderRadius'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 191,
+        "column": 11,
+        "message": "Duplicate key 'background'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 192,
+        "column": 11,
+        "message": "Duplicate key 'boxShadow'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 193,
+        "column": 11,
+        "message": "Duplicate key 'transition'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 206,
+        "column": 13,
+        "message": "Duplicate key 'width'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 207,
+        "column": 13,
+        "message": "Duplicate key 'height'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 208,
+        "column": 13,
+        "message": "Duplicate key 'borderRadius'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 209,
+        "column": 13,
+        "message": "Duplicate key 'background'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 210,
+        "column": 13,
+        "message": "Duplicate key 'filter'.",
+        "ruleId": "no-dupe-keys"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\ErrorBoundary.jsx",
+    "errors": [
+      {
+        "line": 79,
+        "column": 8,
+        "message": "'React' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 80,
+        "column": 13,
+        "message": "'Sentry' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 81,
+        "column": 10,
+        "message": "'captureHandledException' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 83,
+        "column": 10,
+        "message": "'ErrorBoundaryFallback' is already defined.",
+        "ruleId": "no-redeclare"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\EventCard.jsx",
+    "errors": [
+      {
+        "line": 40,
+        "column": 2,
+        "message": "Parsing error: Expression expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\ShareHub\\ShareHub.jsx",
+    "errors": [
+      {
+        "line": 90,
+        "column": 7,
+        "message": "Parsing error: Declaration or statement expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\collab\\JoinRequestModal.jsx",
+    "errors": [
+      {
+        "line": 170,
+        "column": 11,
+        "message": "Parsing error: JSX element 'p' has no corresponding closing tag.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\events\\CalendarView.jsx",
+    "errors": [
+      {
+        "line": 434,
+        "column": 10,
+        "message": "Parsing error: Unexpected token. Did you mean `{'>'}` or `&gt;`?",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\events\\EventPricingCard.jsx",
+    "errors": [
+      {
+        "line": 84,
+        "column": 11,
+        "message": "Parsing error: '...' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\moderation\\ModerationDashboard.jsx",
+    "errors": [
+      {
+        "line": 655,
+        "column": 9,
+        "message": "Parsing error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\notifications\\NotificationPreferencesPanel.jsx",
+    "errors": [
+      {
+        "line": 144,
+        "column": 12,
+        "message": "Parsing error: ':' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\components\\portfolio\\AdvancedCustomizer.jsx",
+    "errors": [
+      {
+        "line": 342,
+        "column": 25,
+        "message": "Duplicate key 'spacing'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 374,
+        "column": 25,
+        "message": "Duplicate key 'spacing'.",
+        "ruleId": "no-dupe-keys"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\hooks\\useAdvancedSearch.js",
+    "errors": [
+      {
+        "line": 3,
+        "column": 10,
+        "message": "'useState' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 3,
+        "column": 20,
+        "message": "'useEffect' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 5,
+        "column": 10,
+        "message": "'debounce' is already defined.",
+        "ruleId": "no-redeclare"
+      },
+      {
+        "line": 11,
+        "column": 3,
+        "message": "Unreachable code.",
+        "ruleId": "no-unreachable"
+      },
+      {
+        "line": 15,
+        "column": 3,
+        "message": "Unreachable code.",
+        "ruleId": "no-unreachable"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\hooks\\useCountdown.js",
+    "errors": [
+      {
+        "line": 44,
+        "column": 9,
+        "message": "The value assigned to 'status' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      },
+      {
+        "line": 45,
+        "column": 9,
+        "message": "The value assigned to 'remaining' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\hooks\\useEventSearch.js",
+    "errors": [
+      {
+        "line": 237,
+        "column": 3,
+        "message": "Unreachable code.",
+        "ruleId": "no-unreachable"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\hooks\\useSocketSync.ts",
+    "errors": [
+      {
+        "line": 139,
+        "column": 0,
+        "message": "Parsing error: ')' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\lib\\promptStore.js",
+    "errors": [
+      {
+        "line": 142,
+        "column": 11,
+        "message": "The value assigned to 'throwOnError' is not used in subsequent statements.",
+        "ruleId": "no-useless-assignment"
+      },
+      {
+        "line": 149,
+        "column": 5,
+        "message": "Unreachable code.",
+        "ruleId": "no-unreachable"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\admin\\AdminPage.jsx",
+    "errors": [
+      {
+        "line": 93,
+        "column": 3,
+        "message": "Parsing error: Declaration or statement expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\collab\\CollabPage.jsx",
+    "errors": [
+      {
+        "line": 178,
+        "column": 0,
+        "message": "Parsing error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\email-campaigns\\EmailCampaignsPage.jsx",
+    "errors": [
+      {
+        "line": 12,
+        "column": 10,
+        "message": "'buildUrl' is already defined.",
+        "ruleId": "no-redeclare"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\events\\WaitingRoom.jsx",
+    "errors": [
+      {
+        "line": 248,
+        "column": 0,
+        "message": "Parsing error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\explore\\ExplorePage.jsx",
+    "errors": [
+      {
+        "line": 558,
+        "column": 9,
+        "message": "Parsing error: '...' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\home\\HeroSection.jsx",
+    "errors": [
+      {
+        "line": 19,
+        "column": 5,
+        "message": "Unreachable code.",
+        "ruleId": "no-unreachable"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\resume\\ResumeAnalyzerPage.jsx",
+    "errors": [
+      {
+        "line": 51,
+        "column": 7,
+        "message": "Parsing error: ':' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\pages\\subscription\\SubscriptionPage.jsx",
+    "errors": [
+      {
+        "line": 342,
+        "column": 0,
+        "message": "Parsing error: ')' expected.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\services\\gamification\\gamificationService.js",
+    "errors": [
+      {
+        "line": 21,
+        "column": 3,
+        "message": "Duplicate key 'ORGANIZE_EVENT'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 22,
+        "column": 3,
+        "message": "Duplicate key 'COMPLETE_MENTORSHIP'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 23,
+        "column": 3,
+        "message": "Duplicate key 'ADD_PORTFOLIO_PROJECT'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 24,
+        "column": 3,
+        "message": "Duplicate key 'GIVE_FEEDBACK'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 25,
+        "column": 3,
+        "message": "Duplicate key 'HELP_SOMEONE'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 26,
+        "column": 3,
+        "message": "Duplicate key 'DAILY_STREAK'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 35,
+        "column": 3,
+        "message": "Duplicate key 'COMMENT_POSTED'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 36,
+        "column": 3,
+        "message": "Duplicate key 'SHARE_EVENT'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 39,
+        "column": 3,
+        "message": "Duplicate key 'EVENT_ATTENDANCE'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 40,
+        "column": 3,
+        "message": "Duplicate key 'EVENT_REGISTRATION'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 41,
+        "column": 3,
+        "message": "Duplicate key 'COMMENT_POSTED'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 42,
+        "column": 3,
+        "message": "Duplicate key 'REFERRAL'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 43,
+        "column": 3,
+        "message": "Duplicate key 'CONTENT_CREATION'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 44,
+        "column": 3,
+        "message": "Duplicate key 'FEEDBACK_GIVEN'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 278,
+        "column": 3,
+        "message": "Duplicate key 'FIRST_COMMENT'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 446,
+        "column": 7,
+        "message": "Duplicate case label.",
+        "ruleId": "no-duplicate-case"
+      },
+      {
+        "line": 463,
+        "column": 7,
+        "message": "Duplicate case label.",
+        "ruleId": "no-duplicate-case"
+      },
+      {
+        "line": 468,
+        "column": 7,
+        "message": "Duplicate case label.",
+        "ruleId": "no-duplicate-case"
+      },
+      {
+        "line": 471,
+        "column": 7,
+        "message": "Duplicate case label.",
+        "ruleId": "no-duplicate-case"
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\shared\\BlogCard.jsx",
+    "errors": [
+      {
+        "line": 46,
+        "column": 11,
+        "message": "Parsing error: JSX element 'button' has no corresponding closing tag.",
+        "ruleId": null
+      }
+    ]
+  },
+  {
+    "filePath": "D:\\Github\\NexaSphere\\website\\src\\shared\\Chatbot.jsx",
+    "errors": [
+      {
+        "line": 132,
+        "column": 5,
+        "message": "Duplicate key 'keywords'.",
+        "ruleId": "no-dupe-keys"
+      },
+      {
+        "line": 133,
+        "column": 5,
+        "message": "Duplicate key 'answer'.",
+        "ruleId": "no-dupe-keys"
+      }
+    ]
+  }
+]

@@ -1,0 +1,118 @@
+name: GSSoC — Remind Unresolved Conversations
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runs daily; finds PRs with unresolved review conversations older than 48h
+# and pings the PR author to address them.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 9 * * *' # Daily at 09:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: remind-unresolved
+  cancel-in-progress: true
+
+jobs:
+  remind-authors:
+    name: Remind About Unresolved Review Conversations
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Find PRs with old unresolved threads and notify authors
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const HOURS_THRESHOLD = 48;
+            const cutoff = Date.now() - HOURS_THRESHOLD * 60 * 60 * 1000;
+            const BOT_MARKER = '<!-- unresolved-reminder -->';
+
+            // ── Fetch all open PRs ────────────────────────────────────────────
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 100,
+            });
+
+            let reminded = 0;
+
+            for (const pr of prs) {
+              if (pr.user.login.endsWith('[bot]')) continue;
+
+              // ── Check last activity on the PR ─────────────────────────────
+              const lastUpdated = new Date(pr.updated_at).getTime();
+              if (lastUpdated >= cutoff) continue;   // Still active
+
+              // ── Use GraphQL to check for unresolved review threads ─────────
+              const query = `
+                query($owner: String!, $repo: String!, $prNum: Int!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $prNum) {
+                      reviewThreads(first: 50) {
+                        nodes {
+                          isResolved
+                          comments(first: 1) {
+                            nodes {
+                              createdAt
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `;
+
+              let hasUnresolved = false;
+              try {
+                const result = await github.graphql(query, {
+                  owner, repo, prNum: pr.number,
+                });
+                const threads = result.repository.pullRequest.reviewThreads.nodes;
+                hasUnresolved = threads.some(t => !t.isResolved);
+              } catch (err) {
+                console.log(`⚠️  GraphQL error for PR #${pr.number}: ${err.message}`);
+                continue;
+              }
+
+              if (!hasUnresolved) continue;
+
+              // ── Check we haven't already reminded recently (last 48h) ───────
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: pr.number, per_page: 100,
+              });
+              const recentReminder = comments.some(c =>
+                c.user.login === 'github-actions[bot]' &&
+                (c.body || '').includes(BOT_MARKER) &&
+                (Date.now() - new Date(c.created_at).getTime()) < HOURS_THRESHOLD * 60 * 60 * 1000
+              );
+              if (recentReminder) continue;
+
+              // ── Post reminder ──────────────────────────────────────────────
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: [
+                  BOT_MARKER,
+                  `## 💬 Unresolved Review Conversations`,
+                  ``,
+                  `Hey @${pr.user.login}! This PR has **unresolved review conversations** that have been pending for 48+ hours.`,
+                  ``,
+                  `**Please address the reviewer's feedback** to move this PR forward:`,
+                  `1. Review the unresolved threads above`,
+                  `2. Reply to each comment or push the requested changes`,
+                  `3. Resolve each thread when addressed`,
+                  ``,
+                  `> 💡 Resolving all conversations will help your PR proceed to the next review stage.`,
+                  ``,
+                  `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+                ].join('\n'),
+              });
+
+              console.log(`💬 Reminded @${pr.user.login} about unresolved threads on PR #${pr.number}`);
+              reminded++;
+            }
+
+            console.log(`✅ Reminder check complete — ${reminded} PR(s) reminded`);

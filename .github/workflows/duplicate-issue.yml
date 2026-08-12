@@ -1,0 +1,137 @@
+name: GSSoC — Duplicate Issue Detection
+
+# ─────────────────────────────────────────────────────────────────────────────
+# When a new issue is opened, compares its title against existing open issues
+# using keyword overlap scoring. Flags possible duplicates without auto-closing.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  issues:
+    types: [opened]
+
+concurrency:
+  group: duplicate-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  detect-duplicate:
+    name: Detect Duplicate Issues
+    runs-on: ubuntu-latest
+    if: >-
+      !endsWith(github.event.issue.user.login, '[bot]')
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check for duplicate issues
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const newIssue = context.payload.issue;
+            const newNum   = newIssue.number;
+            const newTitle = (newIssue.title || '').toLowerCase().trim();
+            const newBody  = (newIssue.body  || '').toLowerCase();
+
+            // ── Tokenizer ──────────────────────────────────────────────────────
+            const STOP_WORDS = new Set(['a','an','the','is','it','in','on','at','to','for',
+              'of','and','or','but','not','be','this','that','was','are','with','as','by',
+              'from','have','has','do','will','can','i','we','you','he','she','they','my',
+              'your','our','its','be','been','being','had','did','does','do','if','so']);
+
+            function tokenize(text) {
+              return text.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, ' ')
+                .split(/\s+/)
+                .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+            }
+
+            const newTitleTokens = new Set(tokenize(newTitle));
+            const newBodyTokens  = new Set(tokenize(newBody.substring(0, 500)));
+
+            // ── Ensure label exists ────────────────────────────────────────────
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: 'possible-duplicate' });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name: 'possible-duplicate',
+                  color: 'cfd3d7',
+                  description: 'Possibly a duplicate of an existing issue',
+                });
+              }
+            }
+
+            // ── Fetch existing open issues ────────────────────────────────────
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', per_page: 100,
+            });
+
+            const duplicates = [];
+
+            for (const issue of existing) {
+              if (issue.number === newNum) continue;
+              if (issue.pull_request) continue;
+
+              const title   = (issue.title || '').toLowerCase();
+              const tokens  = new Set(tokenize(title));
+
+              // Compute overlap: how many new title words appear in existing title
+              let overlap = 0;
+              for (const t of newTitleTokens) {
+                if (tokens.has(t)) overlap++;
+              }
+
+              // Also check body tokens against existing title
+              let bodyOverlap = 0;
+              for (const t of newBodyTokens) {
+                if (tokens.has(t)) bodyOverlap++;
+              }
+
+              const titleScore = newTitleTokens.size > 0
+                ? (overlap / newTitleTokens.size) * 100
+                : 0;
+              const bodyScore = tokens.size > 0
+                ? (bodyOverlap / tokens.size) * 100
+                : 0;
+              const score = Math.max(titleScore, bodyScore);
+
+              if (score >= 60) {
+                duplicates.push({ number: issue.number, title: issue.title, score: Math.round(score) });
+              }
+            }
+
+            if (duplicates.length === 0) {
+              console.log(`✅ Issue #${newNum} — no duplicates found`);
+              return;
+            }
+
+            // ── Apply label and post comment ───────────────────────────────────
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number: newNum, labels: ['possible-duplicate'],
+            });
+
+            const dupeList = duplicates
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 5)
+              .map(d => `- #${d.number}: **${d.title}** *(${d.score}% similarity)*`)
+              .join('\n');
+
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: newNum,
+              body: [
+                `## 🔍 Possible Duplicate Detected`,
+                ``,
+                `Hey @${newIssue.user.login}! This issue may be similar to existing ones:`,
+                ``,
+                dupeList,
+                ``,
+                `**Please check these issues before proceeding.** If this is indeed a duplicate, please close this issue and continue the discussion in the original.`,
+                ``,
+                `If this is NOT a duplicate, a maintainer will remove the \`possible-duplicate\` label.`,
+                ``,
+                `_GSSoC'26 automation · Mentor: [@Ayushh-Sharmaa](https://github.com/Ayushh-Sharmaa)_`,
+              ].join('\n'),
+            });
+            console.log(`🔍 Issue #${newNum} — flagged ${duplicates.length} possible duplicate(s)`);

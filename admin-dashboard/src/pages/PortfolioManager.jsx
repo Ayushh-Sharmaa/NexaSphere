@@ -139,8 +139,6 @@ export function PortfolioManager() {
         />
         <button type="submit" className="btn-primary" disabled={loading}>
           {loading ? 'Searching…' : 'Search'}
-        <button type="submit" className="btn-primary">
-          Search
         </button>
         {searchQuery && (
           <button
@@ -380,8 +378,6 @@ export function PortfolioManager() {
                   disabled={awarding}
                 >
                   {awarding ? 'Awarding…' : 'Award'}
-                <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start' }}>
-                  Award
                 </button>
               </form>
             </div>

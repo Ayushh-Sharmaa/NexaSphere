@@ -141,10 +141,7 @@ test('envelope carries through page and limit unchanged', () => {
   assert.equal(env.page, 3);
   assert.equal(env.limit, 15);
   assert.equal(env.total, 60);
-import assert from "node:assert/strict";
-import test from "node:test";
 
-import { paginationSchema } from '../validators/eventSchemas.js';
 
 // ---------------------------------------------------------------------------
 // paginationSchema — validates and clamps ?page and ?limit query parameters
@@ -308,3 +305,6 @@ test('supabasePaginatedRequest falls back to rows.length when header is absent',
   assert.equal(parseTotalFromHeader(null, 3), 3);
   assert.equal(parseTotalFromHeader('0-4/20', 5), 20);
 });
+
+}
+);

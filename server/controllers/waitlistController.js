@@ -6,11 +6,6 @@ export const joinWaitlist = async (req, res) => {
     const result = await waitlistService.joinWaitlist(req.body);
 
     return sendSuccess(res, {
-    return res.status(200).json({
-      success: true,
-      message: "User added to waitlist successfully.",
-      message: 'User added to waitlist successfully.',
-      data: result,
     });
   } catch (err) {
     console.error(err);
@@ -31,9 +26,6 @@ export const getPosition = async (req, res) => {
     const position = await waitlistService.getPosition(eventId, userId);
 
     return sendSuccess(res, {
-    return res.json({
-      success: true,
-      data: position,
     });
   } catch (err) {
     console.error(err);
@@ -54,11 +46,6 @@ export const autoEnroll = async (req, res) => {
     const enrolled = await waitlistService.autoEnroll(eventId);
 
     return sendSuccess(res, {
-    return res.json({
-      success: true,
-      message: "Auto-enrollment completed.",
-      message: 'Auto-enrollment completed.',
-      data: enrolled,
     });
   } catch (err) {
     console.error(err);
@@ -77,10 +64,6 @@ export const getNotifications = async (req, res) => {
     const notifications = await waitlistService.notifications();
 
     return sendSuccess(res, {
-    return res.json({
-      success: true,
-      total: notifications.length,
-      data: notifications,
     });
   } catch (err) {
     console.error(err);
@@ -99,9 +82,6 @@ export const getAnalytics = async (req, res) => {
     const analytics = await waitlistService.analytics();
 
     return sendSuccess(res, {
-    return res.json({
-      success: true,
-      data: analytics,
     });
   } catch (err) {
     console.error(err);
@@ -122,11 +102,6 @@ export const setDeadline = async (req, res) => {
     const result = await waitlistService.setDeadline(eventId, deadline);
 
     return sendSuccess(res, {
-    return res.json({
-      success: true,
-      message: "Registration deadline updated.",
-      message: 'Registration deadline updated.',
-      data: result,
     });
   } catch (err) {
     console.error(err);
@@ -174,11 +149,5 @@ export const manuallyPromote = async (req, res) => {
   } catch (err) {
     console.error(err);
     return sendError(req, res, 'Failed to promote user from waitlist.', 500, 'INTERNAL_ERROR');
-  }
-};
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update registration deadline.",
-    });
   }
 };

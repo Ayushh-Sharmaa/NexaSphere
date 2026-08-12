@@ -3,7 +3,7 @@
  * Displays registration trends over time using Recharts
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -17,9 +17,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { Skeleton } from './Skeleton';
-import analyticsAPI from '../services/analyticsAPI.js';
+} from "recharts";
+import { Skeleton } from "./Skeleton";
+import analyticsAPI from "../services/analyticsAPI.js";
 
 export default function RegistrationTrendsChart({
   eventId,
@@ -29,9 +29,9 @@ export default function RegistrationTrendsChart({
 }) {
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState(data);
-  const [chartType, setChartType] = useState('line');
+  const [chartType, setChartType] = useState("line");
 
-  const timeWindows = ['1 day', '7 days', '30 days'];
+  const timeWindows = ["1 day", "7 days", "30 days"];
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -42,11 +42,14 @@ export default function RegistrationTrendsChart({
   const handleTimeWindowChange = async (newWindow) => {
     setLoading(true);
     try {
-      const trends = await analyticsAPI.getRegistrationTrends(eventId, newWindow);
+      const trends = await analyticsAPI.getRegistrationTrends(
+        eventId,
+        newWindow
+      );
       setChartData(trends);
       onTimeWindowChange(newWindow);
     } catch (err) {
-      console.error('Failed to fetch trends:', err);
+      console.error("Failed to fetch trends:", err);
     } finally {
       setLoading(false);
     }
@@ -77,7 +80,7 @@ export default function RegistrationTrendsChart({
             {timeWindows.map((window) => (
               <button
                 key={window}
-                className={`time-btn ${selectedTimeWindow === window ? 'active' : ''}`}
+                className={`time-btn ${selectedTimeWindow === window ? "active" : ""}`}
                 onClick={() => handleTimeWindowChange(window)}
                 disabled={loading}
               >
@@ -87,7 +90,10 @@ export default function RegistrationTrendsChart({
           </div>
           <div className="chart-type-selector">
             <label>Chart Type:</label>
-            <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
+            <select
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value)}
+            >
               <option value="line">Line Chart</option>
               <option value="area">Area Chart</option>
               <option value="bar">Bar Chart</option>
@@ -97,12 +103,12 @@ export default function RegistrationTrendsChart({
       </div>
 
       {loading ? (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: "20px" }}>
           <Skeleton height={350} />
         </div>
       ) : chartData && chartData.length > 0 ? (
         <ResponsiveContainer width="100%" height={350}>
-          {chartType === 'line' && (
+          {chartType === "line" && (
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
@@ -128,7 +134,7 @@ export default function RegistrationTrendsChart({
             </LineChart>
           )}
 
-          {chartType === 'area' && (
+          {chartType === "area" && (
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
@@ -150,7 +156,7 @@ export default function RegistrationTrendsChart({
             </AreaChart>
           )}
 
-          {chartType === 'bar' && (
+          {chartType === "bar" && (
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />

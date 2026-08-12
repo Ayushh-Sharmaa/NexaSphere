@@ -15,7 +15,6 @@ export const coreTeamRepository = {
       const { rows } = await client.query(
         'select id, name, email, phone, created_at from core_team_members order by created_at desc'
       );
-      const { rows } = await client.query('select id, name, email, phone, created_at from core_team_members order by created_at desc');
       await setCache(cacheKey, rows);
       return rows;
     });

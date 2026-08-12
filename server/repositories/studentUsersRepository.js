@@ -1,4 +1,4 @@
-﻿import { promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { withDb } from './db.js';
@@ -29,8 +29,6 @@ async function writeLocalSlackSettings(data) {
   await fs.writeFile(SLACK_STUDENTS_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
-import { withDb } from './db.js';
-import { HAS_SUPABASE } from '../storage/supabaseClient.js';
 
 export const studentUsersRepository = {
   async ensureSchema() {
@@ -153,18 +151,6 @@ export const studentUsersRepository = {
         }
       }
 
-      const { rows } = await client.query(
-        `INSERT INTO student_users (provider, provider_id, email, full_name, avatar_url, last_login_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-         ON CONFLICT (provider, provider_id) DO UPDATE SET
-           email = EXCLUDED.email,
-           full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), student_users.full_name),
-           avatar_url = COALESCE(NULLIF(EXCLUDED.avatar_url, ''), student_users.avatar_url),
-           last_login_at = NOW(),
-           updated_at = NOW()
-         RETURNING *`,
-        [provider, providerId, email, fullName || null, avatarUrl || null]
-      );
       return rows[0];
     });
   },
@@ -231,7 +217,6 @@ export const studentUsersRepository = {
         'SELECT xp, level, badges FROM student_users WHERE id = $1',
         [userId]
       );
-      const userRes = await client.query('SELECT xp, level, badges FROM student_users WHERE id = $1', [userId]);
       if (userRes.rows.length === 0) return null;
 
       const currentXP = userRes.rows[0].xp || 0;
@@ -302,6 +287,7 @@ export const studentUsersRepository = {
       );
       return rows[0] || null;
     });
+  },
 
   async updateProfile(id, updates) {
     if (!HAS_SUPABASE) return null;
@@ -335,48 +321,6 @@ export const studentUsersRepository = {
         const { rows } = await client.query('SELECT * FROM student_users WHERE id = $1 LIMIT 1', [
           id,
         ]);
-        return rows[0] || null;
-      }
-
-      setClauses.push(`updated_at = NOW()`);
-      values.push(id);
-
-      const { rows } = await client.query(
-        `UPDATE student_users SET ${setClauses.join(', ')} WHERE id = $${idx} RETURNING *`,
-        values
-      );
-      return rows[0] || null;
-    });
-  },
-
-  async updateProfile(id, updates) {
-    if (!HAS_SUPABASE) return null;
-    return withDb(async (client) => {
-      const setClauses = [];
-      const values = [];
-      let idx = 1;
-
-      if (updates.full_name !== undefined) {
-        setClauses.push(`full_name = $${idx++}`);
-        values.push(updates.full_name);
-      }
-      if (updates.bio !== undefined) {
-        setClauses.push(`bio = $${idx++}`);
-        values.push(updates.bio);
-      }
-      if (updates.social_links !== undefined) {
-        setClauses.push(`social_links = $${idx++}::jsonb`);
-        values.push(
-          typeof updates.social_links === 'string'
-            ? updates.social_links
-            : JSON.stringify(updates.social_links)
-        );
-      }
-
-      if (setClauses.length === 0) {
-        const { rows } = await client.query(
-          'SELECT * FROM student_users WHERE id = $1 LIMIT 1', [id]
-        );
         return rows[0] || null;
       }
 

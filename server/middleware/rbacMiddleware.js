@@ -13,7 +13,6 @@ export function requirePermission(requiredPermissions, options = {}) {
     : [requiredPermissions];
 
   return async (req, res, next) => {
-    req.requiredPermission = permissions;
     if (!req.adminSession) {
       return res.status(401).json({ error: 'Unauthorized: No session found' });
     }

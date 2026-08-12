@@ -34,12 +34,12 @@ Under no circumstances should any credentials be committed to this repository. T
 - **OAuth tokens** or refresh tokens
 - **SSH keys** or private certificates
 - **Email addresses linked to real accounts** (use placeholder test emails like `test@example.com`)
-*   **Passwords** for admin accounts, test accounts, or service accounts
-*   **API Keys** for third-party services (SendGrid, Stripe, AWS, etc.)
-*   **Database connection strings** with embedded passwords
-*   **OAuth tokens** or refresh tokens
-*   **SSH keys** or private certificates
-*   **Email addresses linked to real accounts** (use placeholder test emails like `test@example.com`)
+- **Passwords** for admin accounts, test accounts, or service accounts
+- **API Keys** for third-party services (SendGrid, Stripe, AWS, etc.)
+- **Database connection strings** with embedded passwords
+- **OAuth tokens** or refresh tokens
+- **SSH keys** or private certificates
+- **Email addresses linked to real accounts** (use placeholder test emails like `test@example.com`)
 
 **Credential exposure is a critical security vulnerability** that puts the entire platform at risk. Even "test" or "demo" credentials must never be hardcoded in public repositories.
 
@@ -117,11 +117,12 @@ For clarity and to prevent accidental exposure, follow this naming convention:
 
 Example:
 
-*   **Public configuration**: `VITE_*` (safe to be visible in client bundles)
-*   **Server secrets**: `*_SECRET`, `*_KEY`, `*_PASSWORD`, `*_TOKEN` (strictly server-side only)
-*   **Database credentials**: `DB_HOST`, `DB_USER`, `DB_PASSWORD` (keep private)
+- **Public configuration**: `VITE_*` (safe to be visible in client bundles)
+- **Server secrets**: `*_SECRET`, `*_KEY`, `*_PASSWORD`, `*_TOKEN` (strictly server-side only)
+- **Database credentials**: `DB_HOST`, `DB_USER`, `DB_PASSWORD` (keep private)
 
 Example:
+
 ```env
 # Safe for frontend
 VITE_API_URL=https://api.example.com
@@ -483,27 +484,31 @@ Reviews are assessed based on:
 
 Thank you again for your incredible support in building NexaSphere! Together, we are creating a fantastic tech community platform. If you have any questions or need guidance, feel free to drop a message on the issue thread or connect with the maintainers. Let's write some great code! 🚀
 Thank you for contributing to NexaSphere and helping make it better for the community! 🚀
+
 1. Prefer small, readable functions.
 2. Remove dead code and stale config files when they are no longer needed.
 3. Update documentation alongside behavior changes.
+
 ## Code Formatting
+
 - JavaScript/TypeScript: Prettier (2 spaces)
 - Python: Black (4 spaces)
 - Java: EditorConfig (4 spaces)
-
-
 
 ## Security Contributions
 
 Security improvements are highly valued. Before contributing security-related changes:
 
 ### Reporting Vulnerabilities
+
 - **Do NOT** open public issues for security vulnerabilities
 - Use GitHub's private vulnerability reporting (Security tab) or email the maintainers
 - See [SECURITY.md](./SECURITY.md) for full reporting guidelines
 
 ### Security PR Guidelines
+
 When submitting a security fix:
+
 1. Reference the private advisory or issue number in your PR description
 2. Keep the scope minimal — fix only the specific vulnerability
 3. Add or update tests that cover the vulnerability
@@ -511,6 +516,7 @@ When submitting a security fix:
 5. Do not include exploit code or PoCs in public PRs
 
 ### What We Welcome
+
 - Input validation improvements
 - Authentication and authorization fixes
 - Dependency updates to patch known CVEs

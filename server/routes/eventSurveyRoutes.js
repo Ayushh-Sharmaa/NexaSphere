@@ -17,11 +17,7 @@ router.post(
   adminAuditMiddleware
 );
 
-router.post(
-  '/responses',
-  authMiddleware.requireUser,
-  eventSurveyController.submitResponse
-);
+router.post('/responses', authMiddleware.requireUser, eventSurveyController.submitResponse);
 
 router.get(
   '/analytics',

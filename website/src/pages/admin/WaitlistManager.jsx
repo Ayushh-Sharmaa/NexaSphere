@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
+const getToken = () => {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('token') || '';
+};
+
 export default function WaitlistManager() {
   const [eventId, setEventId] = useState('');
   const [waitlist, setWaitlist] = useState([]);
@@ -12,19 +17,19 @@ export default function WaitlistManager() {
     setLoading(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
       const res = await fetch(`/api/admin/waitlist/event/${eventId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Failed to fetch waitlist');
       }
-      
+
       setWaitlist(data.data || []);
     } catch (err) {
       setError(err.message);
@@ -37,22 +42,22 @@ export default function WaitlistManager() {
     setLoading(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
       const res = await fetch(`/api/admin/waitlist/event/${eventId}/promote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Failed to promote user');
       }
-      
+
       setSuccess('User successfully promoted to attendee.');
       fetchWaitlist();
     } catch (err) {
@@ -65,16 +70,16 @@ export default function WaitlistManager() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Waitlist Management</h2>
-      
+
       <div className="flex space-x-2 mb-6">
-        <input 
+        <input
           type="text"
           value={eventId}
           onChange={(e) => setEventId(e.target.value)}
           placeholder="Enter Event ID"
           className="px-4 py-2 border rounded-lg flex-1"
         />
-        <button 
+        <button
           onClick={fetchWaitlist}
           disabled={loading || !eventId}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"

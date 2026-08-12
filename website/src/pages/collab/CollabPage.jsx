@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getApiBase } from '../../utils/apiClient';
+
+const mockTeams = [];
 
 export default function CollabPage({ onBack }) {
-  const [activeTab, setActiveTab] = useState('find-team'); // 'find-team', 'skill-swap'
+  const [activeTab, setActiveTab] = useState('find-team');
   const [teams, setTeams] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [isDemo, setIsDemo] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   useEffect(() => {
-    const teamsUrl = buildUrl(getApiBase(), '/api/collab/teams');
+    const base = getApiBase();
+    const teamsUrl = base ? `${base}/api/collab/teams` : null;
     if (!teamsUrl) {
       setTeams(mockTeams);
       setIsDemo(true);
@@ -31,18 +41,21 @@ export default function CollabPage({ onBack }) {
       })
       .finally(() => setLoading(false));
   }, []);
+
   useEffect(() => {
     if (activeTab !== 'find-team') {
       setSearch('');
     }
   }, [activeTab]);
+
   const handleJoinSubmit = async (requestData) => {
     if (isDemo) {
-      alert('Demo mode: Join requests are disabled.');
+      showFeedback('Demo mode: Join requests are disabled.', 'error');
       return;
     }
 
-    const requestsUrl = buildUrl(getApiBase(), '/api/collab/requests');
+    const base = getApiBase();
+    const requestsUrl = base ? `${base}/api/collab/requests` : null;
     if (!requestsUrl) return;
 
     await fetch(requestsUrl, {
@@ -60,15 +73,6 @@ export default function CollabPage({ onBack }) {
   );
 
   return (
-    <div className="collab-page" style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Collaboration</h1>
-      <p>Collaborative workspace features coming soon.</p>
-      {onBack && (
-        <button onClick={onBack} className="btn btn-secondary" style={{ marginTop: '1rem' }}>
-          ← Back
-        </button>
-      )}
-  return (
     <div
       style={{
         padding: '3rem 2rem',
@@ -79,24 +83,50 @@ export default function CollabPage({ onBack }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        <button
-          onClick={onBack}
-          style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: 'var(--text-muted, #999)',
-            padding: '0.6rem 1.2rem',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            transition: 'all 0.2s',
-          }}
-        >
-          ← Back
-        </button>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-muted, #999)',
+              padding: '0.6rem 1.2rem',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              transition: 'all 0.2s',
+            }}
+          >
+            ← Back
+          </button>
+        )}
       </div>
 
       <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
+      {feedback && (
+        <div
+          role="status"
+          style={{
+            maxWidth: '600px',
+            margin: '0 auto 1.5rem auto',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            backgroundColor:
+              feedback.type === 'error'
+                ? 'rgba(239, 68, 68, 0.15)'
+                : 'rgba(16, 185, 129, 0.15)',
+            color: feedback.type === 'error' ? '#f87171' : '#34d399',
+            border: `1px solid ${
+              feedback.type === 'error' ? '#ef4444' : '#10b981'
+            }`,
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            textAlign: 'center',
+          }}
+        >
+          {feedback.message}
+        </div>
+      )}
         <h1
           style={{
             fontSize: '2.5rem',
@@ -122,55 +152,8 @@ export default function CollabPage({ onBack }) {
           marginTop: '2rem',
         }}
       >
-        {/* Card 1 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>👥 Team Formation</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Find partners matching your skillset or search for projects looking for contributors.
-          </p>
-        </div>
-
-        {/* Card 2 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>⚡ Real-time Workspace</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Launch shared editor instances with CRDT-backed real-time document syncing.
-          </p>
-        </div>
-
-        {/* Card 3 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '24px',
-            padding: '2rem',
-            transition: 'transform 0.2s',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>🎨 Live Whiteboard</h3>
-          <p style={{ color: '#888', lineHeight: '1.6' }}>
-            Brainstorm visually with teams using our integrated, collaborative sketching canvases.
-          </p>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <TeamChat teamId="global-collab" user={user || { id: 'test-user', name: 'Developer' }} />
         </div>
       </div>
     </div>

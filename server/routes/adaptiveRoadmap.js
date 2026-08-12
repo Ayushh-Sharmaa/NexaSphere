@@ -1,7 +1,10 @@
 import express from "express";
 import crypto from "crypto";
+import { requireStudentAuth } from "../middleware/studentAuthMiddleware.js";
 
 const router = express.Router();
+
+router.use(requireStudentAuth);
 
 /**
  * Endpoint to generate adaptive nodes based on resume gaps,
