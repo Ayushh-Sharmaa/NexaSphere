@@ -12,6 +12,7 @@
  */
 
 import { jwtDecode } from "jwt-decode";
+import { TOKEN_KEY, CSRF_TOKEN_KEY } from "../constants/authConstants";
 
 let _logoutTimer = null;
 let _refreshTimer = null;
@@ -158,8 +159,13 @@ export function clearAutoRefreshTimer() {
  * for new code. Use server-side session validation instead.
  */
 export function getToken() {
-  // For backward compatibility, try to get from cookie
-  const match = document.cookie.match(/(?:^|;\s*)ns_admin_token=([^;]*)/);
+  // Prefer localStorage (same key as services/auth.js), then cookie fallback
+  const fromStorage = localStorage.getItem(TOKEN_KEY);
+  if (fromStorage) return fromStorage;
+
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${TOKEN_KEY}=([^;]*)`)
+  );
   return match ? decodeURIComponent(match[1]) : null;
 }
 
@@ -168,9 +174,8 @@ export function getToken() {
  * Note: HttpOnly cookies are cleared server-side
  */
 export function removeToken() {
-  // Clear any localStorage fallbacks (deprecated)
-  localStorage.removeItem("ns_admin_token");
-  localStorage.removeItem("ns_csrf_token");
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(CSRF_TOKEN_KEY);
   sessionStorage.removeItem(SESSION_FINGERPRINT_KEY);
 }
 
@@ -178,8 +183,12 @@ export function removeToken() {
  * Get CSRF token from cookie or meta tag
  */
 export function getCsrfToken() {
-  // Try to get from cookie first
-  const match = document.cookie.match(/(?:^|;\s*)ns_csrf_token=([^;]*)/);
+  const fromStorage = localStorage.getItem(CSRF_TOKEN_KEY);
+  if (fromStorage) return fromStorage;
+
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${CSRF_TOKEN_KEY}=([^;]*)`)
+  );
   if (match) return decodeURIComponent(match[1]);
 
   // Fallback to meta tag
