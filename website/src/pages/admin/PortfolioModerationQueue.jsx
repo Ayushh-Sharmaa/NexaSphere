@@ -4,6 +4,12 @@ export default function PortfolioModerationQueue({ token }) {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   const [rejectReason, setRejectReason] = useState('');
   const [activeReject, setActiveReject] = useState(null);
 
@@ -54,7 +60,7 @@ export default function PortfolioModerationQueue({ token }) {
       }
     } catch (err) {
       console.error(err);
-      alert('An error occurred');
+      showFeedback('An error occurred', 'error');
     } finally {
       setActionLoading(null);
     }
