@@ -48,127 +48,91 @@ export const eventsRepository = {
     location,
     search,
   } = {}) {
-    // Returns { rows, total } — rows are the current page, total is the full
-    // count without LIMIT so callers can build pagination metadata.
-    const cacheKey = `events:list:${page}:${limit}`;
+  // Returns { rows, total } — rows are the current page, total is the full
+  // count without LIMIT so callers can build pagination metadata.
+    const groupsKey = studentGroups === undefined ? 'public' : [...studentGroups].sort().join(',');
+    const cacheKey = `events:list:${page}:${limit}:${status ?? ''}:${startDate ?? ''}:${endDate ?? ''}:${category ?? ''}:${location ?? ''}:${search ?? ''}:${groupsKey}`;
     const cached = await getCache(cacheKey);
     if (cached) return cached;
 
     return withDb(async (client) => {
       const offset = (page - 1) * limit;
 
-      // Fix: If an empty page is returned (e.g. page out of bounds), fall back to a quick count
-      const { rows } = await client.query(
-        `select *, count(*) over()::int as total 
-         from events 
-         order by created_at desc 
-         limit $1 offset $2`,
-        [limit, offset],
-        "select * from events order by created_at desc limit $1 offset $2",
-        [limit, offset]
-      );
+      let selectClause = 'select *, count(*) over()::int as total from events';
+      const params = [];
+      const conditions = [];
 
-      const total = rows.length > 0 ? rows[0].total : 0;
-      return { rows: rows.map(mapRow), total };
-      const countResult = await client.query(
-        "select count(*)::int as total from events"
-      );
+      if (status) {
+        conditions.push(`status = $${params.length + 1}`);
+        params.push(status);
+      }
+
+      if (category) {
+        conditions.push(`LOWER(array_to_string(tags, ',')) LIKE LOWER($${params.length + 1})`);
+        params.push(`%${category}%`);
+      }
+
+      if (location) {
+        conditions.push(`LOWER(description) LIKE LOWER($${params.length + 1})`);
+        params.push(`%${location}%`);
+      }
+
+      if (search) {
+        conditions.push(
+          `(LOWER(name) LIKE LOWER($${params.length + 1})
+      OR LOWER(description) LIKE LOWER($${params.length + 2}))`
+        );
+        params.push(`%${search}%`);
+        params.push(`%${search}%`);
+      }
+
+      if (startDate) {
+        conditions.push(`date_text >= $${params.length + 1}`);
+        params.push(startDate);
+      }
+
+      if (endDate) {
+        conditions.push(`date_text <= $${params.length + 1}`);
+        params.push(endDate);
+      }
+
+      if (studentGroups === undefined) {
+        // No groups provided — only show public events
+        conditions.push(`(restricted_groups IS NULL OR jsonb_array_length(restricted_groups) = 0 OR restricted_groups = '[]'::jsonb)`);
+      } else {
+        // Show public events OR events where restricted_groups overlaps with studentGroups
+        conditions.push(
+          `(restricted_groups IS NULL OR jsonb_array_length(restricted_groups) = 0 OR restricted_groups = '[]'::jsonb OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(restricted_groups) AS g WHERE g = ANY($${params.length + 1})))`
+        );
+        params.push(studentGroups.length > 0 ? studentGroups : ['-1']);
+      }
+
+      if (conditions.length > 0) {
+        selectClause += ' where ' + conditions.join(' and ');
+      }
+
+      selectClause += ` order by created_at desc limit $${params.length + 1} offset $${params.length + 2}`;
+      params.push(limit, offset);
+
+      const { rows } = await client.query(selectClause, params);
+
+      let total;
+      if (rows.length > 0) {
+        total = rows[0].total;
+      } else {
+        // Fallback count query only if offset was beyond actual table bounds
+        let countQuery = 'select count(*)::int as total from events';
+        const countParams = params.slice(0, params.length - 2);
+        if (conditions.length > 0) {
+          countQuery += ' where ' + conditions.join(' and ');
+        }
+        const countResult = await client.query(countQuery, countParams);
+        total = countResult.rows[0]?.total ?? 0;
+      }
+
       const result = { rows: rows.map(mapRow), total };
       await setCache(cacheKey, result);
       return result;
-
-      try {
-        const offset = (page - 1) * limit;
-
-        let query = "select * from events ";
-        const params = [];
-        let conditions = [];
-
-        if (status) {
-          conditions.push(`status = $${params.length + 1}`);
-          params.push(status);
-        }
-
-        if (category) {
-          conditions.push(
-            `LOWER(array_to_string(tags, ',')) LIKE LOWER($${params.length + 1})`
-          );
-          params.push(`%${category}%`);
-        }
-
-        if (location) {
-          conditions.push(
-            `LOWER(description) LIKE LOWER($${params.length + 1})`
-          );
-          params.push(`%${location}%`);
-        }
-
-        if (search) {
-          conditions.push(
-            `(LOWER(name) LIKE LOWER($${params.length + 1})
-      OR LOWER(description) LIKE LOWER($${params.length + 2}))`
-          );
-
-          params.push(`%${search}%`);
-          params.push(`%${search}%`);
-        }
-
-        if (startDate) {
-          conditions.push(`date_text >= $${params.length + 1}`);
-          params.push(startDate);
-        }
-
-        if (endDate) {
-          conditions.push(`date_text <= $${params.length + 1}`);
-          params.push(endDate);
-        }
-
-        if (studentGroups === undefined) {
-          // If no groups provided, only show public events
-          conditions.push(
-            `(restricted_groups IS NULL OR jsonb_array_length(restricted_groups) = 0 OR restricted_groups = '[]'::jsonb)`
-          );
-        } else {
-          // Show public events OR events where restricted_groups overlaps with studentGroups
-          const groupArray = studentGroups.length
-            ? studentGroups.map((id) => `'${id}'`).join(",")
-            : "'-1'"; // -1 to match nothing
-          conditions.push(
-            `(restricted_groups IS NULL OR jsonb_array_length(restricted_groups) = 0 OR restricted_groups = '[]'::jsonb OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(restricted_groups) AS g WHERE g IN (${groupArray})))`
-          );
-          conditions.push(
-            `(restricted_groups IS NULL OR jsonb_array_length(restricted_groups) = 0 OR restricted_groups = '[]'::jsonb OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(restricted_groups) AS g WHERE g = ANY($${params.length + 1})))`
-          );
-          params.push(studentGroups.length > 0 ? studentGroups : ["-1"]);
-        }
-
-        if (conditions.length > 0) {
-          query += " where " + conditions.join(" and ");
-        }
-
-        query += ` order by created_at desc limit $${params.length + 1} offset $${params.length + 2}`;
-        params.push(limit, offset);
-
-        const { rows } = await client.query(query, params);
-
-        const countQuery =
-          "select count(*)::int as total from events " +
-          (conditions.length > 0 ? " where " + conditions.join(" and ") : "");
-        const countResult = await client.query(countQuery);
-        const countParams = params.slice(0, params.length - 2);
-
-        const total = countResult.rows[0]?.total ?? 0;
-
-        await client.query("COMMIT");
-
-        return {
-          rows: rows.map(mapRow),
-          total,
-        };
-      } catch (e) {
-        await client.query("ROLLBACK");
-        throw e;
-      }
     });
   },
 
