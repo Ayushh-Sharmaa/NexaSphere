@@ -964,6 +964,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     }
   };
 
+  const status = event.status === 'completed' ? 'completed' : (event.status === 'upcoming' || event.status === 'registration_open') ? 'upcoming' : event.status;
   const isUpcoming = event.status === 'upcoming' || event.status === 'registration_open';
   const eventEnd = event.endDate ?? event.startDate ?? event.date;
   const isInFuture = eventEnd ? new Date(eventEnd) > new Date() : isUpcoming;
