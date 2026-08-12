@@ -98,7 +98,17 @@ function RequireAuth() {
   return isVerified ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
+
 function DashboardLayout() {
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = React.useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = React.useState(false);
+
+  useAdminShortcuts({
+    onOpenCommandMenu: () => setIsCommandMenuOpen(true),
+    onToggleShortcutsHelp: () => setIsShortcutsHelpOpen(prev => !prev),
+  });
+
+
   return (
     <div className="app-layout">
       <OfflineBanner />
@@ -130,6 +140,8 @@ function DashboardLayout() {
       <MobileBottomNav />
       <Toast />
       <OnboardingTour />
+      <CommandMenu isOpen={isCommandMenuOpen} onClose={() => setIsCommandMenuOpen(false)} />
+      <CommandMenu isOpen={isShortcutsHelpOpen} onClose={() => setIsShortcutsHelpOpen(false)} isHelpMode={true} />
     </div>
   );
 }

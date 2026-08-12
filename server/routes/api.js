@@ -1,3 +1,4 @@
+import adminSearchRoutes from './adminSearchRoutes.js';
 import { Router } from 'express';
 import hashtagsRouter from './hashtags.js';
 import { throttleMiddleware } from '../middleware/throttleMiddleware.js';
