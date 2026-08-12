@@ -51,7 +51,6 @@ export async function supabasePaginatedRequest(pathname, page, limit) {
       rows = [];
     }
   }
-  const rows = text ? JSON.parse(text) : [];
   // Content-Range format from PostgREST: "0-19/150" or "*/0" when empty
   const contentRange = res.headers.get("content-range") || "";
   const totalMatch = contentRange.match(/\/(\d+)$/);
