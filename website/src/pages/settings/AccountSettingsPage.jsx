@@ -111,6 +111,11 @@ export default function AccountSettingsPage() {
   };
   const navigate = useNavigate();
 
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
   const handleExport = async () => {
     try {
       setExporting(true);
@@ -183,6 +188,42 @@ export default function AccountSettingsPage() {
         )}
 
         <h1 style={styles.header}>Account Settings</h1>
+
+        {notification && (
+          <div
+            role="alert"
+            style={{
+              padding: '1rem 1.25rem',
+              borderRadius: '8px',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              background: notification.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+              border: `1px solid ${notification.type === 'error' ? '#ef4444' : '#22c55e'}`,
+              color: notification.type === 'error' ? '#fca5a5' : '#86efac',
+              fontSize: '0.95rem',
+              fontWeight: '500',
+            }}
+          >
+            <span>{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                marginLeft: 'auto',
+                fontSize: '1.1rem',
+                padding: '0 0.5rem',
+              }}
+              aria-label="Dismiss notification"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>Export My Data</h2>
