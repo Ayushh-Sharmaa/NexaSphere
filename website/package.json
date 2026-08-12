@@ -86,7 +86,7 @@
     "typescript-eslint": "^8.66.0",
     "vite": "^8.2.1",
     "vite-plugin-pwa": "^1.3.0",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.10",
     "workbox-background-sync": "^7.4.1",
     "workbox-cacheable-response": "^7.4.1",
     "workbox-core": "^7.4.1",
