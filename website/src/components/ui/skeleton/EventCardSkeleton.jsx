@@ -62,7 +62,7 @@ export function EventCardSkeleton({ count = 4 }) {
             {/* Description lines */}
             {[85, 75, 55].map((w, li) => (
               <div
-                key={li}
+                key={`desc-line-${li}`}
                 className="skeleton-pulse"
                 style={{
                   height: '11px',
