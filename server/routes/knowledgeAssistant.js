@@ -5,6 +5,8 @@ const { requireAdmin } = require("../middleware/adminAuthMiddleware");
 
 const knowledgeAssistantController = require("../controllers/knowledgeAssistantController");
 
+router.use(requireStudentAuth);
+
 // AI Assistant
 router.post("/query", requireStudentAuth, knowledgeAssistantController.askQuestion);
 
