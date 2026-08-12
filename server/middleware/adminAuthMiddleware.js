@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 import {
   createAdminSession,
   getAdminSession,
@@ -7,7 +7,7 @@ import {
   revokeAdminSessionById,
   revokeOtherAdminSessions,
   startAdminSessionCleanup,
-} from '../repositories/adminSessionsRepository.js';
+} from "../repositories/adminSessionsRepository.js";
 import {
   assessSuspiciousLogin,
   describeDevice,
@@ -18,25 +18,26 @@ import {
   listAdminLoginHistory,
   recordAdminLoginAttempt,
   verifyAndConsumeBackupCode,
-} from '../repositories/adminSecurityRepository.js';
+} from "../repositories/adminSecurityRepository.js";
 import {
   buildOtpAuthUrl,
   generateBackupCodes,
   generateTotpSecret,
   verifyTotpCode,
-} from '../utils/adminTotp.js';
-import { getRedisClient } from '../utils/redis.js';
-import QRCode from 'qrcode';
-import { getScopesForRole } from '../config/rbac.js';
-import logger from '../utils/logger.js';
-import { sendEmail } from '../services/emailService.js';
+} from "../utils/adminTotp.js";
+import { getRedisClient } from "../utils/redis.js";
+import QRCode from "qrcode";
+import { getScopesForRole } from "../config/rbac.js";
+import logger from "../utils/logger.js";
+import { sendEmail } from "../services/emailService.js";
 
 // lgtm[js/weak-cryptographic-algorithm]
 
 function safeEqual(a, b) {
-  if (a === undefined || a === null || b === undefined || b === null) return false;
-  const hashA = crypto.createHash('sha256').update(String(a)).digest();
-  const hashB = crypto.createHash('sha256').update(String(b)).digest();
+  if (a === undefined || a === null || b === undefined || b === null)
+    return false;
+  const hashA = crypto.createHash("sha256").update(String(a)).digest();
+  const hashB = crypto.createHash("sha256").update(String(b)).digest();
   const bufA = Buffer.from(String(a));
   const bufB = Buffer.from(String(b));
 
@@ -49,7 +50,7 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(hashA, hashB);
 }
 
-const ADMIN_USERNAME = requiredEnv('ADMIN_USERNAME');
+const ADMIN_USERNAME = requiredEnv("ADMIN_USERNAME");
 
 let adminUsers = [];
 try {
@@ -58,28 +59,41 @@ try {
   } else {
     adminUsers = [
       {
-        username: requiredEnv('ADMIN_USERNAME'),
-        password: requiredStrongPassword('ADMIN_PASSWORD'),
-        role: 'SuperAdmin',
+        username: requiredEnv("ADMIN_USERNAME"),
+        password: requiredStrongPassword("ADMIN_PASSWORD"),
+        role: "SuperAdmin",
       },
     ];
   }
 } catch (err) {
-  console.error('Failed to parse ADMIN_USERS_JSON', err);
+  console.error("Failed to parse ADMIN_USERS_JSON", err);
   process.exit(1);
 }
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ? String(process.env.ADMIN_PASSWORD_HASH).trim() : null;
-const ADMIN_PASSWORD = ADMIN_PASSWORD_HASH ? null : requiredStrongPassword('ADMIN_PASSWORD');
-const LOGIN_WINDOW_MS = parsePositiveInteger(process.env.ADMIN_LOGIN_WINDOW_MS, 15 * 60 * 1000);
-const LOGIN_MAX_ATTEMPTS = parsePositiveInteger(process.env.ADMIN_LOGIN_MAX_ATTEMPTS, 5);
-const LOGIN_MAX_TRACKED_IPS = parsePositiveInteger(process.env.ADMIN_LOGIN_MAX_TRACKED_IPS, 10000);
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH
+  ? String(process.env.ADMIN_PASSWORD_HASH).trim()
+  : null;
+const ADMIN_PASSWORD = ADMIN_PASSWORD_HASH
+  ? null
+  : requiredStrongPassword("ADMIN_PASSWORD");
+const LOGIN_WINDOW_MS = parsePositiveInteger(
+  process.env.ADMIN_LOGIN_WINDOW_MS,
+  15 * 60 * 1000
+);
+const LOGIN_MAX_ATTEMPTS = parsePositiveInteger(
+  process.env.ADMIN_LOGIN_MAX_ATTEMPTS,
+  5
+);
+const LOGIN_MAX_TRACKED_IPS = parsePositiveInteger(
+  process.env.ADMIN_LOGIN_MAX_TRACKED_IPS,
+  10000
+);
 const LOGIN_CLEANUP_INTERVAL_MS = parsePositiveInteger(
   process.env.ADMIN_LOGIN_CLEANUP_INTERVAL_MS,
   15 * 60 * 1000
 );
 
 const SESSION_TTL_SECONDS = 8 * 60 * 60; // 8 hours — must match Java TokenService.SESSION_TTL
-const REDIS_SESSION_PREFIX = 'session:admin:'; // Shared namespace with Java backend
+const REDIS_SESSION_PREFIX = "session:admin:"; // Shared namespace with Java backend
 
 const loginAttemptsByIp = new Map();
 const pendingTwoFactorSetups = new Map();
@@ -133,9 +147,9 @@ function requiredStrongPassword(name) {
 
 function getClientIp(req) {
   const ip =
-    String(req.ip || req.headers['x-forwarded-for'] || 'unknown')
-      .split(',')[0]
-      .trim() || 'unknown';
+    String(req.ip || req.headers["x-forwarded-for"] || "unknown")
+      .split(",")[0]
+      .trim() || "unknown";
   // Truncate to maximum 128 characters to prevent extremely large malicious headers from causing memory exhaustion
   return ip.slice(0, 128);
 }
@@ -152,12 +166,18 @@ async function recordLoginAttempt(ip) {
       await client.set(key, attempts + 1, { PX: LOGIN_WINDOW_MS });
       return { attempts: attempts + 1 };
     } catch (err) {
-      console.error('[Redis Error] Failed to record login attempt:', err.message);
+      console.error(
+        "[Redis Error] Failed to record login attempt:",
+        err.message
+      );
     }
   }
 
   const now = Date.now();
-  if (loginAttemptsByIp.size >= LOGIN_MAX_TRACKED_IPS && !loginAttemptsByIp.has(ip)) {
+  if (
+    loginAttemptsByIp.size >= LOGIN_MAX_TRACKED_IPS &&
+    !loginAttemptsByIp.has(ip)
+  ) {
     for (const [k, entry] of loginAttemptsByIp.entries()) {
       if (entry.expiresAt <= now) loginAttemptsByIp.delete(k);
     }
@@ -194,7 +214,10 @@ async function getLoginAttemptState(ip) {
     }
     return state;
   } catch (err) {
-    console.error('[Redis Error] Failed to fetch login attempt state:', err.message);
+    console.error(
+      "[Redis Error] Failed to fetch login attempt state:",
+      err.message
+    );
     return null;
   }
 }
@@ -210,12 +233,12 @@ async function clearLoginAttempts(ip) {
     }
     loginAttemptsByIp.delete(ip);
   } catch (err) {
-    console.error('[Redis Error] Failed to clear login attempts:', err.message);
+    console.error("[Redis Error] Failed to clear login attempts:", err.message);
   }
 }
 
 function normalizeUsername(value) {
-  return String(value || '')
+  return String(value || "")
     .trim()
     .toLowerCase();
 }
@@ -225,7 +248,7 @@ function getLoginUsername(body = {}) {
 }
 
 function createPendingToken(store, payload) {
-  const token = crypto.randomBytes(32).toString('hex');
+  const token = crypto.randomBytes(32).toString("hex");
   store.set(token, {
     ...payload,
     expiresAt: Date.now() + PENDING_2FA_TTL_MS,
@@ -250,11 +273,11 @@ function prunePendingTokens(store) {
 const usedTotpCodes = new Map();
 
 async function markTotpUsed(username, code) {
-  const cleanCode = String(code || '').replace(/\s+/g, '');
+  const cleanCode = String(code || "").replace(/\s+/g, "");
   const redis = getRedisClient();
   const redisKey = `totp:used:${username}:${cleanCode}`;
   if (redis) {
-    const isSet = await redis.set(redisKey, '1', 'EX', 90, 'NX');
+    const isSet = await redis.set(redisKey, "1", "EX", 90, "NX");
     return isSet === null;
   }
 
@@ -268,7 +291,6 @@ async function markTotpUsed(username, code) {
   return false;
 }
 
-
 /**
  * Compute the SHA-256 hash of a token string.
  * This MUST match the Java TokenService.hashToken() algorithm exactly
@@ -276,7 +298,7 @@ async function markTotpUsed(username, code) {
  */
 // lgtm[js/weak-cryptographic-algorithm]
 function hashToken(token) {
-  return crypto.createHash('sha256').update(String(token)).digest('hex');
+  return crypto.createHash("sha256").update(String(token)).digest("hex");
 }
 
 startAdminSessionCleanup();
@@ -289,9 +311,9 @@ function parseBearer(authHeader = "") {
 function getCookie(req, name) {
   const cookieHeader = req.headers.cookie;
   if (!cookieHeader) return null;
-  const cookies = cookieHeader.split(';').map((c) => c.trim());
+  const cookies = cookieHeader.split(";").map((c) => c.trim());
   for (const cookie of cookies) {
-    const [key, value] = cookie.split('=');
+    const [key, value] = cookie.split("=");
     if (key === name) return value;
   }
   return null;
@@ -306,18 +328,15 @@ function getCookie(req, name) {
 async function requireAdmin(req, res, next) {
   try {
     if (req.query.token) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Do not pass tokens in URLs. Use Authorization: Bearer header.",
-        });
+      return res.status(400).json({
+        error: "Do not pass tokens in URLs. Use Authorization: Bearer header.",
+      });
     }
 
     const token =
       req.cookies?.ns_admin_token ||
-      getCookie(req, 'ns_admin_token') ||
-      parseBearer(req.headers.authorization || '');
+      getCookie(req, "ns_admin_token") ||
+      parseBearer(req.headers.authorization || "");
     if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -336,19 +355,21 @@ async function requireAdmin(req, res, next) {
     if (!session) {
       session = await getAdminSession(token);
       if (!session) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
     }
 
     // CRITICAL SECURITY FIX: Use constant-time comparison to prevent timing side-channel attacks on token validation
     if (!safeEqual(tokenHash, session.token)) {
-      return res.status(401).json({ error: 'Unauthorized: Token signature mismatch' });
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: Token signature mismatch" });
     }
 
     // Double-check expiry even though Redis TTL should auto-evict
     if (new Date(session.expiresAt) <= new Date()) {
       await redis?.del(redisKey);
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     req.adminSession = {
@@ -358,13 +379,17 @@ async function requireAdmin(req, res, next) {
       createdAt: session.createdAt,
       expiresAt: session.expiresAt,
     };
-    const stateChangingMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
+    const stateChangingMethods = ["POST", "PUT", "DELETE", "PATCH"];
     if (stateChangingMethods.includes(req.method)) {
-      const clientCsrfToken = req.headers['x-csrf-token'];
+      const clientCsrfToken = req.headers["x-csrf-token"];
       const sessionCsrfToken = session.metadata?.csrfToken;
 
-      if (!clientCsrfToken || !sessionCsrfToken || clientCsrfToken !== sessionCsrfToken) {
-        return res.status(403).json({ error: 'Invalid or missing CSRF token' });
+      if (
+        !clientCsrfToken ||
+        !sessionCsrfToken ||
+        clientCsrfToken !== sessionCsrfToken
+      ) {
+        return res.status(403).json({ error: "Invalid or missing CSRF token" });
       }
     }
 
@@ -377,23 +402,31 @@ async function requireAdmin(req, res, next) {
 
 function requireRole(allowedRoles) {
   if (!Array.isArray(allowedRoles) || allowedRoles.length === 0) {
-    throw new Error('requireRole must be initialized with a non-empty array of allowed roles');
+    throw new Error(
+      "requireRole must be initialized with a non-empty array of allowed roles"
+    );
   }
 
   return async (req, res, next) => {
     // Ensure the request is already authenticated (e.g. by requireAdmin)
     if (!req.adminSession) {
-      return res.status(401).json({ error: 'Unauthorized: No session found' });
+      return res.status(401).json({ error: "Unauthorized: No session found" });
     }
 
     // Assume role is attached to the session metadata, defaulting to 'user' to prevent privilege escalation
-    const userRole = req.adminSession.metadata?.role || 'user';
+    const userRole = req.adminSession.metadata?.role || "user";
 
     if (!allowedRoles.includes(userRole)) {
       intrusionDetectionService
-        .reportEvent(EVENT_TYPES.PRIVILEGE_ESCALATION, req.ip, req.adminSession?.username)
+        .reportEvent(
+          EVENT_TYPES.PRIVILEGE_ESCALATION,
+          req.ip,
+          req.adminSession?.username
+        )
         .catch(console.error);
-      return res.status(403).json({ error: 'Forbidden: Insufficient privileges' });
+      return res
+        .status(403)
+        .json({ error: "Forbidden: Insufficient privileges" });
     }
 
     next();
@@ -414,9 +447,15 @@ function requireScope(requiredScope) {
       const sessionScopes = req.adminSession?.metadata?.scopes || [];
       if (!sessionScopes.includes(requiredScope)) {
         intrusionDetectionService
-          .reportEvent(EVENT_TYPES.PRIVILEGE_ESCALATION, req.ip, req.adminSession?.username)
+          .reportEvent(
+            EVENT_TYPES.PRIVILEGE_ESCALATION,
+            req.ip,
+            req.adminSession?.username
+          )
           .catch(console.error);
-        return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+        return res
+          .status(403)
+          .json({ error: "Forbidden: Insufficient permissions" });
       }
 
       next();
@@ -430,41 +469,45 @@ async function login(req, res) {
     prunePendingTokens(pendingTwoFactorChallenges);
 
     const u = getLoginUsername(req.body);
-    const p = String(req.body?.password || '');
+    const p = String(req.body?.password || "");
     const ip = getClientIp(req);
-    const userAgent = req.get('user-agent') || '';
+    const userAgent = req.get("user-agent") || "";
 
     if (u.length > 128 || p.length > 128) {
-      return res.status(400).json({ error: 'Username or password too long' });
+      return res.status(400).json({ error: "Username or password too long" });
     }
 
     const state = await getLoginAttemptState(ip);
     if (state && state.attempts > LOGIN_MAX_ATTEMPTS) {
-      return res.status(429).json({ error: "Too many login attempts. Please wait and try again." });
+      return res
+        .status(429)
+        .json({ error: "Too many login attempts. Please wait and try again." });
     }
 
-    const matchedUser = adminUsers.find((user) => safeEqual(u, user.username) && safeEqual(p, user.password));
+    const matchedUser = adminUsers.find(
+      (user) => safeEqual(u, user.username) && safeEqual(p, user.password)
+    );
     if (!matchedUser && u !== ADMIN_USERNAME) {
       recordLoginAttempt(ip);
       await recordAdminLoginAttempt({
-        username: u || 'unknown',
+        username: u || "unknown",
         ipAddress: ip,
         userAgent,
         success: false,
         suspicious: false,
-        reason: 'invalid_credentials',
+        reason: "invalid_credentials",
       }).catch(() => {});
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
-    
+
     let isPasswordValid = false;
     if (ADMIN_PASSWORD_HASH) {
-      const hash = crypto.createHash('sha256').update(p).digest('hex');
-      isPasswordValid = (hash === ADMIN_PASSWORD_HASH);
+      const hash = crypto.createHash("sha256").update(p).digest("hex");
+      isPasswordValid = hash === ADMIN_PASSWORD_HASH;
     } else {
-      isPasswordValid = (p === ADMIN_PASSWORD);
+      isPasswordValid = p === ADMIN_PASSWORD;
     }
-    
+
     if (!matchedUser && (!safeEqual(u, ADMIN_USERNAME) || !isPasswordValid)) {
       recordLoginAttempt(ip);
       return res.status(401).json({ error: "Invalid credentials" });
@@ -473,18 +516,32 @@ async function login(req, res) {
     await clearLoginAttempts(ip);
 
     const userRecord = matchedUser || adminUsers[0];
-    const role = userRecord.role || 'SuperAdmin';
+    const role = userRecord.role || "SuperAdmin";
     const scopes = getScopesForRole(role);
-    const securityAccount = await getOrCreateAdminSecurityAccount(u, userRecord.email || u);
-    const suspicious = await assessSuspiciousLogin({ username: u, ipAddress: ip, userAgent }).catch(
-      () => ({ suspicious: false, reason: null })
+    const securityAccount = await getOrCreateAdminSecurityAccount(
+      u,
+      userRecord.email || u
     );
+    const suspicious = await assessSuspiciousLogin({
+      username: u,
+      ipAddress: ip,
+      userAgent,
+    }).catch(() => ({ suspicious: false, reason: null }));
 
     if (!securityAccount?.two_factor_enabled) {
-      if (role !== 'SuperAdmin') {
-        return completeAdminLogin({ req, res, username: u, role, scopes, ip, userAgent, suspicious });
+      if (role !== "SuperAdmin") {
+        return completeAdminLogin({
+          req,
+          res,
+          username: u,
+          role,
+          scopes,
+          ip,
+          userAgent,
+          suspicious,
+        });
       }
-      
+
       const secret = generateTotpSecret();
       const backupCodes = generateBackupCodes(8);
       const otpAuthUrl = buildOtpAuthUrl({ username: u, secret });
@@ -528,11 +585,22 @@ async function login(req, res) {
       reason: suspicious.reason,
     });
   } catch (error) {
-    console.error('[Admin Login] Failed before 2FA challenge:', error);
-    return res.status(500).json({ error: 'Unable to create admin session' });
+    console.error("[Admin Login] Failed before 2FA challenge:", error);
+    return res.status(500).json({ error: "Unable to create admin session" });
   }
 }
-async function completeAdminLogin({ req, res, username, role, scopes, ip, userAgent, suspicious }) {
+async function completeAdminLogin({
+  req,
+  res,
+  username,
+  role,
+  scopes,
+  ip,
+  userAgent,
+  suspicious,
+}) {
+  const csrfToken = crypto.randomBytes(32).toString("hex");
+
   // Create session in PostgreSQL (audit trail + persistence)
   const session = await createAdminSession({
     username,
@@ -546,6 +614,7 @@ async function completeAdminLogin({ req, res, username, role, scopes, ip, userAg
       twoFactorVerified: true,
       suspiciousLogin: !!suspicious?.suspicious,
       suspiciousReason: suspicious?.reason || null,
+      csrfToken,
     },
   });
 
@@ -563,23 +632,30 @@ async function completeAdminLogin({ req, res, username, role, scopes, ip, userAg
       csrfToken,
     });
     const redis = getRedisClient();
-    if (redis) await redis.set(redisKey, redisPayload, 'EX', SESSION_TTL_SECONDS);
+    if (redis)
+      await redis.set(redisKey, redisPayload, "EX", SESSION_TTL_SECONDS);
   } catch (redisErr) {
     // Log but don't fail the login — PostgreSQL session is the fallback
-    console.error('[Admin Login] Failed to write session to Redis:', redisErr);
+    console.error("[Admin Login] Failed to write session to Redis:", redisErr);
   }
 
   // Regenerate express-session to prevent session fixation
-  if (req && req.session && typeof req.session.regenerate === 'function') {
+  if (req && req.session && typeof req.session.regenerate === "function") {
     req.session.regenerate((err) => {
-      if (err) console.error('[Session] Error regenerating session:', err);
+      if (err) console.error("[Session] Error regenerating session:", err);
     });
   }
 
-  res.cookie('ns_admin_token', session.token, {
+  res.cookie("ns_admin_token", session.token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    expires: new Date(session.expiresAt),
+  });
+  res.cookie("ns_csrf_token", csrfToken, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     expires: new Date(session.expiresAt),
   });
 
@@ -590,18 +666,22 @@ async function completeAdminLogin({ req, res, username, role, scopes, ip, userAg
     success: true,
     suspicious: !!suspicious?.suspicious,
     reason: suspicious?.reason,
-  }).catch((err) => logger.error('Failed to record admin login attempt', { err, username }));
+  }).catch((err) =>
+    logger.error("Failed to record admin login attempt", { err, username })
+  );
 
   if (suspicious?.suspicious) {
     sendEmail({
       to: username, // Admin usernames are typically their emails, or should map to one
-      subject: 'Security Alert: Suspicious Login Detected',
-      templateName: 'generic',
+      subject: "Security Alert: Suspicious Login Detected",
+      templateName: "generic",
       data: {
-        name: 'Admin',
+        name: "Admin",
         message: `We detected a suspicious login to your admin account from a new location or device (IP: ${ip}, Device: ${describeDevice(userAgent)}). If this wasn't you, please reset your password and revoke active sessions immediately.`,
       },
-    }).catch(err => logger.error('Failed to send suspicious login alert', { err }));
+    }).catch((err) =>
+      logger.error("Failed to send suspicious login alert", { err })
+    );
   }
 
   return res.json({
@@ -617,25 +697,34 @@ async function completeAdminLogin({ req, res, username, role, scopes, ip, userAg
 async function verifyTwoFactor(req, res) {
   try {
     const { challengeToken, code } = req.body || {};
-    const pending = consumePendingToken(pendingTwoFactorChallenges, challengeToken);
+    const pending = consumePendingToken(
+      pendingTwoFactorChallenges,
+      challengeToken
+    );
     if (!pending) {
-      return res.status(400).json({ error: 'Two-factor challenge expired. Please sign in again.' });
+      return res
+        .status(400)
+        .json({ error: "Two-factor challenge expired. Please sign in again." });
     }
 
-    const cleanCode = String(code || '').replace(/\s+/g, '');
+    const cleanCode = String(code || "").replace(/\s+/g, "");
     const validTotp = verifyTotpCode(pending.secret, cleanCode);
     const validBackup = validTotp
       ? false
-      : await verifyAndConsumeBackupCode(pending.username, code).catch(() => false);
+      : await verifyAndConsumeBackupCode(pending.username, code).catch(
+          () => false
+        );
 
     if (!validTotp && !validBackup) {
-      return res.status(401).json({ error: 'Invalid verification code' });
+      return res.status(401).json({ error: "Invalid verification code" });
     }
 
     if (validTotp) {
       const replayed = await markTotpUsed(pending.username, cleanCode);
       if (replayed) {
-        return res.status(401).json({ error: 'Verification code already used' });
+        return res
+          .status(401)
+          .json({ error: "Verification code already used" });
       }
     }
 
@@ -650,21 +739,23 @@ async function verifyTwoFactorSetup(req, res) {
     const { setupToken, code } = req.body || {};
     const pending = consumePendingToken(pendingTwoFactorSetups, setupToken);
     if (!pending) {
-      return res.status(400).json({ error: 'Two-factor setup expired. Please sign in again.' });
+      return res
+        .status(400)
+        .json({ error: "Two-factor setup expired. Please sign in again." });
     }
 
-    const cleanCode = String(code || '').replace(/\s+/g, '');
+    const cleanCode = String(code || "").replace(/\s+/g, "");
     if (!verifyTotpCode(pending.secret, cleanCode)) {
-      return res.status(401).json({ error: 'Invalid authenticator code' });
+      return res.status(401).json({ error: "Invalid authenticator code" });
     }
 
     const replayed = await markTotpUsed(pending.username, cleanCode);
     if (replayed) {
-      return res.status(401).json({ error: 'Authenticator code already used' });
+      return res.status(401).json({ error: "Authenticator code already used" });
     }
 
     if (!verifyTotpCode(pending.secret, code)) {
-      return res.status(401).json({ error: 'Invalid authenticator code' });
+      return res.status(401).json({ error: "Invalid authenticator code" });
     }
 
     await enableAdminTwoFactor({
@@ -676,26 +767,29 @@ async function verifyTwoFactorSetup(req, res) {
     return completeAdminLogin({ req, res, ...pending });
     return completeAdminLogin({ res, ...pending });
   } catch (error) {
-    console.error('[Admin 2FA] Setup verification failed:', error);
-    return res.status(500).json({ error: 'Unable to verify two-factor setup' });
+    console.error("[Admin 2FA] Setup verification failed:", error);
+    return res.status(500).json({ error: "Unable to verify two-factor setup" });
   }
 }
 
 async function getTwoFactorStatus(req, res) {
   try {
     const user = req.adminSession?.user;
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
-    const securityAccount = await getOrCreateAdminSecurityAccount(user.username, user.email || user.username);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    const securityAccount = await getOrCreateAdminSecurityAccount(
+      user.username,
+      user.email || user.username
+    );
     return res.json({ enabled: !!securityAccount?.two_factor_enabled });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to get 2FA status' });
+    return res.status(500).json({ error: "Failed to get 2FA status" });
   }
 }
 
 async function initTwoFactorSetup(req, res) {
   try {
     const user = req.adminSession?.user;
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
 
     const secret = generateTotpSecret();
     const backupCodes = generateBackupCodes(8);
@@ -715,29 +809,31 @@ async function initTwoFactorSetup(req, res) {
       backupCodes,
     });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to init 2FA setup' });
+    return res.status(500).json({ error: "Failed to init 2FA setup" });
   }
 }
 
 async function verifySettingsTwoFactorSetup(req, res) {
   try {
     const user = req.adminSession?.user;
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
 
     const { setupToken, code } = req.body || {};
     const pending = consumePendingToken(pendingTwoFactorSetups, setupToken);
     if (!pending || pending.username !== user.username) {
-      return res.status(400).json({ error: 'Two-factor setup expired or invalid.' });
+      return res
+        .status(400)
+        .json({ error: "Two-factor setup expired or invalid." });
     }
 
-    const cleanCode = String(code || '').replace(/\s+/g, '');
+    const cleanCode = String(code || "").replace(/\s+/g, "");
     if (!verifyTotpCode(pending.secret, cleanCode)) {
-      return res.status(401).json({ error: 'Invalid authenticator code' });
+      return res.status(401).json({ error: "Invalid authenticator code" });
     }
 
     const replayed = await markTotpUsed(pending.username, cleanCode);
     if (replayed) {
-      return res.status(401).json({ error: 'Authenticator code already used' });
+      return res.status(401).json({ error: "Authenticator code already used" });
     }
 
     await enableAdminTwoFactor({
@@ -748,28 +844,33 @@ async function verifySettingsTwoFactorSetup(req, res) {
 
     return res.json({ success: true });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to verify 2FA setup' });
+    return res.status(500).json({ error: "Failed to verify 2FA setup" });
   }
 }
 
 async function disableTwoFactor(req, res) {
   try {
     const user = req.adminSession?.user;
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
-    if (user.role === 'SuperAdmin') {
-      return res.status(403).json({ error: 'SuperAdmins cannot disable two-factor authentication.' });
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    if (user.role === "SuperAdmin") {
+      return res.status(403).json({
+        error: "SuperAdmins cannot disable two-factor authentication.",
+      });
     }
-    
+
     await disableAdminTwoFactor(user.username);
     return res.json({ success: true });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to disable 2FA' });
+    return res.status(500).json({ error: "Failed to disable 2FA" });
   }
 }
 
 async function logout(req, res) {
   try {
-    const token = req.cookies?.ns_admin_token || getCookie(req, 'ns_admin_token') || parseBearer(req.headers.authorization || '');
+    const token =
+      req.cookies?.ns_admin_token ||
+      getCookie(req, "ns_admin_token") ||
+      parseBearer(req.headers.authorization || "");
     if (token) {
       // Revoke from PostgreSQL audit store
       await revokeAdminSession(token);
@@ -781,24 +882,27 @@ async function logout(req, res) {
         const redis = getRedisClient();
         await redis?.del(redisKey);
       } catch (redisErr) {
-        console.error('[Admin Logout] Failed to delete session from Redis:', redisErr);
+        console.error(
+          "[Admin Logout] Failed to delete session from Redis:",
+          redisErr
+        );
       }
     } else {
       // In case logout is called without authentication
-      return res.status(401).json({ error: 'No active session to revoke' });
+      return res.status(401).json({ error: "No active session to revoke" });
     }
 
     // Destroy express-session
-    if (req.session && typeof req.session.destroy === 'function') {
+    if (req.session && typeof req.session.destroy === "function") {
       req.session.destroy((err) => {
-        if (err) console.error('[Session] Error destroying session:', err);
+        if (err) console.error("[Session] Error destroying session:", err);
       });
     }
 
-    res.clearCookie('ns_admin_token', {
+    res.clearCookie("ns_admin_token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
     return res.json({ ok: true });
@@ -821,23 +925,29 @@ async function getSecurityOverview(req, res) {
       })),
       loginHistory,
       sessionTimeoutMinutes: Math.round(
-        (Number(process.env.ADMIN_SESSION_IDLE_TIMEOUT_MS) || 30 * 60 * 1000) / 60000
+        (Number(process.env.ADMIN_SESSION_IDLE_TIMEOUT_MS) || 30 * 60 * 1000) /
+          60000
       ),
     });
   } catch {
-    return res.status(500).json({ error: 'Unable to load security overview' });
+    return res.status(500).json({ error: "Unable to load security overview" });
   }
 }
 
 async function revokeSession(req, res) {
   try {
-    const sessionId = String(req.params.sessionId || '');
+    const sessionId = String(req.params.sessionId || "");
     const currentSessionId = hashToken(req.adminSession.token).slice(0, 16);
     if (sessionId === currentSessionId) {
-      return res.status(400).json({ error: 'Use logout to end the current session.' });
+      return res
+        .status(400)
+        .json({ error: "Use logout to end the current session." });
     }
 
-    const revokedTokenHash = await revokeAdminSessionById(req.adminSession.username, sessionId);
+    const revokedTokenHash = await revokeAdminSessionById(
+      req.adminSession.username,
+      sessionId
+    );
     if (revokedTokenHash) {
       const redis = getRedisClient();
       await redis?.del(REDIS_SESSION_PREFIX + revokedTokenHash);
@@ -845,7 +955,7 @@ async function revokeSession(req, res) {
 
     return res.json({ revoked: !!revokedTokenHash });
   } catch {
-    return res.status(500).json({ error: 'Unable to revoke session' });
+    return res.status(500).json({ error: "Unable to revoke session" });
   }
 }
 
@@ -858,25 +968,27 @@ async function logoutOtherSessions(req, res) {
     const redis = getRedisClient();
     if (redis) {
       await Promise.all(
-        result.tokenHashes.map((tokenHash) => redis.del(REDIS_SESSION_PREFIX + tokenHash))
+        result.tokenHashes.map((tokenHash) =>
+          redis.del(REDIS_SESSION_PREFIX + tokenHash)
+        )
       );
     }
 
     return res.json({ revoked: result.count });
   } catch {
-    return res.status(500).json({ error: 'Unable to logout other sessions' });
+    return res.status(500).json({ error: "Unable to logout other sessions" });
   }
 }
 
 async function extendSession(req, res) {
   try {
     // The act of calling the API automatically extends the session via getAdminSession's throttling logic
-    return res.json({ 
-      ok: true, 
-      expiresAt: req.adminSession.expiresAt
+    return res.json({
+      ok: true,
+      expiresAt: req.adminSession.expiresAt,
     });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to extend session' });
+    return res.status(500).json({ error: "Failed to extend session" });
   }
 }
 
@@ -917,7 +1029,7 @@ export const requirePermission = (permission) => {
 
     if (!permissions.includes(permission)) {
       return res.status(403).json({
-        error: 'Permission denied',
+        error: "Permission denied",
       });
     }
 
@@ -927,4 +1039,4 @@ export const requirePermission = (permission) => {
 
 export { login, logout, requireAdmin, requireRole, requireScope };
 
-// DCO sign-off commit
+// DCO sign-off commit
