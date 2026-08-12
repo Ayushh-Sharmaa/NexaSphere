@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-// Validates a date value before formatting — avoids rendering literal
+// Validates a date value before formatting -- avoids rendering literal
 // "Invalid Date" text when the API returns a null or malformed timestamp.
 function formatScheduledDate(value) {
   if (!value) return 'Unknown date';
@@ -8,8 +8,6 @@ function formatScheduledDate(value) {
   if (Number.isNaN(d.getTime())) return 'Unknown date';
   return d.toLocaleDateString();
 }
-import apiClient from '../../utils/apiClient';
-import { getApiBase, buildUrl } from '../../utils/runtimeConfig';
 
 function formatSkillSessionDate(value) {
   if (!value) return 'Unknown date';
@@ -58,7 +56,7 @@ export default function SkillExchangePage({ onBack }) {
     availability: '',
     format: 'Video',
     duration: 60,
-    user: USER_ID,
+    user: getOrCreateUserId(),
   });
   const [rating, setRating] = useState({ sessionId: null, score: 5, comment: '' });
 
@@ -92,7 +90,7 @@ export default function SkillExchangePage({ onBack }) {
   }, [api]);
 
   const fetchUserStats = useCallback(async () => {
-    const url = api(`/api/content/skills/users/${USER_ID}/stats`);
+    const url = api(`/api/content/skills/users/${getOrCreateUserId()}/stats`);
     if (url)
       try {
         const d = await apiClient(url);
@@ -128,7 +126,7 @@ export default function SkillExchangePage({ onBack }) {
           availability: '',
           format: 'Video',
           duration: 60,
-          user: USER_ID,
+          user: getOrCreateUserId(),
         });
         fetchListings();
       } catch (err) {
@@ -160,7 +158,7 @@ export default function SkillExchangePage({ onBack }) {
         await apiClient(url, {
           method: 'POST',
           body: JSON.stringify({
-            fromUser: USER_ID,
+            fromUser: getOrCreateUserId(),
             toUser: match.user,
             listingId: match.id,
             scheduledAt,
@@ -200,11 +198,11 @@ export default function SkillExchangePage({ onBack }) {
     if (url) {
       try {
         const session = sessions.find((s) => s.id === sessionId);
-        const to = session?.fromUser === USER_ID ? session.toUser : session.fromUser;
+        const to = session?.fromUser === getOrCreateUserId() ? session.toUser : session.fromUser;
         await apiClient(url, {
           method: 'POST',
           body: JSON.stringify({
-            from: USER_ID,
+            from: getOrCreateUserId(),
             to,
             rating: rating.score,
             comment: rating.comment,
@@ -220,8 +218,8 @@ export default function SkillExchangePage({ onBack }) {
     }
   };
 
-  const userListings = listings.filter((l) => l.user === USER_ID);
-  const otherListings = listings.filter((l) => l.user !== USER_ID);
+  const userListings = listings.filter((l) => l.user === getOrCreateUserId());
+  const otherListings = listings.filter((l) => l.user !== getOrCreateUserId());
 
   return (
     <div
@@ -509,12 +507,10 @@ export default function SkillExchangePage({ onBack }) {
                 >
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                      With: {s.fromUser === USER_ID ? s.toUser : s.fromUser}
+                      With: {s.fromUser === getOrCreateUserId() ? s.toUser : s.fromUser}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--t2)' }}>
                       Status: <strong>{s.status}</strong> · Scheduled:{' '}
-                      {formatScheduledDate(s.scheduledAt)}
-                      {formatSkillSessionDate(s.scheduledAt)}
                       {formatSkillDate(s.scheduledAt)}
                     </div>
                     {s.notes && (
@@ -617,7 +613,7 @@ export default function SkillExchangePage({ onBack }) {
                     >
                       #{i + 1}
                     </span>
-                    <strong>{entry.user === USER_ID ? `${entry.user} (you)` : entry.user}</strong>
+                    <strong>{entry.user === getOrCreateUserId() ? `${entry.user} (you)` : entry.user}</strong>
                   </div>
                   <div
                     style={{ display: 'flex', gap: 16, fontSize: '0.85rem', color: 'var(--t2)' }}
