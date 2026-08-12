@@ -3,15 +3,12 @@ name: GSSOC Auto-Close
 on:
   issues:
     types: [opened]
-  pull_request_target:
-    types: [opened]
 
 jobs:
   auto_close:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      pull-requests: write
     steps:
       - name: Close Issue
         if: github.event_name == 'issues'
@@ -20,11 +17,3 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
         run: |
           gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --comment "Sorry, I am not continuing in GSSOC. You can find another project and avoid creating issues and PRs here."
-
-      - name: Close PR
-        if: github.event_name == 'pull_request_target'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          gh pr close "$PR" -R "$GITHUB_REPOSITORY" --comment "Sorry, I am not continuing in GSSOC. You can find another project and avoid creating issues and PRs here."
