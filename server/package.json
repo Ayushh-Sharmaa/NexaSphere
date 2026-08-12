@@ -58,7 +58,7 @@
     "googleapis": "^140.0.1",
     "helmet": "^8.3.0",
     "ioredis": "^5.11.1",
-    "isomorphic-dompurify": "3.19.0",
+    "isomorphic-dompurify": "3.22.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
     "multer": "^1.4.5-lts.1",
