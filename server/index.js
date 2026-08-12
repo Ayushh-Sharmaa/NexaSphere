@@ -210,11 +210,7 @@ const ADMIN_PASSWORD = requiredStrongPassword('ADMIN_PASSWORD');
 // Create an Express app instance
 const app = express();
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()).filter(Boolean) : true,
-  credentials: false,
-}));
-app.use(express.json({ limit: '512kb' }));
+
 
 function requestLogger(req, res, next) {
   const start = process.hrtime.bigint();
@@ -428,8 +424,8 @@ app.options('*', cors());
 
 app.use(enhancedTracingMiddleware);
 
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json({ limit: '512kb' }));
+app.use(express.urlencoded({ extended: true, limit: '512kb' }));
 app.use(xssSanitizer);
 if (useStructuredHttpLog) {
   app.use(apiLogger);
