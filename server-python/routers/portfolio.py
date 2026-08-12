@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set
 from uuid import UUID
@@ -60,6 +61,8 @@ class PortfolioResponse(BaseModel):
 class PortfoliosListResponse(BaseModel):
     portfolios: List[PortfolioResponse]
     total: int
+    available: bool = True
+    source: str = "database"
 
 
 def _db_available() -> bool:
@@ -92,11 +95,18 @@ async def list_portfolios(db: Session = Depends(get_db)):
 
     records = db.query(MemberPortfolio).all()
     if not records:
-        return PortfoliosListResponse(portfolios=[], total=0)
+        return PortfoliosListResponse(
+            portfolios=[],
+            total=0,
+            available=True,
+            source="database",
+        )
 
     return PortfoliosListResponse(
         portfolios=[PortfolioResponse.model_validate(r) for r in records],
         total=len(records),
+        available=True,
+        source="database",
     )
 
 
