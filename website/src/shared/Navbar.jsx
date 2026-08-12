@@ -87,7 +87,9 @@ export default function Navbar({
     const translated = t(`nav.${key}`);
     return translated && !translated.startsWith('nav.') ? translated : tab;
   };
-  const [compact, setCompact] = useState(window.innerWidth <= 1200);
+  const [compact, setCompact] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 1200 : false
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const eventsTabRef = useWalkthroughStep('search_events');
@@ -104,24 +106,26 @@ export default function Navbar({
         setMenuOpen(false);
       }
     };
-    
+
     window.addEventListener('scroll', s, { passive: true });
     window.addEventListener('resize', r, { passive: true });
     document.addEventListener('keydown', handleKeyDown);
-    
+
     // Focus management when menu opens
     if (menuOpen && compact) {
       document.body.style.overflow = 'hidden';
       const menuElement = document.getElementById('ns-nav-menu');
       if (menuElement) {
         // Find first focusable element inside menu
-        const firstFocusable = menuElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const firstFocusable = menuElement.querySelector(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
         if (firstFocusable) firstFocusable.focus();
       }
     } else {
       document.body.style.overflow = '';
     }
-    
+
     return () => {
       window.removeEventListener('scroll', s);
       window.removeEventListener('resize', r);

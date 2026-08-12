@@ -5,35 +5,17 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Design Tokens ────────────────────────────────────────────────── */
+/*
+  NOTE: Core colour/surface tokens (--c1..c5, --t1..t3, --bg, --card, --bdr, --sh1/sh2, --r1..r4)
+  are defined canonically in themes.css (dark + light) and overridden per data-style in
+  design-styles.css.  Only easing curves and the nav-height helper are kept here because
+  they are unique to this file.
+*/
 :root {
-  --c1:   #e81c1c;
-  --c2:   #ff4444;
-  --c3:   #ff7070;
-  --c1a:  rgba(232, 28, 28, 0.08);
-  --c1b:  rgba(232, 28, 28, 0.22);
-  --c1g:  rgba(232, 28, 28, 0.35);
-  --c2a:  rgba(255, 68, 68, 0.08);
-  --c2b:  rgba(255, 68, 68, 0.22);
-  --c5:   #00ff9d;
-  --t1:   #ffffff;
-  --t2:   rgba(255, 255, 255, 0.55);
-  --t3:   rgba(255, 255, 255, 0.32);
-  --bg:   #080a10;
-  --card: rgba(255, 255, 255, 0.032);
-  --card2: rgba(255, 255, 255, 0.055);
-  --bdr:  rgba(255, 255, 255, 0.07);
-  --bdr2: rgba(255, 255, 255, 0.14);
-  --sh1:  0 0 0 1px rgba(232, 28, 28, 0.18), 0 8px 32px rgba(232, 28, 28, 0.12), 0 24px 60px rgba(0, 0, 0, 0.5);
-  --sh2:  0 0 40px rgba(232, 28, 28, 0.2), 0 20px 60px rgba(0, 0, 0, 0.6);
-  --r1:   6px;
-  --r2:   10px;
-  --r3:   16px;
-  --r4:   22px;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
   --ease-ui:     cubic-bezier(0.4, 0, 0.2, 1);
   --nh: 108px;
-  color-scheme: dark;
 }
 
 [data-theme='light'] {
