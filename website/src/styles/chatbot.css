@@ -9,7 +9,6 @@
   overflow: hidden;
 }
 
-
 /* Floating Trigger Button */
 .chat-trigger-btn {
   width: 65px;
@@ -388,7 +387,6 @@
 
 /* ===== MOBILE RESPONSIVENESS FIX — Issue #1019 ===== */
 @media (max-width: 768px) {
-
   .ns-chatbot-wrapper {
     position: fixed;
     bottom: 1rem;

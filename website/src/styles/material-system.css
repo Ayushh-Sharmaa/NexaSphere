@@ -59,8 +59,7 @@
     inset 0 1px 0 var(--material-highlight), inset 0 -1px 0 rgba(0, 0, 0, 0.22),
     0 22px 60px var(--material-shadow-soft);
   --shadow-card: var(--shcard);
-  --shadow-hover:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 26px 70px rgba(2, 3, 7, 0.38);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 26px 70px rgba(2, 3, 7, 0.38);
 }
 
 [data-style='material'][data-theme='light'] {
@@ -133,7 +132,10 @@
     radial-gradient(circle at 12% -8%, var(--material-accent-soft), transparent 32rem),
     linear-gradient(var(--material-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--material-grid) 1px, transparent 1px);
-  background-size: auto, 64px 64px, 64px 64px;
+  background-size:
+    auto,
+    64px 64px,
+    64px 64px;
   color: var(--material-ink);
 }
 
@@ -240,12 +242,12 @@ main {
   isolation: isolate;
   border-color: var(--material-line-strong) !important;
   background:
-    linear-gradient(135deg, var(--material-highlight), transparent 42%),
-    var(--material-surface) !important;
+    linear-gradient(135deg, var(--material-highlight), transparent 42%), var(--material-surface) !important;
   -webkit-backdrop-filter: blur(22px) saturate(145%) contrast(1.04);
   backdrop-filter: blur(22px) saturate(145%) contrast(1.04);
   box-shadow:
-    inset 0 1px 0 var(--material-highlight), inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 var(--material-highlight),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
     0 18px 54px var(--material-shadow-soft) !important;
 }
 
@@ -285,8 +287,10 @@ main {
   border-radius: var(--material-radius-card);
   background-color: var(--material-surface-solid);
   box-shadow:
-    inset 0 1px 0 var(--material-highlight), inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-    10px 14px 34px var(--material-shadow-soft), -5px -5px 18px rgba(255, 255, 255, 0.018);
+    inset 0 1px 0 var(--material-highlight),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    10px 14px 34px var(--material-shadow-soft),
+    -5px -5px 18px rgba(255, 255, 255, 0.018);
   transform-style: preserve-3d;
   backface-visibility: hidden;
 }
@@ -302,21 +306,25 @@ main {
   ):not([class*='skeleton']):not([class*='score-card']):hover {
   border-color: var(--material-line-strong) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-    14px 20px 46px var(--material-shadow-soft), -5px -5px 22px rgba(255, 255, 255, 0.025);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    14px 20px 46px var(--material-shadow-soft),
+    -5px -5px 22px rgba(255, 255, 255, 0.025);
 }
 
 .material-clay {
   border-radius: var(--material-radius-panel) !important;
   box-shadow:
-    inset 0 2px 1px var(--material-highlight), inset 0 -5px 12px rgba(0, 0, 0, 0.14),
+    inset 0 2px 1px var(--material-highlight),
+    inset 0 -5px 12px rgba(0, 0, 0, 0.14),
     0 20px 44px var(--material-shadow-soft) !important;
 }
 
 .material-neomorphic {
   background: var(--material-canvas-raised) !important;
   box-shadow:
-    12px 12px 28px var(--material-shadow-soft), -10px -10px 24px rgba(255, 255, 255, 0.035),
+    12px 12px 28px var(--material-shadow-soft),
+    -10px -10px 24px rgba(255, 255, 255, 0.035),
     inset 0 1px 0 var(--material-highlight) !important;
 }
 
@@ -338,7 +346,8 @@ main {
   color: #fff8f5 !important;
   background: linear-gradient(145deg, #ed6570, var(--material-accent-strong)) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38), inset 0 -3px 6px rgba(70, 0, 8, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -3px 6px rgba(70, 0, 8, 0.26),
     0 8px 20px rgba(100, 18, 29, 0.2);
 }
 
@@ -358,7 +367,8 @@ textarea,
   color: var(--material-ink) !important;
   background: var(--material-canvas-raised) !important;
   box-shadow:
-    inset 2px 3px 8px var(--material-shadow-soft), inset -1px -1px 0 var(--material-highlight) !important;
+    inset 2px 3px 8px var(--material-shadow-soft),
+    inset -1px -1px 0 var(--material-highlight) !important;
 }
 
 input::placeholder,
@@ -372,7 +382,8 @@ select:focus,
 textarea:focus {
   border-color: var(--material-accent) !important;
   box-shadow:
-    inset 2px 3px 8px var(--material-shadow-soft), 0 0 0 3px var(--material-accent-soft) !important;
+    inset 2px 3px 8px var(--material-shadow-soft),
+    0 0 0 3px var(--material-accent-soft) !important;
 }
 
 .ns-footer {
@@ -432,7 +443,10 @@ textarea:focus {
 
 @media (max-width: 767px) {
   body {
-    background-size: auto, 42px 42px, 42px 42px;
+    background-size:
+      auto,
+      42px 42px,
+      42px 42px;
   }
 
   .container {

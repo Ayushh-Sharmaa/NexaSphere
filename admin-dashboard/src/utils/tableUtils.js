@@ -15,8 +15,10 @@
  * @returns {*} Value at the path, or `undefined`.
  */
 export function getNestedValue(row, key) {
-  if (!row || typeof key !== 'string') return undefined;
-  return key.split('.').reduce((acc, part) => (acc == null ? undefined : acc[part]), row);
+  if (!row || typeof key !== "string") return undefined;
+  return key
+    .split(".")
+    .reduce((acc, part) => (acc == null ? undefined : acc[part]), row);
 }
 
 /**
@@ -28,16 +30,19 @@ export function getNestedValue(row, key) {
  * @returns {number} Comparison result.
  */
 export function compareValues(a, b) {
-  const aNull = a == null || a === '';
-  const bNull = b == null || b === '';
+  const aNull = a == null || a === "";
+  const bNull = b == null || b === "";
   if (aNull || bNull) return aNull && bNull ? 0 : aNull ? 1 : -1;
 
-  const aTime = typeof a === 'string' ? Date.parse(a) : NaN;
-  const bTime = typeof b === 'string' ? Date.parse(b) : NaN;
+  const aTime = typeof a === "string" ? Date.parse(a) : NaN;
+  const bTime = typeof b === "string" ? Date.parse(b) : NaN;
   if (!Number.isNaN(aTime) && !Number.isNaN(bTime)) return aTime - bTime;
 
-  if (typeof a === 'number' && typeof b === 'number') return a - b;
-  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return String(a).localeCompare(String(b), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 }
 
 /**
@@ -48,10 +53,14 @@ export function compareValues(a, b) {
  * @param {'asc'|'desc'} [order='asc'] - Sort direction.
  * @returns {Array} Sorted copy.
  */
-export function sortRows(rows, sortKey, order = 'asc') {
+export function sortRows(rows, sortKey, order = "asc") {
   if (!sortKey || !Array.isArray(rows)) return [...rows];
-  const direction = order === 'desc' ? -1 : 1;
-  return [...rows].sort((a, b) => compareValues(getNestedValue(a, sortKey), getNestedValue(b, sortKey)) * direction);
+  const direction = order === "desc" ? -1 : 1;
+  return [...rows].sort(
+    (a, b) =>
+      compareValues(getNestedValue(a, sortKey), getNestedValue(b, sortKey)) *
+      direction
+  );
 }
 
 /**
@@ -64,7 +73,9 @@ export function sortRows(rows, sortKey, order = 'asc') {
  * @returns {Array} Matching rows.
  */
 export function filterRows(rows, query, columns) {
-  const needle = String(query ?? '').trim().toLowerCase();
+  const needle = String(query ?? "")
+    .trim()
+    .toLowerCase();
   if (!needle) return [...rows];
   return rows.filter((row) =>
     columns.some((column) => {
@@ -107,11 +118,16 @@ export function paginate(rows, page, pageSize) {
  * @returns {string} E.g. `?page=2&search=react`.
  */
 export function buildQueryString(params) {
-  const entries = Object.entries(params).filter(([, value]) => value != null && value !== '');
-  if (entries.length === 0) return '';
+  const entries = Object.entries(params).filter(
+    ([, value]) => value != null && value !== ""
+  );
+  if (entries.length === 0) return "";
   return `?${entries
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
-    .join('&')}`;
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+    )
+    .join("&")}`;
 }
 
 export default {

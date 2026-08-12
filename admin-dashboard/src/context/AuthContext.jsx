@@ -1,17 +1,23 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../services/auth';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../services/auth";
 
 const AuthContext = createContext(null);
 
-const LOGOUT_EVENT_KEY = 'logout-event';
+const LOGOUT_EVENT_KEY = "logout-event";
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const logout = useCallback(
-    async (message = 'Your session has expired. Please log in again.') => {
+    async (message = "Your session has expired. Please log in again.") => {
       try {
         await auth.logout();
       } catch {
@@ -23,7 +29,7 @@ export function AuthProvider({ children }) {
 
       setIsAuthenticated(false);
 
-      navigate('/login', {
+      navigate("/login", {
         replace: true,
         state: { message },
       });
@@ -33,7 +39,7 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(() => {
     setIsAuthenticated(true);
-    navigate('/dashboard', {
+    navigate("/dashboard", {
       replace: true,
     });
   }, [navigate]);
@@ -55,19 +61,19 @@ export function AuthProvider({ children }) {
       if (event.key === LOGOUT_EVENT_KEY) {
         setIsAuthenticated(false);
 
-        navigate('/login', {
+        navigate("/login", {
           replace: true,
           state: {
-            message: 'You have been logged out from another tab.',
+            message: "You have been logged out from another tab.",
           },
         });
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [navigate]);
 
@@ -88,7 +94,7 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
 
   if (!ctx) {
-    throw new Error('useAuth must be used inside <AuthProvider>');
+    throw new Error("useAuth must be used inside <AuthProvider>");
   }
 
   return ctx;

@@ -6,7 +6,7 @@ export default function PortfolioModerationQueue({ token }) {
   const [actionLoading, setActionLoading] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  const showFeedback = (message, type = "error") => {
+  const showFeedback = (message, type = 'error') => {
     setFeedback({ message, type });
     setTimeout(() => setFeedback(null), 4000);
   };

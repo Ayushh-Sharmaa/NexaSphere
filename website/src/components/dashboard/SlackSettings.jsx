@@ -193,7 +193,10 @@ export default function SlackSettings({ currentUser, authUser }) {
         <div
           role="status"
           style={{
-            background: actionStatus.type === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+            background:
+              actionStatus.type === 'success'
+                ? 'rgba(16, 185, 129, 0.15)'
+                : 'rgba(239, 68, 68, 0.15)',
             border: `1px solid ${actionStatus.type === 'success' ? '#10b981' : '#ef4444'}`,
             borderRadius: '8px',
             padding: '12px 16px',

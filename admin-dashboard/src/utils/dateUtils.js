@@ -15,7 +15,8 @@
  */
 export function toDate(value) {
   if (value == null) return null;
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (value instanceof Date)
+    return Number.isNaN(value.getTime()) ? null : value;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
@@ -88,7 +89,9 @@ export function daysBetween(from, to) {
   const fromDate = startOfDay(from);
   const toDateVal = startOfDay(to);
   if (!fromDate || !toDateVal) return null;
-  return Math.round((toDateVal.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000));
+  return Math.round(
+    (toDateVal.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)
+  );
 }
 
 /**
@@ -121,7 +124,10 @@ export function dayBuckets(from, to) {
  * @param {object} [options.style={day:'numeric', month:'short', year:'numeric'}] - Style.
  * @returns {string|null} Formatted date.
  */
-export function formatDate(value, { locale, style = { day: 'numeric', month: 'short', year: 'numeric' } } = {}) {
+export function formatDate(
+  value,
+  { locale, style = { day: "numeric", month: "short", year: "numeric" } } = {}
+) {
   const date = toDate(value);
   if (!date) return null;
   return date.toLocaleDateString(locale, style);
@@ -137,8 +143,8 @@ export function toISODate(value) {
   const date = toDate(value);
   if (!date) return null;
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 

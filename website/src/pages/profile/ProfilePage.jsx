@@ -603,7 +603,10 @@ export default function ProfilePage() {
             (profile.achievements?.length ? (
               <div style={{ padding: '0.5rem 0' }}>
                 {profile.achievements.map((a, i) => (
-                  <span key={a.id || a._id || a.title || `achieve-${i}`} style={styles.achieveBadge}>
+                  <span
+                    key={a.id || a._id || a.title || `achieve-${i}`}
+                    style={styles.achieveBadge}
+                  >
                     {a.icon || '★'} {a.title || a.name || a}
                   </span>
                 ))}
@@ -671,7 +674,13 @@ export default function ProfilePage() {
                 placeholder="https://yourportfolio.com"
               />
               <div style={styles.modalBtns}>
-                <button onClick={() => { setEditing(false); setSaveError(null); }} style={styles.btnOutline}>
+                <button
+                  onClick={() => {
+                    setEditing(false);
+                    setSaveError(null);
+                  }}
+                  style={styles.btnOutline}
+                >
                   Cancel
                 </button>
                 <button

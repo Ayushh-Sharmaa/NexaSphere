@@ -7,8 +7,12 @@ class WebSocketLogService {
     this.reconnectTimeout = 3000;
   }
 
-  connect(url = 'ws://localhost:8080/api/logs/stream') {
-    if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
+  connect(url = "ws://localhost:8080/api/logs/stream") {
+    if (
+      this.socket &&
+      (this.socket.readyState === WebSocket.OPEN ||
+        this.socket.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
@@ -17,7 +21,7 @@ class WebSocketLogService {
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
-      console.log('WebSocket connection established.');
+      console.log("WebSocket connection established.");
       this.reconnectAttempts = 0;
     };
 
@@ -26,17 +30,17 @@ class WebSocketLogService {
         const data = JSON.parse(event.data);
         this.notifyListeners(data);
       } catch (error) {
-        console.error('Failed to parse log message:', error);
+        console.error("Failed to parse log message:", error);
       }
     };
 
     this.socket.onclose = () => {
-      console.log('WebSocket connection closed.');
+      console.log("WebSocket connection closed.");
       this.attemptReconnect();
     };
 
     this.socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
       // onerror is usually followed by onclose
     };
   }
@@ -49,7 +53,9 @@ class WebSocketLogService {
         this.connect();
       }, this.reconnectTimeout);
     } else {
-      console.error('Max reconnect attempts reached. Could not connect to WebSocket.');
+      console.error(
+        "Max reconnect attempts reached. Could not connect to WebSocket."
+      );
     }
   }
 
@@ -67,7 +73,7 @@ class WebSocketLogService {
   }
 
   notifyListeners(data) {
-    this.listeners.forEach(callback => callback(data));
+    this.listeners.forEach((callback) => callback(data));
   }
 
   disconnect() {

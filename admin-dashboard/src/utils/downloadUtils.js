@@ -21,11 +21,11 @@ const FORBIDDEN_FILENAME_CHARS = /[\\/:*?"<>|\u0000-\u001f]/g;
  * @example
  * sanitizeFilename('Event: Hack-a-thon.csv') // 'Event_ Hack-a-thon.csv'
  */
-export function sanitizeFilename(name, fallback = 'download') {
-  const cleaned = String(name ?? '')
-    .replace(FORBIDDEN_FILENAME_CHARS, '_')
-    .replace(/\s+/g, ' ')
-    .replace(/^[. ]+|\.$/, '')
+export function sanitizeFilename(name, fallback = "download") {
+  const cleaned = String(name ?? "")
+    .replace(FORBIDDEN_FILENAME_CHARS, "_")
+    .replace(/\s+/g, " ")
+    .replace(/^[. ]+|\.$/, "")
     .trim();
   return cleaned || fallback;
 }
@@ -40,10 +40,10 @@ export function sanitizeFilename(name, fallback = 'download') {
 export function triggerDownload(blob, filename) {
   const safeName = sanitizeFilename(filename);
   const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
+  const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = safeName;
-  anchor.style.display = 'none';
+  anchor.style.display = "none";
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
@@ -57,7 +57,11 @@ export function triggerDownload(blob, filename) {
  * @param {string} filename - Download filename.
  * @param {string} [mimeType='text/plain;charset=utf-8'] - MIME type.
  */
-export function downloadBlob(content, filename, mimeType = 'text/plain;charset=utf-8') {
+export function downloadBlob(
+  content,
+  filename,
+  mimeType = "text/plain;charset=utf-8"
+) {
   triggerDownload(new Blob([content], { type: mimeType }), filename);
 }
 
@@ -68,7 +72,7 @@ export function downloadBlob(content, filename, mimeType = 'text/plain;charset=u
  * @param {string} filename - Download filename (`.txt` suggested).
  */
 export function downloadText(content, filename) {
-  downloadBlob(content, filename, 'text/plain;charset=utf-8');
+  downloadBlob(content, filename, "text/plain;charset=utf-8");
 }
 
 /**
@@ -81,7 +85,7 @@ export function downloadText(content, filename) {
  */
 export function downloadJSON(data, filename, indent = 2) {
   const content = `${JSON.stringify(data, null, indent)}\n`;
-  downloadBlob(content, filename, 'application/json;charset=utf-8');
+  downloadBlob(content, filename, "application/json;charset=utf-8");
 }
 
 /**
@@ -92,9 +96,13 @@ export function downloadJSON(data, filename, indent = 2) {
  * @returns {string} Compact timestamp.
  */
 export function generateTimestamp(now = new Date()) {
-  const pad = (n) => String(n).padStart(2, '0');
-  const date = [now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate())].join('');
-  const time = [pad(now.getHours()), pad(now.getMinutes())].join('');
+  const pad = (n) => String(n).padStart(2, "0");
+  const date = [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate()),
+  ].join("");
+  const time = [pad(now.getHours()), pad(now.getMinutes())].join("");
   return `${date}-${time}`;
 }
 

@@ -18,7 +18,7 @@ export default function PublicPortfolio({ username, onBack }) {
   const [error, setError] = useState(null);
   const [endorseFeedback, setEndorseFeedback] = useState(null);
 
-  const showEndorseFeedback = (message, type = "error") => {
+  const showEndorseFeedback = (message, type = 'error') => {
     setEndorseFeedback({ message, type });
     setTimeout(() => setEndorseFeedback(null), 4000);
   };

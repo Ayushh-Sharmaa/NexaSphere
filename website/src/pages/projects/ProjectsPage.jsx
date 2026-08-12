@@ -177,8 +177,25 @@ export default function ProjectsPage({ onBack, loading = false }) {
                 aria-modal="true"
                 aria-labelledby="modal-title"
               >
-                <Suspense fallback={<div className="modal-box project-modal" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>Loading...</div>}>
-                  <ProjectDetailModal selectedProject={selectedProject} onClose={() => setSelectedProject(null)} />
+                <Suspense
+                  fallback={
+                    <div
+                      className="modal-box project-modal"
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '300px',
+                      }}
+                    >
+                      Loading...
+                    </div>
+                  }
+                >
+                  <ProjectDetailModal
+                    selectedProject={selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                  />
                 </Suspense>
               </div>,
               document.body

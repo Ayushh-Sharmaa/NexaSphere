@@ -25,10 +25,18 @@
   gap: 1rem;
 }
 
-.stack--xs { gap: 0.25rem; }
-.stack--sm { gap: 0.5rem; }
-.stack--lg { gap: 1.5rem; }
-.stack--xl { gap: 2.5rem; }
+.stack--xs {
+  gap: 0.25rem;
+}
+.stack--sm {
+  gap: 0.5rem;
+}
+.stack--lg {
+  gap: 1.5rem;
+}
+.stack--xl {
+  gap: 2.5rem;
+}
 
 /* Horizontal wrapping cluster (flexbox "cluster" layout) */
 .cluster {
@@ -42,24 +50,56 @@
  * Flex helpers
  * ------------------------------------------------------------------------- */
 
-.flex { display: flex; }
-.flex-col { display: flex; flex-direction: column; }
-.flex-wrap { display: flex; flex-wrap: wrap; }
+.flex {
+  display: flex;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
 
-.items-start    { align-items: flex-start; }
-.items-center   { align-items: center; }
-.items-end      { align-items: flex-end; }
-.items-baseline { align-items: baseline; }
+.items-start {
+  align-items: flex-start;
+}
+.items-center {
+  align-items: center;
+}
+.items-end {
+  align-items: flex-end;
+}
+.items-baseline {
+  align-items: baseline;
+}
 
-.justify-start  { justify-content: flex-start; }
-.justify-center { justify-content: center; }
-.justify-end    { justify-content: flex-end; }
-.justify-between { justify-content: space-between; }
-.justify-around  { justify-content: space-around; }
+.justify-start {
+  justify-content: flex-start;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-around {
+  justify-content: space-around;
+}
 
-.flex-1 { flex: 1 1 0%; }
-.grow   { flex-grow: 1; }
-.shrink-0 { flex-shrink: 0; }
+.flex-1 {
+  flex: 1 1 0%;
+}
+.grow {
+  flex-grow: 1;
+}
+.shrink-0 {
+  flex-shrink: 0;
+}
 
 /* ---------------------------------------------------------------------------
  * Grid helpers
@@ -71,74 +111,172 @@
   gap: 1rem;
 }
 
-.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
 
 @media (max-width: 1024px) {
-  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
   .grid-2,
   .grid-3,
-  .grid-4 { grid-template-columns: minmax(0, 1fr); }
-  .grid-auto { grid-template-columns: minmax(0, 1fr); }
+  .grid-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .grid-auto {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ---------------------------------------------------------------------------
  * Width / height helpers
  * ------------------------------------------------------------------------- */
 
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-.w-auto { width: auto; }
-.mx-auto { margin-inline: auto; }
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+.w-auto {
+  width: auto;
+}
+.mx-auto {
+  margin-inline: auto;
+}
 
-.max-w-xs { max-width: 20rem; }
-.max-w-sm { max-width: 24rem; }
-.max-w-md { max-width: 28rem; }
-.max-w-lg { max-width: 32rem; }
-.max-w-xl { max-width: 36rem; }
-.max-w-2xl { max-width: 42rem; }
+.max-w-xs {
+  max-width: 20rem;
+}
+.max-w-sm {
+  max-width: 24rem;
+}
+.max-w-md {
+  max-width: 28rem;
+}
+.max-w-lg {
+  max-width: 32rem;
+}
+.max-w-xl {
+  max-width: 36rem;
+}
+.max-w-2xl {
+  max-width: 42rem;
+}
 
 /* ---------------------------------------------------------------------------
  * Spacing scale (4px base)
  * ------------------------------------------------------------------------- */
 
-.p-0 { padding: 0; }
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-4 { padding: 1rem; }
-.p-6 { padding: 1.5rem; }
+.p-0 {
+  padding: 0;
+}
+.p-1 {
+  padding: 0.25rem;
+}
+.p-2 {
+  padding: 0.5rem;
+}
+.p-3 {
+  padding: 0.75rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+.p-6 {
+  padding: 1.5rem;
+}
 
-.px-2 { padding-inline: 0.5rem; }
-.px-4 { padding-inline: 1rem; }
-.px-6 { padding-inline: 1.5rem; }
-.py-2 { padding-block: 0.5rem; }
-.py-4 { padding-block: 1rem; }
-.py-6 { padding-block: 1.5rem; }
+.px-2 {
+  padding-inline: 0.5rem;
+}
+.px-4 {
+  padding-inline: 1rem;
+}
+.px-6 {
+  padding-inline: 1.5rem;
+}
+.py-2 {
+  padding-block: 0.5rem;
+}
+.py-4 {
+  padding-block: 1rem;
+}
+.py-6 {
+  padding-block: 1.5rem;
+}
 
-.m-0 { margin: 0; }
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.ml-auto { margin-left: auto; }
-.mr-auto { margin-right: auto; }
+.m-0 {
+  margin: 0;
+}
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.ml-auto {
+  margin-left: auto;
+}
+.mr-auto {
+  margin-right: auto;
+}
 
-.gap-1 { gap: 0.25rem; }
-.gap-2 { gap: 0.5rem; }
-.gap-3 { gap: 0.75rem; }
-.gap-4 { gap: 1rem; }
-.gap-6 { gap: 1.5rem; }
-.gap-8 { gap: 2rem; }
+.gap-1 {
+  gap: 0.25rem;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-3 {
+  gap: 0.75rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.gap-6 {
+  gap: 1.5rem;
+}
+.gap-8 {
+  gap: 2rem;
+}
 
 /* ---------------------------------------------------------------------------
  * Typography helpers
@@ -150,8 +288,12 @@
   white-space: nowrap;
 }
 
-.text-balance { text-wrap: balance; }
-.text-pretty  { text-wrap: pretty; }
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
 
 .line-clamp-2 {
   display: -webkit-box;
@@ -167,20 +309,41 @@
   overflow: hidden;
 }
 
-.text-muted { color: var(--t2, #94a3b8); }
-.text-sm { font-size: 0.875rem; line-height: 1.5; }
-.text-lg { font-size: 1.125rem; line-height: 1.6; }
-.font-medium { font-weight: 500; }
-.font-bold { font-weight: 700; }
-.uppercase { text-transform: uppercase; letter-spacing: 0.04em; }
+.text-muted {
+  color: var(--t2, #94a3b8);
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-bold {
+  font-weight: 700;
+}
+.uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
 /* ---------------------------------------------------------------------------
  * Aspect-ratio boxes for media
  * ------------------------------------------------------------------------- */
 
-.aspect-square { aspect-ratio: 1 / 1; }
-.aspect-video  { aspect-ratio: 16 / 9; }
-.aspect-4-3    { aspect-ratio: 4 / 3; }
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+.aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
 
 .aspect-square img,
 .aspect-video img,
@@ -194,13 +357,25 @@
  * Overflow & interaction
  * ------------------------------------------------------------------------- */
 
-.overflow-hidden { overflow: hidden; }
-.overflow-x-auto { overflow-x: auto; }
-.overflow-y-auto { overflow-y: auto; }
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-x-auto {
+  overflow-x: auto;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
 
-.user-select-none { user-select: none; }
-.pointer-events-none { pointer-events: none; }
-.cursor-pointer { cursor: pointer; }
+.user-select-none {
+  user-select: none;
+}
+.pointer-events-none {
+  pointer-events: none;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
 
 /* Hides the scrollbar while keeping scrolling usable (carousels, tabs) */
 .no-scrollbar {

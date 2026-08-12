@@ -20,12 +20,7 @@ const ProjectDetailModal = memo(({ selectedProject, onClose }) => {
         className="modal-box project-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          className="modal-close"
-          onClick={onClose}
-          aria-label="Close modal"
-          autoFocus
-        >
+        <button className="modal-close" onClick={onClose} aria-label="Close modal" autoFocus>
           <X size={20} />
         </button>
 
@@ -74,7 +69,7 @@ const ProjectDetailModal = memo(({ selectedProject, onClose }) => {
             <div className="project-modal-main">
               <h3>About this Project</h3>
               <p>{selectedProject.fullDesc || selectedProject.shortDesc}</p>
-              
+
               <h3>Features</h3>
               <ul>
                 {selectedProject.features ? (

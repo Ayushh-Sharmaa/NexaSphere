@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
-import { api } from '../services/api';
-import { AdminIcon } from '../components/AdminIcon';
-import { Skeleton } from '../components/Skeleton';
-import { Pagination } from '../components/Pagination';
+import { useState, useEffect } from "react";
+import { api } from "../services/api";
+import { AdminIcon } from "../components/AdminIcon";
+import { Skeleton } from "../components/Skeleton";
+import { Pagination } from "../components/Pagination";
 
 const STATUS_COLORS = {
-  confirmed: '#22c55e',
-  waitlisted: '#f59e0b',
-  cancelled: '#ef4444',
+  confirmed: "#22c55e",
+  waitlisted: "#f59e0b",
+  cancelled: "#ef4444",
 };
 
 export function EventRegistrations() {
   const [events, setEvents] = useState([]);
-  const [selectedEventId, setSelectedEventId] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState("");
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -40,7 +40,7 @@ export function EventRegistrations() {
   useEffect(() => {
     if (!selectedEventId) return;
     setLoading(true);
-    setError('');
+    setError("");
     api.eventRegistrations
       .list(selectedEventId, { page, limit: pageSize })
       .then((data) => {
@@ -60,10 +60,14 @@ export function EventRegistrations() {
 
   const handleAttendance = async (reg) => {
     try {
-      await api.eventRegistrations.markAttendance(selectedEventId, { email: reg.email });
+      await api.eventRegistrations.markAttendance(selectedEventId, {
+        email: reg.email,
+      });
       setRegistrations((prev) =>
         prev.map((r) =>
-          r.id === reg.id ? { ...r, attended: true, attended_at: new Date().toISOString() } : r
+          r.id === reg.id
+            ? { ...r, attended: true, attended_at: new Date().toISOString() }
+            : r
         )
       );
     } catch (e) {
@@ -82,11 +86,11 @@ export function EventRegistrations() {
           value={selectedEventId}
           onChange={(e) => setSelectedEventId(e.target.value)}
           style={{
-            padding: '8px 14px',
+            padding: "8px 14px",
             borderRadius: 8,
-            border: '1px solid var(--admin-border, #333)',
-            background: 'var(--admin-bg-card, #1a1a2e)',
-            color: 'var(--admin-text, #eee)',
+            border: "1px solid var(--admin-border, #333)",
+            background: "var(--admin-bg-card, #1a1a2e)",
+            color: "var(--admin-text, #eee)",
             width: 300,
           }}
         >
@@ -108,7 +112,9 @@ export function EventRegistrations() {
 
       {!loading && !error && total > 0 && registrations.length === 0 && (
         <>
-          <div className="empty-state">No registrations match the current filter.</div>
+          <div className="empty-state">
+            No registrations match the current filter.
+          </div>
         </>
       )}
 
@@ -131,23 +137,29 @@ export function EventRegistrations() {
                 <div className="list-item-right">
                   <span
                     className="status-badge"
-                    style={{ background: STATUS_COLORS[reg.status] || '#6b7280' }}
+                    style={{
+                      background: STATUS_COLORS[reg.status] || "#6b7280",
+                    }}
                   >
-                    {reg.attended ? 'Attended' : reg.status}
+                    {reg.attended ? "Attended" : reg.status}
                   </span>
-                  {!reg.attended && reg.status === 'confirmed' && (
+                  {!reg.attended && reg.status === "confirmed" && (
                     <button
                       className="btn-primary"
-                      style={{ fontSize: '0.78rem', padding: '6px 14px' }}
+                      style={{ fontSize: "0.78rem", padding: "6px 14px" }}
                       onClick={() => handleAttendance(reg)}
                     >
                       Mark Present
                     </button>
                   )}
                   <AdminIcon
-                    name={reg.attended ? 'CheckCircle' : 'Circle'}
+                    name={reg.attended ? "CheckCircle" : "Circle"}
                     size={16}
-                    style={{ color: reg.attended ? '#22c55e' : 'var(--admin-text-muted, #666)' }}
+                    style={{
+                      color: reg.attended
+                        ? "#22c55e"
+                        : "var(--admin-text-muted, #666)",
+                    }}
                   />
                 </div>
               </div>

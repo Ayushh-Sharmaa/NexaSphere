@@ -8,7 +8,8 @@
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const URL_RE = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-._~:/?#[\]@!$&'()*+,;=%]*)?$/i;
+const URL_RE =
+  /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-._~:/?#[\]@!$&'()*+,;=%]*)?$/i;
 const HEX_RE = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
 
 /**
@@ -18,8 +19,8 @@ const HEX_RE = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
  * @returns {boolean} True when present.
  */
 export function isRequired(value) {
-  if (typeof value === 'number') return Number.isFinite(value);
-  if (typeof value !== 'string') return value != null;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value !== "string") return value != null;
   return value.trim().length > 0;
 }
 
@@ -30,7 +31,7 @@ export function isRequired(value) {
  * @returns {boolean} True for valid emails.
  */
 export function isValidEmail(value) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== "string") return false;
   return EMAIL_RE.test(value.trim());
 }
 
@@ -41,7 +42,7 @@ export function isValidEmail(value) {
  * @returns {boolean} True for valid URLs.
  */
 export function isValidUrl(value) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== "string") return false;
   return URL_RE.test(value.trim());
 }
 
@@ -54,7 +55,7 @@ export function isValidUrl(value) {
  * @returns {boolean} True when within range.
  */
 export function isLengthInRange(value, min, max) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== "string") return false;
   const length = value.trim().length;
   return length >= min && length <= max;
 }
@@ -79,7 +80,7 @@ export function isNumberInRange(value, min = -Infinity, max = Infinity) {
  * @returns {boolean} True for valid hex colours.
  */
 export function isValidHexColor(value) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== "string") return false;
   return HEX_RE.test(value.trim());
 }
 
@@ -91,7 +92,7 @@ export function isValidHexColor(value) {
  * @returns {boolean} True on match.
  */
 export function matchesPattern(value, pattern) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== "string") return false;
   return pattern.test(value.trim());
 }
 

@@ -79,7 +79,9 @@ export default function ActivityLogStream({
               isConnected ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
             }`}
           />
-          <h3 className="font-semibold text-white text-base">Real-Time Activity Stream</h3>
+          <h3 className="font-semibold text-white text-base">
+            Real-Time Activity Stream
+          </h3>
         </div>
 
         <div className="flex items-center gap-2">
@@ -99,23 +101,38 @@ export default function ActivityLogStream({
 
       <div className="log-container h-80 overflow-y-auto font-mono text-xs space-y-1.5 pr-2">
         {filteredLogs.length === 0 ? (
-          <div className="text-zinc-500 text-center py-10">No activity logs captured yet.</div>
+          <div className="text-zinc-500 text-center py-10">
+            No activity logs captured yet.
+          </div>
         ) : (
           filteredLogs.map((log, idx) => {
             let badgeColor = "text-zinc-400 bg-zinc-800";
-            if (log.severity === "INFO") badgeColor = "text-blue-400 bg-blue-950/60 border border-blue-800/50";
-            if (log.severity === "WARN") badgeColor = "text-amber-400 bg-amber-950/60 border border-amber-800/50";
-            if (log.severity === "ERROR") badgeColor = "text-rose-400 bg-rose-950/60 border border-rose-800/50";
+            if (log.severity === "INFO")
+              badgeColor =
+                "text-blue-400 bg-blue-950/60 border border-blue-800/50";
+            if (log.severity === "WARN")
+              badgeColor =
+                "text-amber-400 bg-amber-950/60 border border-amber-800/50";
+            if (log.severity === "ERROR")
+              badgeColor =
+                "text-rose-400 bg-rose-950/60 border border-rose-800/50";
 
             return (
-              <div key={log.id || idx} className="p-2 rounded bg-zinc-950/40 border border-zinc-800/40 flex items-start justify-between gap-3">
+              <div
+                key={log.id || idx}
+                className="p-2 rounded bg-zinc-950/40 border border-zinc-800/40 flex items-start justify-between gap-3"
+              >
                 <div className="flex items-center gap-2">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeColor}`}>
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeColor}`}
+                  >
                     {log.severity || "INFO"}
                   </span>
                   <span className="text-zinc-300">{log.message}</span>
                 </div>
-                <span className="text-[10px] text-zinc-500 whitespace-nowrap">{log.timestamp}</span>
+                <span className="text-[10px] text-zinc-500 whitespace-nowrap">
+                  {log.timestamp}
+                </span>
               </div>
             );
           })

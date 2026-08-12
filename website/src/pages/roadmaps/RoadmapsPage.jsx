@@ -320,7 +320,7 @@ export default function RoadmapsPage({ onBack }) {
                   {selectedNode.tutorials.map((tutorial, idx) => (
                     <a
                       key={tutorial.url || `tutorial-${selectedNode.id}-${idx}`}
-                      aria-label="Interactive element" 
+                      aria-label="Interactive element"
                       href={tutorial.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -345,7 +345,7 @@ export default function RoadmapsPage({ onBack }) {
                   {selectedNode.practice.map((item, idx) => (
                     <a
                       key={item.url || `practice-${selectedNode.id}-${idx}`}
-                      aria-label="Interactive element" 
+                      aria-label="Interactive element"
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"

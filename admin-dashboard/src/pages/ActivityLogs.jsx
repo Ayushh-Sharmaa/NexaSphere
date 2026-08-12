@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { websocketLogs } from '../services/websocketLogs';
-import { AdminIcon } from '../components/AdminIcon';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { websocketLogs } from "../services/websocketLogs";
+import { AdminIcon } from "../components/AdminIcon";
 
 export function ActivityLogs() {
   const [logs, setLogs] = useState([]);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
   const [filters, setFilters] = useState({
-    severity: 'All',
-    actionType: '',
-    userId: ''
+    severity: "All",
+    actionType: "",
+    userId: "",
   });
   const logsEndRef = useRef(null);
 
@@ -18,7 +24,10 @@ export function ActivityLogs() {
     const handleNewLog = (newLog) => {
       setLogs((prevLogs) => {
         // Assign a unique ID if not present
-        const logEntry = { ...newLog, _id: newLog._id || Date.now() + Math.random() };
+        const logEntry = {
+          ...newLog,
+          _id: newLog._id || Date.now() + Math.random(),
+        };
         const updatedLogs = [...prevLogs, logEntry];
         if (updatedLogs.length > BUFFER_LIMIT) {
           return updatedLogs.slice(updatedLogs.length - BUFFER_LIMIT);
@@ -35,42 +44,62 @@ export function ActivityLogs() {
 
   useEffect(() => {
     if (isAutoScroll && logsEndRef.current) {
-      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      logsEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [logs, isAutoScroll]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const filteredLogs = useMemo(() => {
-    return logs.filter(log => {
-      const matchSeverity = filters.severity === 'All' || (log.severity && log.severity.toLowerCase() === filters.severity.toLowerCase());
-      const matchAction = !filters.actionType || (log.actionType && log.actionType.toLowerCase().includes(filters.actionType.toLowerCase()));
-      const matchUserId = !filters.userId || (log.userId && log.userId.toString().toLowerCase().includes(filters.userId.toLowerCase()));
+    return logs.filter((log) => {
+      const matchSeverity =
+        filters.severity === "All" ||
+        (log.severity &&
+          log.severity.toLowerCase() === filters.severity.toLowerCase());
+      const matchAction =
+        !filters.actionType ||
+        (log.actionType &&
+          log.actionType
+            .toLowerCase()
+            .includes(filters.actionType.toLowerCase()));
+      const matchUserId =
+        !filters.userId ||
+        (log.userId &&
+          log.userId
+            .toString()
+            .toLowerCase()
+            .includes(filters.userId.toLowerCase()));
       return matchSeverity && matchAction && matchUserId;
     });
   }, [logs, filters]);
 
   const exportCSV = useCallback(() => {
     if (filteredLogs.length === 0) return;
-    const headers = ['Timestamp', 'Severity', 'Action Type', 'User ID', 'Message'];
-    const csvRows = [
-      headers.join(','),
-      ...filteredLogs.map(log => {
-        const timestamp = new Date(log.timestamp || Date.now()).toISOString();
-        const severity = log.severity || 'Info';
-        const action = log.actionType || 'Unknown';
-        const user = log.userId || 'System';
-        const message = `"${(log.message || '').replace(/"/g, '""')}"`;
-        return `${timestamp},${severity},${action},${user},${message}`;
-      })
+    const headers = [
+      "Timestamp",
+      "Severity",
+      "Action Type",
+      "User ID",
+      "Message",
     ];
-    const csvString = csvRows.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv' });
+    const csvRows = [
+      headers.join(","),
+      ...filteredLogs.map((log) => {
+        const timestamp = new Date(log.timestamp || Date.now()).toISOString();
+        const severity = log.severity || "Info";
+        const action = log.actionType || "Unknown";
+        const user = log.userId || "System";
+        const message = `"${(log.message || "").replace(/"/g, '""')}"`;
+        return `${timestamp},${severity},${action},${user},${message}`;
+      }),
+    ];
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `activity_logs_${new Date().toISOString()}.csv`;
     a.click();
@@ -80,9 +109,9 @@ export function ActivityLogs() {
   const exportJSON = useCallback(() => {
     if (filteredLogs.length === 0) return;
     const jsonString = JSON.stringify(filteredLogs, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
+    const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `activity_logs_${new Date().toISOString()}.json`;
     a.click();
@@ -94,10 +123,16 @@ export function ActivityLogs() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Real-Time Activity Logs</h1>
         <div className="flex gap-4">
-          <button onClick={exportCSV} className="btn-secondary flex items-center gap-2">
+          <button
+            onClick={exportCSV}
+            className="btn-secondary flex items-center gap-2"
+          >
             <AdminIcon name="Download" size={16} /> Export CSV
           </button>
-          <button onClick={exportJSON} className="btn-secondary flex items-center gap-2">
+          <button
+            onClick={exportJSON}
+            className="btn-secondary flex items-center gap-2"
+          >
             <AdminIcon name="Download" size={16} /> Export JSON
           </button>
         </div>
@@ -120,7 +155,9 @@ export function ActivityLogs() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Action Type</label>
+            <label className="block text-sm font-medium mb-1">
+              Action Type
+            </label>
             <input
               type="text"
               name="actionType"
@@ -150,11 +187,16 @@ export function ActivityLogs() {
             onChange={(e) => setIsAutoScroll(e.target.checked)}
             className="rounded text-primary"
           />
-          <label htmlFor="autoScroll" className="text-sm">Auto-scroll to latest</label>
+          <label htmlFor="autoScroll" className="text-sm">
+            Auto-scroll to latest
+          </label>
         </div>
       </div>
 
-      <div className="card overflow-hidden" style={{ height: '500px', display: 'flex', flexDirection: 'column' }}>
+      <div
+        className="card overflow-hidden"
+        style={{ height: "500px", display: "flex", flexDirection: "column" }}
+      >
         <div className="overflow-auto flex-1 p-0">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
@@ -175,21 +217,32 @@ export function ActivityLogs() {
                 </tr>
               ) : (
                 filteredLogs.map((log) => (
-                  <tr key={log._id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <tr
+                    key={log._id}
+                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
                     <td className="p-3 whitespace-nowrap text-sm">
-                      {new Date(log.timestamp || Date.now()).toLocaleTimeString()}
+                      {new Date(
+                        log.timestamp || Date.now()
+                      ).toLocaleTimeString()}
                     </td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        log.severity === 'Critical' ? 'bg-red-100 text-red-800' :
-                        log.severity === 'Warning' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {log.severity || 'Info'}
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          log.severity === "Critical"
+                            ? "bg-red-100 text-red-800"
+                            : log.severity === "Warning"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {log.severity || "Info"}
                       </span>
                     </td>
-                    <td className="p-3 text-sm">{log.actionType || 'Unknown'}</td>
-                    <td className="p-3 text-sm">{log.userId || 'System'}</td>
+                    <td className="p-3 text-sm">
+                      {log.actionType || "Unknown"}
+                    </td>
+                    <td className="p-3 text-sm">{log.userId || "System"}</td>
                     <td className="p-3 text-sm font-mono">{log.message}</td>
                   </tr>
                 ))

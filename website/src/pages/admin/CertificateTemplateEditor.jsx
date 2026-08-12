@@ -7,7 +7,7 @@ export default function CertificateTemplateEditor({ token }) {
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
-  const showStatus = (text, type = "success") => {
+  const showStatus = (text, type = 'success') => {
     setStatusMessage({ text, type });
     setTimeout(() => setStatusMessage(null), 4000);
   };

@@ -70,10 +70,7 @@ describe('retry', () => {
   });
 
   it('stops early when shouldRetry returns false', async () => {
-    const fn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('fatal'))
-      .mockResolvedValue('ignored');
+    const fn = vi.fn().mockRejectedValueOnce(new Error('fatal')).mockResolvedValue('ignored');
     const promise = retry(fn, {
       retries: 5,
       shouldRetry: (e) => e.message !== 'fatal',
@@ -86,10 +83,7 @@ describe('retry', () => {
 
   it('notifies via onRetry with the attempt number', async () => {
     const onRetry = vi.fn();
-    const fn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('x'))
-      .mockResolvedValue('ok');
+    const fn = vi.fn().mockRejectedValueOnce(new Error('x')).mockResolvedValue('ok');
 
     const promise = retry(fn, { retries: 2, baseDelay: 50, onRetry });
     await vi.advanceTimersByTimeAsync(1000);

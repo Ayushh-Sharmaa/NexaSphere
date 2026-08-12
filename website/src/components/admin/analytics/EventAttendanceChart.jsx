@@ -19,8 +19,9 @@ const EventAttendanceChart = React.memo(function EventAttendanceChart({ data = [
     const headers = ['Event Name', 'Capacity', 'Attendance', 'Waitlist'];
     const csvContent = [
       headers.join(','),
-      ...data.map((row) =>
-        `"${(row.name || '').replace(/"/g, '""')}","${row.capacity || 0}","${row.attendance || 0}","${row.waitlist || 0}"`
+      ...data.map(
+        (row) =>
+          `"${(row.name || '').replace(/"/g, '""')}","${row.capacity || 0}","${row.attendance || 0}","${row.waitlist || 0}"`
       ),
     ].join('\n');
 
@@ -36,12 +37,15 @@ const EventAttendanceChart = React.memo(function EventAttendanceChart({ data = [
 
   return (
     <section className="chart-container">
-      <div className="chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div
+        className="chart-header"
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
+      >
         <div>
           <h2>Event Attendance</h2>
           <p>Capacity, attendance, and waitlist comparison.</p>
         </div>
-        <button 
+        <button
           onClick={handleExportCSV}
           disabled={!data || data.length === 0}
           style={{
@@ -51,9 +55,9 @@ const EventAttendanceChart = React.memo(function EventAttendanceChart({ data = [
             background: 'var(--c1, #cc1111)',
             color: '#fff',
             border: 'none',
-            cursor: (!data || data.length === 0) ? 'not-allowed' : 'pointer',
-            opacity: (!data || data.length === 0) ? 0.6 : 1,
-            fontFamily: 'inherit'
+            cursor: !data || data.length === 0 ? 'not-allowed' : 'pointer',
+            opacity: !data || data.length === 0 ? 0.6 : 1,
+            fontFamily: 'inherit',
           }}
         >
           Export CSV

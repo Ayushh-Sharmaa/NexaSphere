@@ -5,7 +5,6 @@ import DOMPurify from 'dompurify';
 import { getApiBase } from '../../utils/runtimeConfig';
 import { formatWithTimezone } from '../../utils/timezoneUtils';
 
-
 /* ── Animated counter ── */
 function Counter({ value, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -207,7 +206,8 @@ function EventCard({ event, activityColor, onSelect }) {
               marginBottom: '10px',
             }}
           >
-            <DynamicIcon name="Calendar" size={14} /> {event.dateText ? event.dateText : formatWithTimezone(event.date)}
+            <DynamicIcon name="Calendar" size={14} />{' '}
+            {event.dateText ? event.dateText : formatWithTimezone(event.date)}
           </div>
           <div
             className="event-description-html"
@@ -330,7 +330,8 @@ function UpcomingCard({ event, color }) {
           marginBottom: '6px',
         }}
       >
-        <DynamicIcon name="Calendar" size={14} /> {event.dateText ? event.dateText : formatWithTimezone(event.date)}
+        <DynamicIcon name="Calendar" size={14} />{' '}
+        {event.dateText ? event.dateText : formatWithTimezone(event.date)}
       </div>
       <div
         className="event-description-html"
@@ -543,9 +544,18 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
       {/* ── Content area — reduced top padding to avoid double-gap ── */}
       <div className="container" style={{ paddingTop: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
-          <label style={{ fontSize: '0.85rem', marginRight: '8px', color: 'var(--t2)' }}>Timezone:</label>
-          <select 
-            style={{ fontSize: '0.85rem', padding: '4px', borderRadius: '4px', background: 'var(--bg2)', color: 'var(--t1)', border: '1px solid var(--bdr1)' }}
+          <label style={{ fontSize: '0.85rem', marginRight: '8px', color: 'var(--t2)' }}>
+            Timezone:
+          </label>
+          <select
+            style={{
+              fontSize: '0.85rem',
+              padding: '4px',
+              borderRadius: '4px',
+              background: 'var(--bg2)',
+              color: 'var(--t1)',
+              border: '1px solid var(--bdr1)',
+            }}
             onChange={(e) => {
               if (e.target.value) {
                 localStorage.setItem('preferredTimezone', e.target.value);
@@ -554,7 +564,9 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
               }
               window.location.reload();
             }}
-            defaultValue={typeof window !== 'undefined' ? localStorage.getItem('preferredTimezone') || '' : ''}
+            defaultValue={
+              typeof window !== 'undefined' ? localStorage.getItem('preferredTimezone') || '' : ''
+            }
           >
             <option value="">Browser Default</option>
             <option value="America/New_York">EST (New York)</option>

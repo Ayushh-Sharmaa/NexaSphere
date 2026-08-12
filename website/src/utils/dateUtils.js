@@ -146,7 +146,11 @@ export function daysBetween(from, to) {
  * @param {object} [options.dateStyle={day:'numeric', month:'short'}] - Style.
  * @returns {string|null} E.g. `12 Aug – 14 Aug` or `12 Aug`.
  */
-export function formatDateRange(start, end, { locale, dateStyle = { day: 'numeric', month: 'short' } } = {}) {
+export function formatDateRange(
+  start,
+  end,
+  { locale, dateStyle = { day: 'numeric', month: 'short' } } = {}
+) {
   const startDate = toDate(start);
   const endDate = toDate(end);
   if (!startDate) return null;

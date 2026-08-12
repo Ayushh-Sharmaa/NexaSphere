@@ -1,13 +1,13 @@
 const ICON_ALIASES = {
-  Home: 'Dashboard',
-  '\u{1F3E0}': 'Dashboard',
-  '\u{1F4C5}': 'Calendar',
-  '\u{1F51C}': 'Clock',
-  '\u{1F465}': 'Users',
-  '\u{1F3AF}': 'Target',
-  '\u{1F9E0}': 'Brain',
-  '\u{1F527}': 'Wrench',
-  '\u{1F4CC}': 'Pin',
+  Home: "Dashboard",
+  "\u{1F3E0}": "Dashboard",
+  "\u{1F4C5}": "Calendar",
+  "\u{1F51C}": "Clock",
+  "\u{1F465}": "Users",
+  "\u{1F3AF}": "Target",
+  "\u{1F9E0}": "Brain",
+  "\u{1F527}": "Wrench",
+  "\u{1F4CC}": "Pin",
 };
 
 const ICONS = {
@@ -142,8 +142,8 @@ const ICONS = {
   ),
 };
 
-export function AdminIcon({ name, size = 18, className = '', ...props }) {
-  const iconName = ICON_ALIASES[name] || name || 'Calendar';
+export function AdminIcon({ name, size = 18, className = "", ...props }) {
+  const iconName = ICON_ALIASES[name] || name || "Calendar";
   const paths = ICONS[iconName] || ICONS.Calendar;
 
   return (

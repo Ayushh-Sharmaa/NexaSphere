@@ -70,7 +70,13 @@ describe('useKeyPress', () => {
   it('supports multiple descriptor objects', () => {
     const handler = vi.fn();
     renderHook(() =>
-      useKeyPress([{ key: 'k', ctrlKey: true }, { key: 'k', metaKey: true }], handler)
+      useKeyPress(
+        [
+          { key: 'k', ctrlKey: true },
+          { key: 'k', metaKey: true },
+        ],
+        handler
+      )
     );
 
     press('k', { metaKey: true });

@@ -29,7 +29,12 @@ describe('debounce', () => {
   });
 
   it('preserves the call-site context', () => {
-    const obj = { value: 7, log() { return this.value; } };
+    const obj = {
+      value: 7,
+      log() {
+        return this.value;
+      },
+    };
     const spy = vi.spyOn(obj, 'log');
     const debounced = debounce(obj.log, 100);
 

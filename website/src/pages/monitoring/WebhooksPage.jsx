@@ -35,7 +35,7 @@ export default function WebhooksPage() {
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  const showFeedback = (message, type = "info") => {
+  const showFeedback = (message, type = 'info') => {
     setFeedback({ message, type });
     setTimeout(() => setFeedback(null), 5000);
   };
@@ -116,7 +116,7 @@ export default function WebhooksPage() {
       setFormData({ name: '', url: '', secret: '', events: [] });
       fetchWebhooks();
     } catch (err) {
-      showFeedback(err.message, "error");
+      showFeedback(err.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -134,7 +134,7 @@ export default function WebhooksPage() {
       }
       fetchWebhooks();
     } catch (err) {
-      showFeedback(err.message, "error");
+      showFeedback(err.message, 'error');
     }
   };
 
@@ -177,7 +177,8 @@ export default function WebhooksPage() {
             marginBottom: '20px',
             fontSize: '0.95rem',
             fontWeight: 500,
-            backgroundColor: feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+            backgroundColor:
+              feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
             color: feedback.type === 'error' ? '#f87171' : '#34d399',
             border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
           }}

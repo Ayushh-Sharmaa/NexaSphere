@@ -56,7 +56,10 @@ export default function EventsList() {
           setEvents(eventsData);
           setTotalItems(totalData);
           // Cache fresh data for next visit
-          sessionStorage.setItem(cacheKey, JSON.stringify({ events: eventsData, total: totalData }));
+          sessionStorage.setItem(
+            cacheKey,
+            JSON.stringify({ events: eventsData, total: totalData })
+          );
         }
       })
       .catch((err) => console.error("Failed to fetch events:", err))

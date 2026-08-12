@@ -26,12 +26,7 @@ const ProjectCard = memo(({ project, onClick, triggerRef }) => {
       aria-label={`View details for ${project.title}`}
     >
       <div className="project-card-image">
-        <SafeImage
-          src={project.image}
-          alt={project.title}
-          loading="lazy"
-          fallbackType="project"
-        />
+        <SafeImage src={project.image} alt={project.title} loading="lazy" fallbackType="project" />
         <div className="project-card-overlay">
           <span className="view-details-text">View Details</span>
         </div>

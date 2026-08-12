@@ -39,11 +39,23 @@ export default function VirtualizedMetricsTable({
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      style={{ height: containerHeight, overflowY: "auto", position: "relative" }}
+      style={{
+        height: containerHeight,
+        overflowY: "auto",
+        position: "relative",
+      }}
       className="virtualized-metrics-container border border-zinc-800 rounded-lg bg-zinc-900/50"
     >
       <div style={{ height: totalHeight, width: "100%", position: "relative" }}>
-        <div style={{ transform: `translateY(${offsetY}px)`, position: "absolute", top: 0, left: 0, right: 0 }}>
+        <div
+          style={{
+            transform: `translateY(${offsetY}px)`,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+          }}
+        >
           <table className="w-full text-left text-sm text-zinc-300">
             <thead className="bg-zinc-800 text-zinc-400 sticky top-0">
               <tr>
@@ -62,7 +74,9 @@ export default function VirtualizedMetricsTable({
                   className="border-b border-zinc-800/50 hover:bg-zinc-800/30"
                 >
                   <td className="px-4 py-2">{row.timestamp}</td>
-                  <td className="px-4 py-2 font-medium text-white">{row.service}</td>
+                  <td className="px-4 py-2 font-medium text-white">
+                    {row.service}
+                  </td>
                   <td className="px-4 py-2">{row.cpu}</td>
                   <td className="px-4 py-2">{row.memory}</td>
                   <td className="px-4 py-2">{row.latency}</td>

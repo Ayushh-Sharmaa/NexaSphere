@@ -105,8 +105,8 @@ export function extent(items, selector = (x) => x) {
  * @param {'asc'|'desc'} [options.order='desc'] - Rank direction.
  * @returns {Array} Top items.
  */
-export function topN(items, selector, n, { order = 'desc' } = {}) {
-  const direction = order === 'asc' ? 1 : -1;
+export function topN(items, selector, n, { order = "desc" } = {}) {
+  const direction = order === "asc" ? 1 : -1;
   return [...items]
     .sort((a, b) => {
       const av = Number(selector(a));

@@ -17,7 +17,7 @@
  */
 export function formatNumber(value, decimals = 0) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return String(value ?? '');
+  if (!Number.isFinite(num)) return String(value ?? "");
   return num.toLocaleString(undefined, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -33,11 +33,11 @@ export function formatNumber(value, decimals = 0) {
  * @param {number} [options.decimals=0] - Decimal places.
  * @returns {string} Currency string.
  */
-export function formatCurrency(value, { currency = 'INR', decimals = 0 } = {}) {
+export function formatCurrency(value, { currency = "INR", decimals = 0 } = {}) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return String(value ?? '');
+  if (!Number.isFinite(num)) return String(value ?? "");
   return num.toLocaleString(undefined, {
-    style: 'currency',
+    style: "currency",
     currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -55,7 +55,7 @@ export function formatCurrency(value, { currency = 'INR', decimals = 0 } = {}) {
  */
 export function formatPercent(value, { decimals = 1, isScaled = false } = {}) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return String(value ?? '');
+  if (!Number.isFinite(num)) return String(value ?? "");
   const scaled = isScaled ? num : num * 100;
   return `${scaled.toFixed(decimals)}%`;
 }
@@ -69,13 +69,16 @@ export function formatPercent(value, { decimals = 1, isScaled = false } = {}) {
  */
 export function formatBytes(bytes, decimals = 1) {
   const value = Number(bytes);
-  if (!Number.isFinite(value) || value < 0) return '0 B';
-  if (value === 0) return '0 B';
+  if (!Number.isFinite(value) || value < 0) return "0 B";
+  if (value === 0) return "0 B";
 
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const index = Math.min(
+    Math.floor(Math.log(value) / Math.log(1024)),
+    units.length - 1
+  );
   const amount = value / 1024 ** index;
-  return `${amount.toFixed(decimals).replace(/\.0+$/, '')} ${units[index]}`;
+  return `${amount.toFixed(decimals).replace(/\.0+$/, "")} ${units[index]}`;
 }
 
 /**
@@ -87,10 +90,10 @@ export function formatBytes(bytes, decimals = 1) {
  */
 export function formatCompact(value, decimals = 1) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return String(value ?? '');
+  if (!Number.isFinite(num)) return String(value ?? "");
   if (Math.abs(num) < 1000) return String(Math.round(num));
   return new Intl.NumberFormat(undefined, {
-    notation: 'compact',
+    notation: "compact",
     maximumFractionDigits: decimals,
   }).format(num);
 }
@@ -103,8 +106,8 @@ export function formatCompact(value, decimals = 1) {
  */
 export function pad2(value) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return '00';
-  return String(Math.trunc(Math.abs(num))).padStart(2, '0');
+  if (!Number.isFinite(num)) return "00";
+  return String(Math.trunc(Math.abs(num))).padStart(2, "0");
 }
 
 /**
@@ -118,9 +121,9 @@ export function pad2(value) {
  */
 export function formatSignedPercent(value, { showZero = true } = {}) {
   const num = Number(value);
-  if (!Number.isFinite(num)) return String(value ?? '');
-  if (num === 0 && !showZero) return '';
-  const sign = num > 0 ? '+' : num < 0 ? '-' : '';
+  if (!Number.isFinite(num)) return String(value ?? "");
+  if (num === 0 && !showZero) return "";
+  const sign = num > 0 ? "+" : num < 0 ? "-" : "";
   return `${sign}${formatPercent(Math.abs(num), { isScaled: true })}`;
 }
 

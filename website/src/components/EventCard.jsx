@@ -113,12 +113,15 @@ const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstFor
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              backgroundColor: feedback.type === 'info' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              backgroundColor:
+                feedback.type === 'info' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
               color: feedback.type === 'info' ? '#60a5fa' : '#34d399',
               border: `1px solid ${feedback.type === 'info' ? '#3b82f6' : '#10b981'}`,
             }}
           >
-            <span>{feedback.type === 'info' ? 'ℹ️' : '✅'} {feedback.message}</span>
+            <span>
+              {feedback.type === 'info' ? 'ℹ️' : '✅'} {feedback.message}
+            </span>
             <button
               onClick={(e) => {
                 e.stopPropagation();

@@ -1,30 +1,30 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../services/auth';
-import { adminPath } from '../utils/adminBasePath';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../services/auth";
+import { adminPath } from "../utils/adminBasePath";
 
 export function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [twoFactor, setTwoFactor] = useState(null);
-  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       const result = await auth.login(email, password);
       if (result.requiresTwoFactor || result.requiresTwoFactorSetup) {
         setTwoFactor(result);
-        setVerificationCode('');
+        setVerificationCode("");
         return;
       }
-      navigate(adminPath('/dashboard'));
+      navigate(adminPath("/dashboard"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,7 +34,7 @@ export function LoginPage() {
 
   const handleTwoFactorSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       if (twoFactor.requiresTwoFactorSetup) {
@@ -42,7 +42,7 @@ export function LoginPage() {
       } else {
         await auth.verifyTwoFactor(twoFactor.challengeToken, verificationCode);
       }
-      navigate(adminPath('/dashboard/security'));
+      navigate(adminPath("/dashboard/security"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,7 +62,10 @@ export function LoginPage() {
           <form onSubmit={handleTwoFactorSubmit} className="form">
             {twoFactor.requiresTwoFactorSetup && (
               <div className="two-factor-setup">
-                <img src={twoFactor.qrCodeDataUrl} alt="Authenticator QR code" />
+                <img
+                  src={twoFactor.qrCodeDataUrl}
+                  alt="Authenticator QR code"
+                />
                 <div className="backup-codes" aria-label="Backup codes">
                   {twoFactor.backupCodes?.map((code) => (
                     <code key={code}>{code}</code>
@@ -71,7 +74,9 @@ export function LoginPage() {
               </div>
             )}
             {twoFactor.suspicious && (
-              <div className="form-error">Additional verification required for this login.</div>
+              <div className="form-error">
+                Additional verification required for this login.
+              </div>
             )}
             <div className="form-row">
               <label>Authenticator code</label>
@@ -86,8 +91,12 @@ export function LoginPage() {
               />
             </div>
             {error && <div className="form-error">{error}</div>}
-            <button type="submit" className="btn-primary full-width" disabled={loading}>
-              {loading ? 'Verifying...' : 'Verify and continue'}
+            <button
+              type="submit"
+              className="btn-primary full-width"
+              disabled={loading}
+            >
+              {loading ? "Verifying..." : "Verify and continue"}
             </button>
             <button
               type="button"
@@ -113,34 +122,34 @@ export function LoginPage() {
             </div>
             <div className="form-row">
               <label>Password</label>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: "relative" }}>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  style={{ width: '100%', paddingRight: '40px' }}
+                  style={{ width: "100%", paddingRight: "40px" }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--t3)',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    color: "var(--t3)",
+                    cursor: "pointer",
+                    padding: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                  title={showPassword ? 'Hide password' : 'Show password'}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <svg
@@ -175,8 +184,12 @@ export function LoginPage() {
               </div>
             </div>
             {error && <div className="form-error">{error}</div>}
-            <button type="submit" className="btn-primary full-width" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
+            <button
+              type="submit"
+              className="btn-primary full-width"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
         )}

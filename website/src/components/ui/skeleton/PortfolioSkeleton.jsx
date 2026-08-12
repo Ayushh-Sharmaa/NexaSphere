@@ -53,7 +53,12 @@ export const PortfolioSkeleton = () => {
               {/* Stable widths — avoid Math.random() in render which causes
                   layout instability and breaks React hydration */}
               {[96, 120, 88, 112, 100, 136].map((w, i) => (
-                <Skeleton key={`portfolio-skill-${i}`} width={`${w}px`} height="32px" style={{ borderRadius: '16px' }} />
+                <Skeleton
+                  key={`portfolio-skill-${i}`}
+                  width={`${w}px`}
+                  height="32px"
+                  style={{ borderRadius: '16px' }}
+                />
               ))}
             </div>
           </section>

@@ -960,11 +960,19 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         showReminderFeedback('This event is too close or has already started.', 'error');
       }
     } else {
-      showReminderFeedback('Please enable notifications in your browser settings to use reminders.', 'error');
+      showReminderFeedback(
+        'Please enable notifications in your browser settings to use reminders.',
+        'error'
+      );
     }
   };
 
-  const status = event.status === 'completed' ? 'completed' : (event.status === 'upcoming' || event.status === 'registration_open') ? 'upcoming' : event.status;
+  const status =
+    event.status === 'completed'
+      ? 'completed'
+      : event.status === 'upcoming' || event.status === 'registration_open'
+        ? 'upcoming'
+        : event.status;
   const isUpcoming = event.status === 'upcoming' || event.status === 'registration_open';
   const eventEnd = event.endDate ?? event.startDate ?? event.date;
   const isInFuture = eventEnd ? new Date(eventEnd) > new Date() : isUpcoming;
@@ -984,11 +992,13 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     try {
       const base = getApiBase();
       const url = `${base}/api/content/events/${event.id}/register`;
-      let idempotencyKey = typeof window !== 'undefined' ? sessionStorage.getItem(registrationKey) : null;
+      let idempotencyKey =
+        typeof window !== 'undefined' ? sessionStorage.getItem(registrationKey) : null;
       if (!idempotencyKey || idempotencyKey === 'confirmed') {
-        idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `reg-${event.id}-${Date.now().toString(36)}`;
+        idempotencyKey =
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `reg-${event.id}-${Date.now().toString(36)}`;
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(registrationKey, idempotencyKey);
         }
@@ -1012,7 +1022,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
           registrationId: `NS-OFFLINE-${event.id}-${Date.now().toString(36).toUpperCase()}`,
           eventName: event.name,
           eventDate: event.dateText ?? event.date,
-          offline: true
+          offline: true,
         });
         showNotification('Registration saved offline. Will sync when you reconnect.');
         return;
@@ -1300,22 +1310,25 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                     <DynamicIcon name="Bell" size={14} />
                   </button>
                   {reminderFeedback && (
-        <div
-          role="status"
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            fontSize: "0.85rem",
-            marginBottom: "8px",
-            backgroundColor: reminderFeedback.type === "error" ? "rgba(239, 68, 68, 0.15)" : "rgba(16, 185, 129, 0.15)",
-            color: reminderFeedback.type === "error" ? "#f87171" : "#34d399",
-            border: `1px solid ${reminderFeedback.type === "error" ? "#ef4444" : "#10b981"}`,
-          }}
-        >
-          {reminderFeedback.msg}
-        </div>
-      )}
-      {showReminderMenu && (
+                    <div
+                      role="status"
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        fontSize: '0.85rem',
+                        marginBottom: '8px',
+                        backgroundColor:
+                          reminderFeedback.type === 'error'
+                            ? 'rgba(239, 68, 68, 0.15)'
+                            : 'rgba(16, 185, 129, 0.15)',
+                        color: reminderFeedback.type === 'error' ? '#f87171' : '#34d399',
+                        border: `1px solid ${reminderFeedback.type === 'error' ? '#ef4444' : '#10b981'}`,
+                      }}
+                    >
+                      {reminderFeedback.msg}
+                    </div>
+                  )}
+                  {showReminderMenu && (
                     <div
                       style={{
                         position: 'absolute',

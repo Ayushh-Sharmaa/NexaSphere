@@ -5,7 +5,11 @@ import useClickOutside from '../hooks/useClickOutside';
 
 function OutsideHarness({ onOutside, enabled, ignore, events }) {
   const triggerRef = useRef(null);
-  const panelRef = useClickOutside(onOutside, { enabled, ignore: ignore ? [triggerRef] : [], events });
+  const panelRef = useClickOutside(onOutside, {
+    enabled,
+    ignore: ignore ? [triggerRef] : [],
+    events,
+  });
 
   return (
     <div>

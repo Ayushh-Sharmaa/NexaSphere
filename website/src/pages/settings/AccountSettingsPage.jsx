@@ -164,12 +164,15 @@ export default function AccountSettingsPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              backgroundColor: feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              backgroundColor:
+                feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
               color: feedback.type === 'error' ? '#f87171' : '#34d399',
               border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
             }}
           >
-            <span>{feedback.type === 'error' ? '⚠️' : '✅'} {feedback.message}</span>
+            <span>
+              {feedback.type === 'error' ? '⚠️' : '✅'} {feedback.message}
+            </span>
             <button
               onClick={() => setFeedback(null)}
               style={{
@@ -199,7 +202,10 @@ export default function AccountSettingsPage() {
               display: 'flex',
               alignItems: 'center',
               justify: 'space-between',
-              background: notification.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+              background:
+                notification.type === 'error'
+                  ? 'rgba(239, 68, 68, 0.15)'
+                  : 'rgba(34, 197, 94, 0.15)',
               border: `1px solid ${notification.type === 'error' ? '#ef4444' : '#22c55e'}`,
               color: notification.type === 'error' ? '#fca5a5' : '#86efac',
               fontSize: '0.95rem',

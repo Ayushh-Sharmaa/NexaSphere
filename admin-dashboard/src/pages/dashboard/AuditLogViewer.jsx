@@ -236,22 +236,22 @@ export default function AuditLogViewer() {
 
   const handleExportPDF = async () => {
     const url = new URL(`${API_BASE}/api/admin/audit-logs`);
-    url.searchParams.set('limit', 1000);
-    if (adminId) url.searchParams.set('adminId', adminId);
-    if (action) url.searchParams.set('action', action);
-    if (startDate) url.searchParams.set('startDate', startDate);
-    if (endDate) url.searchParams.set('endDate', endDate);
+    url.searchParams.set("limit", 1000);
+    if (adminId) url.searchParams.set("adminId", adminId);
+    if (action) url.searchParams.set("action", action);
+    if (startDate) url.searchParams.set("startDate", startDate);
+    if (endDate) url.searchParams.set("endDate", endDate);
 
-    const res = await fetch(url.toString(), { credentials: 'include' });
+    const res = await fetch(url.toString(), { credentials: "include" });
     const data = await res.json();
     const logs = data.logs ?? [];
-    
-    const columns = ['Timestamp', 'Admin ID', 'Action', 'IP Address'];
+
+    const columns = ["Timestamp", "Admin ID", "Action", "IP Address"];
     const rows = logs.map((l) => [
       new Date(l.timestamp).toLocaleString(),
       l.admin_id,
       l.action,
-      l.ip_address || '-',
+      l.ip_address || "-",
     ]);
     exportToPDF(columns, rows, `audit-logs-${Date.now()}`);
   };

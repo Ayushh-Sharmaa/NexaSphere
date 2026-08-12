@@ -613,7 +613,9 @@ export default function SkillExchangePage({ onBack }) {
                     >
                       #{i + 1}
                     </span>
-                    <strong>{entry.user === getOrCreateUserId() ? `${entry.user} (you)` : entry.user}</strong>
+                    <strong>
+                      {entry.user === getOrCreateUserId() ? `${entry.user} (you)` : entry.user}
+                    </strong>
                   </div>
                   <div
                     style={{ display: 'flex', gap: 16, fontSize: '0.85rem', color: 'var(--t2)' }}

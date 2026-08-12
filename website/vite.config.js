@@ -4,6 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { visualizer } from 'rollup-plugin-visualizer';
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -17,7 +22,10 @@ export default defineConfig({
       '@data': '/src/data',
       'next/image': '/src/shared/next-image.jsx',
       'next/dynamic': '/src/shared/next-dynamic.jsx',
-      '@fullcalendar/core/index.js': '@fullcalendar/core',
+      '@fullcalendar/core/index.js': path.resolve(
+        __dirname,
+        'node_modules/@fullcalendar/core/index.js'
+      ),
     },
   },
 

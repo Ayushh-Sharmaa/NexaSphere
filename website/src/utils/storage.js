@@ -26,7 +26,8 @@ export function createStorage(prefix = DEFAULT_PREFIX, backing = null) {
 
   const fullKey = (key) => `${prefix}:${key}`;
 
-  const read = (key) => (enabled ? engine.getItem(fullKey(key)) : memory.get(fullKey(key)) ?? null);
+  const read = (key) =>
+    enabled ? engine.getItem(fullKey(key)) : (memory.get(fullKey(key)) ?? null);
   const write = (key, value) => {
     if (enabled) engine.setItem(fullKey(key), value);
     else memory.set(fullKey(key), value);

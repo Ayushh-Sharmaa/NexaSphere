@@ -107,9 +107,7 @@ describe('useCopyToClipboard', () => {
 
   it('falls back to execCommand when the Clipboard API is missing', async () => {
     navigator.clipboard = undefined;
-    const execSpy = vi
-      .spyOn(document, 'execCommand')
-      .mockImplementation(() => true);
+    const execSpy = vi.spyOn(document, 'execCommand').mockImplementation(() => true);
 
     const { result } = renderHook(() => useCopyToClipboard());
 

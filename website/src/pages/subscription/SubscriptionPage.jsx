@@ -59,7 +59,7 @@ export default function SubscriptionPage({ onBack }) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-  const showFeedback = (message, type = "error") => {
+  const showFeedback = (message, type = 'error') => {
     setFeedback({ message, type });
     setTimeout(() => setFeedback(null), 4000);
   };
