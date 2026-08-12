@@ -19,7 +19,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}
         run: |
-          gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --comment "Sorry, we are not continuing in GSSOC anymore. You can continue with other projects."
+          gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --comment "Sorry, I am not continuing in GSSOC. You can find another project and avoid creating issues and PRs here."
 
       - name: Close PR
         if: github.event_name == 'pull_request_target'
@@ -27,4 +27,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          gh pr close "$PR" -R "$GITHUB_REPOSITORY" --comment "Sorry, we are not continuing in GSSOC anymore. You can continue with other projects."
+          gh pr close "$PR" -R "$GITHUB_REPOSITORY" --comment "Sorry, I am not continuing in GSSOC. You can find another project and avoid creating issues and PRs here."

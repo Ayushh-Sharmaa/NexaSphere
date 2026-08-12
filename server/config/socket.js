@@ -632,38 +632,18 @@ export function _onConnection(socket) {
       .emit('user_joined', { socketId: socket.id, user: sanitizedUser, timestamp: Date.now() });
   });
 
+  // Leave workspace room
   socket.on('leave_room', (roomId) => {
     if (typeof roomId !== 'string') return;
     _removeWorkspaceMember(roomId, socket.id);
-    // Sanitize user details to prevent reference leaks / massive nested objects
-    const sanitizedUser =
-      user && typeof user === "object"
-        ? {
-            name:
-              typeof user.name === "string"
-                ? user.name.slice(0, 100)
-                : "Anonymous",
-            email:
-              typeof user.email === "string" ? user.email.slice(0, 150) : "",
-          }
-        : {};
-
-    socket
-      .to(roomId)
-      .emit("user_joined", {
-        socketId: socket.id,
-        user: sanitizedUser,
-        timestamp: Date.now(),
-      });
-  });
-
-  // Leave workspace room
-  socket.on("leave_room", (roomId) => {
-    if (typeof roomId !== "string") return;
-    _removeWorkspaceMember(roomId, socket.id);
     socket.leave(roomId);
-    logger.info("User left workspace room", { socketId: socket.id, roomId });
-    socket.to(roomId).emit("user_left", { socketId: socket.id });
+    const identity = connectedUsers.get(socket.id);
+    const sanitizedUser = {
+      name: typeof identity?.name === 'string' ? identity.name.slice(0, 100) : 'Anonymous',
+      email: typeof identity?.email === 'string' ? identity.email.slice(0, 150) : '',
+    };
+    logger.info('User left workspace room', { socketId: socket.id, roomId });
+    socket.to(roomId).emit('user_left', { socketId: socket.id, user: sanitizedUser });
   });
 
   // Workspace synchronization events — only relay if sender is a room member
@@ -702,6 +682,9 @@ export function _onConnection(socket) {
     workspaceVersions.set(roomId, version);
     
     socket.to(roomId).emit("document_change", { content, version });
+    await saveWorkspaceDocument(roomId, content, version).catch((err) =>
+      logger.error('Failed to persist workspace document', { roomId, err })
+    );
   });
 
   socket.on("cursor_moved", (data) => {

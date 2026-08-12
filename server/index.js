@@ -840,14 +840,11 @@ app.get('/api/streams/:id/reactions', streamController.getReactions);
 // Public listings
 app.get('/api/content/team', async (req, res) => {
   try {
-    const event = sanitizeEvent(req.body || {});
-    if (!event.name || !event.date || !event.description) {
-      return res.status(400).json({ error: 'name, date and description are required' });
-    }
-    const saved = await createEventStore(event);
-    return res.status(201).json({ ok: true, event: saved });
+    const fullTeam = await listCoreTeamStore();
+    const publicTeam = fullTeam.map(({ email, whatsapp, ...safeData }) => safeData);
+    return res.json(publicTeam);
   } catch (e) {
-    return res.status(500).json({ error: e?.message || 'Unable to create event' });
+    return res.status(500).json({ error: e?.message || 'Failed to load core team' });
   }
 });
 
