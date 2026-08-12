@@ -189,10 +189,11 @@ export const featureFlagsRepository = {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT * FROM feature_flags 
-         WHERE updated_at < NOW() - make_interval(days => $1::double precision)`,
+         WHERE updated_at < NOW() - ($1 * INTERVAL '1 day')`,
         [staleThresholdDays]
       );
       return rows;
     });
   },
 };
+

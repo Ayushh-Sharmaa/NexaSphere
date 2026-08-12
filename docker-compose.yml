@@ -78,6 +78,9 @@ services:
     depends_on:
       api:
         condition: service_healthy
+    networks:
+      - default
+      - staging_internal
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:80/health']
@@ -85,31 +88,68 @@ services:
       timeout: 5s
       retries: 3
 
+  # ── Staging Express API (Shadow Traffic Target) ─────────────────────────────
+  staging-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: production
+    expose:
+      - '8787'
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: staging
+      PORT: 8787
+      REDIS_URL: redis://staging-redis:6379
+      LOG_FORMAT: json
+      METRICS_ENABLED: 'false'
+      OTEL_ENABLED: 'false'
+    networks:
+      - staging_internal
+    restart: unless-stopped
+    depends_on:
+      staging-redis:
+        condition: service_healthy
+
+  # ── Staging Redis Server ────────────────────────────────────────────────────
+  staging-redis:
+    image: redis:7-alpine
+    command: redis-server --save "" --appendonly no
+    restart: unless-stopped
+    networks:
+      - staging_internal
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ── Python AI API (optional) ─────────────────────────────────────────────────
   python-api:
     profiles: ['python', 'observability']
     build:
       context: ./server-python
       dockerfile: Dockerfile
-    expose:
-      - '8000'
-    environment:
-      REDIS_URL: redis://redis:6379/0
-      OTEL_SERVICE_NAME: nexasphere-python
-      OTEL_ENABLED: 'false'
-      LOG_FORMAT: json
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - default
-      - observability
-    healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:8000/health']
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      expose:
+        - '8000'
+      environment:
+        REDIS_URL: redis://redis:6379/0
+        OTEL_SERVICE_NAME: nexasphere-python
+        OTEL_ENABLED: 'false'
+        LOG_FORMAT: json
+      depends_on:
+        redis:
+          condition: service_healthy
+      restart: unless-stopped
+      networks:
+        - default
+        - observability
+      healthcheck:
+        test: ['CMD', 'wget', '-qO-', 'http://localhost:8000/health']
+        interval: 30s
+        timeout: 5s
+        retries: 3
 
   # ── Java Microservices API (optional) ────────────────────────────────────────
   java-api:
