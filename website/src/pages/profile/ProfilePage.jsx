@@ -390,6 +390,11 @@ export default function ProfilePage() {
               })}
               &nbsp;&bull;&nbsp;{profile.role || 'Student'}
             </div>
+            <div
+              style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
+              <BadgesList />
+            </div>
             {profile.socialLinks && (
               <div style={{ marginTop: '0.6rem' }}>
                 {profile.socialLinks.github && (
