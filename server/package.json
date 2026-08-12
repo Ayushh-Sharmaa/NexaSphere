@@ -70,7 +70,7 @@
     "passport-google-oauth20": "^2.0.0",
     "pdf-parse": "^2.4.5",
     "pdfkit": "^0.19.1",
-    "pg": "^8.22.0",
+    "pg": "^8.23.0",
     "prom-client": "^15.1.2",
     "qrcode": "^1.5.4",
     "rate-limit-redis": "^5.0.0",
