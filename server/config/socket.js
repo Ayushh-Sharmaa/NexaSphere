@@ -1183,6 +1183,8 @@ export function _onConnection(socket) {
   socket.on("error", (error) => {
     logger.error("Socket error", { error: error.message, socketId: socket.id });
   });
+
+  setupChatSocketHandlers(socket, io);
 }
 
 export function getIO() {
