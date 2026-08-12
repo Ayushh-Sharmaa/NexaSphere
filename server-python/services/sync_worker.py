@@ -25,6 +25,10 @@ async def sync_single_item(task_id: int, form_type: str, payload: Dict[str, Any]
             await sheets_service.append_core_team_application(payload)
         else:
             logger.error(f"Unknown form type in sync task: {form_type}")
+            new_retry_count = retry_count + 1
+            if new_retry_count >= MAX_RETRIES:
+                logger.error(f"Task {task_id} exceeded maximum retries. Leaving in queue with failure state.")
+            await supabase_service.release_failed_sync_task(task_id, new_retry_count, f"Unknown form type: {form_type}")
             return False
 
         # Success! Delete from queue
