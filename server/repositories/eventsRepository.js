@@ -1,18 +1,20 @@
-import { withDb } from './db.js';
-import logger from '../utils/logger.js';
+import { withDb } from "./db.js";
+import logger from "../utils/logger.js";
 
 function parsePostgresArray(val) {
   if (Array.isArray(val)) return val;
-  if (typeof val === 'string') {
+  if (typeof val === "string") {
     const trimmed = val.trim();
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
       const content = trimmed.slice(1, -1).trim();
-      return content ? content.split(',').map((item) => item.trim().replace(/^"|"$/g, '')) : [];
+      return content
+        ? content.split(",").map((item) => item.trim().replace(/^"|"$/g, ""))
+        : [];
     }
   }
   return [];
 }
-import { getCache, setCache, invalidateCache } from '../config/redis.js';
+import { getCache, setCache, invalidateCache } from "../config/redis.js";
 
 function mapRow(row) {
   return {
@@ -25,7 +27,10 @@ function mapRow(row) {
     icon: row.icon,
     tags: parsePostgresArray(row.tags),
     tags: Array.isArray(row.tags) ? row.tags : (row.tags ?? []),
-    restrictedGroups: typeof row.restricted_groups === 'string' ? JSON.parse(row.restricted_groups) : (row.restricted_groups ?? []),
+    restrictedGroups:
+      typeof row.restricted_groups === "string"
+        ? JSON.parse(row.restricted_groups)
+        : (row.restricted_groups ?? []),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -133,7 +138,10 @@ export const eventsRepository = {
 
   async getById(id) {
     return withDb(async (client) => {
-      const { rows } = await client.query('select * from events where id = $1', [id]);
+      const { rows } = await client.query(
+        "select * from events where id = $1",
+        [id]
+      );
       if (!rows.length) return null;
       return mapRow(rows[0]);
       if (rows.length > 0) {
@@ -141,7 +149,9 @@ export const eventsRepository = {
       }
 
       // Fallback only if offset yielded zero rows
-      const { rows: countRows } = await client.query('select count(*)::int as total from events');
+      const { rows: countRows } = await client.query(
+        "select count(*)::int as total from events"
+      );
       return { rows: [], total: countRows[0]?.total ?? 0 };
     });
   },
@@ -178,13 +188,16 @@ export const eventsRepository = {
         ]
       );
       const mapped = mapRow(rows[0]);
-      import('../services/searchIndexer.js')
+      import("../services/searchIndexer.js")
         .then(({ searchIndexer }) => searchIndexer.indexEvent(mapped))
         .catch((err) =>
-          logger.error('Failed to index event in search', { err, eventId: mapped?.id })
+          logger.error("Failed to index event in search", {
+            err,
+            eventId: mapped?.id,
+          })
         );
       return mapped;
-      await invalidateCache('events:list:*');
+      await invalidateCache("events:list:*");
       return mapRow(rows[0]);
     });
   },
@@ -195,19 +208,22 @@ export const eventsRepository = {
 
       // If no valid update fields are provided, skip the DB call and return the current record
       if (keys.length === 0) {
-        const { rows } = await client.query('select * from events where id = $1', [id]);
+        const { rows } = await client.query(
+          "select * from events where id = $1",
+          [id]
+        );
         return rows.length ? mapRow(rows[0]) : null;
       }
 
       const fieldMap = {
-        name: 'name',
-        shortName: 'short_name',
-        date: 'date_text',
-        description: 'description',
-        status: 'status',
-        icon: 'icon',
-        tags: 'tags',
-        capacity: 'capacity',
+        name: "name",
+        shortName: "short_name",
+        date: "date_text",
+        description: "description",
+        status: "status",
+        icon: "icon",
+        tags: "tags",
+        capacity: "capacity",
       };
 
       const setClauses = [];
@@ -220,7 +236,7 @@ export const eventsRepository = {
 
           // Ensure arrays are passed in a format pg-driver handles natively or as clean nulls
           let val = patch[key];
-          if (key === 'tags' && Array.isArray(val)) {
+          if (key === "tags" && Array.isArray(val)) {
             // Converts JS array directly to PG array format if driver needs it,
             // or lets the driver serialize it safely.
             val = val;
@@ -235,27 +251,40 @@ export const eventsRepository = {
 
       const queryText = `
         update events 
-        set ${setClauses.join(', ')} 
+        set ${setClauses.join(", ")} 
         where id = $1 
         returning *`;
 
       const { rows } = await client.query(queryText, values);
       if (!rows.length) return null;
-      
-      await invalidateCache('events:list:*');
+
+      await invalidateCache("events:list:*");
       return mapRow(rows[0]);
     });
   },
 
   async delete(id) {
     return withDb(async (client) => {
-      const { rowCount } = await client.query('delete from events where id=$1', [id]);
+      const { rowCount } = await client.query(
+        "delete from events where id=$1",
+        [id]
+      );
       if (rowCount > 0) {
-        import('../services/searchIndexer.js')
-          .then(({ searchIndexer }) => searchIndexer.deleteDocument('events', id))
-          .catch((err) => logger.error('Failed to remove event from search index', { err, eventId: id }));
-        await invalidateCache('events:list:*');
-            logger.error('Failed to remove event from search index', { err, eventId: id })
+        import("../services/searchIndexer.js")
+          .then(({ searchIndexer }) =>
+            searchIndexer.deleteDocument("events", id)
+          )
+          .catch((err) =>
+            logger.error("Failed to remove event from search index", {
+              err,
+              eventId: id,
+            })
+          );
+        await invalidateCache("events:list:*");
+        logger.error("Failed to remove event from search index", {
+          err,
+          eventId: id,
+        });
       }
       return rowCount > 0;
     });
@@ -275,7 +304,7 @@ export const eventsRepository = {
       const offset = (page - 1) * limit;
 
       // Single pass query using count(*) over() window function
-      let selectClause = 'select *, count(*) over()::int as total from events';
+      let selectClause = "select *, count(*) over()::int as total from events";
       const params = [];
       const conditions = [];
 
@@ -285,7 +314,9 @@ export const eventsRepository = {
       }
 
       if (category) {
-        conditions.push(`LOWER(array_to_string(tags, ',')) LIKE LOWER($${params.length + 1})`);
+        conditions.push(
+          `LOWER(array_to_string(tags, ',')) LIKE LOWER($${params.length + 1})`
+        );
         params.push(`%${category}%`);
       }
 
@@ -314,7 +345,7 @@ export const eventsRepository = {
       }
 
       if (conditions.length) {
-        selectClause += ' WHERE ' + conditions.join(' AND ');
+        selectClause += " WHERE " + conditions.join(" AND ");
       }
 
       selectClause += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
@@ -330,10 +361,10 @@ export const eventsRepository = {
       }
 
       // Fallback count query only if offset was beyond actual table bounds
-      let countQuery = 'select count(*)::int as total from events';
+      let countQuery = "select count(*)::int as total from events";
       const countParams = params.slice(0, params.length - 2);
       if (conditions.length) {
-        countQuery += ' WHERE ' + conditions.join(' AND ');
+        countQuery += " WHERE " + conditions.join(" AND ");
       }
 
       const countResult = await client.query(countQuery, countParams);

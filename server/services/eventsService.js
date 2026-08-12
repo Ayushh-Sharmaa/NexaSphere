@@ -1,9 +1,4 @@
-import { eventsRepository } from '../repositories/eventsRepository.js';
-import { eventSchema } from '../validators/eventSchemas.js';
-import { recordEventCreated } from '../observability/metrics.js';
-import { scheduleReminderJob } from './queueService.js';
-import logger from '../utils/logger.js';
-import { emitToRoom } from '../config/socket.js';
+import { eventsRepository } from "../repositories/eventsRepository.js";
 
 export const eventsService = {
   async listEvents({
@@ -28,8 +23,39 @@ export const eventsService = {
       location,
       search,
     });
+  },
 
-const isDbConfigured = () => Boolean(process.env.DATABASE_URL);
+  async adminListEvents({
+    page = 1,
+    limit = 20,
+    status,
+    startDate,
+    endDate,
+    category,
+    location,
+    search,
+  } = {}) {
+    return eventsRepository.listAll({
+      page,
+      limit,
+      status,
+      startDate,
+      endDate,
+      category,
+      location,
+      search,
+    });
+  },
 
-}
-}
+  async createEvent(event) {
+    return eventsRepository.create(event);
+  },
+
+  async updateEvent(id, patch) {
+    return eventsRepository.update(id, patch);
+  },
+
+  async deleteEvent(id) {
+    return eventsRepository.delete(id);
+  },
+};
