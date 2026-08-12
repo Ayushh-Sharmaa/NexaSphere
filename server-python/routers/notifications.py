@@ -30,10 +30,12 @@ def _verify_service_auth(
 ) -> None:
     """Dependency that validates the internal service auth header string securely."""
     if not INTERNAL_SERVICE_SECRET:
-        logger.critical("INTERNAL_SERVICE_SECRET is not configured — blocking all requests")
+        logger.critical(
+            "INTERNAL_SERVICE_SECRET is not configured -- blocking all requests for security"
+        )
         raise HTTPException(
-            status_code=500,
-            detail="Server misconfiguration: internal auth secret is not set",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service not configured",
         )
 
     if not x_service_auth or not hmac.compare_digest(x_service_auth, INTERNAL_SERVICE_SECRET):
@@ -60,7 +62,9 @@ def handle_join_request_notification(
         )
         return NotificationResponse(status="success", detail="Notification sent successfully")
     except Exception as e:
-        logger.error(f"Failed to deliver join notification for team {payload.teamId}: {str(e)}")
+        logger.error(
+            f"Failed to deliver join notification for team {payload.teamId}: {str(e)}"
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Failed to dispatch notification to team leader",
