@@ -1041,31 +1041,7 @@ app.post('/api/forms/recruitment', formRateLimiter, (req, res) => handleForm('re
 app.post('/api/core-team/apply', formRateLimiter, (req, res) => handleForm('core_team', req, res));
 // Real-time notification subscriber channels
 const pushSubscriptions = new Set();
-app.post('/api/notifications/subscribe', (req, res) => {
-  try {
-    const { subscription } = req.body;
-        if (subscription) {
-      pushSubscriptions.add(JSON.stringify(subscription));
-      // Prevent memory leak by capping maximum subscriptions to 10,000
-      if (pushSubscriptions.size > 10000) {
-        const oldest = pushSubscriptions.values().next().value;
-        pushSubscriptions.delete(oldest);
-      }
-    }
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-app.post('/api/notifications/unsubscribe', (req, res) => {
-  try {
-    const { subscription } = req.body;
-    if (subscription) pushSubscriptions.delete(JSON.stringify(subscription));
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
+
 
 
 // Server-side notifications API (simple in-memory store)
