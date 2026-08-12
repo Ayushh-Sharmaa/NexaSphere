@@ -6,6 +6,12 @@ export default function SyncDashboard({ token }) {
   const [syncStatus, setSyncStatus] = useState(null);
   const [conflicts, setConflicts] = useState(null);
   const [forceSyncing, setForceSyncing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = "error") => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   const fetchData = async () => {
     try {
@@ -45,10 +51,10 @@ export default function SyncDashboard({ token }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to force sync');
-      alert(data.data.message);
+      showFeedback(data.data.message, 'success');
       await fetchData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showFeedback(`Error: ${err.message}`, 'error');
     } finally {
       setForceSyncing(false);
     }
