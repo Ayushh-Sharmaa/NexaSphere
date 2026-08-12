@@ -17,6 +17,7 @@ export default defineConfig({
       '@data': '/src/data',
       'next/image': '/src/shared/next-image.jsx',
       'next/dynamic': '/src/shared/next-dynamic.jsx',
+      '@fullcalendar/core/index.js': '@fullcalendar/core',
     },
   },
 

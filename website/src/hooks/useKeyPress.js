@@ -24,7 +24,9 @@ import { useEffect, useRef } from 'react';
  */
 export function useKeyPress(keys, handler, { enabled = true, eventType = 'keydown' } = {}) {
   const handlerRef = useRef(handler);
-  handlerRef.current = handler;
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return undefined;

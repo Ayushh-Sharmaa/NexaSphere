@@ -49,11 +49,11 @@ export function debounce(fn, wait = 250, { leading = false, maxWait } = {}) {
 
   const debounced = function (...args) {
     lastArgs = args;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     lastThis = this;
     const time = Date.now();
 
-    const maxWaitExceeded =
-      maxWait !== undefined && time - lastInvokeTime >= maxWait;
+    const maxWaitExceeded = maxWait !== undefined && time - lastInvokeTime >= maxWait;
     const leadingEdge = leading && timerId === null;
 
     if (leadingEdge || maxWaitExceeded) {
@@ -129,6 +129,7 @@ export function throttle(fn, wait = 250, { leading = true, trailing = true } = {
     if (inCooldown) {
       if (trailing) {
         trailingArgs = args;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         trailingThis = this;
       }
       return throttled;
@@ -138,6 +139,7 @@ export function throttle(fn, wait = 250, { leading = true, trailing = true } = {
       fn.apply(this, args);
     } else {
       trailingArgs = args;
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       trailingThis = this;
     }
 

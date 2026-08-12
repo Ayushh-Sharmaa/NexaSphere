@@ -42,8 +42,10 @@ export function useClickOutside(
   const handlerRef = useRef(onOutside);
   const optionsRef = useRef({ events, ignore });
 
-  handlerRef.current = onOutside;
-  optionsRef.current = { events, ignore };
+  useEffect(() => {
+    handlerRef.current = onOutside;
+    optionsRef.current = { events, ignore };
+  }, [onOutside, events, ignore]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined' || typeof onOutside !== 'function') {

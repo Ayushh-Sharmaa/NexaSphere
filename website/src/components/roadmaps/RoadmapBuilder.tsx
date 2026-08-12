@@ -52,7 +52,10 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [aiStatus, setAiStatus] = useState<{
+    message: string;
+    type: 'success' | 'info' | 'error';
+  } | null>(null);
 
   const showAiStatus = (message: string, type: 'success' | 'info' | 'error') => {
     setAiStatus({ message, type });
@@ -101,6 +104,9 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
       x: 350,
       y: 100 + nodes.length * 60, // staggered visual stacking
       status: 'Not Started',
+      notes: '',
+      resources: [],
+      prerequisites: [],
     });
   };
 
@@ -237,16 +243,25 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
               aiStatus.type === 'success'
                 ? 'rgba(16, 185, 129, 0.15)'
                 : aiStatus.type === 'info'
-                ? 'rgba(59, 130, 246, 0.15)'
-                : 'rgba(239, 68, 68, 0.15)',
+                  ? 'rgba(59, 130, 246, 0.15)'
+                  : 'rgba(239, 68, 68, 0.15)',
             borderColor:
-              aiStatus.type === 'success' ? '#10b981' : aiStatus.type === 'info' ? '#3b82f6' : '#ef4444',
+              aiStatus.type === 'success'
+                ? '#10b981'
+                : aiStatus.type === 'info'
+                  ? '#3b82f6'
+                  : '#ef4444',
             color:
-              aiStatus.type === 'success' ? '#34d399' : aiStatus.type === 'info' ? '#60a5fa' : '#f87171',
+              aiStatus.type === 'success'
+                ? '#34d399'
+                : aiStatus.type === 'info'
+                  ? '#60a5fa'
+                  : '#f87171',
           }}
         >
           <span>
-            {aiStatus.type === 'success' ? '✅' : aiStatus.type === 'info' ? 'ℹ️' : '⚠️'} {aiStatus.message}
+            {aiStatus.type === 'success' ? '✅' : aiStatus.type === 'info' ? 'ℹ️' : '⚠️'}{' '}
+            {aiStatus.message}
           </span>
           <button
             onClick={() => setAiStatus(null)}
@@ -437,12 +452,10 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
       <div
         className="builder-split-workspace"
         style={{ display: 'flex', gap: '24px', alignItems: 'stretch' }}
-        style={{ display: 'flex', gap: '24px', alignItems: 'stretch' }}
       >
         {/* Sidebar Accessibility Listing of nodes */}
         <aside
           className="builder-sidebar glassmorphic-panel flex flex-col p-4 w-72 rounded-2xl flex-shrink-0 hide-on-mobile"
-          style={{ maxHeight: '72vh', overflowY: 'auto' }}
           style={{ maxHeight: '72vh', overflowY: 'auto' }}
         >
           <div className="flex items-center gap-2 border-b border-border-color pb-3 mb-4">
@@ -463,12 +476,6 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
             <ul
               className="sidebar-nodes-ul"
               style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
                 listStyle: 'none',
                 padding: 0,
                 margin: 0,
@@ -517,7 +524,6 @@ const RoadmapBuilderInner: React.FC<RoadmapBuilderInnerProps> = ({ onBack }) => 
         {/* Dynamic Drag-and-Drop canvas grid */}
         <main
           className="canvas-container-outer glassmorphic-panel rounded-2xl flex-grow overflow-auto"
-          style={{ maxHeight: '72vh' }}
           style={{ maxHeight: '72vh' }}
         >
           <NodeCanvas theme={activeTheme} />

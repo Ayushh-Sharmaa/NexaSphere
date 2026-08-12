@@ -25,7 +25,9 @@ export function useCopyToClipboard({ timeout = 2000, onSuccess, onError } = {}) 
   const [error, setError] = useState(null);
   const timerRef = useRef(null);
   const callbacksRef = useRef({ onSuccess, onError });
-  callbacksRef.current = { onSuccess, onError };
+  useEffect(() => {
+    callbacksRef.current = { onSuccess, onError };
+  }, [onSuccess, onError]);
 
   useEffect(() => {
     return () => clearTimeout(timerRef.current);
