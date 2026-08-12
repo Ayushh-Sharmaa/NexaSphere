@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-# Mock Data for testing
+# Fixture data for local development only.
+# Enabled exclusively via ALLOW_RECOMMENDATION_FIXTURES=1|true|yes.
 MOCK_EVENTS = [
     {"id": "evt_1", "name": "AI Hackathon", "tags": ["AI", "machine learning", "hackathon"], "date": "2026-07-01T10:00:00Z", "registered_count": 80, "status": "upcoming"},
     {"id": "evt_2", "name": "Web Dev Bootcamp", "tags": ["web", "react", "javascript"], "date": "2026-06-20T09:00:00Z", "registered_count": 120, "status": "upcoming"},
@@ -32,7 +33,16 @@ MOCK_PARTICIPATIONS = [
     {"user_id": "user_3", "event_id": "evt_4"},
     {"user_id": "user_2", "event_id": "evt_6"}
 ]
- 
+
+
+def fixtures_allowed() -> bool:
+    return os.getenv("ALLOW_RECOMMENDATION_FIXTURES", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
 # Helper functions for scoring components
 # These could be moved to a separate utility file if they grow
 def get_db_engine():
@@ -89,13 +99,16 @@ def fetch_data_with_sqlalchemy(user_id):
                 if events and all_users:
                     return events, all_users, participations
                 else:
-                    logger.warning("No events or users found in DB, falling back to mock data.")
+                    logger.warning("No events or users found in DB.")
         except Exception as e:
-            logger.warning(f"Database fetch failed, falling back to mock data. Error: {e}")
-            
-    # Fallback to dummy data
-    logger.info("Using mock data for recommendation logic.")
-    return MOCK_EVENTS, MOCK_USERS, MOCK_PARTICIPATIONS
+            logger.warning(f"Database fetch failed. Error: {e}")
+
+    if fixtures_allowed():
+        logger.info("ALLOW_RECOMMENDATION_FIXTURES enabled — using development fixture data.")
+        return MOCK_EVENTS, MOCK_USERS, MOCK_PARTICIPATIONS
+
+    logger.warning("Recommendation source unavailable; returning empty dataset.")
+    return [], [], []
 
 def calculate_popularity_score(event, max_registered_count):
     if not max_registered_count or max_registered_count == 0:
