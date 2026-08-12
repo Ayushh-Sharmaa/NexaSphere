@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BRAND_LOGO_FULL, BRAND_LOGO_ICON } from './brandAssets';
 import NotificationBell from '../components/NotificationBell';
 import { ThemeToggle } from '../components/common/ThemeToggle';
+import { StyleSwitcher } from '../components/common/StyleSwitcher';
 import { useStudentAuth } from '../context/StudentAuthContext';
 import LanguageSelector from '../components/common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
@@ -250,6 +251,7 @@ export default function Navbar({
               </svg>
             </button>
             <BookmarkToggle onToggle={onToggleBookmarks} />
+            <StyleSwitcher />
             <ThemeToggle />
             <LanguageSelector />
             {isAuthenticated && (
@@ -460,6 +462,7 @@ export default function Navbar({
               </button>
             </div>
 
+            <StyleSwitcher />
             <ThemeToggle />
             <LanguageSelector />
 

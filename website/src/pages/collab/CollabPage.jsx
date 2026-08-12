@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getApiBase } from '../../utils/apiClient';
+import { getApiBase } from '../../utils/runtimeConfig';
 
 const mockTeams = [];
 
@@ -12,7 +12,7 @@ export default function CollabPage({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState(null);
 
-  const showFeedback = (message, type = "error") => {
+  const showFeedback = (message, type = 'error') => {
     setFeedback({ message, type });
     setTimeout(() => setFeedback(null), 4000);
   };
@@ -103,30 +103,26 @@ export default function CollabPage({ onBack }) {
       </div>
 
       <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
-      {feedback && (
-        <div
-          role="status"
-          style={{
-            maxWidth: '600px',
-            margin: '0 auto 1.5rem auto',
-            padding: '10px 16px',
-            borderRadius: '8px',
-            backgroundColor:
-              feedback.type === 'error'
-                ? 'rgba(239, 68, 68, 0.15)'
-                : 'rgba(16, 185, 129, 0.15)',
-            color: feedback.type === 'error' ? '#f87171' : '#34d399',
-            border: `1px solid ${
-              feedback.type === 'error' ? '#ef4444' : '#10b981'
-            }`,
-            fontSize: '0.9rem',
-            fontWeight: 500,
-            textAlign: 'center',
-          }}
-        >
-          {feedback.message}
-        </div>
-      )}
+        {feedback && (
+          <div
+            role="status"
+            style={{
+              maxWidth: '600px',
+              margin: '0 auto 1.5rem auto',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              backgroundColor:
+                feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: feedback.type === 'error' ? '#f87171' : '#34d399',
+              border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              textAlign: 'center',
+            }}
+          >
+            {feedback.message}
+          </div>
+        )}
         <h1
           style={{
             fontSize: '2.5rem',

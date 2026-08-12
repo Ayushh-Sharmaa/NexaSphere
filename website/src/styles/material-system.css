@@ -8,7 +8,7 @@
  * content. Existing motion remains owned by animations.css and motion.css.
  */
 
-:root {
+[data-style='material'] {
   --material-canvas: #090a0d;
   --material-canvas-raised: #101216;
   --material-surface: rgba(25, 27, 33, 0.82);
@@ -63,8 +63,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 26px 70px rgba(2, 3, 7, 0.38);
 }
 
-:root[data-theme='light'],
-[data-theme='light'] {
+[data-style='material'][data-theme='light'] {
   --material-canvas: #eeece8;
   --material-canvas-raised: #e4e1dc;
   --material-surface: rgba(249, 248, 245, 0.8);
@@ -124,11 +123,11 @@
   --shadow-glow: 0 0 0 1px rgba(189, 48, 60, 0.12);
 }
 
-html {
+[data-style='material'] {
   background: var(--material-canvas);
 }
 
-body {
+[data-style='material'] body {
   background-color: var(--material-canvas) !important;
   background-image:
     radial-gradient(circle at 12% -8%, var(--material-accent-soft), transparent 32rem),
@@ -138,7 +137,7 @@ body {
   color: var(--material-ink);
 }
 
-body::before {
+[data-style='material'] body::before {
   content: '';
   position: fixed;
   inset: 0;

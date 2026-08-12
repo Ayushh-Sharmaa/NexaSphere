@@ -10,7 +10,7 @@ export default function SessionPlayer() {
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  const showFeedback = (message, type = "error") => {
+  const showFeedback = (message, type = 'error') => {
     setFeedback({ message, type });
     setTimeout(() => setFeedback(null), 4000);
   };
@@ -79,13 +79,9 @@ export default function SessionPlayer() {
             padding: '10px 16px',
             borderRadius: '8px',
             backgroundColor:
-              feedback.type === 'error'
-                ? 'rgba(239, 68, 68, 0.15)'
-                : 'rgba(16, 185, 129, 0.15)',
+              feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
             color: feedback.type === 'error' ? '#f87171' : '#34d399',
-            border: `1px solid ${
-              feedback.type === 'error' ? '#ef4444' : '#10b981'
-            }`,
+            border: `1px solid ${feedback.type === 'error' ? '#ef4444' : '#10b981'}`,
             fontSize: '0.9rem',
             fontWeight: 500,
           }}
@@ -94,59 +90,60 @@ export default function SessionPlayer() {
         </div>
       )}
       <div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
-      <div style={{ width: '300px', flexShrink: 0 }}>
-        <h3>Recent Sessions</h3>
-        {loading && <p>Loading...</p>}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-            maxHeight: '600px',
-            overflowY: 'auto',
-          }}
-        >
-          {recordings.map((rec) => (
-            <div
-              key={rec.id}
-              onClick={() => playSession(rec.session_id)}
-              style={{
-                padding: '1rem',
-                background:
-                  activeSessionId === rec.session_id ? 'var(--c1)' : 'rgba(255,255,255,0.05)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}
-            >
-              <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                {rec.user_name || 'Anonymous'}
+        <div style={{ width: '300px', flexShrink: 0 }}>
+          <h3>Recent Sessions</h3>
+          {loading && <p>Loading...</p>}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              maxHeight: '600px',
+              overflowY: 'auto',
+            }}
+          >
+            {recordings.map((rec) => (
+              <div
+                key={rec.id}
+                onClick={() => playSession(rec.session_id)}
+                style={{
+                  padding: '1rem',
+                  background:
+                    activeSessionId === rec.session_id ? 'var(--c1)' : 'rgba(255,255,255,0.05)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                  {rec.user_name || 'Anonymous'}
+                </div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                  {new Date(rec.start_time).toLocaleString()}
+                </div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                  {rec.device} - {rec.browser}
+                </div>
               </div>
-              <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                {new Date(rec.start_time).toLocaleString()}
-              </div>
-              <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                {rec.device} - {rec.browser}
-              </div>
-            </div>
-          ))}
-          {recordings.length === 0 && !loading && <p>No recordings found.</p>}
+            ))}
+            {recordings.length === 0 && !loading && <p>No recordings found.</p>}
+          </div>
         </div>
-      </div>
 
-      <div style={{ flexGrow: 1 }}>
-        <div
-          ref={containerRef}
-          style={{
-            width: '800px',
-            height: '600px',
-            background: '#000',
-            border: '1px solid rgba(255,255,255,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {!activeSessionId && <span style={{ opacity: 0.5 }}>Select a session to playback</span>}
+        <div style={{ flexGrow: 1 }}>
+          <div
+            ref={containerRef}
+            style={{
+              width: '800px',
+              height: '600px',
+              background: '#000',
+              border: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {!activeSessionId && <span style={{ opacity: 0.5 }}>Select a session to playback</span>}
+          </div>
         </div>
       </div>
     </div>
