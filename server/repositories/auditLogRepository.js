@@ -1,7 +1,7 @@
-import { withDb } from './db.js';
-import crypto from 'crypto';
-import logger from '../utils/logger.js';
-import { maskSensitiveData } from '../utils/sensitiveDataMasking.js';
+import { withDb } from "./db.js";
+import crypto from "crypto";
+import logger from "../utils/logger.js";
+import { maskSensitiveData } from "../utils/sensitiveDataMasking.js";
 
 function maskAuditLogRow(row) {
   if (!row) return row;
@@ -51,18 +51,18 @@ class AuditLogRepository {
       id,
       adminId,
       action,
-      ipAddress || '',
-      userAgent || '',
-      oldState ? JSON.stringify(oldState) : '',
-      newState ? JSON.stringify(newState) : '',
-      resourceType || '',
-      resourceId || '',
-      sessionId || '',
-    ].join('|');
+      ipAddress || "",
+      userAgent || "",
+      oldState ? JSON.stringify(oldState) : "",
+      newState ? JSON.stringify(newState) : "",
+      resourceType || "",
+      resourceId || "",
+      sessionId || "",
+    ].join("|");
     return crypto
-      .createHmac('sha256', process.env.AUDIT_LOG_SECRET || 'audit-secret-key')
+      .createHmac("sha256", process.env.AUDIT_LOG_SECRET || "audit-secret-key")
       .update(data)
-      .digest('hex');
+      .digest("hex");
   }
 
   async insertAuditLog(logEntry) {
@@ -94,7 +94,6 @@ class AuditLogRepository {
 
     const delays = [100, 500, 1000];
 
-
     for (let attempt = 0; attempt <= delays.length; attempt++) {
       try {
         await withDb(async (client) => {
@@ -121,7 +120,10 @@ class AuditLogRepository {
         return id;
       } catch (err) {
         if (attempt === delays.length) {
-          logger.error('Failed to insert audit log', { error: err.message, logEntry });
+          logger.error("Failed to insert audit log", {
+            error: err.message,
+            logEntry,
+          });
           return null;
         }
         await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
@@ -131,7 +133,7 @@ class AuditLogRepository {
 
   async queryAuditLogs(filters = {}) {
     return withDb(async (client) => {
-      let query = 'SELECT * FROM audit_logs';
+      let query = "SELECT * FROM audit_logs";
       const clauses = [];
       const values = [];
       let i = 1;
@@ -162,16 +164,18 @@ class AuditLogRepository {
         i++;
       }
       if (filters.searchText) {
-        clauses.push(`(old_state::text ILIKE $${i} OR new_state::text ILIKE $${i})`);
+        clauses.push(
+          `(old_state::text ILIKE $${i} OR new_state::text ILIKE $${i})`
+        );
         values.push(`%${filters.searchText}%`);
         i++;
       }
 
       if (clauses.length > 0) {
-        query += ' WHERE ' + clauses.join(' AND ');
+        query += " WHERE " + clauses.join(" AND ");
       }
 
-      query += ' ORDER BY timestamp DESC';
+      query += " ORDER BY timestamp DESC";
 
       if (filters.limit) {
         query += ` LIMIT $${i}`;
@@ -191,7 +195,7 @@ class AuditLogRepository {
 
   async verifyLogTampering() {
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM audit_logs');
+      const { rows } = await client.query("SELECT * FROM audit_logs");
       const corruptedIds = [];
 
       for (const log of rows) {
@@ -263,7 +267,15 @@ class AuditLogRepository {
       );
       return rowCount;
     });
-  async searchAuditLogs({ search = '', action = '', adminId = '', limit = 50, offset = 0 } = {}) {
+  }
+
+  async searchAuditLogs({
+    search = "",
+    action = "",
+    adminId = "",
+    limit = 50,
+    offset = 0,
+  } = {}) {
     await this.init();
     const filters = [];
     const params = [];
@@ -283,7 +295,7 @@ class AuditLogRepository {
       filters.push(`admin_id = $${params.length}`);
     }
 
-    const where = filters.length ? `where ${filters.join(' and ')}` : '';
+    const where = filters.length ? `where ${filters.join(" and ")}` : "";
     params.push(Math.min(Math.max(Number(limit) || 50, 1), 500));
     const limitParam = params.length;
     params.push(Math.max(Number(offset) || 0, 0));
@@ -314,8 +326,8 @@ class AuditLogRepository {
 
   async exportAuditLogsCsv(filters = {}) {
     const rows = await this.searchAuditLogs({ ...filters, limit: 500 });
-    const header = ['timestamp', 'adminId', 'action', 'ipAddress', 'details'];
-    const escape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const header = ["timestamp", "adminId", "action", "ipAddress", "details"];
+    const escape = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
     const lines = rows.map((row) =>
       [
         row.timestamp,
@@ -325,16 +337,16 @@ class AuditLogRepository {
         JSON.stringify({ oldState: row.oldState, newState: row.newState }),
       ]
         .map(escape)
-        .join(',')
+        .join(",")
     );
 
-    return [header.join(','), ...lines].join('\n');
+    return [header.join(","), ...lines].join("\n");
   }
 
   async clearAll_TEST_ONLY() {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       await withDb(async (client) => {
-        await client.query('DELETE FROM audit_logs');
+        await client.query("DELETE FROM audit_logs");
       });
     }
   }
@@ -344,5 +356,5 @@ export const auditLogRepository = new AuditLogRepository();
 
 // Initialize the table on load
 auditLogRepository.init().catch((err) => {
-  logger.error('Failed to initialize audit_logs table', { error: err.message });
+  logger.error("Failed to initialize audit_logs table", { error: err.message });
 });

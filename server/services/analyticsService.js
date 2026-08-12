@@ -1,5 +1,5 @@
 import { analyticsRepository } from "../repositories/analyticsRepository.js";
-import { query } from "../config/db.js";
+import { query } from "../repositories/db.js";
 import { withDb } from "../repositories/db.js";
 import logger from "../utils/logger.js";
 
@@ -50,7 +50,11 @@ export const analyticsService = {
       const activeUsers = parseInt(userRows[0]?.count || 0, 10);
 
       // Events this month (approximate via events table)
-      const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const firstDayOfMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+      ).toISOString();
       const { rows: eventsRows } = await client.query(
         `SELECT COUNT(*) AS count FROM analytics_events WHERE created_at >= $1`,
         [firstDayOfMonth]
@@ -58,7 +62,9 @@ export const analyticsService = {
       const eventsThisMonth = parseInt(eventsRows[0]?.count || 0, 10);
 
       // 3. Registrations total
-      const { rows: regRows } = await client.query(`SELECT COUNT(*) as count FROM registrations`);
+      const { rows: regRows } = await client.query(
+        `SELECT COUNT(*) as count FROM registrations`
+      );
       const totalRegistrations = parseInt(regRows[0]?.count || 0, 10);
 
       // 4. Page views
@@ -329,7 +335,10 @@ export const analyticsService = {
       `;
       const res = await query(q, [segmentId]);
       const users = res.rows;
-      logger.info(`Sending email to ${users.length} users in segment ${segmentId} with template ${actionData.template}`, { segmentId, template: actionData.template, userCount: users.length });
+      logger.info(
+        `Sending email to ${users.length} users in segment ${segmentId} with template ${actionData.template}`,
+        { segmentId, template: actionData.template, userCount: users.length }
+      );
       return { success: true, count: users.length };
     }
     return { success: false, reason: "Unknown action" };

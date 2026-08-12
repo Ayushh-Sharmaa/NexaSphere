@@ -1,6 +1,8 @@
-import Redis from 'ioredis';
+import Redis from "ioredis";
+import pg from "pg";
+import { withDb } from "../repositories/db.js";
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
 let client = null;
 
@@ -15,12 +17,12 @@ function getClient() {
       lazyConnect: false,
     });
 
-    client.on('error', (err) => {
-      console.error('[cache-service] Redis error:', err.message);
+    client.on("error", (err) => {
+      console.error("[cache-service] Redis error:", err.message);
     });
 
-    client.on('connect', () => {
-      console.log('[cache-service] Connected to Redis');
+    client.on("connect", () => {
+      console.log("[cache-service] Connected to Redis");
     });
   }
   return client;
@@ -34,7 +36,7 @@ export const cacheService = {
       const data = await getClient().get(key);
       return data ? JSON.parse(data) : null;
     } catch (err) {
-      console.error('[cache-service] Get error:', err.message);
+      console.error("[cache-service] Get error:", err.message);
       return null;
     }
   },
@@ -45,7 +47,7 @@ export const cacheService = {
       await getClient().setex(key, ttl, serialized);
       return true;
     } catch (err) {
-      console.error('[cache-service] Set error:', err.message);
+      console.error("[cache-service] Set error:", err.message);
       return false;
     }
   },
@@ -55,7 +57,7 @@ export const cacheService = {
       await getClient().del(key);
       return true;
     } catch (err) {
-      console.error('[cache-service] Del error:', err.message);
+      console.error("[cache-service] Del error:", err.message);
       return false;
     }
   },
@@ -68,7 +70,7 @@ export const cacheService = {
       }
       return keys.length;
     } catch (err) {
-      console.error('[cache-service] DelPattern error:', err.message);
+      console.error("[cache-service] DelPattern error:", err.message);
       return 0;
     }
   },
@@ -84,8 +86,7 @@ export const cacheService = {
   buildKey(prefix, id) {
     return `cache:${prefix}:${id}`;
   },
-import pg from "pg";
-import { withDb } from "../repositories/db.js";
+};
 
 // In-memory cache store
 // Entry shape: { value, expiresAt, version }
@@ -95,7 +96,7 @@ const cacheStore = new Map();
 const cacheVersions = new Map();
 
 // Default cache TTL: 5 minutes (300,000 ms)
-const DEFAULT_TTL = 300000;
+const IN_MEMORY_DEFAULT_TTL = 300000;
 
 // Aggressive cache TTL: 30 seconds (30,000 ms)
 const AGGRESSIVE_TTL = 30000;
@@ -284,7 +285,7 @@ export function get(key) {
  * Set cached entry
  */
 export function set(key, value, options = {}) {
-  const ttl = options.ttl || DEFAULT_TTL;
+  const ttl = options.ttl || IN_MEMORY_DEFAULT_TTL;
   const expiresAt = Date.now() + ttl;
 
   // Extract channel from key prefix (e.g. "events:list" -> "events")
@@ -336,6 +337,6 @@ export default {
   registerNotificationSyncCallback,
   broadcastNotificationSync,
   getChannelVersion,
-  DEFAULT_TTL,
+  DEFAULT_TTL: IN_MEMORY_DEFAULT_TTL,
   AGGRESSIVE_TTL,
 };

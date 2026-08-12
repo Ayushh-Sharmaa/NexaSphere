@@ -16,29 +16,11 @@ export function useAdminStats() {
       setError(null);
 
       const response = await fetch(`${API_BASE}/api/admin/stats`, {
-        credentials: 'include', // send session cookie for auth
+        credentials: "include", // send session cookie for auth
       });
 
-        const response = await fetch(`${API_BASE}/api/admin/stats`, {
-          credentials: "include", // send session cookie for auth
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch stats: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!cancelled) {
-          setStats(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.message);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      if (!response.ok) {
+        throw new Error(`Failed to fetch stats: ${response.status}`);
       }
 
       const data = await response.json();

@@ -1,6 +1,6 @@
-import { prisma } from '../config/db.js';
-import Fuse from 'fuse.js';
-import { sendSuccess, sendError } from '../utils/responseHelper.js';
+import { withDb } from "../repositories/db.js";
+import Fuse from "fuse.js";
+import { sendSuccess, sendError } from "../utils/responseHelper.js";
 
 /**
  * Advanced Search Controller
@@ -14,7 +14,9 @@ export const handleAdvancedSearch = async (req, res) => {
     // In a scaled prod env, this would hit Elasticsearch
     const [events, users, projects] = await Promise.all([
       prisma.event.findMany({ where: { published: true } }),
-      prisma.user.findMany({ select: { id: true, name: true, skills: true, major: true } }),
+      prisma.user.findMany({
+        select: { id: true, name: true, skills: true, major: true },
+      }),
       prisma.project.findMany(),
     ]);
 
@@ -22,7 +24,7 @@ export const handleAdvancedSearch = async (req, res) => {
     const allItems = [
       ...events.map((e) => ({
         id: e.id,
-        type: 'Event',
+        type: "Event",
         title: e.name,
         snippet: e.description,
         tags: e.tags,
@@ -30,14 +32,14 @@ export const handleAdvancedSearch = async (req, res) => {
       })),
       ...users.map((u) => ({
         id: u.id,
-        type: 'User',
+        type: "User",
         title: u.name,
-        snippet: `${u.major} - ${(u.skills || []).join(', ')}`,
+        snippet: `${u.major} - ${(u.skills || []).join(", ")}`,
         tags: u.skills || [],
       })),
       ...projects.map((p) => ({
         id: p.id,
-        type: 'Project',
+        type: "Project",
         title: p.title,
         snippet: p.description,
         tags: p.technologies,
@@ -46,7 +48,7 @@ export const handleAdvancedSearch = async (req, res) => {
 
     // 3. Fuzzy Search and Relevance Ranking using Fuse.js
     const fuse = new Fuse(allItems, {
-      keys: ['title', 'snippet', 'tags'],
+      keys: ["title", "snippet", "tags"],
       includeScore: true,
       threshold: 0.3,
     });
@@ -61,13 +63,28 @@ export const handleAdvancedSearch = async (req, res) => {
     // Dynamic Facet Calculation based on current results
     const facets = {
       Category: [
-        { name: 'Event', count: results.filter((r) => r.type === 'Event').length },
-        { name: 'User', count: results.filter((r) => r.type === 'User').length },
-        { name: 'Project', count: results.filter((r) => r.type === 'Project').length },
+        {
+          name: "Event",
+          count: results.filter((r) => r.type === "Event").length,
+        },
+        {
+          name: "User",
+          count: results.filter((r) => r.type === "User").length,
+        },
+        {
+          name: "Project",
+          count: results.filter((r) => r.type === "Project").length,
+        },
       ],
       Trending: [
-        { name: 'React', count: results.filter((r) => r.tags?.includes('React')).length },
-        { name: 'AI', count: results.filter((r) => r.tags?.includes('AI')).length },
+        {
+          name: "React",
+          count: results.filter((r) => r.tags?.includes("React")).length,
+        },
+        {
+          name: "AI",
+          count: results.filter((r) => r.tags?.includes("AI")).length,
+        },
       ],
     };
 
@@ -80,8 +97,14 @@ export const handleAdvancedSearch = async (req, res) => {
       suggestions: results.length === 0 ? generateSuggestions(q) : [],
     });
   } catch (error) {
-    console.error('Search failure:', error);
-    return sendError(req, res, 'Search engine unavailable', 500, 'INTERNAL_ERROR');
+    console.error("Search failure:", error);
+    return sendError(
+      req,
+      res,
+      "Search engine unavailable",
+      500,
+      "INTERNAL_ERROR"
+    );
   }
 };
 
@@ -97,7 +120,7 @@ async function logSearchAnalytics(query, resultCount, userId) {
 }
 
 function generateSuggestions(query) {
-  const dictionary = ['hackathon', 'react', 'python', 'workshop', 'javascript'];
+  const dictionary = ["hackathon", "react", "python", "workshop", "javascript"];
   const fuse = new Fuse(dictionary);
   return fuse
     .search(query)
