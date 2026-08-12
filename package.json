@@ -56,7 +56,7 @@
   "optionalDependencies": {
     "@rolldown/binding-linux-arm64-gnu": "1.0.3",
     "@rolldown/binding-linux-x64-gnu": "1.2.3",
-    "@rolldown/binding-linux-x64-musl": "1.0.3",
+    "@rolldown/binding-linux-x64-musl": "1.2.3",
     "@rolldown/binding-win32-x64-msvc": "^1.1.1",
     "@rollup/rollup-linux-arm64-gnu": "4.61.1",
     "@rollup/rollup-linux-arm64-musl": "4.60.0",
