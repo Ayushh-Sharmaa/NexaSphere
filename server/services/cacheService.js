@@ -86,6 +86,7 @@ export const cacheService = {
   buildKey(prefix, id) {
     return `cache:${prefix}:${id}`;
   },
+};
 
 // In-memory cache store
 // Entry shape: { value, expiresAt, version }
