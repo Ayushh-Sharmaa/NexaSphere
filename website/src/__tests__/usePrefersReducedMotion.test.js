@@ -8,7 +8,9 @@ const originalMatchMedia = window.matchMedia;
  * Builds a matchMedia mock whose matches state is derived from the query.
  */
 function mockMatchMedia(resolution) {
+  const cache = {};
   window.matchMedia = vi.fn().mockImplementation((query) => {
+    if (cache[query]) return cache[query];
     const queries = {
       '(prefers-reduced-motion: reduce)': resolution === 'reduce',
       '(prefers-reduced-motion: no-preference)': resolution === 'no-preference',
@@ -33,6 +35,7 @@ function mockMatchMedia(resolution) {
       const event = { matches: value };
       listeners.forEach((listener) => listener(event));
     };
+    cache[query] = mql;
     return mql;
   });
 }

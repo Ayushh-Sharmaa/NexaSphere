@@ -35,7 +35,12 @@ export function useMediaQuery(query, options = {}) {
       return undefined;
     }
 
-    const mediaQueryList = window.matchMedia(query);
+    let mediaQueryList;
+    try {
+      mediaQueryList = window.matchMedia(query);
+    } catch {
+      return undefined;
+    }
     const handleChange = (event) => setMatches(event.matches);
 
     setMatches(mediaQueryList.matches);
@@ -61,7 +66,11 @@ function getMatches(query, fallback) {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return fallback;
   }
-  return window.matchMedia(query).matches;
+  try {
+    return window.matchMedia(query).matches;
+  } catch {
+    return fallback;
+  }
 }
 
 export default useMediaQuery;

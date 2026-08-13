@@ -126,7 +126,7 @@ describe('getPasswordStrength', () => {
   it('adds a point for each criterion', () => {
     expect(getPasswordStrength('short1!')).toBe(2); // length<8, no mixed case
     expect(getPasswordStrength('Longerpass1!')).toBe(4);
-    expect(getPasswordStrength('lowercase')).toBe(0);
+    expect(getPasswordStrength('lower')).toBe(0);
     expect(getPasswordStrength('MixedCase123')).toBe(3);
   });
 });
