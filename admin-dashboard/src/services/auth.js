@@ -170,9 +170,10 @@ export const auth = {
   },
 
   async logout() {
-    const token = this.getToken();
     // Fire-and-forget logout request to invalidate the server session.
-    if (token && !this.isOfflineMode()) {
+    // Cookie-backed sessions may not have a readable token, so the request
+    // must not depend on localStorage state.
+    if (!this.isOfflineMode()) {
       fetch(`${API_BASE}/api/admin/logout`, {
         method: "POST",
         credentials: "include",

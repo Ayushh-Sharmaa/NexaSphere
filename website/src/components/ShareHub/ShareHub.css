@@ -165,10 +165,6 @@
   color: #fff;
   border-color: #555;
 }
-  transition: color 0.2s, border-color 0.2s;
-  margin-bottom: 0;
-}
-.sharehub-qr-toggle:hover { color: #fff; border-color: #555; }
 
 .sharehub-qr {
   display: flex;
