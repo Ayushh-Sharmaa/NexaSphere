@@ -1,8 +1,15 @@
-import { query } from '../utils/db.js';
-import { DEFAULT_ROLES } from '../config/rbac.js';
-const CUSTOM_ROLES_TABLE = 'custom_roles';
-const USER_ROLES_TABLE = 'user_roles';
-const AUDIT_LOGS_TABLE = 'audit_logs';
+import { PrismaClient } from "@prisma/client";
+import { DEFAULT_ROLES } from "../config/rbac.js";
+
+const prisma = new PrismaClient();
+
+async function query(sql, params = []) {
+  const rows = await prisma.$queryRawUnsafe(sql, ...params);
+  return { rows };
+}
+const CUSTOM_ROLES_TABLE = "custom_roles";
+const USER_ROLES_TABLE = "user_roles";
+const AUDIT_LOGS_TABLE = "audit_logs";
 
 /**
  * Initialize RBAC tables
@@ -48,9 +55,9 @@ export async function initializeRBACTables() {
       )
     `);
 
-    console.log('[RBAC] Tables initialized successfully');
+    console.log("[RBAC] Tables initialized successfully");
   } catch (error) {
-    console.error('[RBAC] Failed to initialize tables:', error);
+    console.error("[RBAC] Failed to initialize tables:", error);
     throw error;
   }
 }
@@ -60,10 +67,12 @@ export async function initializeRBACTables() {
  */
 export async function getAllRoles() {
   try {
-    const result = await query(`SELECT * FROM ${CUSTOM_ROLES_TABLE} ORDER BY hierarchy ASC`);
+    const result = await query(
+      `SELECT * FROM ${CUSTOM_ROLES_TABLE} ORDER BY hierarchy ASC`
+    );
     return result.rows;
   } catch (error) {
-    console.error('[RBAC] Failed to get roles:', error);
+    console.error("[RBAC] Failed to get roles:", error);
     throw error;
   }
 }
@@ -73,10 +82,13 @@ export async function getAllRoles() {
  */
 export async function getRoleByName(name) {
   try {
-    const result = await query(`SELECT * FROM ${CUSTOM_ROLES_TABLE} WHERE name = $1`, [name]);
+    const result = await query(
+      `SELECT * FROM ${CUSTOM_ROLES_TABLE} WHERE name = $1`,
+      [name]
+    );
     return result.rows[0] || null;
   } catch (error) {
-    console.error('[RBAC] Failed to get role:', error);
+    console.error("[RBAC] Failed to get role:", error);
     throw error;
   }
 }
@@ -84,7 +96,12 @@ export async function getRoleByName(name) {
 /**
  * Create a new custom role
  */
-export async function createRole({ name, description, permissions, hierarchy = 10 }) {
+export async function createRole({
+  name,
+  description,
+  permissions,
+  hierarchy = 10,
+}) {
   try {
     const result = await query(
       `INSERT INTO ${CUSTOM_ROLES_TABLE} (name, description, permissions, hierarchy)
@@ -93,7 +110,7 @@ export async function createRole({ name, description, permissions, hierarchy = 1
     );
     return result.rows[0];
   } catch (error) {
-    console.error('[RBAC] Failed to create role:', error);
+    console.error("[RBAC] Failed to create role:", error);
     throw error;
   }
 }
@@ -101,7 +118,10 @@ export async function createRole({ name, description, permissions, hierarchy = 1
 /**
  * Update a custom role
  */
-export async function updateRole(name, { description, permissions, hierarchy }) {
+export async function updateRole(
+  name,
+  { description, permissions, hierarchy }
+) {
   try {
     const result = await query(
       `UPDATE ${CUSTOM_ROLES_TABLE}
@@ -111,11 +131,16 @@ export async function updateRole(name, { description, permissions, hierarchy }) 
            updated_at = CURRENT_TIMESTAMP
        WHERE name = $4 AND is_system = FALSE
        RETURNING *`,
-      [description, permissions ? JSON.stringify(permissions) : null, hierarchy, name]
+      [
+        description,
+        permissions ? JSON.stringify(permissions) : null,
+        hierarchy,
+        name,
+      ]
     );
     return result.rows[0] || null;
   } catch (error) {
-    console.error('[RBAC] Failed to update role:', error);
+    console.error("[RBAC] Failed to update role:", error);
     throw error;
   }
 }
@@ -131,7 +156,7 @@ export async function deleteRole(name) {
     );
     return result.rows[0] || null;
   } catch (error) {
-    console.error('[RBAC] Failed to delete role:', error);
+    console.error("[RBAC] Failed to delete role:", error);
     throw error;
   }
 }
@@ -139,7 +164,12 @@ export async function deleteRole(name) {
 /**
  * Assign role to user
  */
-export async function assignRole(userId, roleName, assignedBy, expiresAt = null) {
+export async function assignRole(
+  userId,
+  roleName,
+  assignedBy,
+  expiresAt = null
+) {
   try {
     const result = await query(
       `INSERT INTO ${USER_ROLES_TABLE} (user_id, role_name, assigned_by, expires_at)
@@ -151,7 +181,7 @@ export async function assignRole(userId, roleName, assignedBy, expiresAt = null)
     );
     return result.rows[0];
   } catch (error) {
-    console.error('[RBAC] Failed to assign role:', error);
+    console.error("[RBAC] Failed to assign role:", error);
     throw error;
   }
 }
@@ -167,7 +197,7 @@ export async function revokeRole(userId, roleName) {
     );
     return result.rows[0] || null;
   } catch (error) {
-    console.error('[RBAC] Failed to revoke role:', error);
+    console.error("[RBAC] Failed to revoke role:", error);
     throw error;
   }
 }
@@ -177,10 +207,13 @@ export async function revokeRole(userId, roleName) {
  */
 export async function getUserRoles(userId) {
   try {
-    const result = await query(`SELECT * FROM ${USER_ROLES_TABLE} WHERE user_id = $1`, [userId]);
+    const result = await query(
+      `SELECT * FROM ${USER_ROLES_TABLE} WHERE user_id = $1`,
+      [userId]
+    );
     return result.rows;
   } catch (error) {
-    console.error('[RBAC] Failed to get user roles:', error);
+    console.error("[RBAC] Failed to get user roles:", error);
     throw error;
   }
 }
@@ -200,7 +233,7 @@ export async function getAllUsersWithRoles() {
     `);
     return result.rows;
   } catch (error) {
-    console.error('[RBAC] Failed to get users with roles:', error);
+    console.error("[RBAC] Failed to get users with roles:", error);
     throw error;
   }
 }
@@ -233,7 +266,7 @@ export async function logAuditEvent({
     );
     return result.rows[0];
   } catch (error) {
-    console.error('[RBAC] Failed to log audit event:', error);
+    console.error("[RBAC] Failed to log audit event:", error);
     throw error;
   }
 }
@@ -277,7 +310,7 @@ export async function getAuditLogs({
     const result = await query(queryStr, params);
     return result.rows;
   } catch (error) {
-    console.error('[RBAC] Failed to get audit logs:', error);
+    console.error("[RBAC] Failed to get audit logs:", error);
     throw error;
   }
 }
