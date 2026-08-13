@@ -8,6 +8,7 @@ import EventCountdown from '../../components/events/EventCountdown.jsx';
 import { useRecommendations } from '../../hooks/useRecommendations';
 import { getEventCountdownStatus, parseDate } from '../../hooks/useCountdown.js';
 import EventCalendarView from '../../components/calendar/EventCalendarView';
+import EventMap from '../../components/events/EventMap';
 import { useStudentAuth } from '../../context/StudentAuthContext';
 import { EventCardSkeleton } from '../../components/ui/skeleton/EventCardSkeleton';
 
@@ -91,6 +92,23 @@ export default function EventsPage({
         return aIsUpcoming ? da - db : db - da;
       });
   }, [filteredEvents]);
+
+  // Reset to page 1 when filters change. Adjusting state during render
+  // (rather than in a useEffect) avoids an extra cascading render pass —
+  // this is React's recommended pattern for 'resetting state when a prop
+  // changes' (https://react.dev/learn/you-might-not-need-an-effect).
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
+    setCurrentPage(1);
+  }
+
+  const totalPages = Math.max(1, Math.ceil(sortedEvents.length / EVENTS_PER_PAGE));
+
+  const paginatedEvents = useMemo(() => {
+    const start = (currentPage - 1) * EVENTS_PER_PAGE;
+    return sortedEvents.slice(start, start + EVENTS_PER_PAGE);
+  }, [sortedEvents, currentPage]);
 
   const { recommendations, loading: recsLoading } = useRecommendations(user?.sub || user?.id || '');
 
@@ -256,6 +274,30 @@ export default function EventsPage({
           </button>
           <button
             onClick={() => {
+              setView('map');
+              setRecommendationView(false);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 20px',
+              background: !recommendationView && view === 'map' ? 'var(--c1)' : 'transparent',
+              border: !recommendationView && view === 'map' ? 'none' : '1px solid var(--bdr)',
+              borderRadius: '100px',
+              color: !recommendationView && view === 'map' ? 'white' : 'var(--t2)',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 500,
+              transition: 'all 0.2s ease',
+              fontFamily: "'Rajdhani', sans-serif",
+            }}
+          >
+            <DynamicIcon name="Map" size={16} />
+            Map View
+          </button>
+          <button
+            onClick={() => {
               setRecommendationView(true);
               setView('timeline');
             }}
@@ -293,7 +335,7 @@ export default function EventsPage({
         ) : view === 'timeline' ? (
           <>
             <div className="events-timeline ns-reveal">
-              {sortedEvents.map((ev, i) => {
+              {paginatedEvents.map((ev, i) => {
                 const hasDetailPage = ev.hasDetailPage !== false;
                 const dynamicGradient = buildGradient(ev);
                 const glowColor = ev.gradientColors?.[0] || null;
@@ -459,6 +501,7 @@ export default function EventsPage({
                           ) : ev.status === 'starting-soon' ? (
                             <>
                               <DynamicIcon name="Clock" size={11} style={{ marginRight: '4px' }} />{' '}
+                              <DynamicIcon name="Clock" size={11} style={{ marginRight: '4px' }} />{' '}
                               Starting Soon
                             </>
                           ) : (
@@ -583,6 +626,8 @@ export default function EventsPage({
               </div>
             )}
           </>
+        ) : view === 'map' ? (
+          <EventMap />
         ) : (
           <EventCalendarView events={sortedEvents} onEventClick={onEventClick} />
         )}
