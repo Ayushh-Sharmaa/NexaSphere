@@ -38,13 +38,15 @@
   background: var(--accent1-hover, #2563eb);
 }
 
-.save-search-form, .edit-search-form {
+.save-search-form,
+.edit-search-form {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.save-search-form input, .edit-search-form input {
+.save-search-form input,
+.edit-search-form input {
   flex: 1;
   padding: 6px 10px;
   background: var(--surface3, #0f172a);

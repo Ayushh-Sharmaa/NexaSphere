@@ -44,9 +44,12 @@ export function triggerDownload(blob, filename) {
   anchor.href = url;
   anchor.download = safeName;
   anchor.style.display = "none";
-  document.body.appendChild(anchor);
+  const canAttach = typeof Node === "undefined" || anchor instanceof Node;
+  if (canAttach) document.body.appendChild(anchor);
   anchor.click();
-  document.body.removeChild(anchor);
+  if (canAttach && anchor.parentNode === document.body) {
+    document.body.removeChild(anchor);
+  }
   URL.revokeObjectURL(url);
 }
 

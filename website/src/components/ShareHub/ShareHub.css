@@ -46,7 +46,9 @@
 .sharehub-close:hover {
   color: #fff;
 }
-.sharehub-close:hover { color: #fff; }
+.sharehub-close:hover {
+  color: #fff;
+}
 
 .sharehub-preview {
   display: flex;
@@ -98,7 +100,9 @@
   transition:
     background 0.15s,
     color 0.15s;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   text-align: center;
 }
 .sharehub-platform-btn:hover {
@@ -108,7 +112,7 @@
 
 .sharehub-native {
   --platform-color: #e63946;
-  --platform-color: #E63946;
+  --platform-color: #e63946;
 }
 
 .sharehub-copy-row {
@@ -131,7 +135,7 @@
 
 .sharehub-copy-btn {
   background: #e63946;
-  background: #E63946;
+  background: #e63946;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -145,7 +149,9 @@
 .sharehub-copy-btn:hover {
   opacity: 0.85;
 }
-.sharehub-copy-btn:hover { opacity: 0.85; }
+.sharehub-copy-btn:hover {
+  opacity: 0.85;
+}
 
 .sharehub-qr-toggle {
   background: none;

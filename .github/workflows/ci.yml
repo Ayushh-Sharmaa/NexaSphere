@@ -46,6 +46,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nexasphere_ci
 
       - name: Build (production)
         run: npm run build --workspace=website

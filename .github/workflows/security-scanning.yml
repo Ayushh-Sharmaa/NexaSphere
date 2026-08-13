@@ -71,7 +71,7 @@ jobs:
       - name: Build Docker image from server/Dockerfile
         run: |
           if [ -f server/Dockerfile ]; then
-            docker build --pull -t nexasphere:${{ github.sha }} ./server
+            docker build --pull -f server/Dockerfile -t nexasphere:${{ github.sha }} .
           else
             echo "No Dockerfile found in server/ — skipping build"
             docker pull alpine:latest
