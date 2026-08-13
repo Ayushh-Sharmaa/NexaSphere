@@ -279,7 +279,13 @@ class SchedulerService extends EventEmitter {
       this._runTask(taskId);
       try {
         task.nextRun = nextCronDate(task.cron);
-      } catch (err) {}
+      } catch (err) {
+        logger.warn('Failed to compute next run for cron task', {
+          taskId: task.id,
+          cron: task.cron,
+          error: err.message,
+        });
+      }
     });
 
     this._timers.set(taskId, job);

@@ -888,7 +888,12 @@ class BulkOperationsService {
                   dateVal.setDate(dateVal.getDate() + offsetDays);
                   newDateText = dateVal.toISOString().split("T")[0];
                 }
-              } catch (_) {}
+              } catch (err) {
+                logger.warn("Failed to shift event date", {
+                  eventId: event.id,
+                  error: err.message,
+                });
+              }
 
               const { rows: insertedRows } = await client.query(
                 `INSERT INTO events (id, name, short_name, date_text, description, status, icon, tags, location, capacity, created_at, updated_at)

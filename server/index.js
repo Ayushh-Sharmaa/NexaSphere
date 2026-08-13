@@ -686,7 +686,9 @@ app.use("/", syncRouter);
 const UPLOADS_DIR = path.join(__dirname, "uploads");
 try {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-} catch (_) {}
+} catch (err) {
+  logger.warn("Failed to create uploads directory", { error: err.message });
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),

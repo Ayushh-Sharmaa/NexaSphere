@@ -8,7 +8,9 @@ const __dirname = path.dirname(__filename);
 export const UPLOADS_DIR = path.join(__dirname, 'uploads');
 try {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-} catch (_) {}
+} catch (err) {
+  console.warn('Failed to create uploads directory:', err.message);
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),

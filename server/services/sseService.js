@@ -142,7 +142,9 @@ export function addSSEClient(res, adminSession = null) {
     });
     try {
       res.status(503).end('Too many SSE connections');
-    } catch (_) {}
+    } catch (err) {
+      logger.warn('Failed to reject excess SSE connection', { error: err.message });
+    }
     return;
   }
 
