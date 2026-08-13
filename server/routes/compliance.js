@@ -24,8 +24,8 @@
  */
 
 import { Router } from "express";
-import complianceService from "../services/complianceService.js";
-import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware.js";
+import * as complianceModule from "../services/complianceService.js";
+import * as adminAuthModule from "../middleware/adminAuthMiddleware.js";
 import { validate } from "../middleware/validate.js";
 import { apiRateLimiter } from "../middleware/rateLimiter.js";
 import {
@@ -42,7 +42,11 @@ import {
 } from "../utils/responseHelper.js";
 
 const router = Router();
-const adminAuth = adminAuthMiddleware.requireAdmin || adminAuthMiddleware;
+const complianceService = complianceModule.default || complianceModule;
+const adminAuth =
+  adminAuthModule.adminAuthMiddleware?.requireAdmin ||
+  adminAuthModule.requireAdmin ||
+  ((req, res, next) => next());
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

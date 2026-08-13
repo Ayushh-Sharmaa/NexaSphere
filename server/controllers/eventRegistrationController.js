@@ -8,7 +8,6 @@ import { emitToRole } from "../config/socket.js";
 import { broadcastSSEEvent } from "../services/sseService.js";
 import { recordEventRegistration } from "../observability/metrics.js";
 import { supabaseRequest } from "../storage/supabaseClient.js";
-import { scheduleWaitlistExpiryJob } from "../services/queueService.js";
 import {
   sendSuccess,
   sendError,
@@ -200,7 +199,6 @@ export const registerForEvent = wrapAsync(async (req, res) => {
     }
 
     recordEventRegistration();
-    return res.status(201).json({ ...result, ticket });
     return sendSuccess(res, { ...result, seatCode, ticket }, 201);
   } catch (e) {
     // Release temporary Redis lock on failure
@@ -386,7 +384,6 @@ export const getFullCalendarFeed = wrapAsync(async (req, res) => {
   );
   return res.send(ics);
 });
-
 
 export const getWaitlistPosition = wrapAsync(async (req, res) => {
   const eventId = String(req.params.eventId || "").trim();
