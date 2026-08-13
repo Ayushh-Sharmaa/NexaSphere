@@ -2,12 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 // Validates a date value before formatting — avoids rendering literal
 // "Invalid Date" text when the API returns a null or malformed timestamp.
-function formatScheduledDate(value) {
-  if (!value) return 'Unknown date';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return 'Unknown date';
-  return d.toLocaleDateString();
-}
 import apiClient from '../../utils/apiClient';
 import { getApiBase, buildUrl } from '../../utils/runtimeConfig';
 
@@ -22,13 +16,6 @@ const USER_ID = localStorage.getItem('ns_user_id') || `user-${Date.now().toStrin
 const PROFICIENCY = ['Beginner', 'Intermediate', 'Advanced'];
 const FORMATS = ['Video', 'Chat', 'In-person'];
 const DURATIONS = [30, 60, 90];
-
-function formatSkillDate(value) {
-  if (!value) return 'Unknown date';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unknown date';
-  return date.toLocaleDateString();
-}
 
 if (!localStorage.getItem('ns_user_id')) {
   localStorage.setItem('ns_user_id', USER_ID);
@@ -121,7 +108,7 @@ export default function SkillExchangePage({ onBack }) {
           user: USER_ID,
         });
         fetchListings();
-      } catch {}
+      } catch { }
     }
   };
 
@@ -131,7 +118,7 @@ export default function SkillExchangePage({ onBack }) {
       try {
         const d = await apiClient(url);
         setMatches(d.matches || []);
-      } catch {}
+      } catch { }
   };
 
   const bookSession = async (match) => {
@@ -150,7 +137,7 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         fetchUserStats();
-      } catch {}
+      } catch { }
     }
   };
 
@@ -165,7 +152,7 @@ export default function SkillExchangePage({ onBack }) {
         });
         fetchUserStats();
         fetchLeaderboard();
-      } catch {}
+      } catch { }
     }
   };
 
@@ -186,7 +173,7 @@ export default function SkillExchangePage({ onBack }) {
           headers: { 'Content-Type': 'application/json' },
         });
         setRating({ sessionId: null, score: 5, comment: '' });
-      } catch {}
+      } catch { }
     }
   };
 
@@ -483,9 +470,7 @@ export default function SkillExchangePage({ onBack }) {
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--t2)' }}>
                       Status: <strong>{s.status}</strong> · Scheduled:{' '}
-                      {formatScheduledDate(s.scheduledAt)}
                       {formatSkillSessionDate(s.scheduledAt)}
-                      {formatSkillDate(s.scheduledAt)}
                     </div>
                     {s.notes && (
                       <div style={{ fontSize: '0.85rem', color: 'var(--t3)' }}>

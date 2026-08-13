@@ -92,6 +92,16 @@ export default function EventsPage({
       });
   }, [filteredEvents]);
 
+  const totalPages = Math.max(1, Math.ceil(sortedEvents.length / EVENTS_PER_PAGE));
+
+  const paginatedEvents = useMemo(() => {
+    const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
+    return sortedEvents.slice(startIndex, startIndex + EVENTS_PER_PAGE);
+  }, [sortedEvents, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, events]);
   const { recommendations, loading: recsLoading } = useRecommendations(user?.sub || user?.id || '');
 
   const buildGradient = (ev) => {
@@ -293,7 +303,7 @@ export default function EventsPage({
         ) : view === 'timeline' ? (
           <>
             <div className="events-timeline ns-reveal">
-              {sortedEvents.map((ev, i) => {
+              {paginatedEvents.map((ev, i) => {
                 const hasDetailPage = ev.hasDetailPage !== false;
                 const dynamicGradient = buildGradient(ev);
                 const glowColor = ev.gradientColors?.[0] || null;
@@ -310,31 +320,31 @@ export default function EventsPage({
                         transition: 'all .28s ease',
                         ...(dynamicGradient
                           ? {
-                              position: 'relative',
-                              overflow: 'hidden',
-                              borderColor: 'transparent',
-                            }
+                            position: 'relative',
+                            overflow: 'hidden',
+                            borderColor: 'transparent',
+                          }
                           : {}),
                       }}
                       onClick={hasDetailPage ? () => onEventClick(ev) : undefined}
                       onMouseEnter={
                         hasDetailPage
                           ? (e) => {
-                              e.currentTarget.style.borderColor = glowColor || 'var(--c1b)';
-                              e.currentTarget.style.boxShadow = `0 6px 24px ${glowColor ? glowColor + '44' : 'var(--c1g)'}`;
-                              e.currentTarget.style.transform = 'translateY(-3px)';
-                            }
+                            e.currentTarget.style.borderColor = glowColor || 'var(--c1b)';
+                            e.currentTarget.style.boxShadow = `0 6px 24px ${glowColor ? glowColor + '44' : 'var(--c1g)'}`;
+                            e.currentTarget.style.transform = 'translateY(-3px)';
+                          }
                           : undefined
                       }
                       onMouseLeave={
                         hasDetailPage
                           ? (e) => {
-                              e.currentTarget.style.borderColor = dynamicGradient
-                                ? 'transparent'
-                                : '';
-                              e.currentTarget.style.boxShadow = '';
-                              e.currentTarget.style.transform = '';
-                            }
+                            e.currentTarget.style.borderColor = dynamicGradient
+                              ? 'transparent'
+                              : '';
+                            e.currentTarget.style.boxShadow = '';
+                            e.currentTarget.style.transform = '';
+                          }
                           : undefined
                       }
                     >
