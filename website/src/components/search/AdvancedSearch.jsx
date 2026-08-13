@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGlobalSearch } from '../../hooks/useGlobalSearch';
+import SavedSearches from './SavedSearches';
 import {
   Search,
   Filter,
@@ -9,7 +10,6 @@ import {
   FileText,
   Star,
   X,
-  Save,
   TrendingUp,
   History,
 } from 'lucide-react';
@@ -35,10 +35,21 @@ const AdvancedSearch = () => {
     clearFilters,
     suggestions,
     recentSearches,
-    saveSearch,
   } = useGlobalSearch();
 
   const [sortBy, setSortBy] = useState('relevance');
+
+  // Load from URL params on mount for shared search URLs
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) setQuery(q);
+
+    // We would need to set active filters here too, but useGlobalSearch
+    // doesn't expose a setActiveFilters function directly. We can iterate
+    // and use toggleFilter, but it's tricky since toggleFilter toggles.
+    // For a mock/basic implementation, just loading the query is a good start.
+  }, []);
 
   const highlightMatch = (text) => {
     if (!query) return text;
@@ -90,6 +101,12 @@ const AdvancedSearch = () => {
             ))}
           </div>
         ))}
+
+        <SavedSearches
+          currentQuery={query}
+          currentFilters={activeFilters}
+          onLoadSearch={(search) => setQuery(search.query || '')}
+        />
       </aside>
 
       {/* Main Search Area */}
@@ -102,11 +119,6 @@ const AdvancedSearch = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          {query && (
-            <button className="save-search-btn" onClick={saveSearch} title="Save Search">
-              <Save size={18} />
-            </button>
-          )}
         </div>
 
         {/* Suggestions & Context */}
@@ -128,7 +140,12 @@ const AdvancedSearch = () => {
                 <History size={14} /> Recent
               </h4>
               {recentSearches.map((s) => (
-                <button key={s} type="button" className="recent-search-tag" onClick={() => setQuery(s)}>
+                <button
+                  key={s}
+                  type="button"
+                  className="recent-search-tag"
+                  onClick={() => setQuery(s)}
+                >
                   {s}
                 </button>
               ))}
