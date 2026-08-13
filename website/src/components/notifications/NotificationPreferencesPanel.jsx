@@ -1,16 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import prefsService from '../../services/notifications/preferences';
 import apiClient from '../../utils/apiClient';
 import { useStudentAuth } from '../../context/StudentAuthContext';
-import './NotificationPreferencesPanel.css';
+import DigestPreferences from './DigestPreferences';
 
 const CATEGORIES = [
-  { key: 'events', label: 'Event Updates', desc: 'New events, registration openings' },
-  { key: 'team', label: 'Team Invitations', desc: 'Core team & club invitations' },
-  { key: 'activities', label: 'Activity Updates', desc: 'Club activity announcements' },
-  { key: 'announcements', label: 'Admin Announcements', desc: 'Platform-wide announcements' },
-  { key: 'deadlines', label: 'Deadline Reminders', desc: 'Registration closing reminders' },
-  { key: 'attendance', label: 'Attendance & Points', desc: 'Attendance confirmations & points' },
-  { key: 'promotions', label: 'Waitlist & Promotions', desc: 'Waitlist promotion updates' },
   { key: 'event_reminders', label: 'Event Reminders', desc: 'Reminders for your events' },
   {
     key: 'registration_confirmations',
@@ -18,13 +12,13 @@ const CATEGORIES = [
     desc: 'Confirmations for registrations',
   },
   { key: 'messages', label: 'Messages', desc: 'Direct messages and chats' },
+  { key: 'announcements', label: 'Announcements', desc: 'Platform announcements' },
   { key: 'recommendations', label: 'Event Recommendations', desc: 'Suggested events for you' },
   { key: 'portfolio_views', label: 'Portfolio Views', desc: 'When your portfolio is viewed' },
   { key: 'skill_requests', label: 'Skill Exchange Requests', desc: 'Requests from other users' },
 ];
 
 const CHANNELS = [
-  { key: 'in_app', label: 'In-App' },
   { key: 'push', label: 'Push' },
   { key: 'email', label: 'Email' },
   { key: 'sms', label: 'SMS' },
@@ -39,46 +33,68 @@ const FREQUENCIES = [
 
 export default function NotificationPreferencesPanel({ userId, onClose }) {
   const { user: authUser } = useStudentAuth();
-  const effectiveUserId = userId ?? authUser?.sub ?? authUser?.id ?? 'global';
-
+  const effectiveUserId = userId ?? authUser?.sub ?? authUser?.id;
   const [prefs, setPrefs] = useState({});
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [global, setGlobal] = useState({ dnd: false, quiet_start: '22:00', quiet_end: '08:00' });
-  const copiedTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
-    };
-  }, []);
 
   useEffect(() => {
     if (!effectiveUserId) return;
     (async () => {
       try {
+        const list = await prefsService.fetchPreferences(userId);
         const data = await apiClient(`/api/notifications/preferences?userId=${effectiveUserId}`);
         const map = {};
-        for (const p of data.preferences || []) {
+        for (const p of list || []) {
+          map[p.category] = {
+            email: p.email ?? true,
+            push: p.push ?? true,
+            sms: p.sms ?? true,
+            frequency: p.frequency || 'immediate',
+          };
           if (p.category === 'global') {
-            setGlobal({
+            setGlobal((g) => ({
+              ...g,
               dnd: !!p.dnd,
-              quiet_start: p.quiet_start || '22:00',
-              quiet_end: p.quiet_end || '08:00',
-            });
-          } else {
-            map[p.category] = {
-              email: p.email ?? true,
-              push: p.push ?? true,
-              in_app: p.in_app ?? true,
-              sms: p.sms ?? true,
-              frequency: p.frequency || 'immediate',
-            };
+              quiet_start: p.quiet_start || g.quiet_start,
+              quiet_end: p.quiet_end || g.quiet_end,
+            }));
           }
+import apiClient from '../../utils/apiClient';
+
+const CATEGORIES = [
+  { key: 'events', label: 'Event Updates', desc: 'New events, registration openings' },
+  { key: 'team', label: 'Team Invitations', desc: 'Core team & club invitations' },
+  { key: 'activities', label: 'Activity Updates', desc: 'Club activity announcements' },
+  { key: 'announcements', label: 'Admin Announcements', desc: 'Platform-wide announcements' },
+  { key: 'deadlines', label: 'Deadline Reminders', desc: 'Registration closing reminders' },
+  { key: 'attendance', label: 'Attendance & Points', desc: 'Attendance confirmations & points' },
+  { key: 'promotions', label: 'Waitlist & Promotions', desc: 'Waitlist promotion updates' },
+];
+
+const CHANNELS = [
+  { key: 'in_app', label: 'In-App', desc: 'Bell icon notifications' },
+  { key: 'push', label: 'Push', desc: 'Browser push notifications' },
+  { key: 'email', label: 'Email', desc: 'Email notifications' },
+];
+
+export default function NotificationPreferencesPanel({ userId = 'global', onClose }) {
+  const [prefs, setPrefs] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await apiClient(`/api/notifications/preferences?userId=${userId}`);
+        const map = {};
+        for (const p of data.preferences || []) {
+          map[p.category] = { email: p.email, push: p.push, in_app: p.in_app };
         }
         setPrefs(map);
       } catch {
-        // Fallback defaults
+        // defaults
       }
       setLoaded(true);
     })();
@@ -89,25 +105,20 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
       const current = prev[category] || {
         email: true,
         push: true,
-        in_app: true,
         sms: true,
         frequency: 'immediate',
       };
+  }, [userId]);
+
+  const toggle = useCallback((category, channel) => {
+    setPrefs((prev) => {
+      const current = prev[category] || { email: true, push: true, in_app: true };
       return { ...prev, [category]: { ...current, [channel]: !current[channel] } };
     });
   }, []);
 
   const setFrequency = useCallback((category, freq) => {
-    setPrefs((prev) => {
-      const current = prev[category] || {
-        email: true,
-        push: true,
-        in_app: true,
-        sms: true,
-        frequency: 'immediate',
-      };
-      return { ...prev, [category]: { ...current, frequency: freq } };
-    });
+    setPrefs((prev) => ({ ...prev, [category]: { ...(prev[category] || {}), frequency: freq } }));
   }, []);
 
   const toggleDnd = useCallback((val) => setGlobal((g) => ({ ...g, dnd: val })), []);
@@ -122,16 +133,12 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
     try {
       const bulk = Object.entries(prefs).map(([category, channels]) => ({
         category,
-        email: !!channels.email,
-        push: !!channels.push,
-        in_app: !!channels.in_app,
-        sms: !!channels.sms,
-        frequency: channels.frequency || 'immediate',
+        ...channels,
       }));
+      await prefsService.setPreferencesBulk(userId, bulk);
 
-      // Append global settings
-      bulk.push({
-        category: 'global',
+      // Save global settings as a reserved 'global' category
+      await prefsService.setPreference(userId, 'global', {
         dnd: !!global.dnd,
         quiet_start: global.quiet_start,
         quiet_end: global.quiet_end,
@@ -142,22 +149,21 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: effectiveUserId, preferences: bulk }),
       });
-    } catch {
+    } catch (e) {
       // ignore
     }
     setSaving(false);
-  }, [prefs, effectiveUserId, global]);
+  }, [prefs, userId, global, effectiveUserId]);
 
-  if (!loaded) {
+  if (!loaded)
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--t2)' }}>
         Loading preferences...
       </div>
     );
-  }
 
   return (
-    <div style={{ padding: '1.5rem 2rem', maxWidth: '850px', margin: '0 auto' }}>
+    <div style={{ padding: '1.5rem 2rem', maxWidth: '700px', margin: '0 auto' }}>
       <div
         style={{
           display: 'flex',
@@ -183,34 +189,22 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
         )}
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid var(--border)' }}>
+            <th
+              style={{
+                textAlign: 'left',
+                padding: '0.75rem 0.5rem',
+                color: 'var(--t1)',
+                fontSize: '0.85rem',
+              }}
+            >
+              Category
+            </th>
+            {CHANNELS.map((ch) => (
               <th
-                style={{
-                  textAlign: 'left',
-                  padding: '0.75rem 0.5rem',
-                  color: 'var(--t1)',
-                  fontSize: '0.85rem',
-                }}
-              >
-                Category
-              </th>
-              {CHANNELS.map((ch) => (
-                <th
-                  key={ch.key}
-                  style={{
-                    textAlign: 'center',
-                    padding: '0.75rem 0.5rem',
-                    color: 'var(--t1)',
-                    fontSize: '0.8rem',
-                  }}
-                >
-                  {ch.label}
-                </th>
-              ))}
-              <th
+                key={ch.key}
                 style={{
                   textAlign: 'center',
                   padding: '0.75rem 0.5rem',
@@ -218,81 +212,92 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
                   fontSize: '0.8rem',
                 }}
               >
-                Frequency
+                {ch.label}
               </th>
-            </tr>
-          </thead>
-          <tbody>
-            {CATEGORIES.map((cat) => {
-              const channels = prefs[cat.key] || {
-                email: true,
-                push: true,
-                in_app: true,
-                sms: true,
-                frequency: 'immediate',
-              };
-              return (
-                <tr key={cat.key} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '0.85rem 0.5rem' }}>
-                    <div style={{ color: 'var(--t1)', fontSize: '0.9rem' }}>{cat.label}</div>
-                    <div style={{ color: 'var(--t2)', fontSize: '0.75rem' }}>{cat.desc}</div>
-                  </td>
-                  {CHANNELS.map((ch) => (
-                    <td key={ch.key} style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
-                      <button
-                        onClick={() => toggle(cat.key, ch.key)}
-                        style={{
-                          width: '36px',
-                          height: '22px',
-                          borderRadius: '11px',
-                          border: 'none',
-                          background: channels[ch.key]
-                            ? 'var(--c1, #cc1111)'
-                            : 'rgba(255,255,255,0.15)',
-                          cursor: 'pointer',
-                          position: 'relative',
-                          transition: 'background 0.2s',
-                        }}
-                      >
-                        <span
-                          style={{
-                            position: 'absolute',
-                            top: '2px',
-                            width: '18px',
-                            height: '18px',
-                            borderRadius: '50%',
-                            background: '#fff',
-                            transition: 'left 0.2s',
-                            left: channels[ch.key] ? '16px' : '2px',
-                          }}
-                        />
-                      </button>
-                    </td>
-                  ))}
-                  <td style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
-                    <select
-                      value={channels.frequency || 'immediate'}
-                      onChange={(e) => setFrequency(cat.key, e.target.value)}
-                      style={{ padding: '6px', borderRadius: 6 }}
+            ))}
+            <th
+              style={{
+                textAlign: 'center',
+                padding: '0.75rem 0.5rem',
+                color: 'var(--t1)',
+                fontSize: '0.8rem',
+              }}
+            >
+              Frequency
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {CATEGORIES.map((cat) => {
+            const channels = prefs[cat.key] || {
+              email: true,
+              push: true,
+              sms: true,
+              frequency: 'immediate',
+            };
+            const channels = prefs[cat.key] || { email: true, push: true, in_app: true };
+            return (
+              <tr key={cat.key} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '0.85rem 0.5rem' }}>
+                  <div style={{ color: 'var(--t1)', fontSize: '0.9rem' }}>{cat.label}</div>
+                  <div style={{ color: 'var(--t2)', fontSize: '0.75rem' }}>{cat.desc}</div>
+                </td>
+                {CHANNELS.map((ch) => (
+                  <td key={ch.key} style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
+                    <button
+                      onClick={() => toggle(cat.key, ch.key)}
+                      style={{
+                        width: '36px',
+                        height: '22px',
+                        borderRadius: '11px',
+                        border: 'none',
+                        background: channels[ch.key]
+                          ? 'var(--c1, #cc1111)'
+                          : 'rgba(255,255,255,0.15)',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'background 0.2s',
+                      }}
                     >
-                      {FREQUENCIES.map((f) => (
-                        <option key={f.key} value={f.key}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </select>
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          background: '#fff',
+                          transition: 'left 0.2s',
+                          left: channels[ch.key] ? '16px' : '2px',
+                        }}
+                      />
+                    </button>
                   </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                ))}
 
-      {/* Global Settings */}
+                <td style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
+                  <select
+                    value={channels.frequency}
+                    onChange={(e) => setFrequency(cat.key, e.target.value)}
+                    style={{ padding: '6px', borderRadius: 6 }}
+                  >
+                    {FREQUENCIES.map((f) => (
+                      <option key={f.key} value={f.key}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Global settings */}
       <div
         style={{
-          marginTop: '1.5rem',
+          marginTop: '1rem',
           padding: '1rem',
           border: '1px solid var(--border)',
           borderRadius: 8,
@@ -365,6 +370,9 @@ export default function NotificationPreferencesPanel({ userId, onClose }) {
           {saving ? 'Saving...' : 'Save Preferences'}
         </button>
       </div>
+
+      {/* Digest Settings added per Issue 1541 */}
+      <DigestPreferences />
     </div>
   );
 }
