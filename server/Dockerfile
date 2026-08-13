@@ -10,6 +10,7 @@ RUN mkdir -p /workspace/server /workspace/prisma && chown -R node:node /workspac
 # Switch to non-root user
 USER node
 WORKDIR /workspace/server
+ENV DATABASE_URL=postgresql://localhost:5432/nexasphere_build
 
 # Copy package configuration with correct ownership
 COPY --chown=node:node server/package*.json ./

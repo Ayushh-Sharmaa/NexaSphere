@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import prefsService from '../../services/notifications/preferences';
-import apiClient from '../../utils/apiClient';
 import { useStudentAuth } from '../../context/StudentAuthContext';
+import prefsService from '../../services/notifications/preferences';
 import DigestPreferences from './DigestPreferences';
 
 const CATEGORIES = [
@@ -31,136 +30,102 @@ const FREQUENCIES = [
   { key: 'disabled', label: 'Disabled' },
 ];
 
+const defaultChannels = () => ({
+  email: true,
+  push: true,
+  sms: true,
+  frequency: 'immediate',
+});
+
 export default function NotificationPreferencesPanel({ userId, onClose }) {
   const { user: authUser } = useStudentAuth();
   const effectiveUserId = userId ?? authUser?.sub ?? authUser?.id;
   const [prefs, setPrefs] = useState({});
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [global, setGlobal] = useState({ dnd: false, quiet_start: '22:00', quiet_end: '08:00' });
+  const [global, setGlobal] = useState({
+    dnd: false,
+    quiet_start: '22:00',
+    quiet_end: '08:00',
+  });
 
   useEffect(() => {
-    if (!effectiveUserId) return;
-    (async () => {
+    if (!effectiveUserId) {
+      setLoaded(true);
+      return;
+    }
+
+    let active = true;
+    const load = async () => {
       try {
-        const list = await prefsService.fetchPreferences(userId);
-        const data = await apiClient(`/api/notifications/preferences?userId=${effectiveUserId}`);
+        const list = await prefsService.fetchPreferences(effectiveUserId);
+        if (!active) return;
         const map = {};
-        for (const p of list || []) {
-          map[p.category] = {
-            email: p.email ?? true,
-            push: p.push ?? true,
-            sms: p.sms ?? true,
-            frequency: p.frequency || 'immediate',
-          };
-          if (p.category === 'global') {
-            setGlobal((g) => ({
-              ...g,
-              dnd: !!p.dnd,
-              quiet_start: p.quiet_start || g.quiet_start,
-              quiet_end: p.quiet_end || g.quiet_end,
+        for (const preference of list || []) {
+          if (preference.category === 'global') {
+            setGlobal((current) => ({
+              ...current,
+              dnd: Boolean(preference.dnd),
+              quiet_start: preference.quiet_start || current.quiet_start,
+              quiet_end: preference.quiet_end || current.quiet_end,
             }));
+            continue;
           }
-import apiClient from '../../utils/apiClient';
-
-const CATEGORIES = [
-  { key: 'events', label: 'Event Updates', desc: 'New events, registration openings' },
-  { key: 'team', label: 'Team Invitations', desc: 'Core team & club invitations' },
-  { key: 'activities', label: 'Activity Updates', desc: 'Club activity announcements' },
-  { key: 'announcements', label: 'Admin Announcements', desc: 'Platform-wide announcements' },
-  { key: 'deadlines', label: 'Deadline Reminders', desc: 'Registration closing reminders' },
-  { key: 'attendance', label: 'Attendance & Points', desc: 'Attendance confirmations & points' },
-  { key: 'promotions', label: 'Waitlist & Promotions', desc: 'Waitlist promotion updates' },
-];
-
-const CHANNELS = [
-  { key: 'in_app', label: 'In-App', desc: 'Bell icon notifications' },
-  { key: 'push', label: 'Push', desc: 'Browser push notifications' },
-  { key: 'email', label: 'Email', desc: 'Email notifications' },
-];
-
-export default function NotificationPreferencesPanel({ userId = 'global', onClose }) {
-  const [prefs, setPrefs] = useState({});
-  const [saving, setSaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await apiClient(`/api/notifications/preferences?userId=${userId}`);
-        const map = {};
-        for (const p of data.preferences || []) {
-          map[p.category] = { email: p.email, push: p.push, in_app: p.in_app };
+          map[preference.category] = {
+            email: preference.email ?? true,
+            push: preference.push ?? true,
+            sms: preference.sms ?? true,
+            frequency: preference.frequency || 'immediate',
+          };
         }
         setPrefs(map);
-      } catch {
-        // defaults
+      } finally {
+        if (active) setLoaded(true);
       }
-      setLoaded(true);
-    })();
+    };
+
+    load();
+    return () => {
+      active = false;
+    };
   }, [effectiveUserId]);
 
   const toggle = useCallback((category, channel) => {
-    setPrefs((prev) => {
-      const current = prev[category] || {
-        email: true,
-        push: true,
-        sms: true,
-        frequency: 'immediate',
-      };
-  }, [userId]);
-
-  const toggle = useCallback((category, channel) => {
-    setPrefs((prev) => {
-      const current = prev[category] || { email: true, push: true, in_app: true };
-      return { ...prev, [category]: { ...current, [channel]: !current[channel] } };
+    setPrefs((current) => {
+      const channels = current[category] || defaultChannels();
+      return { ...current, [category]: { ...channels, [channel]: !channels[channel] } };
     });
   }, []);
 
-  const setFrequency = useCallback((category, freq) => {
-    setPrefs((prev) => ({ ...prev, [category]: { ...(prev[category] || {}), frequency: freq } }));
+  const setFrequency = useCallback((category, frequency) => {
+    setPrefs((current) => ({
+      ...current,
+      [category]: { ...(current[category] || defaultChannels()), frequency },
+    }));
   }, []);
 
-  const toggleDnd = useCallback((val) => setGlobal((g) => ({ ...g, dnd: val })), []);
-
-  const setQuiet = useCallback(
-    (start, end) => setGlobal((g) => ({ ...g, quiet_start: start, quiet_end: end })),
-    []
-  );
-
   const save = useCallback(async () => {
+    if (!effectiveUserId) return;
     setSaving(true);
     try {
-      const bulk = Object.entries(prefs).map(([category, channels]) => ({
+      const preferences = CATEGORIES.map(({ key: category }) => ({
         category,
-        ...channels,
+        ...(prefs[category] || defaultChannels()),
       }));
-      await prefsService.setPreferencesBulk(userId, bulk);
-
-      // Save global settings as a reserved 'global' category
-      await prefsService.setPreference(userId, 'global', {
-        dnd: !!global.dnd,
-        quiet_start: global.quiet_start,
-        quiet_end: global.quiet_end,
-      });
-
-      await apiClient('/api/notifications/preferences/bulk', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: effectiveUserId, preferences: bulk }),
-      });
-    } catch (e) {
-      // ignore
+      await prefsService.setPreferencesBulk(effectiveUserId, preferences);
+      await prefsService.setPreference(effectiveUserId, 'global', global);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-  }, [prefs, userId, global, effectiveUserId]);
+  }, [effectiveUserId, global, prefs]);
 
-  if (!loaded)
+  if (!loaded) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--t2)' }}>
         Loading preferences...
       </div>
     );
+  }
 
   return (
     <div style={{ padding: '1.5rem 2rem', maxWidth: '700px', margin: '0 auto' }}>
@@ -175,7 +140,9 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
         <h2 style={{ margin: 0, color: 'var(--t1)' }}>Notification Preferences</h2>
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close notification preferences"
             style={{
               background: 'none',
               border: 'none',
@@ -184,7 +151,7 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
               fontSize: '1.2rem',
             }}
           >
-            ✕
+            ×
           </button>
         )}
       </div>
@@ -192,66 +159,44 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th
-              style={{
-                textAlign: 'left',
-                padding: '0.75rem 0.5rem',
-                color: 'var(--t1)',
-                fontSize: '0.85rem',
-              }}
-            >
+            <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--t1)' }}>
               Category
             </th>
-            {CHANNELS.map((ch) => (
+            {CHANNELS.map((channel) => (
               <th
-                key={ch.key}
-                style={{
-                  textAlign: 'center',
-                  padding: '0.75rem 0.5rem',
-                  color: 'var(--t1)',
-                  fontSize: '0.8rem',
-                }}
+                key={channel.key}
+                style={{ textAlign: 'center', padding: '0.75rem 0.5rem', color: 'var(--t1)' }}
               >
-                {ch.label}
+                {channel.label}
               </th>
             ))}
-            <th
-              style={{
-                textAlign: 'center',
-                padding: '0.75rem 0.5rem',
-                color: 'var(--t1)',
-                fontSize: '0.8rem',
-              }}
-            >
+            <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', color: 'var(--t1)' }}>
               Frequency
             </th>
           </tr>
         </thead>
         <tbody>
-          {CATEGORIES.map((cat) => {
-            const channels = prefs[cat.key] || {
-              email: true,
-              push: true,
-              sms: true,
-              frequency: 'immediate',
-            };
-            const channels = prefs[cat.key] || { email: true, push: true, in_app: true };
+          {CATEGORIES.map((category) => {
+            const channels = prefs[category.key] || defaultChannels();
             return (
-              <tr key={cat.key} style={{ borderBottom: '1px solid var(--border)' }}>
+              <tr key={category.key} style={{ borderBottom: '1px solid var(--border)' }}>
                 <td style={{ padding: '0.85rem 0.5rem' }}>
-                  <div style={{ color: 'var(--t1)', fontSize: '0.9rem' }}>{cat.label}</div>
-                  <div style={{ color: 'var(--t2)', fontSize: '0.75rem' }}>{cat.desc}</div>
+                  <div style={{ color: 'var(--t1)', fontSize: '0.9rem' }}>{category.label}</div>
+                  <div style={{ color: 'var(--t2)', fontSize: '0.75rem' }}>{category.desc}</div>
                 </td>
-                {CHANNELS.map((ch) => (
-                  <td key={ch.key} style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
+                {CHANNELS.map((channel) => (
+                  <td key={channel.key} style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
                     <button
-                      onClick={() => toggle(cat.key, ch.key)}
+                      type="button"
+                      aria-label={`${category.label} ${channel.label}`}
+                      aria-pressed={Boolean(channels[channel.key])}
+                      onClick={() => toggle(category.key, channel.key)}
                       style={{
                         width: '36px',
                         height: '22px',
                         borderRadius: '11px',
                         border: 'none',
-                        background: channels[ch.key]
+                        background: channels[channel.key]
                           ? 'var(--c1, #cc1111)'
                           : 'rgba(255,255,255,0.15)',
                         cursor: 'pointer',
@@ -268,22 +213,21 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
                           borderRadius: '50%',
                           background: '#fff',
                           transition: 'left 0.2s',
-                          left: channels[ch.key] ? '16px' : '2px',
+                          left: channels[channel.key] ? '16px' : '2px',
                         }}
                       />
                     </button>
                   </td>
                 ))}
-
                 <td style={{ textAlign: 'center', padding: '0.85rem 0.5rem' }}>
                   <select
                     value={channels.frequency}
-                    onChange={(e) => setFrequency(cat.key, e.target.value)}
+                    onChange={(event) => setFrequency(category.key, event.target.value)}
                     style={{ padding: '6px', borderRadius: 6 }}
                   >
-                    {FREQUENCIES.map((f) => (
-                      <option key={f.key} value={f.key}>
-                        {f.label}
+                    {FREQUENCIES.map((frequency) => (
+                      <option key={frequency.key} value={frequency.key}>
+                        {frequency.label}
                       </option>
                     ))}
                   </select>
@@ -294,7 +238,6 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
         </tbody>
       </table>
 
-      {/* Global settings */}
       <div
         style={{
           marginTop: '1rem',
@@ -303,59 +246,61 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
           borderRadius: 8,
         }}
       >
-        <div
+        <label
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '12px',
+            gap: 12,
           }}
         >
-          <div>
-            <div style={{ fontWeight: 700, color: 'var(--t1)' }}>Do Not Disturb</div>
-            <div style={{ color: 'var(--t2)', fontSize: '0.85rem' }}>
+          <span>
+            <span style={{ display: 'block', fontWeight: 700, color: 'var(--t1)' }}>
+              Do Not Disturb
+            </span>
+            <span style={{ color: 'var(--t2)', fontSize: '0.85rem' }}>
               Temporarily disable non-critical notifications
-            </div>
-          </div>
-          <div>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <input
-                type="checkbox"
-                checked={!!global.dnd}
-                onChange={(e) => toggleDnd(e.target.checked)}
-              />
-              <span style={{ color: 'var(--t2)' }}>{global.dnd ? 'On' : 'Off'}</span>
-            </label>
-          </div>
-        </div>
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={global.dnd}
+            onChange={(event) =>
+              setGlobal((current) => ({ ...current, dnd: event.target.checked }))
+            }
+          />
+        </label>
 
-        <div style={{ marginTop: '0.75rem', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ marginTop: '0.75rem', display: 'flex', gap: 12, alignItems: 'center' }}>
           <div style={{ minWidth: 120 }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--t1)', fontWeight: 700 }}>
               Quiet Hours
             </div>
             <div style={{ color: 'var(--t2)', fontSize: '0.8rem' }}>Start — End (local time)</div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input
-              type="time"
-              value={global.quiet_start}
-              onChange={(e) => setQuiet(e.target.value, global.quiet_end)}
-            />
-            <span style={{ color: 'var(--t2)' }}>—</span>
-            <input
-              type="time"
-              value={global.quiet_end}
-              onChange={(e) => setQuiet(global.quiet_start, e.target.value)}
-            />
-          </div>
+          <input
+            type="time"
+            value={global.quiet_start}
+            onChange={(event) =>
+              setGlobal((current) => ({ ...current, quiet_start: event.target.value }))
+            }
+          />
+          <span style={{ color: 'var(--t2)' }}>—</span>
+          <input
+            type="time"
+            value={global.quiet_end}
+            onChange={(event) =>
+              setGlobal((current) => ({ ...current, quiet_end: event.target.value }))
+            }
+          />
         </div>
       </div>
 
       <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
         <button
+          type="button"
           onClick={save}
-          disabled={saving}
+          disabled={saving || !effectiveUserId}
           style={{
             padding: '0.6rem 2rem',
             borderRadius: '8px',
@@ -364,14 +309,13 @@ export default function NotificationPreferencesPanel({ userId = 'global', onClos
             color: '#fff',
             fontSize: '0.9rem',
             cursor: 'pointer',
-            opacity: saving ? 0.6 : 1,
+            opacity: saving || !effectiveUserId ? 0.6 : 1,
           }}
         >
           {saving ? 'Saving...' : 'Save Preferences'}
         </button>
       </div>
 
-      {/* Digest Settings added per Issue 1541 */}
       <DigestPreferences />
     </div>
   );

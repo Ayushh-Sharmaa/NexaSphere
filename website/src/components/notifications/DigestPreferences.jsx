@@ -12,7 +12,7 @@ export default function DigestPreferences() {
   const [saved, setSaved] = useState(false);
 
   const handleContentChange = (key) => {
-    setContent(prev => ({ ...prev, [key]: !prev[key] }));
+    setContent((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleSave = () => {
@@ -35,16 +35,16 @@ export default function DigestPreferences() {
       <div className="digest-section">
         <h4>Digest Frequency</h4>
         <div className="frequency-options">
-          {['real-time', 'daily', 'weekly'].map(freq => (
+          {['real-time', 'daily', 'weekly'].map((freq) => (
             <label key={freq} className="radio-label">
-              <input 
-                type="radio" 
-                name="frequency" 
-                value={freq} 
-                checked={frequency === freq} 
-                onChange={(e) => setFrequency(e.target.value)} 
+              <input
+                type="radio"
+                name="frequency"
+                value={freq}
+                checked={frequency === freq}
+                onChange={(e) => setFrequency(e.target.value)}
               />
-              {freq.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              {freq.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
             </label>
           ))}
         </div>
@@ -54,26 +54,26 @@ export default function DigestPreferences() {
         <h4>Digest Content</h4>
         <div className="content-options">
           <label className="checkbox-label">
-            <input 
-              type="checkbox" 
-              checked={content.events} 
-              onChange={() => handleContentChange('events')} 
+            <input
+              type="checkbox"
+              checked={content.events}
+              onChange={() => handleContentChange('events')}
             />
             Upcoming Events
           </label>
           <label className="checkbox-label">
-            <input 
-              type="checkbox" 
-              checked={content.news} 
-              onChange={() => handleContentChange('news')} 
+            <input
+              type="checkbox"
+              checked={content.news}
+              onChange={() => handleContentChange('news')}
             />
             Platform News
           </label>
           <label className="checkbox-label">
-            <input 
-              type="checkbox" 
-              checked={content.announcements} 
-              onChange={() => handleContentChange('announcements')} 
+            <input
+              type="checkbox"
+              checked={content.announcements}
+              onChange={() => handleContentChange('announcements')}
             />
             Admin Announcements
           </label>
@@ -83,7 +83,11 @@ export default function DigestPreferences() {
       <div className="digest-section">
         <h4>Timezone</h4>
         <p className="tz-hint">Digests will be sent in your local morning time (8:00 AM).</p>
-        <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="tz-select">
+        <select
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
+          className="tz-select"
+        >
           <option value={Intl.DateTimeFormat().resolvedOptions().timeZone}>
             {Intl.DateTimeFormat().resolvedOptions().timeZone} (Detected)
           </option>

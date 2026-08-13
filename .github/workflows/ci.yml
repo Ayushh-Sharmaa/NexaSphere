@@ -17,8 +17,8 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -38,22 +38,20 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Upgrade npm to v11 (matches lockfile generator)
         run: npm install -g npm@11
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nexasphere_ci
 
       - name: Build (production)
         run: npm run build --workspace=website
         env:
           NODE_ENV: production
-          VITE_API_BASE: ''
+          VITE_API_BASE: ""
 
       - name: Create .nojekyll
         run: touch website/dist/.nojekyll
@@ -75,8 +73,8 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Upgrade npm to v11 (matches lockfile generator)
         run: npm install -g npm@11
@@ -107,8 +105,8 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
           cache-dependency-path: server/package-lock.json
 
       - name: Upgrade npm to v11 (matches lockfile generator)
@@ -116,6 +114,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nexasphere_ci
 
       - name: Run SQL Injection security audit
         run: npm run audit:sql
@@ -131,7 +131,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.CI_ADMIN_PASSWORD || 'ci_test_password_stub' }}
           ADMIN_EVENT_PASSWORD: ${{ secrets.CI_ADMIN_EVENT_PASSWORD || 'ci_test_event_password_stub' }}
           PORT: 8787
-          CORS_ORIGIN: 'http://localhost,http://127.0.0.1'
+          CORS_ORIGIN: "http://localhost,http://127.0.0.1"
 
       - name: Generate coverage report
         run: npm run test:coverage || true
@@ -141,7 +141,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.CI_ADMIN_PASSWORD || 'ci_test_password_stub' }}
           ADMIN_EVENT_PASSWORD: ${{ secrets.CI_ADMIN_EVENT_PASSWORD || 'ci_test_event_password_stub' }}
           PORT: 8787
-          CORS_ORIGIN: 'http://localhost,http://127.0.0.1'
+          CORS_ORIGIN: "http://localhost,http://127.0.0.1"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
