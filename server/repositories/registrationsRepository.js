@@ -46,12 +46,13 @@ export const registrationsRepository = {
     customFields,
     waitlist,
     attendanceMode,
+    seatCode,
   }) {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        `INSERT INTO event_registrations (event_id, full_name, email, department, year, team_name, team_size, custom_fields, waitlist, status, attendance_mode)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        `INSERT INTO event_registrations (event_id, full_name, email, department, year, team_name, team_size, custom_fields, waitlist, status, attendance_mode, seat_code)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
          ON CONFLICT (event_id, email) DO UPDATE SET
            full_name = EXCLUDED.full_name,
            department = EXCLUDED.department,
@@ -61,7 +62,8 @@ export const registrationsRepository = {
            custom_fields = EXCLUDED.custom_fields,
            waitlist = EXCLUDED.waitlist,
            status = EXCLUDED.status,
-           attendance_mode = EXCLUDED.attendance_mode
+           attendance_mode = EXCLUDED.attendance_mode,
+           seat_code = EXCLUDED.seat_code
          RETURNING *`,
         [
           eventId,
@@ -75,9 +77,36 @@ export const registrationsRepository = {
           waitlist || false,
           waitlist ? "waitlisted" : "confirmed",
           attendanceMode || "in_person",
+          seatCode || null,
         ]
       );
       return rows[0];
+    });
+  },
+
+  async isSeatTaken(eventId, seatCode) {
+    if (!HAS_SUPABASE || !seatCode) return false;
+    return withDb(async (client) => {
+      const { rows } = await client.query(
+        `SELECT 1 FROM event_registrations
+         WHERE event_id = $1 AND seat_code = $2 AND status = 'confirmed'
+         LIMIT 1`,
+        [eventId, seatCode]
+      );
+      return rows.length > 0;
+    });
+  },
+
+  async findOccupiedSeats(eventId) {
+    if (!HAS_SUPABASE) return [];
+    return withDb(async (client) => {
+      const { rows } = await client.query(
+        `SELECT seat_code FROM event_registrations
+         WHERE event_id = $1 AND seat_code IS NOT NULL AND status = 'confirmed'
+         ORDER BY seat_code ASC`,
+        [eventId]
+      );
+      return rows.map((row) => row.seat_code);
     });
   },
 

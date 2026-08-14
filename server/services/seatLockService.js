@@ -5,11 +5,13 @@ const LOCK_TTL = 300; // 5 minutes in seconds
 export const seatLockService = {
   async acquireLock(eventId, seatCode, email) {
     const lockKey = `seatlock:${eventId}:${seatCode}`;
-    const acquired = await cacheService.set(lockKey, email, LOCK_TTL);
-    // Note: cacheService.set returns true if successful.
-    // In a real implementation with ioredis we would use NX (set if not exists)
-    // For now we'll just return true, assuming cacheService handles it or for tests it's enough.
-    return true;
+    if (cacheService.setIfNotExists) {
+      return cacheService.setIfNotExists(lockKey, email, LOCK_TTL);
+    }
+    if (await cacheService.exists(lockKey)) {
+      return false;
+    }
+    return cacheService.set(lockKey, email, LOCK_TTL);
   },
 
   async releaseLock(eventId, seatCode) {

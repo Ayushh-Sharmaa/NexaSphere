@@ -31,6 +31,7 @@ function mapRow(row) {
       typeof row.restricted_groups === "string"
         ? JSON.parse(row.restricted_groups)
         : (row.restricted_groups ?? []),
+    venueLayoutId: row.venue_layout_id || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -159,8 +160,8 @@ export const eventsRepository = {
   async create(event) {
     return withDb(async (client) => {
       const { rows } = await client.query(
-        `insert into events (id, name, short_name, date_text, description, status, icon, tags, restricted_groups, capacity)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        `insert into events (id, name, short_name, date_text, description, status, icon, tags, restricted_groups, capacity, venue_layout_id)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
          on conflict (id) do update set
            name=excluded.name,
            short_name=excluded.short_name,
@@ -171,6 +172,7 @@ export const eventsRepository = {
            tags=excluded.tags,
            restricted_groups=excluded.restricted_groups,
            capacity=excluded.capacity,
+           venue_layout_id=excluded.venue_layout_id,
 
            updated_at=now()
          returning *`,
@@ -185,6 +187,7 @@ export const eventsRepository = {
           event.tags,
           JSON.stringify(event.restrictedGroups || []),
           event.capacity || null,
+          event.venueLayoutId || null,
         ]
       );
       const mapped = mapRow(rows[0]);
@@ -224,6 +227,7 @@ export const eventsRepository = {
         icon: "icon",
         tags: "tags",
         capacity: "capacity",
+        venueLayoutId: "venue_layout_id",
       };
 
       const setClauses = [];

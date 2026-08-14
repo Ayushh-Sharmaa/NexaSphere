@@ -52,6 +52,17 @@ export const cacheService = {
     }
   },
 
+  async setIfNotExists(key, value, ttl = DEFAULT_TTL) {
+    try {
+      const serialized = JSON.stringify(value);
+      const result = await getClient().set(key, serialized, "EX", ttl, "NX");
+      return result === "OK";
+    } catch (err) {
+      console.error("[cache-service] SetNX error:", err.message);
+      return false;
+    }
+  },
+
   async del(key) {
     try {
       await getClient().del(key);
