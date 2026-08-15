@@ -120,7 +120,7 @@ Create `.env` file in `server-python/`:
 # Google Cloud Setup
 GOOGLE_PROJECT_ID=your-project-id
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-sa@project.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_PRIVATE_KEY="paste-your-service-account-private-key-here"
 GOOGLE_SHEET_ID=your-sheet-id
 
 # Supabase Setup
@@ -189,7 +189,7 @@ uvicorn main:app --reload --port 8000
 ```bash
 GOOGLE_PROJECT_ID=your-gcp-project-id
 GOOGLE_SERVICE_ACCOUNT_EMAIL=serviceaccount@project.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_PRIVATE_KEY="paste-your-service-account-private-key-here"
 GOOGLE_SHEET_ID=1a2b3c4d5e6f7g8h9i0j
 ```
 

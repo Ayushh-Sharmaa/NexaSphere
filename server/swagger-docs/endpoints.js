@@ -759,12 +759,7 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Search results returned successfully
  *         description: Notification history returned successfully
- * ...
- */
-
-
  * ...
  */
 
@@ -1069,6 +1064,8 @@
  *         description: Knowledge base updated successfully
  */
 
+/**
+ * @swagger
  * /api/announcements/{id}/pin:
  *   patch:
  *     summary: Pin or unpin an announcement
@@ -1917,10 +1914,16 @@
  *       200:
  *         description: Audit logs retrieved successfully
  */
+/**
+ * @swagger
  * /api/notification-campaigns/segments:
+ *   get:
  *     summary: Get audience segments
  *     tags: [Notification Campaigns]
+ *     responses:
+ *       200:
  *         description: Audience segments retrieved successfully
+ */
 /**
  * @swagger
  * /api/notification-campaigns/analytics/{id}:

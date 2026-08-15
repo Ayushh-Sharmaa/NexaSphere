@@ -15,9 +15,10 @@
  * @returns {string} Formatted number, or the original value when unparseable.
  */
 export function formatNumber(value, decimals = 0) {
+  if (value == null || value === '') return '';
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? '');
-  return num.toLocaleString(undefined, {
+  return num.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
@@ -33,7 +34,8 @@ export function formatNumber(value, decimals = 0) {
  * @param {number} [options.decimals=0] - Decimal places.
  * @returns {string} Formatted currency string.
  */
-export function formatCurrency(value, { locale, currency = 'INR', decimals = 0 } = {}) {
+export function formatCurrency(value, { locale = 'en-US', currency = 'INR', decimals = 0 } = {}) {
+  if (value == null || value === '') return '';
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? '');
   return num.toLocaleString(locale, {
@@ -55,6 +57,7 @@ export function formatCurrency(value, { locale, currency = 'INR', decimals = 0 }
  * @returns {string} Percentage string, e.g. `42%`.
  */
 export function formatPercent(value, { decimals = 0, isScaled = false } = {}) {
+  if (value == null || value === '') return '';
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? '');
   const scaled = isScaled ? num : num * 100;
@@ -69,6 +72,7 @@ export function formatPercent(value, { decimals = 0, isScaled = false } = {}) {
  * @returns {string} E.g. `1.5 MB`.
  */
 export function formatBytes(bytes, decimals = 1) {
+  if (bytes == null || bytes === '') return '0 B';
   const value = Number(bytes);
   if (!Number.isFinite(value) || value < 0) return '0 B';
   if (value === 0) return '0 B';
@@ -138,10 +142,11 @@ export function ordinal(value) {
  * @returns {string} Abbreviated number.
  */
 export function formatCompact(value, decimals = 1) {
+  if (value == null || value === '') return '';
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? '');
   if (Math.abs(num) < 1000) return String(Math.round(num));
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     maximumFractionDigits: decimals,
   }).format(num);

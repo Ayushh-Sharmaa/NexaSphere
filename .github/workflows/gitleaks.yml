@@ -2,7 +2,7 @@ name: Gitleaks Secret Scan
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
   workflow_dispatch:
 
@@ -33,7 +33,17 @@ jobs:
       - name: Run Gitleaks
         id: gitleaks
         run: |
-          gitleaks detect --source . --verbose --report-format sarif --report-path gitleaks-report.sarif
+          # Pull requests scan only their changes; pushes scan the pushed range.
+          # This prevents already-triaged legacy history from making every new
+          # commit fail while still blocking newly introduced secrets.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            LOG_OPTS="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            LOG_OPTS="${{ github.event.before }}..${{ github.sha }}"
+          else
+            LOG_OPTS="-1 ${{ github.sha }}"
+          fi
+          gitleaks git --log-opts="$LOG_OPTS" --verbose --report-format sarif --report-path gitleaks-report.sarif
         continue-on-error: true
 
       - name: Upload Gitleaks Report Artifact
@@ -45,7 +55,7 @@ jobs:
           retention-days: 14
 
       - name: Upload SARIF report to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: gitleaks-report.sarif

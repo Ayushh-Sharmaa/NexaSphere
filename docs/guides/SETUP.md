@@ -233,7 +233,7 @@ psql -U postgres -d nexasphere -f seed_recommendation_data.sql
 | `CORS_ORIGIN`           | `http://localhost:5175`                            | Comma-separated allowed origins      |
 | `FIREBASE_PROJECT_ID`   | `nexasphere-xxx`                                   | Firebase project ID                  |
 | `FIREBASE_CLIENT_EMAIL` | `firebase-adminsdk-xxx@...`                        | Firebase service account email       |
-| `FIREBASE_PRIVATE_KEY`  | `"-----BEGIN PRIVATE KEY-----\n..."`               | Firebase service account private key |
+| `FIREBASE_PRIVATE_KEY`  | `paste-your-firebase-private-key-here`              | Firebase service account private key |
 | `SENDGRID_API_KEY`      | `SG.xxx`                                           | SendGrid email API key               |
 | `SENTRY_DSN`            | `https://...@sentry.io/...`                        | Sentry backend error tracking        |
 

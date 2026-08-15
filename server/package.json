@@ -100,8 +100,8 @@
     "websocket-driver": "0.7.5"
   },
   "devDependencies": {
-    "prisma": "^6.4.0",
     "jest": "^30.4.2",
+    "prisma": "^6.4.0",
     "supertest": "^7.2.2"
   }
 }

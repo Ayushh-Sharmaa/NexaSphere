@@ -29,6 +29,7 @@ describe("sanitizeFilename", () => {
 
 describe("triggerDownload", () => {
   let anchorClick;
+  let createdAnchor;
   let createObjectURL;
   let revokeObjectURL;
 
@@ -40,14 +41,14 @@ describe("triggerDownload", () => {
     URL.revokeObjectURL = revokeObjectURL;
 
     document.createElement = vi.fn((tag) => {
-      const element = {
+      createdAnchor = {
         tagName: tag.toUpperCase(),
         href: "",
         download: "",
         style: {},
         click: anchorClick,
       };
-      return element;
+      return createdAnchor;
     });
   });
 
@@ -66,8 +67,7 @@ describe("triggerDownload", () => {
 
   it("sanitizes unsafe filenames before download", () => {
     triggerDownload(new Blob(["x"]), "a/b.csv");
-    const anchor = document.createElement("a");
-    expect(anchor.download).toBe("a_b.csv");
+    expect(createdAnchor.download).toBe("a_b.csv");
   });
 });
 
@@ -105,7 +105,12 @@ describe("downloadJSON", () => {
   it("serialises and pretty-prints the payload", () => {
     downloadJSON({ a: 1, b: [1, 2] }, "export.json");
     const blob = URL.createObjectURL.mock.calls[0][0];
-    const text = blob.text();
+    const text = new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(blob);
+    });
     return expect(text).resolves.toBe(
       '{\n  "a": 1,\n  "b": [\n    1,\n    2\n  ]\n}\n'
     );

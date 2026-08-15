@@ -107,7 +107,7 @@ describe('useCopyToClipboard', () => {
 
   it('falls back to execCommand when the Clipboard API is missing', async () => {
     navigator.clipboard = undefined;
-    const execSpy = vi.spyOn(document, 'execCommand').mockImplementation(() => true);
+    document.execCommand = vi.fn().mockReturnValue(true);
 
     const { result } = renderHook(() => useCopyToClipboard());
 
@@ -115,15 +115,15 @@ describe('useCopyToClipboard', () => {
       await result.current.copy('legacy text');
     });
 
-    expect(execSpy).toHaveBeenCalledWith('copy');
+    expect(document.execCommand).toHaveBeenCalledWith('copy');
     expect(result.current.copied).toBe(true);
 
-    execSpy.mockRestore();
+    delete document.execCommand;
   });
 
   it('surfaces an error when execCommand fails', async () => {
     navigator.clipboard = undefined;
-    vi.spyOn(document, 'execCommand').mockImplementation(() => false);
+    document.execCommand = vi.fn().mockReturnValue(false);
 
     const { result } = renderHook(() => useCopyToClipboard());
 
@@ -133,6 +133,8 @@ describe('useCopyToClipboard', () => {
 
     expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.copied).toBe(false);
+
+    delete document.execCommand;
   });
 
   it('resets copied and error state', async () => {

@@ -38,15 +38,6 @@ function safeEqual(a, b) {
     return false;
   const hashA = crypto.createHash("sha256").update(String(a)).digest();
   const hashB = crypto.createHash("sha256").update(String(b)).digest();
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
-
-  // Pad both buffers to constant length to prevent timing attacks based on input length
-  const paddedA = Buffer.alloc(CONSTANT_AUTH_LENGTH);
-  const paddedB = Buffer.alloc(CONSTANT_AUTH_LENGTH);
-  bufA.copy(paddedA);
-  bufB.copy(paddedB);
-
   return crypto.timingSafeEqual(hashA, hashB);
 }
 
@@ -197,7 +188,14 @@ async function recordLoginAttempt(ip) {
 async function getLoginAttemptState(ip) {
   const key = `login_attempts:${ip}`;
   const redis = getRedisClient();
-  if (!redis) return null;
+  if (!redis) {
+    const state = loginAttemptsByIp.get(ip);
+    if (!state || state.expiresAt <= Date.now()) {
+      loginAttemptsByIp.delete(ip);
+      return null;
+    }
+    return state;
+  }
   try {
     const client = getRedisClient();
     if (client) {
@@ -225,7 +223,10 @@ async function getLoginAttemptState(ip) {
 async function clearLoginAttempts(ip) {
   const key = `login_attempts:${ip}`;
   const redis = getRedisClient();
-  if (!redis) return;
+  if (!redis) {
+    loginAttemptsByIp.delete(ip);
+    return;
+  }
   try {
     const client = getRedisClient();
     if (client) {
@@ -487,19 +488,6 @@ async function login(req, res) {
     const matchedUser = adminUsers.find(
       (user) => safeEqual(u, user.username) && safeEqual(p, user.password)
     );
-    if (!matchedUser && u !== ADMIN_USERNAME) {
-      recordLoginAttempt(ip);
-      await recordAdminLoginAttempt({
-        username: u || "unknown",
-        ipAddress: ip,
-        userAgent,
-        success: false,
-        suspicious: false,
-        reason: "invalid_credentials",
-      }).catch(() => {});
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
     let isPasswordValid = false;
     if (ADMIN_PASSWORD_HASH) {
       const hash = crypto.createHash("sha256").update(p).digest("hex");
@@ -508,7 +496,7 @@ async function login(req, res) {
       isPasswordValid = p === ADMIN_PASSWORD;
     }
 
-    if (!matchedUser && (!safeEqual(u, ADMIN_USERNAME) || !isPasswordValid)) {
+    if ((!matchedUser && !safeEqual(u, ADMIN_USERNAME)) || !isPasswordValid) {
       recordLoginAttempt(ip);
       return res.status(401).json({ error: "Invalid credentials" });
     }

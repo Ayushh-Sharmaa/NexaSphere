@@ -16,9 +16,10 @@
  * @returns {string} Formatted number or the raw value when unparseable.
  */
 export function formatNumber(value, decimals = 0) {
+  if (value === null || value === undefined || value === "") return "";
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? "");
-  return num.toLocaleString(undefined, {
+  return num.toLocaleString("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
@@ -92,7 +93,7 @@ export function formatCompact(value, decimals = 1) {
   const num = Number(value);
   if (!Number.isFinite(num)) return String(value ?? "");
   if (Math.abs(num) < 1000) return String(Math.round(num));
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: decimals,
   }).format(num);

@@ -69,6 +69,7 @@ export function isLengthInRange(value, min, max) {
  * @returns {boolean} True for in-range numbers.
  */
 export function isNumberInRange(value, min = -Infinity, max = Infinity) {
+  if (value === null || value === undefined || value === "") return false;
   const num = Number(value);
   return Number.isFinite(num) && num >= min && num <= max;
 }

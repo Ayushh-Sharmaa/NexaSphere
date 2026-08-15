@@ -1,4 +1,4 @@
-import { withDb } from './db.js';
+import { withDb } from "./db.js";
 
 /**
  * Repository for Custom Event Tracking.
@@ -25,7 +25,7 @@ export const customEventRepository = {
   /** List all event definitions, optionally only active ones */
   async listDefinitions({ activeOnly = false } = {}) {
     return withDb(async (client) => {
-      const where = activeOnly ? 'WHERE is_active = true' : '';
+      const where = activeOnly ? "WHERE is_active = true" : "";
       const { rows } = await client.query(
         `SELECT * FROM custom_event_definitions ${where} ORDER BY created_at DESC`
       );
@@ -36,9 +36,10 @@ export const customEventRepository = {
   /** Get a single event definition by id */
   async getDefinition(id) {
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM custom_event_definitions WHERE id = $1', [
-        id,
-      ]);
+      const { rows } = await client.query(
+        "SELECT * FROM custom_event_definitions WHERE id = $1",
+        [id]
+      );
       return rows[0] || null;
     });
   },
@@ -71,7 +72,7 @@ export const customEventRepository = {
   async deleteDefinition(id) {
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'DELETE FROM custom_event_definitions WHERE id = $1 RETURNING *',
+        "DELETE FROM custom_event_definitions WHERE id = $1 RETURNING *",
         [id]
       );
       return rows[0] || null;
@@ -89,12 +90,13 @@ export const customEventRepository = {
         `INSERT INTO custom_event_logs (event_definition_id, user_id, session_id, properties, occurred_at)
          VALUES ($1, $2, $3, $4, NOW())
          RETURNING *`,
-        [eventDefinitionId, userId || null, sessionId || null, JSON.stringify(properties || {})]
         [
           eventDefinitionId,
           userId || null,
           sessionId || null,
           JSON.stringify(properties || {}),
+        ]
+      );
       return rows[0];
     });
   },
@@ -108,7 +110,9 @@ export const customEventRepository = {
    */
   async getEventAnalytics(eventDefinitionId, { days = 30 } = {}) {
     return withDb(async (client) => {
-      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      const since = new Date(
+        Date.now() - days * 24 * 60 * 60 * 1000
+      ).toISOString();
 
       // Total occurrences in range
       const { rows: totalRows } = await client.query(
@@ -170,7 +174,7 @@ export const customEventRepository = {
         values.push(until);
       }
 
-      query += ' ORDER BY occurred_at DESC';
+      query += " ORDER BY occurred_at DESC";
       const { rows } = await client.query(query, values);
       return rows;
     });
@@ -192,7 +196,7 @@ export const customEventRepository = {
       );
 
       const { rows: countRows } = await client.query(
-        'SELECT COUNT(*) AS total FROM custom_event_logs WHERE event_definition_id = $1',
+        "SELECT COUNT(*) AS total FROM custom_event_logs WHERE event_definition_id = $1",
         [eventDefinitionId]
       );
 

@@ -32,7 +32,10 @@ export function sumBy(items, selector = (x) => x) {
  */
 export function avgBy(items, selector = (x) => x) {
   if (!items || items.length === 0) return null;
-  const values = items.map(selector).filter((v) => Number.isFinite(Number(v)));
+  const values = items
+    .map(selector)
+    .filter((v) => v !== null && v !== undefined && v !== "")
+    .filter((v) => Number.isFinite(Number(v)));
   if (values.length === 0) return null;
   return sumBy(values) / values.length;
 }
@@ -70,6 +73,9 @@ export function countBy(items, keyFn, accumulator) {
  * @returns {number|null} Signed percent change.
  */
 export function percentChange(previous, current) {
+  if (previous === null || previous === undefined || previous === "")
+    return null;
+  if (current === null || current === undefined || current === "") return null;
   const from = Number(previous);
   const to = Number(current);
   if (!Number.isFinite(from) || !Number.isFinite(to) || from === 0) return null;

@@ -123,7 +123,7 @@ describe('formatDateRange', () => {
 describe('toISODate', () => {
   it('formats YYYY-MM-DD with padding', () => {
     expect(toISODate(new Date(2025, 5, 9))).toBe('2025-06-09');
-    expect(toISODate('2025-12-31T23:59:00Z').slice(0, 10)).toBe('2025-12-31');
+    expect(toISODate('2025-12-31T12:00:00Z').slice(0, 10)).toBe('2025-12-31');
   });
 
   it('returns null for invalid input', () => {

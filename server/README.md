@@ -425,7 +425,7 @@ CORS_ORIGIN=http://localhost:5175,https://nexasphere-glbajaj.vercel.app
 # ── Firebase Admin (download service account key from Firebase Console)
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nXXXXX\n-----END PRIVATE KEY-----\n"
+FIREBASE_PRIVATE_KEY="paste-your-firebase-private-key-here"
 
 # ── Email ─────────────────────────────────────────────────────────
 SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxx

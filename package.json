@@ -9,7 +9,7 @@
     "admin-dashboard"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0 <23.0.0"
   },
   "scripts": {
     "dev": "npm run dev --workspace=website",
@@ -28,7 +28,6 @@
     "test:server": "cd server && npm test",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test accessibility.spec.js",
-    "lint:migrations": "node scripts/prisma-lint.js",
     "build:wasm": "cd wasm/data_parser && wasm-pack build --target web --out-dir ../../src/wasm/pkg",
     "lint": "eslint website/src --ext .js,.jsx",
     "lint:migrations": "node scripts/prisma-lint.js",

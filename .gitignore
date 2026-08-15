@@ -135,3 +135,5 @@ test_output.txt
 PR_CONTENT_ISSUE_*.md
 PR_TEMPLATE_ISSUE_*.md
 NexaSphere/
+# Accidental legacy self-submodule path (kept local only)
+/NexaSphere/

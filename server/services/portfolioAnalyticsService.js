@@ -6,14 +6,14 @@ export const portfolioAnalyticsService = {
       engagement: 72,
       downloads: 89,
       recruiterVisits: 14,
-      monthlyGrowth: '+18%',
+      monthlyGrowth: "+18%",
       topProjects: [
         {
-          name: 'Smart Irrigation System',
+          name: "Smart Irrigation System",
           views: 420,
         },
         {
-          name: 'RFID Door Lock',
+          name: "RFID Door Lock",
           views: 270,
         },
       ],
@@ -29,15 +29,7 @@ export const portfolioAnalyticsService = {
           views: 270,
         },
       ],
-      visitorTrend: [
-        25,
-        31,
-        42,
-        38,
-        55,
-        61,
-        74,
-      ],
+      visitorTrend: [25, 31, 42, 38, 55, 61, 74],
     };
   },
 
@@ -45,7 +37,7 @@ export const portfolioAnalyticsService = {
     return {
       success: true,
       username,
-      message: 'Visit recorded successfully',
+      message: "Visit recorded successfully",
       message: "Visit recorded successfully",
     };
   },
@@ -53,14 +45,6 @@ export const portfolioAnalyticsService = {
   async getMonthlyReport(username) {
     return {
       username,
-      month: 'June 2026',
-      profileViews: 810,
-      downloads: 42,
-      recruiterVisits: 8,
-      engagement: '74%',
-    };
-  },
-};
       month: "June 2026",
       profileViews: 810,
       downloads: 42,

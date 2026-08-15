@@ -1,0 +1,136 @@
+.saved-searches-container {
+  background: var(--surface2, #1e293b);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  border: 1px solid var(--border-color, #334155);
+}
+
+.saved-searches-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.saved-searches-header h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--t1, #e2e8f0);
+}
+
+.btn-save-new {
+  background: var(--accent1, #3b82f6);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-save-new:hover {
+  background: var(--accent1-hover, #2563eb);
+}
+
+.save-search-form,
+.edit-search-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.save-search-form input,
+.edit-search-form input {
+  flex: 1;
+  padding: 6px 10px;
+  background: var(--surface3, #0f172a);
+  border: 1px solid var(--border-color, #334155);
+  color: var(--t1, #e2e8f0);
+  border-radius: 4px;
+}
+
+.btn-confirm {
+  background: var(--success, #10b981);
+  color: white;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: var(--danger, #ef4444);
+  color: white;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.no-saved-searches {
+  color: var(--t3, #64748b);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.saved-searches-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saved-search-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--surface3, #0f172a);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 6px;
+}
+
+.saved-search-info {
+  flex: 1;
+  cursor: pointer;
+}
+
+.saved-search-info:hover .search-name {
+  color: var(--accent1, #3b82f6);
+}
+
+.search-name {
+  font-weight: 500;
+  color: var(--t1, #e2e8f0);
+}
+
+.saved-search-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.saved-search-actions button {
+  background: transparent;
+  border: none;
+  color: var(--t3, #64748b);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.saved-search-actions button:hover {
+  background: var(--surface4, #334155);
+  color: var(--t1, #e2e8f0);
+}

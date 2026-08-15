@@ -7,7 +7,8 @@
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const URL_RE = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-._~:/?#[\]@!$&'()*+,;=%]*)?$/i;
+const URL_RE =
+  /^(https?:\/\/)?(([\w-]+\.)+[\w-]{2,}|localhost)(:\d+)?(\/[\w-._~:/?#[\]@!$&'()*+,;=%]*)?$/i;
 const PHONE_RE = /^[+]?[\d\s().-]{7,20}$/;
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,30}$/;
 
@@ -131,13 +132,10 @@ export function isLengthInRange(value, min, max) {
  * @returns {boolean} Whether the value is a safe URL for links.
  */
 export function isSafeLink(value) {
-  if (!isValidUrl(value)) return false;
   const normalized = String(value).trim().toLowerCase();
-  return (
-    normalized.startsWith('http://') ||
-    normalized.startsWith('https://') ||
-    normalized.startsWith('/')
-  );
+  if (normalized.startsWith('/')) return true;
+  if (!isValidUrl(value)) return false;
+  return normalized.startsWith('http://') || normalized.startsWith('https://');
 }
 
 export default {

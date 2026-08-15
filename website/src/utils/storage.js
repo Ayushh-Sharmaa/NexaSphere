@@ -20,9 +20,21 @@ const DEFAULT_PREFIX = 'nexasphere';
  * @returns {StorageAdapter} The namespaced adapter.
  */
 export function createStorage(prefix = DEFAULT_PREFIX, backing = null) {
-  const engine = backing || resolveEngine();
+  let engine = backing || (typeof window !== 'undefined' ? window.localStorage : null);
+  let enabled = false;
+  if (engine) {
+    try {
+      const probe = `${prefix}:__probe__`;
+      engine.setItem(probe, '1');
+      engine.removeItem(probe);
+      enabled = true;
+    } catch {
+      enabled = false;
+      engine = null;
+    }
+  }
+
   const memory = new Map();
-  const enabled = engine != null;
 
   const fullKey = (key) => `${prefix}:${key}`;
 

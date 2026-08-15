@@ -9,8 +9,7 @@ describe('withTimeout', () => {
 
   it('resolves with the input result before the deadline', async () => {
     const pending = withTimeout(Promise.resolve(42), 1000);
-    const result = await Promise.resolve(pending);
-    await tick();
+    const result = await pending;
     expect(result).toBe(42);
   });
 
@@ -21,8 +20,7 @@ describe('withTimeout', () => {
       rejected = e;
     });
 
-    vi.advanceTimersByTime(501);
-    await tick();
+    await vi.advanceTimersByTimeAsync(501);
     expect(rejected).toBeInstanceOf(Error);
     expect(rejected.message).toBe('Operation timed out');
   });
@@ -112,7 +110,7 @@ describe('mapLimit', () => {
     await mapLimit([1, 2, 3, 4, 5, 6], 2, async (n) => {
       active += 1;
       peak = Math.max(peak, active);
-      await tick();
+      await Promise.resolve(); // yield to microtask queue
       active -= 1;
       return n;
     });

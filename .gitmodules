@@ -1,0 +1,6 @@
+[submodule ".agents/andrej-karpathy-skills"]
+	path = .agents/andrej-karpathy-skills
+	url = https://github.com/multica-ai/andrej-karpathy-skills.git
+[submodule ".agents/awesome-design-md"]
+	path = .agents/awesome-design-md
+	url = https://github.com/VoltAgent/awesome-design-md.git
