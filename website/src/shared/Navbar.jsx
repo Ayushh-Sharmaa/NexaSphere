@@ -505,21 +505,11 @@ export default function Navbar({
               </div>
             )}
 
-            {isAuthenticated ? (
-              <span
-                className="ns-nav-user-badge"
-                onClick={() => navigate('/dashboard')}
-                style={{ cursor: 'pointer', fontSize: '0.9rem', color: 'var(--t1)' }}
-                title={user?.name || user?.email}
-              >
-                <UserRound size={17} aria-hidden="true" />
-              </span>
-            ) : (
+            {!isAuthenticated && (
               <button
-                className="btn btn-sm btn-outline"
+                className="btn btn-sm btn-outline ns-nav-cta-btn"
                 onClick={() => login('google')}
                 aria-label="Sign in"
-                style={{ marginLeft: '4px' }}
               >
                 Login
               </button>
