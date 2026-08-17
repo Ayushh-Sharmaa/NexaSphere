@@ -11,6 +11,7 @@ import * as activityEventsController from '../controllers/activityEventsControll
 import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
 import * as coreTeamController from '../controllers/coreTeamController.js';
 import * as eventRegistrationController from '../controllers/eventRegistrationController.js';
+import * as venueLayoutsController from '../controllers/venueLayoutsController.js';
 import * as usersController from '../controllers/usersController.js';
 import { usersRepository } from '../repositories/usersRepository.js';
 import * as attendanceController from '../controllers/attendanceController.js';
@@ -128,6 +129,7 @@ router.post(
 );
 router.get('/api/users', usersController.getPublicUsers);
 router.get('/api/content/events', eventsController.listEvents);
+router.get('/api/content/events/:eventId/seats', venueLayoutsController.getEventSeatMap);
 router.post('/api/content/events/:eventId/register', eventRegistrationController.registerForEvent);
 // (Removed mangled event registration routes)
 router.post('/account-recovery/request', async (req, res) => {
@@ -239,6 +241,17 @@ router.get(
   '/api/admin/events',
   adminAuthMiddleware.requireScope('events:read'),
   eventsController.adminListEvents
+);
+router.get(
+  '/api/admin/venues',
+  adminAuthMiddleware.requireScope('events:read'),
+  venueLayoutsController.listVenueLayouts
+);
+router.post(
+  '/api/admin/venues',
+  adminAuthMiddleware.requireScope('events:write'),
+  adminAuditMiddleware,
+  venueLayoutsController.createVenueLayout
 );
 router.post(
   '/api/admin/events',
