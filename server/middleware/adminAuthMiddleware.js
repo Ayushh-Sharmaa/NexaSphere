@@ -32,8 +32,17 @@ import logger from "../utils/logger.js";
 import { sendEmail } from "../services/emailService.js";
 
 // lgtm[js/weak-cryptographic-algorithm]
-
 function safeEqual(a, b) {
+  if (a === undefined || a === null || b === undefined || b === null) {
+    return false;
+  }
+
+  const hashA = crypto.createHash('sha256').update(String(a)).digest();
+  const hashB = crypto.createHash('sha256').update(String(b)).digest();
+
+  return crypto.timingSafeEqual(hashA, hashB);
+}
+const ADMIN_USERNAME = requiredEnv('ADMIN_USERNAME');
   if (a === undefined || a === null || b === undefined || b === null)
     return false;
   const hashA = crypto.createHash("sha256").update(String(a)).digest();
