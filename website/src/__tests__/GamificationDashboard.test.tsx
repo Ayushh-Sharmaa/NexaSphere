@@ -24,11 +24,13 @@ describe('GamificationDashboard Component', () => {
   beforeEach(() => {
     localStorage.clear();
     gamificationService.userData = gamificationService.loadUserData();
+    vi.stubEnv('VITE_USE_DEMO_LEADERBOARD', 'true');
   });
 
   afterEach(() => {
     localStorage.clear();
     vi.useRealTimers();
+    vi.unstubAllEnvs();
   });
 
   it('renders dashboard with user level, title, and XP stats', () => {

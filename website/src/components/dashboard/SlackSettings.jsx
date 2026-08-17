@@ -19,6 +19,12 @@ export default function SlackSettings({ currentUser, authUser }) {
 
   const [slackSuccess, setSlackSuccess] = useState(false);
   const [slackError, setSlackError] = useState(null);
+  const [actionStatus, setActionStatus] = useState(null);
+
+  const showStatus = (type, message) => {
+    setActionStatus({ type, message });
+    setTimeout(() => setActionStatus(null), 5000);
+  };
   const [savingSlackSettings, setSavingSlackSettings] = useState(false);
   const [savingGlobalSlack, setSavingGlobalSlack] = useState(false);
   const [disconnectingSlack, setDisconnectingSlack] = useState(false);
@@ -91,13 +97,13 @@ export default function SlackSettings({ currentUser, authUser }) {
         }),
       });
       if (res.ok) {
-        alert('Slack DM preferences saved successfully!');
+        showStatus('success', 'Slack DM preferences saved successfully!');
       } else {
-        alert('Failed to save Slack settings.');
+        showStatus('error', 'Failed to save Slack settings.');
       }
     } catch (e) {
       console.error(e);
-      alert('Error saving Slack settings.');
+      showStatus('error', 'Error saving Slack settings.');
     } finally {
       setSavingSlackSettings(false);
     }
@@ -120,14 +126,14 @@ export default function SlackSettings({ currentUser, authUser }) {
         credentials: 'include',
       });
       if (res.ok) {
-        alert('Workspace Slack notification settings updated!');
+        showStatus('success', 'Workspace Slack notification settings updated!');
         fetchGlobalSlackConfig();
       } else {
-        alert('Failed to update workspace Slack settings.');
+        showStatus('error', 'Failed to update workspace Slack settings.');
       }
     } catch (e) {
       console.error(e);
-      alert('Error updating workspace settings.');
+      showStatus('error', 'Error updating workspace settings.');
     } finally {
       setSavingGlobalSlack(false);
     }
@@ -143,14 +149,14 @@ export default function SlackSettings({ currentUser, authUser }) {
         credentials: 'include',
       });
       if (res.ok) {
-        alert('Slack successfully disconnected!');
+        showStatus('success', 'Slack successfully disconnected!');
         fetchGlobalSlackConfig();
       } else {
-        alert('Failed to disconnect Slack.');
+        showStatus('error', 'Failed to disconnect Slack.');
       }
     } catch (e) {
       console.error(e);
-      alert('Error disconnecting Slack.');
+      showStatus('error', 'Error disconnecting Slack.');
     } finally {
       setDisconnectingSlack(false);
     }
@@ -183,6 +189,44 @@ export default function SlackSettings({ currentUser, authUser }) {
       </div>
 
       {/* Success/Error Banners */}
+      {actionStatus && (
+        <div
+          role="status"
+          style={{
+            background:
+              actionStatus.type === 'success'
+                ? 'rgba(16, 185, 129, 0.15)'
+                : 'rgba(239, 68, 68, 0.15)',
+            border: `1px solid ${actionStatus.type === 'success' ? '#10b981' : '#ef4444'}`,
+            borderRadius: '8px',
+            padding: '12px 16px',
+            color: actionStatus.type === 'success' ? '#34d399' : '#f87171',
+            fontSize: '0.9rem',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>
+            {actionStatus.type === 'success' ? '✅' : '⚠️'} {actionStatus.message}
+          </span>
+          <button
+            onClick={() => setActionStatus(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'inherit',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              padding: '0 4px',
+            }}
+            aria-label="Dismiss status message"
+          >
+            &times;
+          </button>
+        </div>
+      )}
       {slackSuccess && (
         <div
           style={{

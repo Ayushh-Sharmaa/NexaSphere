@@ -16,7 +16,7 @@ export default tseslint.config(
       "api/",
       "public/",
       "server/",
-      "server-java/**",
+      "server-java/**',
       "server-python/**",
       "admin-dashboard/**",
       "BACKEND_INTEGRATION_EXAMPLE*.js",

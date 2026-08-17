@@ -1,208 +1,124 @@
-/**
- * Workspace Service
- * Mock implementation for Smart Workspace for Club & Team Collaboration
- */
-
-const workspaces = [
-  {
-    id: 1,
-    name: 'Coding Club Workspace',
-    description: 'Workspace for Coding Club members',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const documents = [];
-const discussions = [];
-const tasks = [];
-const meetingNotes = [];
-const polls = [];
-const announcements = [];
-const bookmarks = [];
-const timeline = [];
+﻿const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 // Get All Workspaces
-const getAllWorkspaces = async () => workspaces;
+const getAllWorkspaces = async () => {
+  return await prisma.workspace.findMany();
+};
 
 // Get Workspace By ID
-const getWorkspaceById = async (id) => workspaces.find((workspace) => workspace.id === Number(id));
+const getWorkspaceById = async (id) => {
+  return await prisma.workspace.findUnique({
+    where: { id: id },
+  });
+};
 
 // Create Workspace
 const createWorkspace = async (data) => {
-  const nextId = workspaces.length > 0 ? Math.max(...workspaces.map((w) => w.id)) + 1 : 1;
-  const workspace = {
-    id: nextId,
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  workspaces.push(workspace);
-  return workspace;
+  return await prisma.workspace.create({
+    data: {
+      name: data.name,
+      slug: data.slug || data.name.toLowerCase().replace(/\\s+/g, "-"),
+    },
+  });
 };
 
 // Update Workspace
 const updateWorkspace = async (id, data) => {
-  const index = workspaces.findIndex((workspace) => workspace.id === Number(id));
-
-  if (index === -1) return null;
-
-  workspaces[index] = {
-    ...workspaces[index],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
-  return workspaces[index];
+  return await prisma.workspace.update({
+    where: { id: id },
+    data: data,
+  });
 };
 
 // Delete Workspace
 const deleteWorkspace = async (id) => {
-  const index = workspaces.findIndex((workspace) => workspace.id === Number(id));
-
-  if (index === -1) return null;
-
-  const filterOut = (arr) => {
-    for (let i = arr.length - 1; i >= 0; i--) {
-      if (arr[i].workspaceId === numId) {
-        arr.splice(i, 1);
-      }
-    }
-  };
-
-  filterOut(documents);
-  filterOut(discussions);
-  filterOut(tasks);
-  filterOut(meetingNotes);
-  filterOut(polls);
-  filterOut(announcements);
-
-  return workspaces.splice(index, 1)[0];
+  return await prisma.workspace.delete({
+    where: { id: id },
+  });
 };
 
-// Documents
-const getDocuments = async (workspaceId) =>
-  workspaceId ? documents.filter((d) => d.workspaceId === Number(workspaceId)) : documents;
+// Documents (Files)
+const getDocuments = async (workspaceId) => {
+  return await prisma.workspaceFile.findMany({
+    where: { workspaceId: workspaceId },
+  });
+};
 
 const uploadDocument = async (workspaceId, data) => {
-  const nextId = documents.length > 0 ? Math.max(...documents.map((d) => d.id)) + 1 : 1;
-  const document = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    uploadedAt: new Date().toISOString(),
-    ...data,
-  };
-
-  documents.push(document);
-  return document;
+  // In a real app this would upload to S3 or Google Drive.
+  // Here we just save the file reference.
+  return await prisma.workspaceFile.create({
+    data: {
+      workspaceId: workspaceId,
+      name: data.name,
+      url: data.url || "https://mock-storage.com/file",
+      size: data.size || 0,
+      type: data.type || "application/octet-stream",
+      uploaderId: data.uploaderId || "mock-user-id",
+    },
+  });
 };
 
-// Discussions
-const getDiscussions = async (workspaceId) =>
-  workspaceId ? discussions.filter((d) => d.workspaceId === Number(workspaceId)) : discussions;
+// Discussions (Messages)
+const getDiscussions = async (workspaceId) => {
+  return await prisma.workspaceMessage.findMany({
+    where: { workspaceId: workspaceId },
+    include: { sender: true },
+    orderBy: { createdAt: "asc" },
+  });
+};
 
 const addDiscussion = async (workspaceId, data) => {
-  const nextId = discussions.length > 0 ? Math.max(...discussions.map((d) => d.id)) + 1 : 1;
-  const discussion = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  discussions.push(discussion);
-  return discussion;
-};
-
-// Calendar
-const getCalendar = async (workspaceId) => ({
-  workspaceId: Number(workspaceId),
-  events: [
-    {
-      title: 'Weekly Team Meeting',
-      date: '2026-07-15',
+  return await prisma.workspaceMessage.create({
+    data: {
+      workspaceId: workspaceId,
+      content: data.content,
+      senderId: data.senderId || "mock-user-id",
     },
-  ],
-});
+  });
+};
 
 // Tasks
+const getTasks = async (workspaceId) => {
+  return await prisma.workspaceTask.findMany({
+    where: { workspaceId: workspaceId },
+  });
+};
+
 const createTask = async (workspaceId, data) => {
-  const nextId = tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
-  const task = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  tasks.push(task);
-  return task;
+  return await prisma.workspaceTask.create({
+    data: {
+      workspaceId: workspaceId,
+      title: data.title,
+      description: data.description || "",
+      status: data.status || "TODO",
+      priority: data.priority || "MEDIUM",
+      assigneeId: data.assigneeId,
+    },
+  });
 };
 
-const getTasks = async (workspaceId) =>
-  workspaceId ? tasks.filter((t) => t.workspaceId === Number(workspaceId)) : tasks;
-
-// Meeting Notes
-const addMeetingNotes = async (workspaceId, data) => {
-  const nextId = meetingNotes.length > 0 ? Math.max(...meetingNotes.map((m) => m.id)) + 1 : 1;
-  const notes = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  meetingNotes.push(notes);
-  return notes;
-};
-
-// Polls
-const createPoll = async (workspaceId, data) => {
-  const nextId = polls.length > 0 ? Math.max(...polls.map((p) => p.id)) + 1 : 1;
-  const poll = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  polls.push(poll);
-  return poll;
-};
-
-// Announcements
-const createAnnouncement = async (workspaceId, data) => {
-  const nextId = announcements.length > 0 ? Math.max(...announcements.map((a) => a.id)) + 1 : 1;
-  const announcement = {
-    id: nextId,
-    workspaceId: Number(workspaceId),
-    createdAt: new Date().toISOString(),
-    ...data,
-  };
-
-  announcements.push(announcement);
-  return announcement;
-};
-
-// Timeline
-const getTimeline = async () => timeline;
-
-// Bookmarks
-const getBookmarks = async () => bookmarks;
-
-// Analytics
-const getAnalytics = async (workspaceId) => {
-  const numId = Number(workspaceId);
-  return {
-    workspaceId: numId,
-    members: 25,
-    documents: documents.filter((d) => d.workspaceId === numId).length,
-    discussions: discussions.filter((d) => d.workspaceId === numId).length,
-    tasks: tasks.filter((t) => t.workspaceId === numId).length,
-    polls: polls.filter((p) => p.workspaceId === numId).length,
-    announcements: announcements.filter((a) => a.workspaceId === numId).length,
-  };
-};
+// Stubs for missing parts
+const getCalendar = async (workspaceId) => ({ workspaceId, events: [] });
+const addMeetingNotes = async (workspaceId, data) => ({
+  id: "mock",
+  workspaceId,
+});
+const createPoll = async (workspaceId, data) => ({ id: "mock", workspaceId });
+const createAnnouncement = async (workspaceId, data) => ({
+  id: "mock",
+  workspaceId,
+});
+const getTimeline = async (workspaceId) => [];
+const getBookmarks = async (workspaceId) => [];
+const getAnalytics = async (workspaceId) => ({
+  workspaceId,
+  members: 1,
+  documents: 0,
+  discussions: 0,
+  tasks: 0,
+});
 
 module.exports = {
   getAllWorkspaces,

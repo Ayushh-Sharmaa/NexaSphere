@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as eventPricingController from '../controllers/eventPricingController.js';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
+import { requireScope } from '../middleware/adminAuthMiddleware.js';
 import { adminAuditMiddleware } from '../middleware/adminAuditMiddleware.js';
 
 const router = Router({ mergeParams: true });
@@ -12,7 +12,7 @@ router.get('/current', eventPricingController.getCurrentPrice);
 
 router.post(
   '/',
-  adminAuthMiddleware.requireScope('events:write'),
+  requireScope('events:write'),
   eventPricingController.setTiers,
   adminAuditMiddleware
 );

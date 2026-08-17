@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
+const getToken = () => {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('token') || '';
+};
+
 export default function WaitlistManager() {
   const [eventId, setEventId] = useState('');
   const [waitlist, setWaitlist] = useState([]);

@@ -1,0 +1,19 @@
+name: GSSOC Auto-Close
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto_close:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Close Issue
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --comment "Sorry, I am not continuing in GSSOC. You can find another project and avoid creating issues and PRs here."

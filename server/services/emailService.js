@@ -32,6 +32,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const defaultFrom = process.env.EMAIL_FROM || '"NexaSphere Team" <noreply@nexasphere.com>';
+export let sendEmailOverride = null;
 
 async function _sendMail(mailOptions) {
   return transporter.sendMail(mailOptions);
@@ -82,6 +83,7 @@ export async function sendEmail({
   data,
   from = defaultFrom,
   customTemplateContent = null,
+  attachments = [],
 }) {
   try {
     const html = await renderTemplate(templateName, data, customTemplateContent);
@@ -93,6 +95,12 @@ export async function sendEmail({
       html,
       attachments,
     };
+
+    if (sendEmailOverride) {
+      const info = await sendEmailOverride(mailOptions);
+      logger.info(`[Email Service] Message sent successfully via override: ${info?.messageId || 'n/a'}`);
+      return { success: true, messageId: info?.messageId };
+    }
 
     if (!isProduction && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
       logger.info(`[Email Service - DEV] Would send email to: ${to}`);

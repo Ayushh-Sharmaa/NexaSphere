@@ -104,6 +104,21 @@ test.beforeEach(() => {
   featureFlagsService.isInitialized = true; // prevent service from trying to fetch all flags on boot
 });
 
+test('createFlag applies defaults when defaulted fields are null', async () => {
+  const flag = await featureFlagsService.createFlag({
+    key: 'test_null_defaults',
+    name: 'Test Null Defaults',
+    type: 'boolean',
+    is_active: null,
+    rollout_percentage: null,
+    fallback_value: null,
+  });
+
+  assert.equal(flag.is_active, true);
+  assert.equal(flag.rollout_percentage, 100);
+  assert.equal(flag.fallback_value, false);
+});
+
 test('Feature flag evaluation - Boolean flag', async () => {
   const flag = {
     key: 'test_boolean',

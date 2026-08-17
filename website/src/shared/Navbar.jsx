@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { BRAND_LOGO_FULL, BRAND_LOGO_ICON } from './brandAssets';
 import NotificationBell from '../components/NotificationBell';
 import { ThemeToggle } from '../components/common/ThemeToggle';
+import { StyleSwitcher } from '../components/common/StyleSwitcher';
 import { useStudentAuth } from '../context/StudentAuthContext';
 import LanguageSelector from '../components/common/LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { ClipboardList, Settings, Trophy, UserRound } from 'lucide-react';
+import { useWalkthroughStep } from '../hooks/useWalkthroughStep';
+import { WalkthroughWrapper } from '../components/walkthrough/WalkthroughWrapper';
 
 const TABS = [
   'Home',
@@ -15,11 +19,10 @@ const TABS = [
   'Roadmaps',
   'Recommendations',
   'Portfolio',
-  'Blog',
+  'Explore',
   'Resources',
   'Forum',
   'Gamification',
-  'Forum',
   'Mentorship',
   'About',
   'Core Team',
@@ -85,7 +88,9 @@ export default function Navbar({
     const translated = t(`nav.${key}`);
     return translated && !translated.startsWith('nav.') ? translated : tab;
   };
-  const [compact, setCompact] = useState(window.innerWidth <= 1200);
+  const [compact, setCompact] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 1200 : false
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const eventsTabRef = useWalkthroughStep('search_events');
@@ -97,25 +102,37 @@ export default function Navbar({
       setCompact(isCompact);
       if (!isCompact) setMenuOpen(false);
     };
-    window.addEventListener('scroll', s, { passive: true });
-    window.addEventListener('resize', r, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', s);
-      window.removeEventListener('resize', r);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!compact || !menuOpen) return undefined;
-
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
         setMenuOpen(false);
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    window.addEventListener('scroll', s, { passive: true });
+    window.addEventListener('resize', r, { passive: true });
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Focus management when menu opens
+    if (menuOpen && compact) {
+      document.body.style.overflow = 'hidden';
+      const menuElement = document.getElementById('ns-nav-menu');
+      if (menuElement) {
+        // Find first focusable element inside menu
+        const firstFocusable = menuElement.querySelector(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (firstFocusable) firstFocusable.focus();
+      }
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      window.removeEventListener('scroll', s);
+      window.removeEventListener('resize', r);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [compact, menuOpen]);
 
   const { user, isAuthenticated, login } = useStudentAuth();
@@ -136,9 +153,7 @@ export default function Navbar({
       <nav className="ns-navbar-mobile">
         <div
           className="ns-mobile-top"
-          onClick={goHome}
           style={{
-            cursor: 'pointer',
             background: 'none',
             border: 'none',
             display: 'flex',
@@ -146,7 +161,6 @@ export default function Navbar({
             width: '100%',
             padding: 0,
           }}
-          aria-label="Go to homepage"
         >
           <div
             onClick={goHome}
@@ -181,7 +195,7 @@ export default function Navbar({
               }}
               title="View all notifications"
             >
-              📋
+              <ClipboardList size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => navigate('/leaderboard')}
@@ -237,6 +251,7 @@ export default function Navbar({
               </svg>
             </button>
             <BookmarkToggle onToggle={onToggleBookmarks} />
+            <StyleSwitcher />
             <ThemeToggle />
             <LanguageSelector />
             {isAuthenticated && (
@@ -256,7 +271,7 @@ export default function Navbar({
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
-                  ⚙️
+                  <Settings size={17} aria-hidden="true" />
                 </button>
                 <button
                   className="ns-nav-user-badge"
@@ -273,7 +288,7 @@ export default function Navbar({
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >
-                  👤
+                  <UserRound size={17} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -339,7 +354,6 @@ export default function Navbar({
             <WalkthroughWrapper stepId="notifications" style={{ display: 'flex' }}>
               <NotificationBell />
             </WalkthroughWrapper>
-            <NotificationBell />
             <button
               onClick={() => navigate('/notifications')}
               aria-label="Notification history"
@@ -353,7 +367,7 @@ export default function Navbar({
               }}
               title="View all notifications"
             >
-              📋
+              <ClipboardList size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => navigate('/leaderboard')}
@@ -448,6 +462,7 @@ export default function Navbar({
               </button>
             </div>
 
+            <StyleSwitcher />
             <ThemeToggle />
             <LanguageSelector />
 
@@ -468,7 +483,7 @@ export default function Navbar({
                   title="Settings & Privacy"
                   aria-label="Account settings"
                 >
-                  ⚙️
+                  <Settings size={17} aria-hidden="true" />
                 </button>
                 <button
                   className="ns-nav-user-badge"
@@ -485,7 +500,7 @@ export default function Navbar({
                   title={user?.name || user?.email}
                   aria-label={`View dashboard for ${user?.name || 'user'}`}
                 >
-                  👤
+                  <UserRound size={17} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -497,7 +512,7 @@ export default function Navbar({
                 style={{ cursor: 'pointer', fontSize: '0.9rem', color: 'var(--t1)' }}
                 title={user?.name || user?.email}
               >
-                👤
+                <UserRound size={17} aria-hidden="true" />
               </span>
             ) : (
               <button

@@ -7,12 +7,19 @@
  */
 
 import { eventEmitter, EVENTS } from "./eventEmitter";
+import {
+  TOKEN_KEY,
+  EMAIL_KEY,
+  EXPIRY_KEY,
+  CSRF_TOKEN_KEY,
+  OFFLINE_FLAG_KEY,
+  ROLE_KEY,
+  SCOPES_KEY,
+} from "../constants/authConstants";
+
+const _loginEmitter = () => eventEmitter.emit(EVENTS.AUTH_LOGIN);
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
-const TOKEN_KEY = "ns_admin_token";
-const EMAIL_KEY = "ns_admin_email";
-const EXPIRY_KEY = "ns_admin_token_expiry";
-const OFFLINE_FLAG_KEY = "ns_offline_mode";
 
 let _email = null;
 let _role = null;
@@ -89,19 +96,20 @@ export const auth = {
         localStorage.setItem(TOKEN_KEY, data.token);
       }
       if (data.csrfToken) {
-        localStorage.setItem("ns_csrf_token", data.csrfToken);
+        localStorage.setItem(CSRF_TOKEN_KEY, data.csrfToken);
       }
       localStorage.setItem(EMAIL_KEY, cleanEmail);
       localStorage.removeItem(OFFLINE_FLAG_KEY);
+      _loginEmitter();
 
       if (data.expiresAt) {
         localStorage.setItem(EXPIRY_KEY, data.expiresAt);
       }
       if (data.role) {
-        localStorage.setItem("ns_admin_role", data.role);
+        localStorage.setItem(ROLE_KEY, data.role);
       }
       if (data.scopes) {
-        localStorage.setItem("ns_admin_scopes", JSON.stringify(data.scopes));
+        localStorage.setItem(SCOPES_KEY, JSON.stringify(data.scopes));
       }
 
       _email = cleanEmail;
@@ -132,6 +140,7 @@ export const auth = {
         localStorage.setItem(TOKEN_KEY, mockToken);
         localStorage.setItem(EMAIL_KEY, cleanEmail);
         localStorage.setItem(OFFLINE_FLAG_KEY, "true");
+        _loginEmitter();
         return { token: mockToken, email: cleanEmail, offline: true };
       }
 
@@ -161,9 +170,10 @@ export const auth = {
   },
 
   async logout() {
-    const token = this.getToken();
     // Fire-and-forget logout request to invalidate the server session.
-    if (token && !this.isOfflineMode()) {
+    // Cookie-backed sessions may not have a readable token, so the request
+    // must not depend on localStorage state.
+    if (!this.isOfflineMode()) {
       fetch(`${API_BASE}/api/admin/logout`, {
         method: "POST",
         credentials: "include",
@@ -177,12 +187,12 @@ export const auth = {
 
     // Clear all stored tokens
     localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem("ns_csrf_token");
+    localStorage.removeItem(CSRF_TOKEN_KEY);
     localStorage.removeItem(EMAIL_KEY);
     localStorage.removeItem(EXPIRY_KEY);
     localStorage.removeItem(OFFLINE_FLAG_KEY);
-    localStorage.removeItem("ns_admin_role");
-    localStorage.removeItem("ns_admin_scopes");
+    localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(SCOPES_KEY);
 
     eventEmitter.emit(EVENTS.AUTH_LOGOUT);
   },
@@ -230,9 +240,6 @@ export const auth = {
   },
 
   async verifySession() {
-    const token = this.getToken();
-    if (!token && !this.isOfflineMode()) return false;
-
     // Offline sessions are always considered valid locally
     if (this.isOfflineMode()) return true;
 

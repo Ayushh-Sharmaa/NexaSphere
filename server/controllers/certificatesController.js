@@ -8,6 +8,7 @@ import {
   uploadCertificatePdfToS3,
   uploadQrCodeToS3,
   downloadCertificatePdfFromS3,
+  getCertificateStreamFromS3,
 } from "../services/certificates/s3Storage.js";
 import { PrismaClient } from "@prisma/client";
 import {
@@ -108,14 +109,46 @@ export async function getMyCertificates(req, res) {
 }
 
 export async function downloadCertificatePdf(req, res) {
-  // TODO: stream from S3
-  return sendError(
-    req,
-    res,
-    'PDF download not implemented yet (S3 + storage layer TODO).',
-    501,
-    'NOT_IMPLEMENTED'
-  );
+  try {
+    const { id } = req.params;
+
+    // We fetch the certificate to get the correct eventId and code for the S3 key
+    const certificate = await prisma.certificate.findUnique({
+      where: { id },
+    });
+
+    if (!certificate) {
+      return sendError(req, res, "Certificate not found", 404, "NOT_FOUND");
+    }
+
+    const key = `certificates/${certificate.eventId}/${certificate.code}.pdf`;
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="certificate-${certificate.code}.pdf"`
+    );
+    res.setHeader("Content-Type", "application/pdf");
+
+    const fileStream = getCertificateStreamFromS3({ key });
+
+    fileStream.on("error", (err) => {
+      console.error("[CertificateDownload] S3 stream error:", err);
+      if (!res.headersSent) {
+        return sendError(
+          req,
+          res,
+          "Failed to download certificate from S3.",
+          500
+        );
+      }
+      res.end();
+    });
+
+    fileStream.pipe(res);
+  } catch (err) {
+    console.error("[CertificateDownload] Error initiating stream:", err);
+    return sendError(req, res, "Internal Server Error", 500);
+  }
 }
 
 export async function getOpenBadge(req, res) {

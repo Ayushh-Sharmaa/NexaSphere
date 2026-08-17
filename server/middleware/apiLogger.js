@@ -54,39 +54,7 @@ export function apiLogger(req, res, next) {
     } else {
       logger.http(message, logPayload);
     }
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const LOG_DIR = path.join(__dirname, '..', 'logs');
-const LOG_FILE = path.join(LOG_DIR, 'api-requests.log');
-
-const SENSITIVE_FIELDS = new Set([
-  'password', 'passkey', 'token', 'secret', 'authorization',
-  'cookie', 'session', 'key', 'apiKey', 'apikey', 'accessToken',
-  'refreshToken', 'jwt', 'auth',
-]);
-
-function sanitize(obj) {
-  if (!obj || typeof obj !== 'object') return obj;
-  if (Array.isArray(obj)) return obj.map(sanitize);
-  const sanitized = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (SENSITIVE_FIELDS.has(key)) {
-      sanitized[key] = '[REDACTED]';
-    } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitize(value);
-    } else {
-      sanitized[key] = value;
-    }
-  }
-  return sanitized;
-}
-
-function ensureLogDir() {
-  if (!fs.existsSync(LOG_DIR)) {
-    fs.mkdirSync(LOG_DIR, { recursive: true });
-  }
+  });
 }
 
 const logStream = (() => {

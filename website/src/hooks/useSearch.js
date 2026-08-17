@@ -73,7 +73,10 @@ export function useSearch(activities, events) {
     try {
       const saved = localStorage.getItem('ns_recent_searches');
       return saved ? JSON.parse(saved) : [];
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        console.warn('[useSearch] Failed to read recent searches from localStorage:', err);
+      }
       return [];
     }
   });
@@ -86,7 +89,11 @@ export function useSearch(activities, events) {
       const next = [clean, ...filtered].slice(0, 10);
       try {
         localStorage.setItem('ns_recent_searches', JSON.stringify(next));
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('[useSearch] Failed to save recent search to localStorage:', err);
+        }
+      }
       return next;
     });
   }, []);
@@ -96,7 +103,11 @@ export function useSearch(activities, events) {
       const next = prev.filter((s) => s !== searchTerm);
       try {
         localStorage.setItem('ns_recent_searches', JSON.stringify(next));
-      } catch {}
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('[useSearch] Failed to save recent search to localStorage:', err);
+        }
+      }
       return next;
     });
   }, []);
@@ -212,7 +223,11 @@ export function useSearch(activities, events) {
               }));
             all = [...all, ...matched];
           }
-        } catch {}
+        } catch (err) {
+          if (import.meta.env.DEV) {
+            console.warn('[useSearch] Failed to fetch team members:', err);
+          }
+        }
       }
 
       setResults(all);

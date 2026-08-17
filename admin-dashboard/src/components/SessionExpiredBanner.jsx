@@ -26,6 +26,13 @@ export default function SessionExpiredBanner() {
     }
   }, [state]);
 
+  // Fix #862: Auto-dismiss banner when user re-authenticates
+  useEffect(() => {
+    const handleLogin = () => setVisible(false);
+    eventEmitter.on(EVENTS.AUTH_LOGIN, handleLogin);
+    return () => eventEmitter.off(EVENTS.AUTH_LOGIN, handleLogin);
+  }, []);
+
   if (!visible) return null;
 
   return (

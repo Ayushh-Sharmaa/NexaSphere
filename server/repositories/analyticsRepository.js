@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { withDb } from './db.js';
+import { query } from "./db.js";
+import { withDb } from "./db.js";
 
 export const analyticsRepository = {
   /**
@@ -41,7 +41,10 @@ export const analyticsRepository = {
           (row.maxAttendees || 999) - parseInt(row.totalRegistrations, 10)
         ),
         occupancyRate: row.maxAttendees
-          ? ((parseInt(row.totalRegistrations, 10) / row.maxAttendees) * 100).toFixed(2)
+          ? (
+              (parseInt(row.totalRegistrations, 10) / row.maxAttendees) *
+              100
+            ).toFixed(2)
           : 0,
         eventCreatedAt: row.eventCreatedAt,
         eventUpdatedAt: row.eventUpdatedAt,
@@ -78,7 +81,10 @@ export const analyticsRepository = {
         checkedIn: parseInt(row.checkedIn, 10),
         maxAttendees: row.maxAttendees,
         occupancyRate: row.maxAttendees
-          ? ((parseInt(row.totalRegistrations, 10) / row.maxAttendees) * 100).toFixed(2)
+          ? (
+              (parseInt(row.totalRegistrations, 10) / row.maxAttendees) *
+              100
+            ).toFixed(2)
           : 0,
       }));
     });
@@ -87,7 +93,7 @@ export const analyticsRepository = {
   /**
    * Get registration trends over time for an event
    */
-  async getRegistrationTrends(eventId, timeWindow = '7 days') {
+  async getRegistrationTrends(eventId, timeWindow = "7 days") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT
@@ -139,7 +145,7 @@ export const analyticsRepository = {
   /**
    * Record a registration event
    */
-  async recordRegistration(eventId, userId, email, status = 'registered') {
+  async recordRegistration(eventId, userId, email, status = "registered") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `INSERT INTO registrations (id, event_id, user_id, email, status)
@@ -238,7 +244,7 @@ export const analyticsRepository = {
   /**
    * Export analytics data
    */
-  async exportEventAnalytics(eventId, format = 'csv') {
+  async exportEventAnalytics(eventId, format = "csv") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT
@@ -270,7 +276,13 @@ export const analyticsRepository = {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
       `;
-      const { rows } = await client.query(q, [id, user_id || null, device, browser, os]);
+      const { rows } = await client.query(q, [
+        id,
+        user_id || null,
+        device,
+        browser,
+        os,
+      ]);
       return rows[0];
     });
   },
@@ -289,7 +301,8 @@ export const analyticsRepository = {
   },
 
   async logEvent(eventData) {
-    const { session_id, user_id, event_type, url, element_selector, metadata } = eventData;
+    const { session_id, user_id, event_type, url, element_selector, metadata } =
+      eventData;
     return withDb(async (client) => {
       const q = `
         INSERT INTO analytics_events (session_id, user_id, event_type, url, element_selector, metadata)
@@ -313,24 +326,24 @@ export const analyticsRepository = {
       const checkQuery = `SELECT id FROM analytics_recordings WHERE session_id = $1`;
       const checkRes = await client.query(checkQuery, [sessionId]);
 
-    if (checkRes.rows.length > 0) {
-      const q = `
+      if (checkRes.rows.length > 0) {
+        const q = `
         UPDATE analytics_recordings
         SET events_json = $2
         WHERE session_id = $1
         RETURNING *
       `;
-      const res = await query(q, [sessionId, JSON.stringify(eventsJson)]);
-      return res.rows[0];
-    } else {
-      const q = `
+        const res = await query(q, [sessionId, JSON.stringify(eventsJson)]);
+        return res.rows[0];
+      } else {
+        const q = `
         INSERT INTO analytics_recordings (session_id, events_json)
         VALUES ($1, $2)
         RETURNING *
       `;
-      const res = await query(q, [sessionId, JSON.stringify(eventsJson)]);
-      return res.rows[0];
-    }
+        const res = await query(q, [sessionId, JSON.stringify(eventsJson)]);
+        return res.rows[0];
+      }
     });
   },
 
@@ -386,7 +399,11 @@ export const analyticsRepository = {
         VALUES ($1, $2, $3)
         RETURNING *
       `;
-      const { rows } = await client.query(q, [name, description, JSON.stringify(rules_json)]);
+      const { rows } = await client.query(q, [
+        name,
+        description,
+        JSON.stringify(rules_json),
+      ]);
       return rows[0];
     });
   },
@@ -454,7 +471,10 @@ export const analyticsRepository = {
           (row.maxAttendees || 999) - parseInt(row.totalRegistrations, 10)
         ),
         occupancyRate: row.maxAttendees
-          ? ((parseInt(row.totalRegistrations, 10) / row.maxAttendees) * 100).toFixed(2)
+          ? (
+              (parseInt(row.totalRegistrations, 10) / row.maxAttendees) *
+              100
+            ).toFixed(2)
           : 0,
         eventCreatedAt: row.eventCreatedAt,
         eventUpdatedAt: row.eventUpdatedAt,
@@ -462,6 +482,7 @@ export const analyticsRepository = {
     });
   },
 
+  /**
    * Get all events metrics for dashboard
    */
   async getAllEventsMetrics() {
@@ -490,7 +511,10 @@ export const analyticsRepository = {
         checkedIn: parseInt(row.checkedIn, 10),
         maxAttendees: row.maxAttendees,
         occupancyRate: row.maxAttendees
-          ? ((parseInt(row.totalRegistrations, 10) / row.maxAttendees) * 100).toFixed(2)
+          ? (
+              (parseInt(row.totalRegistrations, 10) / row.maxAttendees) *
+              100
+            ).toFixed(2)
           : 0,
       }));
     });
@@ -499,7 +523,7 @@ export const analyticsRepository = {
   /**
    * Get registration trends over time for an event
    */
-  async getRegistrationTrends(eventId, timeWindow = '7 days') {
+  async getRegistrationTrends(eventId, timeWindow = "7 days") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT
@@ -551,7 +575,7 @@ export const analyticsRepository = {
   /**
    * Record a registration event
    */
-  async recordRegistration(eventId, userId, email, status = 'registered') {
+  async recordRegistration(eventId, userId, email, status = "registered") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `INSERT INTO registrations (id, event_id, user_id, email, status)
@@ -650,7 +674,7 @@ export const analyticsRepository = {
   /**
    * Export analytics data
    */
-  async exportEventAnalytics(eventId, format = 'csv') {
+  async exportEventAnalytics(eventId, format = "csv") {
     return withDb(async (client) => {
       const { rows } = await client.query(
         `SELECT

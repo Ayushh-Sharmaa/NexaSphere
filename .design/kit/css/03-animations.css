@@ -1,0 +1,667 @@
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-16px) rotate(1deg);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pulse {
+  0%,
+  70% {
+    box-shadow: 0 0 0 0 rgba(204, 17, 17, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(204, 17, 17, 0);
+  }
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes scanline {
+  from {
+    top: -2px;
+  }
+  to {
+    top: 100%;
+  }
+}
+@keyframes dataStream {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.8;
+  }
+  95% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes splashIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes splashOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.75) translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes letterDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-60px) rotateX(90deg) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(6);
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-20deg);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(56px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes popLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-72px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes popRight {
+  from {
+    opacity: 0;
+    transform: translateX(72px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes scaleReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.82) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cardFlip {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateX(-32deg) translateY(36px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wordReveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes numPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(18px);
+  }
+  70% {
+    transform: scale(1.12) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cinLetterIn {
+  from {
+    opacity: 0;
+    transform: translateY(-52px) rotateX(90deg) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cinLogoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.35) translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cinGlow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+@keyframes cinProg {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes cinExit {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0.8;
+  }
+}
+
+@keyframes sandDrift {
+  0% {
+    transform: translateX(-100%) scaleX(0.4);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(200%) scaleX(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes dustBloom {
+  0% {
+    transform: scale(0.7) translateX(-8%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15) translateX(4%);
+    opacity: 0;
+  }
+}
+
+@keyframes sandWallRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-5%);
+    opacity: 0.9;
+  }
+}
+
+@keyframes sandWallLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(5%);
+    opacity: 0.9;
+  }
+}
+
+@keyframes stormRumble {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-1.5px, 1px);
+  }
+  20% {
+    transform: translate(2px, -0.5px);
+  }
+  30% {
+    transform: translate(-0.5px, 2px);
+  }
+  40% {
+    transform: translate(1.5px, -1.5px);
+  }
+  50% {
+    transform: translate(-2px, 0.5px);
+  }
+  60% {
+    transform: translate(1px, 1.5px);
+  }
+  70% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(0.5px, 2px);
+  }
+  90% {
+    transform: translate(-1.5px, -0.5px);
+  }
+}
+
+@keyframes windStreak {
+  0% {
+    transform: translateX(-100%) scaleX(0.3);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(200%) scaleX(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes toggleOrbit {
+  from {
+    transform: rotate(0deg) translateX(26px) rotate(0deg);
+    opacity: 0.9;
+  }
+  to {
+    transform: rotate(360deg) translateX(26px) rotate(-360deg);
+    opacity: 0.9;
+  }
+}
+@keyframes toggleOrbitReverse {
+  from {
+    transform: rotate(0deg) translateX(22px) rotate(0deg);
+    opacity: 0.5;
+  }
+  to {
+    transform: rotate(-360deg) translateX(22px) rotate(360deg);
+    opacity: 0.5;
+  }
+}
+
+@keyframes glowRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes progressPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px var(--c1g);
+  }
+  50% {
+    box-shadow:
+      0 0 20px var(--c1g),
+      0 0 40px rgba(255, 90, 95, 0.3);
+  }
+}
+
+@keyframes cardShimmer {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-15deg);
+  }
+}
+
+@keyframes orbFloat {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.04;
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.1);
+    opacity: 0.07;
+  }
+  66% {
+    transform: translate(-20px, 15px) scale(0.9);
+    opacity: 0.05;
+  }
+}
+
+.pop-in,
+.pop-left,
+.pop-right,
+.pop-scale,
+.pop-flip,
+.pop-num {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+/* pop-word intentionally has NO will-change — combining will-change with
+   background-clip:text on the same element breaks GPU compositing in Chrome/WebKit,
+   causing the gradient to render as a solid rectangle instead of clipping to text. */
+.pop-word {
+  opacity: 0;
+}
+.pop-in.fired {
+  animation: popIn 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-left.fired {
+  animation: popLeft 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-right.fired {
+  animation: popRight 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-scale.fired {
+  animation: scaleReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-flip.fired {
+  animation: cardFlip 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-word.fired {
+  animation: wordReveal 0.78s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.pop-num.fired {
+  animation: numPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Respect prefers-reduced-motion: disable all pop animations */
+@media (prefers-reduced-motion: reduce) {
+  .pop-in.fired,
+  .pop-left.fired,
+  .pop-right.fired,
+  .pop-scale.fired,
+  .pop-flip.fired,
+  .pop-word.fired,
+  .pop-num.fired {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Instantly show content for users with reduced-motion preference */
+  .pop-in.no-animation,
+  .pop-left.no-animation,
+  .pop-right.no-animation,
+  .pop-scale.no-animation,
+  .pop-flip.no-animation,
+  .pop-word.no-animation,
+  .pop-num.no-animation {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cin-container > *:nth-child(1) {
+  animation-delay: 0.04s;
+}
+.cin-container > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.cin-container > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.cin-container > *:nth-child(4) {
+  animation-delay: 0.22s;
+}
+.cin-container > *:nth-child(5) {
+  animation-delay: 0.28s;
+}
+.cin-container > *:nth-child(6) {
+  animation-delay: 0.34s;
+}
+.cin-container > *:nth-child(7) {
+  animation-delay: 0.4s;
+}
+.cin-container > *:nth-child(8) {
+  animation-delay: 0.46s;
+}
+.cin-container > *:nth-child(9) {
+  animation-delay: 0.52s;
+}
+.cin-container > *:nth-child(10) {
+  animation-delay: 0.58s;
+}
+.cin-container > *:nth-child(11) {
+  animation-delay: 0.64s;
+}
+.cin-container > *:nth-child(12) {
+  animation-delay: 0.7s;
+}
+
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .rpl {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  width: 130px;
+  height: 130px;
+  margin: -65px 0 0 -65px;
+  animation: ripple 0.65s linear;
+  pointer-events: none;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 80%
+  );
+  transform: translateX(-130%) skewX(-20deg);
+  pointer-events: none;
+}
+.shimmer:hover::after {
+  animation: shimmer 0.65s ease forwards;
+}
+
+.grad-text {
+  background: linear-gradient(270deg, var(--c1), var(--c2), var(--c3), var(--c1));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+}
+
+.storm-active {
+  animation: stormRumble 0.15s ease-in-out infinite;
+}
+
+.glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--c1);
+  animation: glowRing 0.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.section-subtitle,
+.about-text,
+.activity-desc,
+.timeline-event-desc,
+.timeline-event-date,
+.team-card-name,
+.modal-info-value,
+.ns-footer-text,
+.hero-tagline {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ── Glitch text effect (ActivityDetailPage) ── */
+@keyframes glitch1 {
+  0% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: translateX(-3px);
+  }
+}
+@keyframes glitch2 {
+  0% {
+    transform: translateX(3px);
+  }
+  50% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(3px);
+  }
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.glitch-text:hover::before {
+  opacity: 0.7;
+  color: #ff0080;
+  clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  transform: translateX(-3px);
+  animation: glitch1 0.3s steps(2) infinite;
+}
+.glitch-text:hover::after {
+  opacity: 0.7;
+  color: #00ffff;
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  transform: translateX(3px);
+  animation: glitch2 0.3s steps(2) infinite;
+}

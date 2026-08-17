@@ -440,70 +440,90 @@ export default function GamificationDashboard() {
 
       {activeTab === 'leaderboard' && (
         <div style={{ background: '#1A1A1A', borderRadius: '16px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ background: '#0F0F0F' }}>
-              <tr>
-                <th style={{ padding: '12px 16px', color: '#9CA3AF', textAlign: 'left' }}>Rank</th>
-                <th style={{ padding: '12px 16px', color: '#9CA3AF', textAlign: 'left' }}>User</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center', color: '#9CA3AF' }}>
-                  Streak
-                </th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', color: '#9CA3AF' }}>
-                  Level
-                </th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', color: '#9CA3AF' }}>XP</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((user) => (
-                <tr key={user.rank} style={{ borderTop: '1px solid #2A2A2A' }}>
-                  <td style={{ padding: '12px 16px', color: '#FFFFFF', fontWeight: 'bold' }}>
-                    #{user.rank}
-                  </td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '20px' }}>{user.avatar}</span>
-                      <span style={{ color: '#FFFFFF' }}>{user.name}</span>
-                    </div>
-                  </td>
-                  <td
-                    style={{
-                      padding: '12px 16px',
-                      textAlign: 'center',
-                      color: '#F59E0B',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {user.streak > 0 ? (
-                      <span title={`${user.streak} day streak!`}>
-                        {user.streak}{' '}
-                        <DynamicIcon
-                          name="Flame"
-                          size={14}
-                          style={{ display: 'inline', verticalAlign: 'middle' }}
-                        />
-                      </span>
-                    ) : (
-                      <span style={{ color: '#4B5563' }}>-</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', color: '#FFFFFF' }}>
-                    {user.level}
-                  </td>
-                  <td
-                    style={{
-                      padding: '12px 16px',
-                      textAlign: 'right',
-                      color: '#CC1111',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {user.xp}
-                  </td>
+          {leaderboard.length === 0 ? (
+            <p style={{ color: '#9CA3AF', padding: '24px 16px', margin: 0 }}>
+              Leaderboard is empty or unavailable. Rankings will appear when live data is available.
+            </p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ background: '#0F0F0F' }}>
+                <tr>
+                  <th style={{ padding: '12px 16px', color: '#9CA3AF', textAlign: 'left' }}>
+                    Rank
+                  </th>
+                  <th style={{ padding: '12px 16px', color: '#9CA3AF', textAlign: 'left' }}>
+                    User
+                  </th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center', color: '#9CA3AF' }}>
+                    Streak
+                  </th>
+                  <th style={{ padding: '12px 16px', textAlign: 'right', color: '#9CA3AF' }}>
+                    Level
+                  </th>
+                  <th style={{ padding: '12px 16px', textAlign: 'right', color: '#9CA3AF' }}>XP</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leaderboard.some((u) => u.isSample) && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      style={{ padding: '12px 16px', color: '#f59e0b', fontSize: '0.85rem' }}
+                    >
+                      Sample data — not live rankings.
+                    </td>
+                  </tr>
+                )}
+                {leaderboard.map((user) => (
+                  <tr key={user.rank} style={{ borderTop: '1px solid #2A2A2A' }}>
+                    <td style={{ padding: '12px 16px', color: '#FFFFFF', fontWeight: 'bold' }}>
+                      #{user.rank}
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '20px' }}>{user.avatar}</span>
+                        <span style={{ color: '#FFFFFF' }}>{user.name}</span>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        padding: '12px 16px',
+                        textAlign: 'center',
+                        color: '#F59E0B',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {user.streak > 0 ? (
+                        <span title={`${user.streak} day streak!`}>
+                          {user.streak}{' '}
+                          <DynamicIcon
+                            name="Flame"
+                            size={14}
+                            style={{ display: 'inline', verticalAlign: 'middle' }}
+                          />
+                        </span>
+                      ) : (
+                        <span style={{ color: '#4B5563' }}>-</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: '#FFFFFF' }}>
+                      {user.level}
+                    </td>
+                    <td
+                      style={{
+                        padding: '12px 16px',
+                        textAlign: 'right',
+                        color: '#CC1111',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {user.xp}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
 

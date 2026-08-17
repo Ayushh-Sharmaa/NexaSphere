@@ -124,7 +124,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
 
       // Avoid self-references or circular connections
       if (node.prerequisites.includes(connectSourceId)) {
-        alert('Prerequisite connection already exists.');
         setMessage('Prerequisite connection already exists.');
         setConnectSourceId(null);
         return;
@@ -142,9 +141,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
       };
 
       if (hasCycle(node.id, connectSourceId)) {
-        alert(
-          'Invalid Connection: Adding this prerequisite will create a circular dependency loop!'
-        );
         setMessage(
           'Invalid connection: adding this prerequisite will create a circular dependency loop.'
         );
@@ -238,9 +234,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
           position: 'relative',
           background: theme === 'dark' ? '#090909' : '#FAFAFA',
           overflow: 'hidden',
-          position: 'relative',
-          background: theme === 'dark' ? '#090909' : '#FAFAFA',
-          overflow: 'hidden',
         }}
       >
         {/* Dynamic Grid Overlay */}
@@ -251,9 +244,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
             width: '100%',
             height: '100%',
             pointerEvents: 'none',
@@ -350,12 +340,6 @@ export const NodeCanvas: React.FC<NodeCanvasProps> = ({ theme }) => {
                     top: node.y,
                     width: NODE_WIDTH,
                     height: NODE_HEIGHT,
-                    border: `1.5px solid ${isConnectingSource ? 'var(--warning)' : isSelected ? 'var(--c1)' : statusColor}`,
-                    borderRadius: '16px',
-                    boxShadow: getStatusShadow(node.status),
-                    cursor: draggedNodeId === node.id ? 'grabbing' : 'grab',
-                    pointerEvents: 'auto',
-                    userSelect: 'none',
                     border: `1.5px solid ${isConnectingSource ? 'var(--warning)' : isSelected ? 'var(--c1)' : node.isAiGenerated ? 'var(--c2)' : statusColor}`,
                     borderRadius: '16px',
                     boxShadow:

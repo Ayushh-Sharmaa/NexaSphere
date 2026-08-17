@@ -97,18 +97,10 @@ export const listMentorships = wrapAsync(async (req, res) => {
   if (!req.studentUser) {
     return sendError(req, res, 'Authentication required', 401, 'UNAUTHORIZED');
   }
-  const { page, limit, status } = req.query;
+  const { page = 1, limit = 10, status } = req.query;
   const isAdmin = req.studentUser.role === 'admin';
   const email = isAdmin && req.query.email ? req.query.email : req.studentUser.email;
-
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid mentor ID' });
-  const input = updateMentorSchema.parse(req.body);
-  const mentor = await mentorshipService.updateMentor(id, input);
-  if (!mentor) return res.status(404).json({ error: 'Mentor not found' });
-  return res.json({ mentor });
-});
-
-
+  const result = await mentorshipService.listMentorships(email, status, parseInt(page), parseInt(limit));
   return res.json({ mentorships: result.rows, total: result.total });
 });
 
@@ -141,10 +133,7 @@ export const getMentorship = wrapAsync(async (req, res) => {
   }
 
   return sendSuccess(res, { mentorship });
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid mentorship ID' });
-  const mentorship = await mentorshipService.getMentorship(id);
-  if (!mentorship) return res.status(404).json({ error: 'Mentorship not found' });
-  return res.json({ mentorship });
+
 });
 
 export const updateMentorshipStatus = wrapAsync(async (req, res) => {
@@ -197,13 +186,7 @@ export const updateMentorshipStatus = wrapAsync(async (req, res) => {
 
   const updated = await mentorshipService.updateMentorshipStatus(id, status);
   return sendSuccess(res, { mentorship: updated });
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid mentorship ID' });
-  const { status } = req.body;
-  if (!['active', 'rejected', 'completed'].includes(status)) {
-    return res.status(400).json({ error: 'Invalid status. Must be active, rejected, or completed' });
-  }
-  const mentorship = await mentorshipService.updateMentorshipStatus(id, status);
-  if (!mentorship) return res.status(404).json({ error: 'Mentorship not found' });
+
   return res.json({ mentorship });
 });
 
@@ -240,11 +223,7 @@ export const logSession = wrapAsync(async (req, res) => {
   const session = await mentorshipService.logSession(mentorshipId, input);
   if (!session) return sendError(req, res, 'Failed to log session', 404, 'NOT_FOUND');
   return sendSuccess(res, { session }, 201);
-  if (isNaN(mentorshipId)) return res.status(400).json({ error: 'Invalid mentorship ID' });
-  const input = logSessionSchema.parse(req.body);
-  const session = await mentorshipService.logSession(mentorshipId, input);
-  if (!session) return res.status(404).json({ error: 'Mentorship not found' });
-  return res.status(201).json({ session });
+
 });
 
 export const listSessions = wrapAsync(async (req, res) => {

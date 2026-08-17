@@ -23,33 +23,11 @@ model User {
   settingsChanges  SettingsChangeLog[]
   certificates     Certificate[]
   registrations    EventRegistration[]
+  assignedTasks    WorkspaceTask[]
+  messages         WorkspaceMessage[]
+  uploadedFiles    WorkspaceFile[]
 
   @@index([createdAt])
-}
-
-model Workspace {
-  id        String            @id @default(uuid())
-  name      String
-  slug      String            @unique
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  members   WorkspaceMember[]
-  roles     Role[]
-  posts     Post[]
-  logs      Log[]
-}
-
-model WorkspaceMember {
-  id          String   @id @default(uuid())
-  workspaceId String
-  userId      String
-  roleId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role      @relation(fields: [roleId], references: [id])
 }
 
 model Workspace {
@@ -63,27 +41,18 @@ model Workspace {
   posts            Post[]
   logs             Log[]
   webhookEndpoints WebhookEndpoint[]
-}
-
-model Workspace {
-  id          String            @id @default(uuid())
-  name        String
-  slug        String            @unique
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  members     WorkspaceMember[]
-  roles       Role[]
-  posts       Post[]
-  logs        Log[]
+  tasks            WorkspaceTask[]
+  messages         WorkspaceMessage[]
+  files            WorkspaceFile[]
 }
 
 model WorkspaceMember {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   workspaceId String
   userId      String
   roleId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -98,11 +67,6 @@ model Role {
   workspaceId String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  id          String            @id @default(uuid())
-  name        String
-  workspaceId String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
 
   workspace   Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   permissions Permission[]      @relation("RolePermissions")
@@ -158,34 +122,15 @@ model Certificate {
 }
 
 model Log {
-  id          String   @id @default(uuid())
-  roles       Role[]   @relation("RolePermissions")
-}
-
-model Post {
-  id          String    @id @default(uuid())
-  title       String
-  content     String?
-  published   Boolean   @default(false)
-  authorId    String
-  workspaceId String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-}
-
-model Log {
   id          String    @id @default(uuid())
   action      String
   details     String?
   userId      String?
   workspaceId String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
-  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 enum AuditAction {
@@ -208,10 +153,6 @@ model AuditLog {
 
   timestamp DateTime    @default(now())
 }
-
-// =========================================================
-// FEATURE #3318: SEATING LAYOUT & REGISTRATION EXTENSIONS
-// =========================================================
 
 model VenueLayout {
   id        String   @id @default(uuid())
@@ -251,8 +192,6 @@ model EventRegistration {
   @@index([eventId])
   @@index([userId])
 }
-
-// =========================================================
 
 model EventFeedback {
   id               String   @id @default(uuid())
@@ -316,12 +255,6 @@ model SettingsChangeLog {
   @@index([changedById])
 }
 
-  createdAt   DateTime  @default(now())
-
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-}
-
 model WebhookEndpoint {
   id          String            @id @default(uuid())
   workspaceId String
@@ -347,15 +280,14 @@ model WebhookDelivery {
 
   endpoint     WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 }
-// ── Dynamic Event Capacity Pricing ──
 
 model EventPricing {
   id              String   @id @default(uuid())
   eventId         String   @unique
   basePrice       Float    // Original / standard price in INR
   currentPrice    Float    // Live computed price
-  minPrice        Float    // Floor — never go below this
-  maxPrice        Float    // Cap — never exceed this
+  minPrice        Float    // Floor - never go below this
+  maxPrice        Float    // Cap - never exceed this
   capacity        Int      // Total seats
   registrations   Int      @default(0)
   eventDate       DateTime // Used for time-based tier calculation
@@ -371,34 +303,8 @@ model PriceHistory {
   price     Float
   reason    String       // e.g. "early_bird", "demand_80pct", "admin_override"
   createdAt DateTime     @default(now())
-model EventPricing {
-  id            String         @id @default(uuid())
-  eventId       String         @unique
-  basePrice     Float
-  currentPrice  Float
-  minPrice      Float
-  maxPrice      Float
-  capacity      Int
-  registrations Int            @default(0)
-  eventDate     DateTime
-  adminOverride Float?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  priceHistory  PriceHistory[]
-}
-
-model PriceHistory {
-  id        String   @id @default(uuid())
-  pricingId String
-  price     Float
-  reason    String
-  createdAt DateTime @default(now())
 
   pricing   EventPricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
-}
-
-model PlatformSetting {
-  pricing EventPricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
 }
 
 model ArchivedReport {
@@ -413,38 +319,46 @@ model ArchivedReport {
   @@index([environment])
 }
 
-model SettingsChangeLog {
-  id            String   @id @default(cuid())
-  environment   String
-  key           String
-  previousValue String?  @db.Text
-  newValue      String   @db.Text
-  isRollback    Boolean  @default(false)
-  changedById   String?
-  changedBy     User?    @relation(fields: [changedById], references: [id])
-  createdAt     DateTime @default(now())
 
-  @@index([environment, key])
-  @@index([changedById])
-}
-model Certificate {
-  id                 String    @id @default(uuid())
-  code               String    @unique
-  userId             String
-  eventId            String
-  attendeeName       String?
-  eventName          String?
-  date               DateTime  @default(now())
-  completionCriteria String?
-  status             String    @default("PENDING") // PENDING, ISSUED, VERIFIED, REJECTED
-  verified           Boolean   @default(false)
-  verifiedAt         DateTime?
-  expiresAt          DateTime?
-  revoked            Boolean   @default(false)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+model WorkspaceTask {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  assigneeId  String?
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user               User      @relation(fields: [userId], references: [id])
+  assignee    User?     @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
+model WorkspaceMessage {
+  id          String   @id @default(uuid())
+  content     String
+  senderId    String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender      User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
+
+model WorkspaceFile {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  size        Int?
+  type        String?
+  uploaderId  String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  uploader    User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+

@@ -1,4 +1,6 @@
+import adminSearchRoutes from './adminSearchRoutes.js';
 import { Router } from 'express';
+import hashtagsRouter from './hashtags.js';
 import { throttleMiddleware } from '../middleware/throttleMiddleware.js';
 import settingsRouter from './settingsRoutes.js';
 import rateLimitAdminRoutes from './rateLimitAdminRoutes.js';
@@ -127,45 +129,7 @@ router.post(
 router.get('/api/users', usersController.getPublicUsers);
 router.get('/api/content/events', eventsController.listEvents);
 router.post('/api/content/events/:eventId/register', eventRegistrationController.registerForEvent);
-router.post(
-  '/api/content/events/:eventId/cancel',
-  requireStudentAuth,
-router.post(
-  '/api/content/events/:eventId/register',
-  eventRegistrationUserLimiter,
-  eventRegistrationIpLimiter,
-  eventRegistrationIpLimiter,
-  eventRegistrationUserLimiter,
-  validate(eventRegistrationSchema),
-
-// QR Code Generation
-
-router.post(
-  '/api/content/events/:eventId/cancel',
-  eventRegistrationIpLimiter,
-  eventRegistrationUserLimiter,
-  requireStudentAuth,
-  validate(emailSchema),
-router.get(
-  '/api/content/events/:eventId/waitlist-position',
-router.post(
-  '/api/content/events/:eventId/waitlist/confirm',
-  validate(emailSchema),
-router.delete(
-  '/api/content/events/:eventId/waitlist',
-  eventRegistrationIpLimiter,
-  eventRegistrationUserLimiter,
-  validate(emailSchema),
-router.get(
-  '/api/content/activity-events/:activityKey',
-router.post(
-  '/api/content/activity-events/:activityKey',
-  protectedActionRateLimiter,
-  adminAuthMiddleware.requireScope('events:write'),
-router.delete(
-  '/api/content/activity-events/:activityKey/:eventId',
-  protectedActionRateLimiter,
-  adminAuthMiddleware.requireScope('events:write'),
+// (Removed mangled event registration routes)
 router.post('/account-recovery/request', async (req, res) => {
   const { email } = req.body;
 
@@ -176,6 +140,7 @@ router.post('/account-recovery/request', async (req, res) => {
     message: 'Recovery code generated',
     recovery,
   });
+});
 router.post('/account-recovery/verify', async (req, res) => {
   const { savedCode, enteredCode } = req.body;
 
@@ -255,9 +220,7 @@ router.post(
   validate(localLoginSchema),
   localAuthController.localLogin
 );
-  '/api/admin/2fa/verify',
-  validate(verifyTwoFactorSchema),
-  adminAuthMiddleware.verifyTwoFactor
+
 router.post(
   '/api/admin/2fa/setup/verify',
   authRateLimiter,
@@ -492,9 +455,12 @@ router.delete(
   '/api/admin/sponsors/:id',
   adminAuthMiddleware.requireScope('events:write'),
   adminAuditMiddleware,
+  sponsorshipsController.adminDeleteSponsor
+);
 router.post('/api/admin/impersonate/stop', adminAuthMiddleware.requireAdmin, (req, res) => {
   impersonationService.stop(req.adminSession.token);
   return res.json({ impersonating: false });
+});
 router.get('/api/admin/impersonate/status', adminAuthMiddleware.requireAdmin, (req, res) => {
   const active = impersonationService.getActive(req.adminSession.token);
   return res.json({ impersonating: !!active, user: active?.targetUser || null });
@@ -589,17 +555,13 @@ router.get(
 );
 
 // Platform Analytics APIs
-router.use('/api/analytics', platformAnalyticsRoutes);
-
-router.use("/api-analytics", apiAnalyticsRoutes);
-
-router.use("/api/analytics", platformAnalyticsRoutes);
-router.use("/digital-assets", digitalAssetRoutes);
 router.use('/api/analytics', requireStudentAuth, platformAnalyticsRoutes);
+router.use('/api-analytics', apiAnalyticsRoutes);
+
+router.use('/digital-assets', digitalAssetRoutes);
 router.use('/api/budget', adminAuthMiddleware.requireAdmin, budgetRoutes);
 router.use('/api/webhooks', googleFormsWebhookRoutes);
-router.use("/notification-campaigns", notificationCampaignRoutes);
-import hashtagsRouter from './hashtags.js';
+router.use('/notification-campaigns', notificationCampaignRoutes);
 router.use('/api/hashtags', hashtagsRouter);
 
 export default router;

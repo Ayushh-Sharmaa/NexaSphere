@@ -1,5 +1,5 @@
-import prisma from '../config/db.js'; // Adjust path to your Prisma client
-import { sendSuccess, sendError } from '../utils/responseHelper.js';
+import { withDb } from "../repositories/db.js"; // Adjust path to your Prisma client
+import { sendSuccess, sendError } from "../utils/responseHelper.js";
 
 // 1. Fetch templates (supports search, system vs user filtering)
 export const getTemplates = async (req, res) => {
@@ -7,19 +7,19 @@ export const getTemplates = async (req, res) => {
     const { search, type } = req.query;
     const where = {};
 
-    if (type === 'system') where.isSystem = true;
-    if (type === 'user') where.isSystem = false;
+    if (type === "system") where.isSystem = true;
+    if (type === "user") where.isSystem = false;
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { category: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: "insensitive" } },
+        { category: { contains: search, mode: "insensitive" } },
       ];
     }
 
     const templates = await prisma.eventTemplate.findMany({ where });
     sendSuccess(res, templates);
   } catch (error) {
-    sendError(req, res, 'Failed to fetch templates', 500, 'INTERNAL_ERROR');
+    sendError(req, res, "Failed to fetch templates", 500, "INTERNAL_ERROR");
   }
 };
 
@@ -31,7 +31,7 @@ export const createTemplate = async (req, res) => {
     });
     sendSuccess(res, template, 201);
   } catch (error) {
-    sendError(req, res, 'Failed to save template', 500, 'INTERNAL_ERROR');
+    sendError(req, res, "Failed to save template", 500, "INTERNAL_ERROR");
   }
 };
 
@@ -45,9 +45,15 @@ export const cloneTemplate = async (req, res) => {
     });
 
     // Explicitly omit live operational data like dates/times for clean copying
-    const { id: _, createdAt: __, updatedAt: ___, usageCount: ____, ...clonedData } = template;
+    const {
+      id: _,
+      createdAt: __,
+      updatedAt: ___,
+      usageCount: ____,
+      ...clonedData
+    } = template;
     sendSuccess(res, clonedData);
   } catch (error) {
-    sendError(req, res, 'Cloning processing failure', 500, 'INTERNAL_ERROR');
+    sendError(req, res, "Cloning processing failure", 500, "INTERNAL_ERROR");
   }
 };

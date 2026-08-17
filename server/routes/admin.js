@@ -111,7 +111,7 @@ router.get('/membership', adminAuth, async (req, res) => {
       // Fall through to Google Apps Script fallback
     }
   }
-
+}
   // Fallback: Google Apps Script (legacy path)
   const scriptUrl = process.env.MEMBERSHIP_SCRIPT_URL;
   const secret = process.env.MEMBERSHIP_SECRET;
@@ -143,11 +143,6 @@ router.get('/membership', adminAuth, async (req, res) => {
     }
     console.error('[Membership] Failed to fetch responses from Google Apps Script:', err.message);
     return sendError(req, res, 'Failed to fetch membership responses', 500, 'INTERNAL_ERROR');
-      console.warn('[Membership] Google Apps Script circuit breaker is OPEN, returning empty responses');
-      return res.json({ responses: [] });
-    }
-    console.error('[Membership] Failed to fetch responses from Google Apps Script:', err.message);
-    return res.status(500).json({ error: 'Failed to fetch membership responses' });
   }
 });
 
@@ -251,12 +246,6 @@ router.post('/api/admin/read-only-disable', adminAuth, (req, res) => {
 
 router.get('/api/admin/read-only-log', adminAuth, (req, res) => {
   sendSuccess(res, createIncidentLog());
-router.get('/api/admin/read-only-status', adminAuth, (req, res) => {
-  res.json(getReadOnlyStatus());
-});
-
-router.get('/api/admin/read-only-log', adminAuth, (req, res) => {
-  res.json(createIncidentLog());
 });
 
 router.get('/api/admin/service-status', adminAuth, (req, res) => {
@@ -460,14 +449,7 @@ router.get('/admin/stats', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     res.status(500).json({ error: 'Failed to fetch platform statistics' });
-    res.json(report);
-  } catch (error) {
-    res.status(500).json({ error: error.message || 'Failed to generate revenue report' });
   }
 });
-
-router.get('/sessions', adminAuth, adminAuthMiddleware.getSecurityOverview);
-router.delete('/sessions/:sessionId', adminAuth, adminAuthMiddleware.revokeSession);
-router.delete('/sessions', adminAuth, adminAuthMiddleware.logoutOtherSessions);
 
 export default router;

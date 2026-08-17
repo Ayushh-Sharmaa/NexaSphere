@@ -1,0 +1,241 @@
+/**
+ * accessibility.css
+ *
+ * Global keyboard-navigation and accessibility fixes for NexaSphere.
+ *
+ * Addresses issue #3295:
+ *  - Visible :focus-visible indicators on all interactive elements
+ *  - Skip-to-content link shown on first Tab press
+ *  - Reduced-motion support (no animations for prefers-reduced-motion)
+ *  - High-contrast focus rings for nav links, cards, buttons, form inputs
+ *  - Keyboard-operable card/form elements that were previously mouse-only
+ */
+
+/* ── 1. Skip-to-main-content link ────────────────────────────────────────────
+   Visually hidden until the very first Tab press. When focused it slides in
+   from the top and is fully legible against both dark and light themes.      */
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+
+  background: var(--c1, #cc1111);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  white-space: nowrap;
+
+  border: 2px solid transparent;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: top 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 0;
+  outline: 3px solid #fff;
+  outline-offset: -4px;
+  border-color: #fff;
+}
+
+/* ── 2. Global :focus-visible override ───────────────────────────────────────
+   The globals.css already sets a base focus ring, but it can be overridden by
+   component-level CSS. These rules use :where() to keep specificity low while
+   ensuring visibility is never lost.                                          */
+
+:focus-visible {
+  outline: 2.5px solid var(--c1, #cc1111) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+  /* A box-shadow fallback improves visibility on dark AND light backgrounds */
+  box-shadow:
+    0 0 0 4px var(--c1a, rgba(204, 17, 17, 0.25)),
+    0 0 0 2px var(--bg, #0a0a0a) !important;
+}
+
+/* Remove focus ring from elements that receive focus on click (mouse only) */
+:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ── 3. Nav link focus indicators ────────────────────────────────────────────*/
+
+.ns-nav-tab:focus-visible,
+.ns-mobile-tab:focus-visible {
+  outline: 2px solid var(--c1) !important;
+  outline-offset: 4px !important;
+  border-radius: 6px;
+}
+
+/* ── 4. Card & event-card keyboard focus ─────────────────────────────────────
+   Cards rendered with role="button" or tabIndex need a visible focus ring;
+   the magnetic-tilt effect is mouse-only and should not block focus styles.  */
+
+.card:focus-visible,
+.event-card:focus-visible,
+.activity-card:focus-visible,
+.team-card:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible {
+  outline: 2.5px solid var(--c1) !important;
+  outline-offset: 4px !important;
+  box-shadow:
+    0 0 0 5px var(--c1a, rgba(204, 17, 17, 0.2)),
+    0 0 0 2px var(--bg, #0a0a0a) !important;
+}
+
+/* ── 5. Form inputs, textareas, selects ──────────────────────────────────────*/
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--c1, #cc1111) !important;
+  outline-offset: 0px !important;
+  border-color: var(--c1) !important;
+  box-shadow: 0 0 0 3px var(--c1a, rgba(204, 17, 17, 0.2)) !important;
+}
+
+/* ── 6. Buttons: explicit focus ring ─────────────────────────────────────────*/
+
+button:focus-visible {
+  outline: 2px solid var(--c1, #cc1111) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px var(--c1a, rgba(204, 17, 17, 0.2)) !important;
+}
+
+/* ── 7. Anchor links ─────────────────────────────────────────────────────────*/
+
+a:focus-visible {
+  outline: 2px solid var(--c1, #cc1111) !important;
+  outline-offset: 3px !important;
+  border-radius: 3px;
+  text-decoration: underline;
+}
+
+/* ── 8. Recruitment / multi-step form step indicators ────────────────────────
+   Make the step-pill buttons keyboard-operable and visually distinct on focus.*/
+
+.recruitment-step-btn:focus-visible,
+[data-step-btn]:focus-visible {
+  outline: 2.5px solid var(--c1) !important;
+  outline-offset: 4px !important;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px var(--c1a) !important;
+}
+
+/* ── 9. Modal / dialog focus trap helper ─────────────────────────────────────
+   When a modal is open, we rely on aria-modal + inert. This rule ensures the
+   first focusable element inside a dialog is clearly highlighted.            */
+
+[role='dialog']:focus-visible,
+[role='dialog'] *:focus-visible {
+  outline: 2.5px solid var(--c1) !important;
+  outline-offset: 3px !important;
+}
+
+/* ── 10. Light-theme overrides ───────────────────────────────────────────────
+   On light backgrounds the dark-mode ring can be invisible. Adjust colours.  */
+
+[data-theme='light'] :focus-visible {
+  outline-color: var(--accent-cyan, #0097c4) !important;
+  box-shadow:
+    0 0 0 4px rgba(0, 151, 196, 0.2),
+    0 0 0 2px var(--bg-primary, #f0f2f8) !important;
+}
+
+[data-theme='light'] .ns-nav-tab:focus-visible,
+[data-theme='light'] .ns-mobile-tab:focus-visible {
+  outline-color: var(--accent-cyan, #0097c4) !important;
+}
+
+/* ── 11. Reduced-motion: disable all animations ─────────────────────────────
+   Honour the OS / browser setting. Important both for vestibular disorders
+   and for users who find motion distracting.                                 */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep focus transitions legible */
+  :focus-visible {
+    transition: none !important;
+  }
+
+  /* Disable the magnetic-card tilt and hero parallax */
+  .magnetic-card,
+  .hero-bg,
+  .ambient-orb {
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Disable the cinematic wipe */
+  .wipe-shimmer {
+    display: none !important;
+  }
+
+  /* Disable floating animation on cards */
+  .ag {
+    animation: none !important;
+  }
+}
+
+/* ── 12. High-contrast mode support ─────────────────────────────────────────*/
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid ButtonText !important;
+    outline-offset: 3px !important;
+    box-shadow: none !important;
+  }
+
+  .skip-link {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 2px solid ButtonText;
+  }
+}
+
+/* ── 13. Visually-hidden utility (screen-reader only text) ───────────────────
+   Use .sr-only on elements that should be read by AT but not visible.       */
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Show sr-only elements when focused (for skip links and other off-screen CTAs) */
+.sr-only:focus,
+.sr-only:focus-within {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}

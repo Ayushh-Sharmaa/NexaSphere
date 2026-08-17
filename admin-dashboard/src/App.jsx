@@ -23,6 +23,11 @@ const EventsManager = React.lazy(() =>
     default: module.EventsManager,
   }))
 );
+const ActivityLogs = React.lazy(() =>
+  import("./pages/ActivityLogs").then((module) => ({
+    default: module.ActivityLogs,
+  }))
+);
 
 // Components
 import { Sidebar } from "./components/Sidebar";
@@ -59,7 +64,7 @@ import { CircuitBreakerManager } from "./pages/CircuitBreakerManager";
 import { WaitingRoomManager } from "./pages/WaitingRoomManager";
 import UserGroups from "./pages/UserGroups";
 import { RolesManager } from "./pages/RolesManager";
-import { ScheduledTasksManager } from "./pages/ScheduledTasksManager";
+import ScheduledTasksManager from "./pages/ScheduledTasksManager";
 import { BackupsManager } from "./pages/BackupsManager";
 import { ResourcesManager } from "./pages/ResourcesManager";
 import { ComplianceManager } from "./pages/ComplianceManager";
@@ -94,6 +99,14 @@ function RequireAuth() {
 }
 
 function DashboardLayout() {
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = React.useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = React.useState(false);
+
+  useAdminShortcuts({
+    onOpenCommandMenu: () => setIsCommandMenuOpen(true),
+    onToggleShortcutsHelp: () => setIsShortcutsHelpOpen((prev) => !prev),
+  });
+
   return (
     <div className="app-layout">
       <OfflineBanner />
@@ -125,11 +138,18 @@ function DashboardLayout() {
       <MobileBottomNav />
       <Toast />
       <OnboardingTour />
+      <CommandMenu
+        isOpen={isCommandMenuOpen}
+        onClose={() => setIsCommandMenuOpen(false)}
+      />
+      <CommandMenu
+        isOpen={isShortcutsHelpOpen}
+        onClose={() => setIsShortcutsHelpOpen(false)}
+        isHelpMode={true}
+      />
     </div>
   );
 }
-import { BrowserRouter } from "react-router-dom";
-import DashboardIndex from "./DashboardIndex";
 
 export default function App() {
   return (
@@ -242,6 +262,7 @@ export default function App() {
               element={<SponsorshipsManager />}
             />
             <Route path="/dashboard/audit-logs" element={<AuditLogViewer />} />
+            <Route path="/dashboard/activity-logs" element={<ActivityLogs />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

@@ -14,6 +14,11 @@ export interface AnalyticsDataState {
   data: AnalyticsData | null;
   loading: boolean;
   error: string | null;
+  isOffline?: boolean;
+  trendData?: any;
+  distributionData?: any;
+  comparisonData?: any;
+  overviewMetrics?: any;
 }
 
 export function useAnalyticsData(): AnalyticsDataState {

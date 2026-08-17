@@ -92,6 +92,8 @@ export default function EventsPage({
       });
   }, [filteredEvents]);
 
+  const totalPages = Math.ceil(sortedEvents.length / EVENTS_PER_PAGE) || 1;
+
   const { recommendations, loading: recsLoading } = useRecommendations(user?.sub || user?.id || '');
 
   const buildGradient = (ev) => {

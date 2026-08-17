@@ -114,11 +114,9 @@ const errorHandler = (err, req, res, next) => {
     extra: { errorLog },
   });
 
-  // Slack alert for ≥500 only (avoids noise from 401 scanners, etc.)
-  if (status >= 500) {
-    const pathOnly = req.originalUrl.split('?')[0];
   // Send Slack alert for critical errors
   if (status >= 500 || (status === 401 && !req.user && !req.adminSession)) {
+    const pathOnly = req.originalUrl.split('?')[0];
     sendSlackAlert({
       title: `${status} Error Detected`,
       message,
@@ -213,11 +211,6 @@ const asyncHandler = (fn) => (req, res, next) => {
   });
 };
 
-}
+
 export { errorHandler, notFoundHandler, validationErrorHandler, asyncHandler };
-export {
-  errorHandler,
-  notFoundHandler,
-  validationErrorHandler,
-  asyncHandler,
-};
+

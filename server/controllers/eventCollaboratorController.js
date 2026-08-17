@@ -1,5 +1,21 @@
 import { eventCollaboratorRepository } from '../repositories/eventCollaboratorRepository.js';
+import { eventsRepository } from '../repositories/eventsRepository.js';
 import { sendEmail } from '../services/emailService.js';
+
+async function isAuthorizedToManageCollaborators(event_id, req) {
+  const event = await eventsRepository.getById(event_id);
+  if (!event) return { authorized: false, status: 404, error: 'Event not found' };
+  
+  const userId = req.studentUser?.sub || req.user?.id;
+  const isAdmin = req.studentUser?.role === 'admin' || req.user?.isAdmin;
+  const isOrganizer = event.organizer_id === userId || event.organizer_id === req.studentUser?.email;
+  
+  if (!isOrganizer && !isAdmin) {
+    return { authorized: false, status: 403, error: 'Only the event organizer or an admin can manage collaborators' };
+  }
+  
+  return { authorized: true, event };
+}
 
 export const eventCollaboratorController = {
   async invite(req, res) {
@@ -7,11 +23,15 @@ export const eventCollaboratorController = {
       const { event_id } = req.params;
       const { email, role, permissions } = req.body;
 
+      const authCheck = await isAuthorizedToManageCollaborators(event_id, req);
+      if (!authCheck.authorized) {
+        return res.status(authCheck.status).json({ error: authCheck.error });
+      }
+
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
       }
 
-      // Default permissions if not provided
       const finalPermissions = permissions || {
         can_edit: true,
         can_delete: false,
@@ -26,14 +46,13 @@ export const eventCollaboratorController = {
         permissions: JSON.stringify(finalPermissions),
       });
 
-      // Send invitation email
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const acceptUrl = `${frontendUrl}/events/${event_id}/collaborate?email=${encodeURIComponent(email)}`;
 
       await sendEmail({
         to: email,
         subject: `You've been invited to co-organize an event on NexaSphere`,
-        templateName: 'generic', // Use a generic template or you could create a new one
+        templateName: 'generic',
         data: {
           title: 'Event Collaboration Invitation',
           body: `You have been invited as a ${role || 'co-organizer'}. Click below to accept your invitation.`,
@@ -86,6 +105,11 @@ export const eventCollaboratorController = {
       const { event_id } = req.params;
       const { email } = req.body;
 
+      const authCheck = await isAuthorizedToManageCollaborators(event_id, req);
+      if (!authCheck.authorized) {
+        return res.status(authCheck.status).json({ error: authCheck.error });
+      }
+
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
       }
@@ -111,15 +135,29 @@ export const eventCollaboratorController = {
         return res.status(400).json({ error: 'Sender email and message are required' });
       }
 
-      // Verify the sender is a collaborator
-      const collaborator = await eventCollaboratorRepository.getCollaborator(
-        event_id,
-        sender_email
-      );
+      const userId = req.studentUser?.sub || req.user?.id;
+      const userEmail = req.studentUser?.email || req.user?.email;
+      const isAdmin = req.studentUser?.role === 'admin' || req.user?.isAdmin;
 
-      // We will allow admins or the main organizer to also message, but for simplicity assuming the user is verified by auth middleware
-      // and we just require them to either be a collaborator or the request is made by admin/organizer.
-      // Here we just insert the message.
+      const event = await eventsRepository.getById(event_id);
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      const isOrganizer = event.organizer_id === userId || event.organizer_id === userEmail;
+
+      if (!isOrganizer && !isAdmin) {
+        const collaborator = await eventCollaboratorRepository.getCollaborator(
+          event_id,
+          sender_email
+        );
+        if (!collaborator) {
+          return res.status(403).json({ error: 'Only collaborators, the event organizer, or admins can send messages' });
+        }
+        if (collaborator.email !== userEmail && collaborator.email !== sender_email) {
+          return res.status(403).json({ error: 'You can only send messages as yourself' });
+        }
+      }
 
       const newMessage = await eventCollaboratorRepository.addMessage(
         event_id,

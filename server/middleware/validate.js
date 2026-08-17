@@ -16,22 +16,25 @@
  * ```
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * @param {z.ZodSchema} schema  — Zod schema to validate the request input.
  * @param {'body'|'query'|'params'} source — property of `req` to validate.
  * @returns {Function} Express middleware
  */
-export function validate(schema, source = 'body') {
+export function validate(schema, source = "body") {
   return (req, res, next) => {
     const result = schema.safeParse(req[source]);
     if (!result.success) {
       const errors = result.error.issues.map((issue) => ({
-        path: issue.path.length > 0 ? issue.path.join('.') : undefined,
+        path: issue.path.length > 0 ? issue.path.join(".") : undefined,
         message: issue.message,
       }));
-      return res.status(400).json({ errors });
+      return res.status(400).json({
+        error: errors[0]?.message || "Validation failed",
+        errors,
+      });
     }
     // Replace with parsed (and potentially transformed/defaulted) data
     // so that downstream handlers see clean, typed values.

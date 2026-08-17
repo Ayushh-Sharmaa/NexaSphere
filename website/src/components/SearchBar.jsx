@@ -293,9 +293,6 @@ export default function SearchBar({ open, onClose, activities, events, onNavigat
               <Search size={20} color="var(--c1)" style={{ flexShrink: 0 }} />
               <input
                 ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search events, posts, users, resources…"
                 value={localQuery}
                 onChange={handleInputChange}
                 placeholder="Search events, members, activities…"

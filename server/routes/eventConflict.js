@@ -1,23 +1,20 @@
-import { Router } from 'express';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
-import * as eventConflictController from '../controllers/eventConflictController.js';
+import { Router } from "express";
+import { requireAdmin } from "../middleware/adminAuthMiddleware.js";
+import * as eventConflictController from "../controllers/eventConflictController.js";
 
 const router = Router();
 
 /**
  * Detect conflicting events
  */
-router.get('/conflicts', adminAuthMiddleware.requireAdmin, eventConflictController.getConflicts);
-router.get('/conflicts', adminAuthMiddleware.requireAdmin, eventConflictController.getConflicts);
+router.get("/conflicts", requireAdmin, eventConflictController.getConflicts);
 
 /**
  * Check venue availability
- * Example:
- * /venue?venue=Auditorium&date=2026-07-15
  */
 router.get(
-  '/venue',
-  adminAuthMiddleware.requireAdmin,
+  "/venue",
+  requireAdmin,
   eventConflictController.getVenueAvailability
 );
 
@@ -25,8 +22,8 @@ router.get(
  * Attendance impact analysis
  */
 router.get(
-  '/attendance-impact',
-  adminAuthMiddleware.requireAdmin,
+  "/attendance-impact",
+  requireAdmin,
   eventConflictController.getAttendanceImpact
 );
 
@@ -34,8 +31,8 @@ router.get(
  * Smart scheduling recommendations
  */
 router.get(
-  '/recommendations',
-  adminAuthMiddleware.requireAdmin,
+  "/recommendations",
+  requireAdmin,
   eventConflictController.getScheduleRecommendations
 );
 
@@ -43,15 +40,14 @@ router.get(
  * Calendar events
  */
 router.get(
-  '/calendar',
-  adminAuthMiddleware.requireAdmin,
+  "/calendar",
+  requireAdmin,
   eventConflictController.getCalendarEvents
 );
 
 /**
  * Organizer alerts
  */
-router.get('/alerts', adminAuthMiddleware.requireAdmin, eventConflictController.getOrganizerAlerts);
+router.get("/alerts", requireAdmin, eventConflictController.getOrganizerAlerts);
 
 export default router;
-router.get('/alerts', adminAuthMiddleware.requireAdmin, eventConflictController.getOrganizerAlerts);

@@ -1,0 +1,67 @@
+name: Gitleaks Secret Scan
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install Gitleaks
+        run: |
+          GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          wget -qO- "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Run Gitleaks
+        id: gitleaks
+        run: |
+          # Pull requests scan only their changes; pushes scan the pushed range.
+          # This prevents already-triaged legacy history from making every new
+          # commit fail while still blocking newly introduced secrets.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            LOG_OPTS="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            LOG_OPTS="${{ github.event.before }}..${{ github.sha }}"
+          else
+            LOG_OPTS="-1 ${{ github.sha }}"
+          fi
+          gitleaks git --log-opts="$LOG_OPTS" --verbose --report-format sarif --report-path gitleaks-report.sarif
+        continue-on-error: true
+
+      - name: Upload Gitleaks Report Artifact
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.sarif
+          retention-days: 14
+
+      - name: Upload SARIF report to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: gitleaks-report.sarif
+
+      - name: Fail workflow if secrets detected
+        if: steps.gitleaks.outcome == 'failure'
+        run: |
+          echo "Gitleaks detected verified secrets! Please review the report."
+          exit 1

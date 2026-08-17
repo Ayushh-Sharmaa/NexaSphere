@@ -2,6 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronUp, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+function isSafeUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) return true;
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const DOCK_ACTIONS = [
   {
     id: 'explore',
@@ -103,7 +115,7 @@ export default function FloatingDock() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (item.action === 'navigate-admin') {
       navigate('/admin');
-    } else if (item.href) {
+    } else if (item.href && isSafeUrl(item.href)) {
       window.open(item.href, '_blank', 'noopener,noreferrer');
     }
     setOpen(false);

@@ -1,0 +1,46 @@
+{
+  "name": "nexasphere-design-kit",
+  "version": "1.0.0",
+  "description": "NexaSphere design system — dark-tech crimson UI with 25 design styles, aurora effects, Material Design tokens, and full accessibility.",
+  "keywords": [
+    "design-system",
+    "css",
+    "themes",
+    "glassmorphism",
+    "neumorphism",
+    "aurora",
+    "dark-mode",
+    "design-tokens",
+    "25-styles"
+  ],
+  "main": "install.js",
+  "bin": {
+    "nexasphere-design": "./install.js"
+  },
+  "scripts": {
+    "install:css":   "node install.js",
+    "install:react": "node install.js --react",
+    "install:html":  "node install.js --html",
+    "install:all":   "node install.js --all",
+    "dry-run":       "node install.js --dry-run --all",
+    "sync":          "node sync.js"
+  },
+  "files": [
+    "install.js",
+    "install.sh",
+    "install.ps1",
+    "kit/**",
+    "README.md",
+    "01-design-system.md",
+    "02-themes.md",
+    "03-design-styles.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ayushh-Sharmaa/NexaSphere"
+  }
+}

@@ -5,6 +5,12 @@ export default function CertificateTemplateEditor({ token }) {
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(null);
+
+  const showStatus = (text, type = 'success') => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage(null), 4000);
+  };
   const canvasRef = useRef(null);
   const [draggingElement, setDraggingElement] = useState(null);
 
@@ -149,7 +155,7 @@ export default function CertificateTemplateEditor({ token }) {
       }
     } catch (err) {
       console.error(err);
-      alert('Error saving template');
+      showStatus(err.message || 'Error saving template', 'error');
     } finally {
       setSaving(false);
     }

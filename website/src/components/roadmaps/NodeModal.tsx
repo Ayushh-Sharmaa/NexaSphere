@@ -134,7 +134,6 @@ export const NodeModal: React.FC<NodeModalProps> = ({ theme }) => {
       };
 
       if (hasCycle(node.id, targetId)) {
-        alert('Invalid connection: checking this node will create a circular loop!');
         setUrlError('Invalid connection: checking this node will create a circular loop.');
         return;
       }
@@ -284,7 +283,6 @@ export const NodeModal: React.FC<NodeModalProps> = ({ theme }) => {
             </span>
             <div
               className="status-grid-selector"
-              style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
@@ -418,7 +416,6 @@ export const NodeModal: React.FC<NodeModalProps> = ({ theme }) => {
               >
                 {resources.map((res, index) => (
                   <div
-                    key={res.url || `resource-${index}`}
                     key={`${res.title}-${res.url}`}
                     className="resource-item-edit-row glassmorphic-panel flex justify-between items-center text-xs"
                     style={{ padding: '8px 14px', borderRadius: '8px' }}

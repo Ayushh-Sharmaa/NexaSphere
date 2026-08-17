@@ -5,14 +5,16 @@ FROM node:22-alpine AS deps
 RUN apk update && apk upgrade --no-cache && apk add --no-cache dumb-init
 
 # Create app directory with correct permissions before switching user
-RUN mkdir -p /app && chown -R node:node /app
+RUN mkdir -p /workspace/server /workspace/prisma && chown -R node:node /workspace
 
 # Switch to non-root user
 USER node
-WORKDIR /app
+WORKDIR /workspace/server
+ENV DATABASE_URL=postgresql://localhost:5432/nexasphere_build
 
 # Copy package configuration with correct ownership
-COPY --chown=node:node package*.json ./
+COPY --chown=node:node server/package*.json ./
+COPY --chown=node:node prisma/schema.prisma ../prisma/schema.prisma
 
 # Install dependencies (only production)
 RUN npm install --omit=dev --prefer-offline --legacy-peer-deps
@@ -28,17 +30,17 @@ ENV NODE_ENV=production
 COPY --from=deps /usr/bin/dumb-init /usr/bin/dumb-init
 
 # Create app directory and set ownership to node user
-RUN mkdir -p /app && chown -R node:node /app
+RUN mkdir -p /workspace/server && chown -R node:node /workspace
 
 # Switch to non-root user
 USER node
-WORKDIR /app
+WORKDIR /workspace/server
 
 # Copy production node_modules from deps stage
-COPY --chown=node:node --from=deps /app/node_modules ./node_modules
+COPY --chown=node:node --from=deps /workspace/server/node_modules ./node_modules
 
 # Copy application source explicitly with node user ownership
-COPY --chown=node:node . .
+COPY --chown=node:node server/ .
 
 # Port is read from the PORT env variable at runtime (defaults to 8787).
 EXPOSE 8787

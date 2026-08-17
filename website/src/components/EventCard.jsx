@@ -5,6 +5,12 @@ import { useWalkthroughStep } from '../hooks/useWalkthroughStep';
 
 const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstForWalkthrough }) {
   const [shareOpen, setShareOpen] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const showFeedback = (message, type = 'success') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   const ref = useWalkthroughStep(isFirstForWalkthrough ? 'register_event' : null);
 
   function handleShareClick(e) {
@@ -21,9 +27,9 @@ const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstFor
   function handleActionClick(e) {
     e.stopPropagation(); // Avoid triggering card details popup
     if (isFull) {
-      alert(`Added to waitlist for ${event.title || event.name}!`);
+      showFeedback(`Added to waitlist for ${event.title || event.name}!`, 'info');
     } else {
-      alert(`Successfully registered for ${event.title || event.name}!`);
+      showFeedback(`Successfully registered for ${event.title || event.name}!`, 'success');
     }
   }
 
@@ -91,6 +97,48 @@ const EventCard = React.memo(function EventCard({ event, onClick, id, isFirstFor
                 }}
               />
             </div>
+          </div>
+        )}
+
+        {/* Registration Feedback Toast */}
+        {feedback && (
+          <div
+            role="status"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: '500',
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor:
+                feedback.type === 'info' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: feedback.type === 'info' ? '#60a5fa' : '#34d399',
+              border: `1px solid ${feedback.type === 'info' ? '#3b82f6' : '#10b981'}`,
+            }}
+          >
+            <span>
+              {feedback.type === 'info' ? 'ℹ️' : '✅'} {feedback.message}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFeedback(null);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                marginLeft: '8px',
+              }}
+              aria-label="Dismiss feedback"
+            >
+              &times;
+            </button>
           </div>
         )}
 

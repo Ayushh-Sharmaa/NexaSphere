@@ -51,29 +51,5 @@ export const learningPathsRepository = {
   },
 
   async completeMilestone(userPathId, milestoneId) {
-    return await supabaseRequest('user_milestone_completions', {
-      method: 'POST',
-      body: [{ user_path_id: userPathId, milestone_id: milestoneId }],
-
-function mapLearningPath(row) {
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    estimatedWeeks: row.estimated_weeks,
-    createdAt: row.created_at,
-  };
 }
-
-function mapUserPath(row) {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    learningPathId: row.learning_path_id,
-    currentLevel: row.current_level,
-    progressPercentage: row.progress_percentage,
-    startedAt: row.started_at,
-    estimatedCompletionDate: row.estimated_completion_date,
-  };
 }
-

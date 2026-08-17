@@ -234,4 +234,79 @@ const analyticsAPI = {
   },
 };
 
-export default analyticsAPI;
+const analyticsAPI = {
+  clearCache(eventId) {
+    if (eventId) {
+      for (const key of apiCache.keys()) {
+        if (key.includes(eventId)) {
+          apiCache.delete(key);
+        }
+      }
+    } else {
+      apiCache.clear();
+    }
+  },
+
+  async getAllEventsMetrics() {
+    return await fetchWithCache(`${API_URL}/admin/analytics/events`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+  },
+
+  async getEventMetrics(eventId) {
+    return await fetchWithCache(
+      `${API_URL}/admin/analytics/events/${eventId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      }
+    );
+  },
+
+  async getRegistrationTrends(eventId, timeWindow = "7 days") {
+    return await fetchWithCache(
+      `${API_URL}/admin/analytics/events/${eventId}/trends?timeWindow=${encodeURIComponent(timeWindow)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      }
+    );
+  },
+
+  async getHourlyTrends(eventId, hours = 24) {
+    return await fetchWithCache(
+      `${API_URL}/admin/analytics/events/${eventId}/trends/hourly?hours=${encodeURIComponent(hours)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      }
+    );
+  },
+
+  async getRecentRegistrations(eventId, limit = 20) {
+    return await fetchWithCache(
+      `${API_URL}/admin/analytics/events/${eventId}/registrations/recent?limit=${encodeURIComponent(limit)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      }
+    );
+  },
+
+  async getCheckInStats(eventId) {
+    return await fetchWithCache(
+      `${API_URL}/admin/analytics/events/${eventId}/checkins/stats`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      }
+    );
+  },
+};

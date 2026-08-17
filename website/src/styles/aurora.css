@@ -90,6 +90,15 @@
   animation: irisRotate 10s linear infinite;
 }
 
+/* Register --iris-angle as an animatable CSS property.
+   Without @property the browser treats custom properties as strings and
+   interpolates them in discrete steps (no smooth gradient rotation). */
+@property --iris-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 135deg;
+}
+
 @keyframes irisRotate {
   to {
     --iris-angle: 495deg;

@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import pg from 'pg';
+import crypto from "crypto";
 
 // Configure dummy environment variables before importing the repository
 process.env.DATABASE_URL = "postgresql://localhost/dummy_test_db";
@@ -29,7 +30,6 @@ pg.Pool = class MockPool {
 
         const sqlLower = sql.toLowerCase();
         if (sqlLower.includes('select token_hash')) {
-        if (sqlLower.includes("select token_hash")) {
           return {
             rows: mockQueriesResult.select,
             rowCount: mockQueriesResult.select.length,
@@ -39,7 +39,6 @@ pg.Pool = class MockPool {
           if (sqlLower.includes('returning token_hash')) {
             return { rows: mockQueriesResult.select, rowCount: mockQueriesResult.select.length };
           }
-        if (sqlLower.includes("update admin_sessions")) {
           return { rows: [], rowCount: mockQueriesResult.rowCount };
         }
         if (sqlLower.includes("delete from admin_sessions")) {
@@ -49,13 +48,19 @@ pg.Pool = class MockPool {
           return { rows: [], rowCount: 1 };
         }
         return { rows: [], rowCount: 0 };
+      },
       release: () => {},
+    };
+  }
+};
 
 // Now import the repository
+import {
   createAdminSession,
   getAdminSession,
   revokeAdminSession,
   cleanupExpiredAdminSessions,
+} from "../repositories/adminSessionsRepository.js";
 
 test.beforeEach(() => {
   executedQueries = [];
@@ -207,7 +212,6 @@ test('Revoking a session by id returns the revoked token hash when found', async
   assert.equal(result, 'abc123');
 });
 
-test('Periodic cleanup clears the throttled sessions and purges database', async () => {
 test("Periodic cleanup clears the throttled sessions and purges database", async () => {
   const count = await cleanupExpiredAdminSessions();
   assert.equal(typeof count, "number");
@@ -301,7 +305,6 @@ test('adminSessionsRepository recovers from database boot failure on subsequent 
 });
 
 // Helper: Calculate SHA-256 hash of mock token to match queries parameter
-import crypto from "crypto";
 function insertQueryParamHash(token) {
   return crypto.createHash("sha256").update(String(token)).digest("hex");
 }

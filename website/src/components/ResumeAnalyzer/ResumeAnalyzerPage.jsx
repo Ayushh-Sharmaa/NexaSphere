@@ -11,6 +11,8 @@ const MOCK_RESULT = {
   role: 'Frontend Developer',
   resumeScore: 82,
   atsScore: 74,
+  keywordScore: 68,
+  formatScore: 91,
   skills: [
     { name: 'React', current: 80, required: 90 },
     { name: 'Node.js', current: 55, required: 80 },
@@ -77,7 +79,11 @@ export default function ResumeAnalyzerPage() {
         if (response.ok) {
           const data = await response.json();
           setIsDemo(false);
-          setResult(data);
+          setResult({
+            ...data,
+            keywordScore: data.keywordScore ?? data.keywordMatch ?? data.scores?.keyword,
+            formatScore: data.formatScore ?? data.formatReadability ?? data.scores?.format,
+          });
           setStep('result');
           return;
         }
@@ -174,8 +180,12 @@ export default function ResumeAnalyzerPage() {
             <h3 className="section-title">Score Breakdown</h3>
             <ATSScoreBar label="Resume Score" score={result.resumeScore} />
             <ATSScoreBar label="ATS Compatibility" score={result.atsScore} />
-            <ATSScoreBar label="Keyword Match" score={68} />
-            <ATSScoreBar label="Format & Readability" score={91} />
+            {typeof result.keywordScore === 'number' && (
+              <ATSScoreBar label="Keyword Match" score={result.keywordScore} />
+            )}
+            {typeof result.formatScore === 'number' && (
+              <ATSScoreBar label="Format & Readability" score={result.formatScore} />
+            )}
           </div>
 
           <div className="ra-section">

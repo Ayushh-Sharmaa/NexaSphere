@@ -1,0 +1,477 @@
+/*
+ * NexaSphere mixed-material surface system.
+ *
+ * The product keeps minimal information architecture as its base. Glass and
+ * liquid-glass web approximations are reserved for navigation and overlays,
+ * clay/neomorphic depth is used for touchable controls, skeuomorphic inset
+ * detail is used for form fields, and brutal/spatial cues frame high-value
+ * content. Existing motion remains owned by animations.css and motion.css.
+ */
+
+[data-style='material'] {
+  --material-canvas: #090a0d;
+  --material-canvas-raised: #101216;
+  --material-surface: rgba(25, 27, 33, 0.82);
+  --material-surface-solid: #191b21;
+  --material-surface-soft: rgba(35, 38, 46, 0.72);
+  --material-ink: #f4f2ef;
+  --material-ink-soft: #b8b3ad;
+  --material-ink-muted: #8a8580;
+  --material-line: rgba(255, 255, 255, 0.1);
+  --material-line-strong: rgba(255, 255, 255, 0.18);
+  --material-accent: #e4555f;
+  --material-accent-strong: #bd303c;
+  --material-accent-soft: rgba(228, 85, 95, 0.14);
+  --material-highlight: rgba(255, 255, 255, 0.16);
+  --material-shadow: rgba(2, 3, 7, 0.58);
+  --material-shadow-soft: rgba(2, 3, 7, 0.28);
+  --material-radius-control: 10px;
+  --material-radius-card: 18px;
+  --material-radius-panel: 24px;
+  --material-focus: #ff7a82;
+  --material-grid: rgba(255, 255, 255, 0.025);
+
+  /* Bridge old tokens so every legacy route receives the same palette. */
+  --bg: var(--material-canvas);
+  --bg2: var(--material-canvas-raised);
+  --card: var(--material-surface-solid);
+  --card2: #20232a;
+  --card-hover: #262932;
+  --c1: var(--material-accent);
+  --c2: #f07b82;
+  --c3: #e9979b;
+  --c4: var(--material-accent-strong);
+  --c1a: var(--material-accent-soft);
+  --c1b: rgba(228, 85, 95, 0.26);
+  --c1g: rgba(228, 85, 95, 0.3);
+  --t1: var(--material-ink);
+  --t2: var(--material-ink-soft);
+  --t3: var(--material-ink-muted);
+  --bdr: var(--material-line);
+  --bdr2: var(--material-line-strong);
+  --border-color: var(--material-line);
+  --border-hover: rgba(228, 85, 95, 0.48);
+  --r1: var(--material-radius-control);
+  --r2: var(--material-radius-card);
+  --r3: var(--material-radius-panel);
+  --r4: 30px;
+  --shcard:
+    inset 0 1px 0 var(--material-highlight), inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 22px 60px var(--material-shadow-soft);
+  --shadow-card: var(--shcard);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 26px 70px rgba(2, 3, 7, 0.38);
+}
+
+[data-style='material'][data-theme='light'] {
+  --material-canvas: #eeece8;
+  --material-canvas-raised: #e4e1dc;
+  --material-surface: rgba(249, 248, 245, 0.8);
+  --material-surface-solid: #f8f7f4;
+  --material-surface-soft: rgba(236, 233, 227, 0.74);
+  --material-ink: #202124;
+  --material-ink-soft: #545157;
+  --material-ink-muted: #716d72;
+  --material-line: rgba(40, 35, 38, 0.1);
+  --material-line-strong: rgba(40, 35, 38, 0.18);
+  --material-accent: #bd303c;
+  --material-accent-strong: #8f1d29;
+  --material-accent-soft: rgba(189, 48, 60, 0.1);
+  --material-highlight: rgba(255, 255, 255, 0.86);
+  --material-shadow: rgba(68, 58, 61, 0.18);
+  --material-shadow-soft: rgba(68, 58, 61, 0.12);
+  --material-focus: #9f2531;
+  --material-grid: rgba(73, 65, 67, 0.035);
+
+  --bg: var(--material-canvas);
+  --bg2: var(--material-canvas-raised);
+  --card: var(--material-surface-solid);
+  --card2: #efede8;
+  --card-hover: #fdfcf9;
+  --c1: var(--material-accent);
+  --c2: #d9535f;
+  --c3: #cf737a;
+  --c4: var(--material-accent-strong);
+  --c1a: var(--material-accent-soft);
+  --c1b: rgba(189, 48, 60, 0.2);
+  --c1g: rgba(189, 48, 60, 0.22);
+  --t1: var(--material-ink);
+  --t2: var(--material-ink-soft);
+  --t3: var(--material-ink-muted);
+  --text-primary: var(--material-ink);
+  --text-secondary: var(--material-ink-soft);
+  --text-muted: var(--material-ink-muted);
+  --bg-primary: var(--material-canvas);
+  --bg-secondary: var(--material-canvas-raised);
+  --bg-tertiary: #d9d5cf;
+  --bg-card: var(--material-surface-solid);
+  --bg-card-hover: #fdfcf9;
+  --bg-navbar: rgba(246, 244, 240, 0.78);
+  --bg-overlay: rgba(238, 236, 232, 0.88);
+  --bg-input: #f7f5f1;
+  --border-color: var(--material-line);
+  --border-hover: rgba(189, 48, 60, 0.4);
+  --border-glow: rgba(189, 48, 60, 0.25);
+  --accent-cyan: var(--material-accent);
+  --accent-blue: var(--material-accent-strong);
+  --accent-purple: #8f1d29;
+  --accent-glow: rgba(189, 48, 60, 0.2);
+  --gradient-card: linear-gradient(145deg, #fbfaf7 0%, #ebe8e2 100%);
+  --gradient-hero: linear-gradient(145deg, #f4f2ee 0%, #e3dfda 100%);
+  --shadow-card: var(--shcard);
+  --shadow-navbar: 0 14px 42px var(--material-shadow-soft);
+  --shadow-glow: 0 0 0 1px rgba(189, 48, 60, 0.12);
+}
+
+[data-style='material'] {
+  background: var(--material-canvas);
+}
+
+[data-style='material'] body {
+  background-color: var(--material-canvas) !important;
+  background-image:
+    radial-gradient(circle at 12% -8%, var(--material-accent-soft), transparent 32rem),
+    linear-gradient(var(--material-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--material-grid) 1px, transparent 1px);
+  background-size:
+    auto,
+    64px 64px,
+    64px 64px;
+  color: var(--material-ink);
+}
+
+[data-style='material'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* was 9000 — was covering interactive elements in composited stacking contexts */
+  pointer-events: none;
+  opacity: 0.14;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 3px,
+    rgba(255, 255, 255, 0.012) 3px,
+    rgba(255, 255, 255, 0.012) 4px
+  );
+  mix-blend-mode: soft-light;
+}
+
+#root,
+main {
+  background: transparent !important;
+}
+
+::selection {
+  background: var(--material-accent);
+  color: #fff8f5;
+}
+
+:focus-visible {
+  outline-color: var(--material-focus) !important;
+  outline-width: 3px;
+  outline-offset: 3px;
+}
+
+.container {
+  max-width: 1320px;
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(4.5rem, 8vw, 8rem);
+}
+
+.section-heading {
+  align-items: flex-start !important;
+  margin-inline: 0 auto !important;
+  max-width: 780px !important;
+  text-align: left !important;
+}
+
+.section-title {
+  max-width: 18ch !important;
+  margin-inline: 0 !important;
+  color: var(--material-ink) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-align: left !important;
+  text-wrap: balance;
+  letter-spacing: -0.035em;
+}
+
+[data-theme='light'] .section-title {
+  color: var(--material-ink) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.section-title::after {
+  left: 0 !important;
+  bottom: -15px !important;
+  width: 72px !important;
+  height: 5px !important;
+  border-radius: 0 5px 5px 0 !important;
+  background: var(--material-accent) !important;
+  box-shadow: none !important;
+}
+
+.section-subtitle,
+.cin-section-label {
+  max-width: 65ch;
+  text-align: left !important;
+}
+
+.cin-section-label {
+  color: var(--material-accent) !important;
+  letter-spacing: 0.18em !important;
+}
+
+/* Glass and liquid-glass web approximation. This is not an Apple API. */
+.ns-navbar,
+.ns-navbar-mobile,
+.material-glass,
+.material-liquid,
+[class$='-drawer'],
+[class*='-drawer '],
+[class$='-popover'],
+[class*='-popover '] {
+  isolation: isolate;
+  border-color: var(--material-line-strong) !important;
+  background:
+    linear-gradient(135deg, var(--material-highlight), transparent 42%), var(--material-surface) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(145%) contrast(1.04);
+  backdrop-filter: blur(22px) saturate(145%) contrast(1.04);
+  box-shadow:
+    inset 0 1px 0 var(--material-highlight),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    0 18px 54px var(--material-shadow-soft) !important;
+}
+
+.ns-navbar::after,
+.ns-navbar-mobile::after,
+.material-liquid::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: inherit;
+  background: radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.1), transparent 28%);
+}
+
+.ns-navbar {
+  border-bottom: 1px solid var(--material-line-strong) !important;
+}
+
+.ns-navbar-mobile {
+  border-bottom: 1px solid var(--material-line-strong) !important;
+}
+
+/* Clay and neomorphic depth for content surfaces across legacy routes. */
+:where(
+    [class$='-card'],
+    [class*='-card '],
+    [class='card'],
+    [class$='-panel'],
+    [class*='-panel '],
+    [class$='-tile'],
+    [class*='-tile ']
+  ):not([class*='skeleton']):not([class*='score-card']) {
+  position: relative;
+  border: 1px solid var(--material-line) !important;
+  border-radius: var(--material-radius-card);
+  background-color: var(--material-surface-solid);
+  box-shadow:
+    inset 0 1px 0 var(--material-highlight),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    10px 14px 34px var(--material-shadow-soft),
+    -5px -5px 18px rgba(255, 255, 255, 0.018);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+:where(
+    [class$='-card'],
+    [class*='-card '],
+    [class='card'],
+    [class$='-panel'],
+    [class*='-panel '],
+    [class$='-tile'],
+    [class*='-tile ']
+  ):not([class*='skeleton']):not([class*='score-card']):hover {
+  border-color: var(--material-line-strong) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    14px 20px 46px var(--material-shadow-soft),
+    -5px -5px 22px rgba(255, 255, 255, 0.025);
+}
+
+.material-clay {
+  border-radius: var(--material-radius-panel) !important;
+  box-shadow:
+    inset 0 2px 1px var(--material-highlight),
+    inset 0 -5px 12px rgba(0, 0, 0, 0.14),
+    0 20px 44px var(--material-shadow-soft) !important;
+}
+
+.material-neomorphic {
+  background: var(--material-canvas-raised) !important;
+  box-shadow:
+    12px 12px 28px var(--material-shadow-soft),
+    -10px -10px 24px rgba(255, 255, 255, 0.035),
+    inset 0 1px 0 var(--material-highlight) !important;
+}
+
+.material-brutal,
+.page-header,
+.page-banner {
+  border: 1px solid var(--material-line-strong);
+  border-left: 5px solid var(--material-accent);
+  border-radius: 0 var(--material-radius-panel) var(--material-radius-panel) 0;
+}
+
+/* Physical controls: clay outer shape, skeuomorphic pressed state. */
+:where(.btn, button:not([class*='tab']):not([class*='link'])) {
+  border-radius: var(--material-radius-control);
+}
+
+:where(.btn-primary, button[type='submit'], .ns-mobile-cta) {
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #fff8f5 !important;
+  background: linear-gradient(145deg, #ed6570, var(--material-accent-strong)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -3px 6px rgba(70, 0, 8, 0.26),
+    0 8px 20px rgba(100, 18, 29, 0.2);
+}
+
+:where(.btn, button, [role='button']):active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.22);
+}
+
+input,
+select,
+textarea,
+.ns-input,
+.ns-select,
+.ns-textarea {
+  border: 1px solid var(--material-line-strong) !important;
+  border-radius: var(--material-radius-control) !important;
+  color: var(--material-ink) !important;
+  background: var(--material-canvas-raised) !important;
+  box-shadow:
+    inset 2px 3px 8px var(--material-shadow-soft),
+    inset -1px -1px 0 var(--material-highlight) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--material-ink-muted) !important;
+  opacity: 1;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--material-accent) !important;
+  box-shadow:
+    inset 2px 3px 8px var(--material-shadow-soft),
+    0 0 0 3px var(--material-accent-soft) !important;
+}
+
+.ns-footer {
+  position: relative;
+  border-top: 2px solid var(--material-accent) !important;
+  background: var(--material-canvas-raised) !important;
+}
+
+.ns-footer::before {
+  content: 'NEXASPHERE / COMMUNITY SYSTEM';
+  display: block;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--material-line);
+  color: var(--material-ink-muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+}
+
+.status-badge,
+.badge,
+[class$='-badge'],
+[class*='-badge '] {
+  border: 1px solid currentColor;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .ns-navbar,
+  .ns-navbar-mobile,
+  .material-glass,
+  .material-liquid,
+  [class$='-drawer'],
+  [class*='-drawer '],
+  [class$='-popover'],
+  [class*='-popover '] {
+    background: var(--material-surface-solid) !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ns-navbar,
+  .ns-navbar-mobile,
+  .material-glass,
+  .material-liquid,
+  [class$='-drawer'],
+  [class*='-drawer '],
+  [class$='-popover'],
+  [class*='-popover '] {
+    background: var(--material-surface-solid) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    background-size:
+      auto,
+      42px 42px,
+      42px 42px;
+  }
+
+  .container {
+    padding-inline: 18px;
+  }
+
+  .section-heading,
+  .section-title,
+  .section-subtitle,
+  .cin-section-label {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .section {
+    padding-block: 4rem;
+  }
+
+  .ns-footer::before {
+    padding-inline: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.btn, button, [role='button']):active {
+    transform: none;
+  }
+}

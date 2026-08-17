@@ -759,12 +759,9 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Search results returned successfully
  *         description: Notification history returned successfully
  * ...
  */
-
-
 
 /**
  * @swagger
@@ -1067,6 +1064,36 @@
  *         description: Knowledge base updated successfully
  */
 
+/**
+ * @swagger
+ * /api/announcements/{id}/pin:
+ *   patch:
+ *     summary: Pin or unpin an announcement
+ *     tags:
+ *       - Announcements
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Workspace deleted successfully
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pinned:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Announcement updated successfully.
+ */
 
 /**
  * @swagger
@@ -1887,10 +1914,16 @@
  *       200:
  *         description: Audit logs retrieved successfully
  */
+/**
+ * @swagger
  * /api/notification-campaigns/segments:
+ *   get:
  *     summary: Get audience segments
  *     tags: [Notification Campaigns]
+ *     responses:
+ *       200:
  *         description: Audience segments retrieved successfully
+ */
 /**
  * @swagger
  * /api/notification-campaigns/analytics/{id}:

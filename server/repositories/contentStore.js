@@ -5,12 +5,6 @@ import {
   SUPABASE_URL,
   SUPABASE_SERVICE_KEY,
 } from "../storage/supabaseClient.js";
-import {
-  supabaseRequest,
-  HAS_SUPABASE,
-  SUPABASE_URL,
-  SUPABASE_SERVICE_KEY,
-} from "../storage/supabaseClient.js";
 import { tracedFetch } from "../config/appContext.js";
 import { readContent, writeContent } from "../storage/contentFileStore.js";
 
@@ -57,7 +51,7 @@ export async function supabasePaginatedRequest(pathname, page, limit) {
       rows = [];
     }
   }
-  const rows = text ? JSON.parse(text) : [];
+
   // Content-Range format from PostgREST: "0-19/150" or "*/0" when empty
   const contentRange = res.headers.get("content-range") || "";
   const totalMatch = contentRange.match(/\/(\d+)$/);

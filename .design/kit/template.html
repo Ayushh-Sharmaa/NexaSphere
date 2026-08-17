@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-style="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexaSphere Design Kit — Starter</title>
+  <meta name="description" content="Starter template using the NexaSphere design system" />
+
+  <!--
+    NexaSphere Design Kit
+    ─────────────────────
+    data-theme  : "dark" | "light"
+    data-style  : "default" | "glassmorphism" | "neumorphism" | "cyberpunk" |
+                  "vaporwave" | "aurora" | "material" | "flat" | "claymorphism" |
+                  "skeuomorphism" | "bento" | "minimalism" | "monochromatic" |
+                  "color-blocking" | "neo-brutalism" | "maximalism" | "pixel-art" |
+                  "art-deco" | "card-based" | "typography" | "asymmetric" |
+                  "illustrative" | "parallax" | "spatial" | "dark-native" | "vui"
+
+    Change either attribute on <html> at runtime to switch theme or style.
+  -->
+
+  <!-- 1. Design System CSS (single import — loads all 8 layers in correct order) -->
+  <link rel="stylesheet" href="./src/styles/index.css" />
+
+  <!-- 2. Google Fonts (used by the design system — keep this before your CSS) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ── Demo page styles — replace with your own ── */
+    body {
+      min-height: 100vh;
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--t1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 24px;
+      gap: 32px;
+    }
+
+    .demo-heading {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--c1), var(--c2), var(--c3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .demo-subtitle {
+      color: var(--t2);
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .demo-card {
+      background: var(--card);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r2);
+      padding: 24px;
+      box-shadow: var(--shcard);
+      transition:
+        transform var(--trans-smooth),
+        box-shadow var(--trans-smooth),
+        border-color var(--trans-base);
+    }
+
+    .demo-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .demo-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--c1);
+      margin-bottom: 8px;
+    }
+
+    .demo-card p {
+      color: var(--t2);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--c1), var(--c4));
+      color: #fff;
+      border: none;
+      border-radius: var(--r2);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--c1g);
+      transition: transform var(--trans-bounce), box-shadow var(--trans-base);
+    }
+
+    .demo-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 0 32px var(--c1g);
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 900px;
+    }
+
+    .style-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--bdr2);
+      border-radius: var(--r1);
+      background: var(--card);
+      color: var(--t2);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .style-btn:hover { border-color: var(--c1); color: var(--c1); }
+    .style-btn.active { background: var(--c1); color: #fff; border-color: var(--c1); }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      border: 1px solid var(--bdr2);
+      border-radius: var(--r1);
+      background: var(--card);
+      color: var(--t1);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover { border-color: var(--c1); }
+  </style>
+</head>
+
+<body>
+
+  <!-- Theme toggle (top-right) -->
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+    🌙 Toggle Theme
+  </button>
+
+  <!-- Page heading -->
+  <div style="text-align:center">
+    <h1 class="demo-heading">NexaSphere Design Kit</h1>
+    <p class="demo-subtitle">
+      25 design styles • Dark & light themes • Zero dependencies
+    </p>
+  </div>
+
+  <!-- Style switcher -->
+  <div style="text-align:center; color:var(--t3); font-size:0.85rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px">
+    Select a Design Style
+  </div>
+  <div class="demo-controls" id="style-controls"></div>
+
+  <!-- Demo cards -->
+  <div class="demo-grid">
+    <div class="demo-card">
+      <h3>🎨 Design Tokens</h3>
+      <p>Every color, shadow, and radius is a CSS custom property. Change <code>data-style</code> on <code>&lt;html&gt;</code> to switch styles instantly.</p>
+    </div>
+    <div class="demo-card">
+      <h3>🌗 Dark & Light</h3>
+      <p>Set <code>data-theme="dark"</code> or <code>data-theme="light"</code>. Both modes work within every design style.</p>
+    </div>
+    <div class="demo-card">
+      <h3>🚀 Zero JS Required</h3>
+      <p>Pure CSS design system. React context is optional — the styles work in any HTML/CSS project without any JavaScript framework.</p>
+    </div>
+    <div class="demo-card">
+      <h3>♿ Accessible by Default</h3>
+      <p>WCAG AA contrast minimums enforced in all tokens. Focus rings always visible. Respects <code>prefers-reduced-motion</code>.</p>
+    </div>
+  </div>
+
+  <button class="demo-btn" onclick="alert('Design Kit is working! 🎉')">
+    ✨ Click Me
+  </button>
+
+  <script>
+    // ── 25 Design Styles ──────────────────────────────────────────────────────
+    const STYLES = [
+      { value: 'default',        label: '⚡ Default'        },
+      { value: 'glassmorphism',  label: '🔮 Glassmorphism'  },
+      { value: 'neumorphism',    label: '🫧 Neumorphism'    },
+      { value: 'claymorphism',   label: '🧸 Claymorphism'   },
+      { value: 'aurora',         label: '🌌 Aurora'         },
+      { value: 'material',       label: '📐 Material'       },
+      { value: 'flat',           label: '🟥 Flat Design'    },
+      { value: 'skeuomorphism',  label: '🪵 Skeuomorphism'  },
+      { value: 'bento',          label: '🍱 Bento Grid'     },
+      { value: 'minimalism',     label: '◻️ Minimalism'     },
+      { value: 'monochromatic',  label: '🔴 Monochromatic'  },
+      { value: 'color-blocking', label: '🎨 Color Blocking' },
+      { value: 'neo-brutalism',  label: '🏗️ Neo-Brutalism'  },
+      { value: 'maximalism',     label: '🌈 Maximalism'     },
+      { value: 'cyberpunk',      label: '🤖 Cyberpunk'      },
+      { value: 'vaporwave',      label: '🌸 Vaporwave'      },
+      { value: 'pixel-art',      label: '👾 Pixel Art'      },
+      { value: 'art-deco',       label: '✦ Art Deco'        },
+      { value: 'card-based',     label: '🃏 Card-Based'     },
+      { value: 'typography',     label: '𝐓 Typography'      },
+      { value: 'asymmetric',     label: '⚖️ Asymmetric'     },
+      { value: 'illustrative',   label: '✏️ Illustrative'   },
+      { value: 'parallax',       label: '🏔️ Parallax'       },
+      { value: 'spatial',        label: '🥽 Spatial UI'     },
+      { value: 'dark-native',    label: '🌑 Dark Native'    },
+      { value: 'vui',            label: '🎙️ Voice / VUI'    },
+    ];
+
+    // ── Render style buttons ──────────────────────────────────────────────────
+    const container = document.getElementById('style-controls');
+    let activeStyle = document.documentElement.getAttribute('data-style') || 'default';
+
+    function renderButtons() {
+      container.innerHTML = '';
+      STYLES.forEach(({ value, label }) => {
+        const btn = document.createElement('button');
+        btn.className = 'style-btn' + (value === activeStyle ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = () => setStyle(value);
+        container.appendChild(btn);
+      });
+    }
+
+    function setStyle(style) {
+      activeStyle = style;
+      if (style === 'default') {
+        document.documentElement.removeAttribute('data-style');
+      } else {
+        document.documentElement.setAttribute('data-style', style);
+      }
+      localStorage.setItem('ns-style', style);
+      renderButtons();
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('ns-theme', next);
+      document.getElementById('theme-toggle').textContent =
+        next === 'dark' ? '🌙 Toggle Theme' : '☀️ Toggle Theme';
+    }
+
+    // ── Restore from localStorage ─────────────────────────────────────────────
+    const savedTheme = localStorage.getItem('ns-theme');
+    const savedStyle = localStorage.getItem('ns-style');
+
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('theme-toggle').textContent =
+        savedTheme === 'dark' ? '🌙 Toggle Theme' : '☀️ Toggle Theme';
+    }
+
+    if (savedStyle) {
+      activeStyle = savedStyle;
+      if (savedStyle === 'default') {
+        document.documentElement.removeAttribute('data-style');
+      } else {
+        document.documentElement.setAttribute('data-style', savedStyle);
+      }
+    }
+
+    renderButtons();
+  </script>
+</body>
+</html>

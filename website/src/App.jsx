@@ -28,8 +28,13 @@ import './styles/portfolio.css';
 import './styles/pwa.css';
 import './styles/aurora.css';
 import './styles/motion.css';
-import './styles/accessibility.css';
+import './styles/material-system.css';
+import './styles/design-styles.css';
+import './styles/accessibility.css'; // always last — highest specificity
 import './i18n';
+
+// Brand asset used in page-wipe transition overlay
+import nexasphereLogo from './assets/images/logos/nexasphere-logo.png';
 
 // Core structural elements
 import AppProviders from './providers/AppProviders';
@@ -498,7 +503,9 @@ function MainRouter({
   const location = useLocation();
   const { sessionId } = useAnalytics();
 
-  const [mobile, setMobile] = useState(window.innerWidth <= 768);
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 768 : false
+  );
   const [wipeOn, setWipeOn] = useState(false);
   const [wipePh, setWipePh] = useState('out');
   const [activeTab, setActiveTab] = useState('Home');
@@ -604,6 +611,7 @@ function MainRouter({
         Mentorship: '/mentorship',
         Sponsors: '/sponsors',
         Recommendations: '/recommendations',
+        Gamification: '/gamification',
       };
       const targetPath = routeMap[tab];
       if (targetPath) {

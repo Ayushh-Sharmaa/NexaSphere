@@ -1,4 +1,4 @@
-﻿import { studentUsersRepository } from '../repositories/studentUsersRepository.js';
+import { studentUsersRepository } from '../repositories/studentUsersRepository.js';
 import { sendSuccess, sendError } from '../utils/responseHelper.js';
 
 /**
@@ -6,23 +6,8 @@ import { sendSuccess, sendError } from '../utils/responseHelper.js';
  */
 export async function getLeaderboard(req, res, next) {
   try {
+
     const filter = String(req.query.filter || 'all').toLowerCase();
-    const leaderboard = await studentUsersRepository.getLeaderboard(filter);
-    // Map database properties to the frontend payload shape
-    const formatted = leaderboard.map((user, i) => ({
-      rank: i + 1,
-      name: user.name || user.email.split('@')[0],
-      xp: user.xp || 0,
-      level: user.level || 1,
-      avatar: user.avatar_url || '👤',
-      badges: user.badges || [],
-    }));
-    return sendSuccess(res, formatted);
-
-    const { getOrSet, hashKeyParts } = await import('../utils/endpointCache.js');
-    const cacheKey = `cache:endpoint:leaderboard:top:${hashKeyParts(filter)}`;
-
-
     const { getOrSet, hashKeyParts } = await import('../utils/endpointCache.js');
     const cacheKey = `cache:endpoint:leaderboard:top:${hashKeyParts(filter)}`;
 
@@ -69,27 +54,16 @@ export async function awardXP(req, res, next) {
     if (!updatedUser) {
       return sendError(req, res, 'User not found', 404, 'NOT_FOUND');
     }
+    // Invalidate leaderboard cache (XP changed => ranking changed)
+    try {
+      const { invalidateByPrefix } = await import('../utils/endpointCache.js');
+      // Leaderboard cache keys are: cache:endpoint:leaderboard:top:*
+      await invalidateByPrefix('leaderboard:top');
+    } catch {
+      // ignore cache invalidation failures
+    }
+
     return sendSuccess(res, {
-
-    // Invalidate leaderboard cache (XP changed => ranking changed)
-    try {
-      const { invalidateByPrefix } = await import('../utils/endpointCache.js');
-      // Leaderboard cache keys are: cache:endpoint:leaderboard:top:*
-      await invalidateByPrefix('leaderboard:top');
-    } catch {
-      // ignore cache invalidation failures
-    }
-
-    // Invalidate leaderboard cache (XP changed => ranking changed)
-    try {
-      const { invalidateByPrefix } = await import('../utils/endpointCache.js');
-      // Leaderboard cache keys are: cache:endpoint:leaderboard:top:*
-      await invalidateByPrefix('leaderboard:top');
-    } catch {
-      // ignore cache invalidation failures
-    }
-
-    return res.json({
       success: true,
       xp: updatedUser.xp,
       level: updatedUser.level,

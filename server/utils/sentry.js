@@ -1,20 +1,20 @@
-import * as Sentry from '@sentry/node';
-import { getLogContext } from './logContext.js';
+import * as Sentry from "@sentry/node";
+import { getLogContext } from "./logContext.js";
 
 let nodeProfilingIntegration = null;
 
 export async function initializeSentry(app) {
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === "development";
   const dsn = process.env.SENTRY_DSN;
 
   if ((!dsn || dsn.trim().length === 0) && !isDevelopment) {
-    console.warn('Sentry DSN not configured. Error tracking disabled.');
+    console.warn("Sentry DSN not configured. Error tracking disabled.");
     return;
   }
 
   if (!nodeProfilingIntegration) {
     try {
-      const profiling = await import('@sentry/profiling-node');
+      const profiling = await import("@sentry/profiling-node");
       nodeProfilingIntegration = profiling.nodeProfilingIntegration;
     } catch (error) {
       nodeProfilingIntegration = null;
@@ -23,7 +23,7 @@ export async function initializeSentry(app) {
 
   Sentry.init({
     dsn: dsn,
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || "development",
     integrations: [
       ...(nodeProfilingIntegration ? [nodeProfilingIntegration()] : []),
     ],
@@ -34,9 +34,9 @@ export async function initializeSentry(app) {
       const error = hint.originalException;
       if (error) {
         event.fingerprint = [
-          '{{ default }}',
-          error.name || 'Error',
-          (error.message || '').split('\n')[0],
+          "{{ default }}",
+          error.name || "Error",
+          (error.message || "").split("\n")[0],
         ];
       }
       return event;
@@ -44,11 +44,11 @@ export async function initializeSentry(app) {
   });
 
   try {
-    const os = await import('os');
-    Sentry.setContext('environment_metadata', {
-      'Node version': process.version,
+    const os = await import("os");
+    Sentry.setContext("environment_metadata", {
+      "Node version": process.version,
       OS: os.platform(),
-      'OS Release': os.release(),
+      "OS Release": os.release(),
     });
   } catch (err) {
     // Graceful fallback if os import fails
@@ -67,13 +67,17 @@ export async function initializeSentry(app) {
 }
 
 export function addSentryErrorHandler(app) {
-  if (typeof Sentry.setupExpressErrorHandler === 'function') {
+  if (typeof Sentry.setupExpressErrorHandler === "function") {
     Sentry.setupExpressErrorHandler(app);
-  } else if (Sentry.Handlers && typeof Sentry.Handlers.errorHandler === 'function') {
+  } else if (
+    Sentry.Handlers &&
+    typeof Sentry.Handlers.errorHandler === "function"
+  ) {
     app.use(Sentry.Handlers.errorHandler());
   }
 }
 
+export const captureException = (...args) => Sentry.captureException(...args);
 export const captureMessage = (...args) => Sentry.captureMessage(...args);
 export const addBreadcrumb = (...args) => Sentry.addBreadcrumb(...args);
 export { Sentry };

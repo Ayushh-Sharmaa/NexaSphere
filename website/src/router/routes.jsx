@@ -48,6 +48,14 @@ const AmaThreadPage = lazy(() => import('../pages/ama/AmaThreadPage'));
 const RevenueDashboardPage = lazy(() => import('../pages/monitoring/RevenueDashboardPage'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'));
 const AccountSettingsPage = lazy(() => import('../pages/settings/AccountSettingsPage'));
+const ExplorePage = lazy(() => import('../pages/explore/ExplorePage'));
+const CollabPage = lazy(() => import('../pages/collab/CollabPage'));
+const SearchPage = lazy(() => import('../pages/search/SearchPage'));
+const TemplateLibrary = lazy(() => import('../pages/TemplateLibrary'));
+const CreateEvent = lazy(() => import('../pages/CreateEvent'));
+const EventFeedbackForm = lazy(() => import('../pages/EventFeedbackForm'));
+const AdminPage = lazy(() => import('../pages/admin/AdminPage'));
+const AccessibilityStatement = lazy(() => import('../pages/AccessibilityStatement'));
 
 // Static/Eager page components
 import HeroSection from '../pages/home/HeroSection';
@@ -374,6 +382,22 @@ export function AppRoutes({
         path="/events/:eventId"
         element={<EventDetailWrapper onBack={() => nav('/events')} events={eventsData} />}
       />
+      <Route
+        path="/events/:eventId/feedback"
+        element={
+          <PageIn k="event-feedback">
+            <EventFeedbackForm />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/events/:eventId/qa"
+        element={
+          <PageIn k="event-qa">
+            <LiveQa />
+          </PageIn>
+        }
+      />
 
       {/* ── Event Planning (collaborative) ── */}
       <Route
@@ -425,6 +449,93 @@ export function AppRoutes({
         }
       />
 
+      <Route
+        path="/explore"
+        element={
+          <PageIn k="explore">
+            <ExplorePage onBack={onBackHome} eventsData={eventsData} />
+          </PageIn>
+        }
+      />
+
+      <Route
+        path="/search"
+        element={
+          <PageIn k="search">
+            <SearchPage />
+          </PageIn>
+        }
+      />
+
+      <Route
+        path="/collab"
+        element={
+          <ProtectedRoute>
+            <PageIn k="collab">
+              <CollabPage onBack={onBackHome} />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/portfolio"
+        element={
+          <ProtectedRoute>
+            <PageIn k="portfolio-builder">
+              <PortfolioBuilder />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/gamification"
+        element={
+          <ProtectedRoute>
+            <PageIn k="gamification">
+              <GamificationDashboard />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/recommendations"
+        element={
+          <PageIn k="recommendations">
+            <RecommendationsPage onBack={onBackHome} />
+          </PageIn>
+        }
+      />
+
+      <Route
+        path="/mentorship"
+        element={
+          <PageIn k="mentors">
+            <MentorsPage />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/mentorship/mentors"
+        element={
+          <PageIn k="mentor-directory">
+            <MentorsPage />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/mentorship/dashboard"
+        element={
+          <ProtectedRoute>
+            <PageIn k="mentorship-dashboard">
+              <MentorshipDashboard />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
       {/* ── Webhooks (monitoring) ── */}
       <Route
         path="/admin/webhooks"
@@ -432,6 +543,17 @@ export function AppRoutes({
           <ProtectedRoute>
             <PageIn k="webhooks">
               <WebhooksPage />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={['admin', 'SuperAdmin', 'faculty']}>
+            <PageIn k="admin">
+              <AdminPage />
             </PageIn>
           </ProtectedRoute>
         }
@@ -614,6 +736,34 @@ export function AppRoutes({
         element={
           <PageIn k="skill-exchange">
             <SkillExchangePage />
+          </PageIn>
+        }
+      />
+
+      <Route
+        path="/templates"
+        element={
+          <PageIn k="templates">
+            <TemplateLibrary />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/create-event"
+        element={
+          <ProtectedRoute>
+            <PageIn k="create-event">
+              <CreateEvent />
+            </PageIn>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/accessibility"
+        element={
+          <PageIn k="accessibility">
+            <AccessibilityStatement />
           </PageIn>
         }
       />

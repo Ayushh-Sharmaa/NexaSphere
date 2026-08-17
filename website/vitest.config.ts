@@ -31,11 +31,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      'next/image': path.resolve(__dirname, './src/shared/next-image.jsx'),
-      'next/dynamic': path.resolve(__dirname, './src/shared/next-dynamic.jsx'),
-      react: path.resolve(__dirname, '../node_modules/react'),
-      'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      'next/image': path.resolve(import.meta.dirname, './src/shared/next-image.jsx'),
+      'next/dynamic': path.resolve(import.meta.dirname, './src/shared/next-dynamic.jsx'),
+      react: path.resolve(import.meta.dirname, '../node_modules/react'),
+      'react-dom': path.resolve(import.meta.dirname, '../node_modules/react-dom'),
     },
   },
 });

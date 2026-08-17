@@ -27,12 +27,12 @@ export const generateTrendData = (
   const data: TrendDataPoint[] = [];
   const now = new Date();
 
-  const points = granularity === 'monthly' ? monthsBack : granularity === 'weekly';
-  granularity === 'monthly'
-    ? monthsBack
-    : granularity === 'weekly'
-      ? monthsBack * 4
-      : monthsBack * 30;
+  const points =
+    granularity === 'monthly'
+      ? monthsBack
+      : granularity === 'weekly'
+        ? monthsBack * 4
+        : monthsBack * 30;
 
   let currentUsers = 1000;
   let currentActivity = 5000;
@@ -40,8 +40,6 @@ export const generateTrendData = (
 
   for (let i = points; i >= 0; i--) {
     const d = new Date(now);
-    if (granularity === 'monthly') d.setMonth(now.getMonth() - i);
-    else if (granularity === 'weekly') d.setDate(now.getDate() - i * 7);
     if (granularity === 'monthly') d.setMonth(now.getMonth() - i);
     else if (granularity === 'weekly') d.setDate(now.getDate() - i * 7);
     else d.setDate(now.getDate() - i);
@@ -54,9 +52,6 @@ export const generateTrendData = (
       granularity === 'monthly'
         ? d.toLocaleString('default', { month: 'short', year: '2-digit' })
         : d.toLocaleDateString('default', { month: 'short', day: 'numeric' });
-    granularity === 'monthly'
-      ? d.toLocaleString('default', { month: 'short', year: '2-digit' })
-      : d.toLocaleDateString('default', { month: 'short', day: 'numeric' });
 
     data.push({
       name,

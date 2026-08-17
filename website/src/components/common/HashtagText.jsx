@@ -14,7 +14,7 @@ const HashtagText = ({ text, className = '' }) => {
           const tag = part.substring(1); // remove '#'
           return (
             <Link
-              key={index}
+              key={`hashtag-part-${index}-${part}`}
               to={`/search?q=%23${tag}&type=all`}
               className="text-blue-500 hover:text-blue-700 hover:underline"
               onClick={(e) => e.stopPropagation()}
@@ -23,7 +23,7 @@ const HashtagText = ({ text, className = '' }) => {
             </Link>
           );
         }
-        return <React.Fragment key={index}>{part}</React.Fragment>;
+        return <React.Fragment key={`hashtag-part-${index}-${part}`}>{part}</React.Fragment>;
       })}
     </span>
   );

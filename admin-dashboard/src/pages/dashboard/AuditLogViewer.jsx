@@ -234,6 +234,28 @@ export default function AuditLogViewer() {
     exportCSV(data.logs ?? []);
   };
 
+  const handleExportPDF = async () => {
+    const url = new URL(`${API_BASE}/api/admin/audit-logs`);
+    url.searchParams.set("limit", 1000);
+    if (adminId) url.searchParams.set("adminId", adminId);
+    if (action) url.searchParams.set("action", action);
+    if (startDate) url.searchParams.set("startDate", startDate);
+    if (endDate) url.searchParams.set("endDate", endDate);
+
+    const res = await fetch(url.toString(), { credentials: "include" });
+    const data = await res.json();
+    const logs = data.logs ?? [];
+
+    const columns = ["Timestamp", "Admin ID", "Action", "IP Address"];
+    const rows = logs.map((l) => [
+      new Date(l.timestamp).toLocaleString(),
+      l.admin_id,
+      l.action,
+      l.ip_address || "-",
+    ]);
+    exportToPDF(columns, rows, `audit-logs-${Date.now()}`);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -244,12 +266,20 @@ export default function AuditLogViewer() {
             Admin activity trail — {total.toLocaleString()} total records
           </p>
         </div>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
-        >
-          ↓ Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

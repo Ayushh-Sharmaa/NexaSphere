@@ -62,35 +62,39 @@ export default function WorkspacePage({ roomId, onBack }: WorkspacePageProps) {
   const [anonUser] = useState(getOrCreateAnonUser);
 
   const user = useMemo(() => {
-    if (authUser?.name) {
-      return {
+    let u;
+    if (authUser) {
+      u = {
+        id: authUser.id,
         name: authUser.name,
-        initials: authUser.name.substring(0, 2).toUpperCase(),
-        color: anonUser.color,
+        color: '#E63946',
+        avatarUrl: authUser.avatar_url,
       };
+    } else {
+      u = anonUser;
     }
-    return anonUser;
+    return {
+      ...u,
+      initials: u.name.substring(0, 2).toUpperCase(),
+    };
   }, [authUser, anonUser]);
 
-  const { updateDocContent, updateLocalCursor, updateLocalTyping } =
-    useCollaborativeDoc(roomId, user);
+  const { updateDocContent, updateLocalCursor, updateLocalTyping } = useCollaborativeDoc(
+    roomId,
+    user
+  );
   const { documentContent, users, status } = useWorkspaceStore();
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const initials = user.name.substring(0, 2).toUpperCase();
-    if (user.initials !== initials) {
-      setUser((prev) => ({ ...prev, initials }));
-    }
-    console.log(`Collaborative Workspace joined: ${roomId} as ${user.name}`);
     return () => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [user.name, user.initials, roomId]);
+  }, [roomId]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -121,13 +125,13 @@ export default function WorkspacePage({ roomId, onBack }: WorkspacePageProps) {
 
   const getStatusIcon = () => {
     switch (status) {
-      case "Connected":
+      case 'Connected':
         return <CheckCircle2 size={16} className="text-green-500" />;
-      case "Disconnected":
+      case 'Disconnected':
         return <WifiOff size={16} className="text-red-500" />;
-      case "Reconnecting...":
+      case 'Reconnecting...':
         return <RefreshCw size={16} className="text-yellow-500 animate-spin" />;
-      case "Syncing changes...":
+      case 'Syncing changes...':
         return <Wifi size={16} className="text-blue-500 animate-pulse" />;
       default:
         return <Wifi size={16} />;
@@ -153,11 +157,11 @@ export default function WorkspacePage({ roomId, onBack }: WorkspacePageProps) {
             {Object.values(users).map((u) => (
               <div
                 key={u.socketId}
-                className={`avatar ${u.isTyping ? "typing" : ""}`}
-                style={{ backgroundColor: u.user?.color || "#555" }}
-                title={`${u.user?.name || "Anonymous"} ${u.isTyping ? "(typing...)" : ""}`}
+                className={`avatar ${u.isTyping ? 'typing' : ''}`}
+                style={{ backgroundColor: u.user?.color || '#555' }}
+                title={`${u.user?.name || 'Anonymous'} ${u.isTyping ? '(typing...)' : ''}`}
               >
-                {u.user?.initials || "?"}
+                {u.user?.initials || '?'}
               </div>
             ))}
           </div>
@@ -171,21 +175,18 @@ export default function WorkspacePage({ roomId, onBack }: WorkspacePageProps) {
         onMouseLeave={handleMouseLeave}
       >
         {Object.values(users).map((u) => {
-          if (!u.cursor || u.socketId === "local") return null; // Don't show local cursor as a fake one
+          if (!u.cursor || u.socketId === 'local') return null; // Don't show local cursor as a fake one
           return (
             <div
               key={`cursor-${u.socketId}`}
               className="remote-cursor"
               style={{
                 transform: `translate(${u.cursor.x}px, ${u.cursor.y}px)`,
-                backgroundColor: u.user?.color || "#ff0000",
+                backgroundColor: u.user?.color || '#ff0000',
               }}
             >
-              <div
-                className="cursor-label"
-                style={{ backgroundColor: u.user?.color || "#ff0000" }}
-              >
-                {u.user?.name || "Unknown"}
+              <div className="cursor-label" style={{ backgroundColor: u.user?.color || '#ff0000' }}>
+                {u.user?.name || 'Unknown'}
               </div>
             </div>
           );

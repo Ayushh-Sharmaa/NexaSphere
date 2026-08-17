@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { recoveryController } from '../controllers/recoveryController.js';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
+import { requireAdmin } from '../middleware/adminAuthMiddleware.js';
 import { adminAuditMiddleware } from '../middleware/adminAuditMiddleware.js';
 import { authRateLimiter, passwordResetRateLimiter } from '../middleware/authRateLimiter.js';
 import { validate } from '../middleware/validate.js';
@@ -18,7 +18,7 @@ const router = Router();
 router.post(
   '/admin/users/:id/unlock',
   validate(userIdParamsSchema, 'params'),
-  adminAuthMiddleware.requireAdmin,
+  requireAdmin,
   adminAuditMiddleware,
   recoveryController.unlockAccount
 );
@@ -27,7 +27,7 @@ router.post(
   '/admin/users/:id/reset-password',
   validate(userIdParamsSchema, 'params'),
   validate(adminResetPasswordBodySchema),
-  adminAuthMiddleware.requireAdmin,
+  requireAdmin,
   adminAuditMiddleware,
   recoveryController.resetPasswordAsAdmin
 );
@@ -35,7 +35,7 @@ router.post(
 router.delete(
   '/admin/portfolios/:username',
   validate(usernameParamsSchema, 'params'),
-  adminAuthMiddleware.requireAdmin,
+  requireAdmin,
   adminAuditMiddleware,
   recoveryController.deletePortfolio
 );
@@ -43,7 +43,7 @@ router.delete(
 router.post(
   '/admin/portfolios/:username/recover',
   validate(usernameParamsSchema, 'params'),
-  adminAuthMiddleware.requireAdmin,
+  requireAdmin,
   adminAuditMiddleware,
   recoveryController.recoverPortfolio
 );
