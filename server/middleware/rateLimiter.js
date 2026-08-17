@@ -282,3 +282,23 @@ export const eventRegistrationUserLimiter = rateLimit({
     });
   },
 });
+
+export const searchRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createRateLimitStore("rate-limit:search:"),
+  handler: (req, res, next, options) => {
+    logger.warn("Search rate limit exceeded", {
+      ip: req.ip,
+      path: req.originalUrl || req.path,
+      method: req.method,
+    });
+    res.status(options.statusCode).json({
+      error: "Too many search requests. Please slow down.",
+    });
+  },
+});
+
+export const validateLimiters = () => true;

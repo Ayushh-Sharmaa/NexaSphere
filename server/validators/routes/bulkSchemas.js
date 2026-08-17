@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Schema for the CSV body shared by preview / import endpoints.
  */
 const csvBodySchema = z
   .object({
-    csv: z.string().min(1, 'CSV data is required'),
+    csv: z.string().min(1, "CSV data is required"),
   })
   .strict();
 
@@ -19,13 +19,15 @@ export const bulkUsersPreviewSchema = csvBodySchema;
  */
 export const bulkUsersImportSchema = csvBodySchema;
 
+const idSchema = z.union([z.string().min(1), z.number()]);
+
 /**
  * Schema for POST /bulk/users/role — bulk role assignment.
  */
 export const bulkUsersRoleSchema = z
   .object({
-    userIds: z.array(z.string().min(1)).min(1, 'At least one userId is required'),
-    role: z.string().min(1, 'Role is required'),
+    userIds: z.array(idSchema).min(1, "At least one userId is required"),
+    role: z.string().min(1, "Role is required"),
   })
   .strict();
 
@@ -34,8 +36,8 @@ export const bulkUsersRoleSchema = z
  */
 export const bulkUsersStatusSchema = z
   .object({
-    userIds: z.array(z.string().min(1)).min(1, 'At least one userId is required'),
-    status: z.string().min(1, 'Status is required'),
+    userIds: z.array(idSchema).min(1, "At least one userId is required"),
+    status: z.string().min(1, "Status is required"),
   })
   .strict();
 
@@ -44,8 +46,8 @@ export const bulkUsersStatusSchema = z
  */
 export const bulkUsersTagsSchema = z
   .object({
-    userIds: z.array(z.string().min(1)).min(1, 'At least one userId is required'),
-    tags: z.array(z.string().min(1)).min(1, 'At least one tag is required'),
+    userIds: z.array(idSchema).min(1, "At least one userId is required"),
+    tags: z.array(z.string().min(1)).min(1, "At least one tag is required"),
   })
   .strict();
 
@@ -54,9 +56,9 @@ export const bulkUsersTagsSchema = z
  */
 export const bulkUsersEmailSchema = z
   .object({
-    userIds: z.array(z.string().min(1)).min(1, 'At least one userId is required'),
-    subject: z.string().min(1, 'Subject is required'),
-    message: z.string().min(1, 'Message is required'),
+    userIds: z.array(idSchema).min(1, "At least one userId is required"),
+    subject: z.string().min(1, "Subject is required"),
+    message: z.string().min(1, "Message is required"),
   })
   .strict();
 
@@ -75,8 +77,8 @@ export const bulkEventsImportSchema = csvBodySchema;
  */
 export const bulkEventsStatusSchema = z
   .object({
-    eventIds: z.array(z.string().min(1)).min(1, 'At least one eventId is required'),
-    status: z.string().min(1, 'Status is required'),
+    eventIds: z.array(idSchema).min(1, "At least one eventId is required"),
+    status: z.string().min(1, "Status is required"),
   })
   .strict();
 
@@ -85,10 +87,10 @@ export const bulkEventsStatusSchema = z
  */
 export const bulkEventsCloneSchema = z
   .object({
-    eventIds: z.array(z.string().min(1)).min(1, 'At least one eventId is required'),
+    eventIds: z.array(idSchema).min(1, "At least one eventId is required"),
     offsetDays: z.number({
-      required_error: 'offsetDays is required',
-      invalid_type_error: 'offsetDays must be a number',
+      required_error: "offsetDays is required",
+      invalid_type_error: "offsetDays must be a number",
     }),
   })
   .strict();
@@ -98,6 +100,6 @@ export const bulkEventsCloneSchema = z
  */
 export const bulkEventsRemindSchema = z
   .object({
-    eventIds: z.array(z.string().min(1)).min(1, 'At least one eventId is required'),
+    eventIds: z.array(idSchema).min(1, "At least one eventId is required"),
   })
   .strict();

@@ -4,7 +4,6 @@ import { eventsRepository } from "../repositories/eventsRepository.js";
 import { auditLogRepository } from "../repositories/auditLogRepository.js";
 import { parseCSV, generateCSV } from "../utils/csvParser.js";
 import { sendEmail } from "./emailService.js";
-import { bulkOperationsQueue as queueServiceQueue } from "./queueService.js";
 import { validateTableName } from "../utils/sqlSafety.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";

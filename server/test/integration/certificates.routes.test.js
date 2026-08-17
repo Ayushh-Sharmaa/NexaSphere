@@ -3,36 +3,48 @@
  * Tests public verification, student auth-protected routes, and admin
  * certificate management endpoints with mocked controllers and auth.
  */
-import { describe, it, before, mock } from 'node:test';
-import assert from 'node:assert/strict';
-import request from 'supertest';
-import express from 'express';
+import { describe, it, before, mock } from "node:test";
+import assert from "node:assert/strict";
+import request from "supertest";
+import express from "express";
 
 // ---------------------------------------------------------------------------
 // Mock Controllers — replace real controller implementations so no DB/PDF
 // generation code runs during tests.
 // ---------------------------------------------------------------------------
 
-mock.module('../../controllers/certificatesController.js', {
-  exports: {
-    issueCertificates: (req, res) => res.status(201).json({ success: true, certificates: [] }),
+mock.module("../../controllers/certificatesController.js", {
+  namedExports: {
+    issueCertificates: (req, res) =>
+      res.status(201).json({ success: true, certificates: [] }),
     getMyCertificates: (req, res) => res.json({ certificates: [] }),
     verifyCertificate: (req, res) =>
       res.json({ valid: true, certificate: { code: req.params.code } }),
     downloadCertificatePdf: (req, res) =>
-      res.setHeader('Content-Type', 'application/pdf').send(Buffer.from('%PDF-')),
+      res
+        .setHeader("Content-Type", "application/pdf")
+        .send(Buffer.from("%PDF-")),
     getOpenBadge: (req, res) =>
-      res.json({ '@context': 'https://w3id.org/openbadges/v2', id: req.params.id }),
+      res.json({
+        "@context": "https://w3id.org/openbadges/v2",
+        id: req.params.id,
+      }),
     getCertificateVerificationShare: (req, res) =>
       res.json({ shareUrl: `https://verify.example.com/${req.params.id}` }),
   },
 });
 
-mock.module('../../controllers/certificatesAdminController.js', {
-  exports: {
-    adminGetCertificateById: (req, res) => res.json({ certificate: { id: req.params.id } }),
-    adminVerifyCertificate: (req, res) => res.json({ success: true, verified: true }),
-    adminRevokeCertificate: (req, res) => res.json({ success: true, revoked: true }),
+mock.module("../../controllers/certificatesAdminController.js", {
+  namedExports: {
+    adminGetCertificateById: (req, res) =>
+      res.json({ certificate: { id: req.params.id } }),
+    adminVerifyCertificate: (req, res) =>
+      res.json({ success: true, verified: true }),
+    adminRevokeCertificate: (req, res) =>
+      res.json({ success: true, revoked: true }),
+    adminGetTemplates: (req, res) => res.json({ success: true, templates: [] }),
+    adminSaveTemplate: (req, res) =>
+      res.json({ success: true, template: req.body }),
   },
 });
 
@@ -40,20 +52,20 @@ mock.module('../../controllers/certificatesAdminController.js', {
 // Mock Auth Middleware
 // ---------------------------------------------------------------------------
 
-mock.module('../../middleware/studentAuthMiddleware.js', {
-  exports: {
+mock.module("../../middleware/studentAuthMiddleware.js", {
+  namedExports: {
     requireStudentAuth: (req, res, next) => {
-      req.studentUser = { sub: 1, id: 1, email: 'student@test.com' };
+      req.studentUser = { sub: 1, id: 1, email: "student@test.com" };
       next();
     },
   },
 });
 
-mock.module('../../middleware/adminAuthMiddleware.js', {
-  exports: {
+mock.module("../../middleware/adminAuthMiddleware.js", {
+  namedExports: {
     adminAuthMiddleware: {
       requireAdmin: (req, res, next) => {
-        req.adminSession = { username: 'admin', role: 'admin' };
+        req.adminSession = { username: "admin", role: "admin" };
         next();
       },
     },
@@ -72,32 +84,38 @@ const authControl = { studentEnabled: true, adminEnabled: true };
  * but with a wrapper that can toggle auth to test enforcement.
  */
 async function createTestApp() {
-  const { default: certificateRouter } = await import('../../routes/certificates.js');
+  const { default: certificateRouter } =
+    await import("../../routes/certificates.js");
 
   const app = express();
   app.use(express.json());
 
   // Insert an auth gate BEFORE the router so we can simulate auth failures
-  app.use('/api', (req, res, next) => {
+  app.use("/api", (req, res, next) => {
     // For student-protected routes we intercept based on path
     if (
-      req.path.startsWith('/certificates/me') ||
-      (req.path.startsWith('/certificates/') && req.path.endsWith('/download'))
+      req.path.startsWith("/certificates/me") ||
+      (req.path.startsWith("/certificates/") && req.path.endsWith("/download"))
     ) {
       if (!authControl.studentEnabled) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
     }
     // For admin routes we intercept based on path
-    if (req.path.startsWith('/admin/certificates') || req.path.startsWith('/certificates/issue')) {
+    if (
+      req.path.startsWith("/admin/certificates") ||
+      req.path.startsWith("/certificates/issue")
+    ) {
       if (!authControl.adminEnabled) {
-        return res.status(401).json({ error: 'Unauthorized: No admin session' });
+        return res
+          .status(401)
+          .json({ error: "Unauthorized: No admin session" });
       }
     }
     next();
   });
 
-  app.use('/api', certificateRouter);
+  app.use("/api", certificateRouter);
 
   return app;
 }
@@ -106,7 +124,7 @@ async function createTestApp() {
 // Public Routes — no auth required
 // ---------------------------------------------------------------------------
 
-describe('Certificates Routes — Public Routes', () => {
+describe("Certificates Routes — Public Routes", () => {
   let app;
 
   before(async () => {
@@ -115,44 +133,46 @@ describe('Certificates Routes — Public Routes', () => {
     app = await createTestApp();
   });
 
-  it('GET /api/certificates/verify/:code returns verification data', async () => {
-    const res = await request(app).get('/api/certificates/verify/ABC123');
+  it("GET /api/certificates/verify/:code returns verification data", async () => {
+    const res = await request(app).get("/api/certificates/verify/ABC123");
     assert.equal(res.status, 200);
     assert.equal(res.body.valid, true);
-    assert.equal(res.body.certificate.code, 'ABC123');
+    assert.equal(res.body.certificate.code, "ABC123");
   });
 
-  it('GET /api/certificates/verify/:code with different code', async () => {
-    const res = await request(app).get('/api/certificates/verify/XYZ789');
+  it("GET /api/certificates/verify/:code with different code", async () => {
+    const res = await request(app).get("/api/certificates/verify/XYZ789");
     assert.equal(res.status, 200);
-    assert.equal(res.body.certificate.code, 'XYZ789');
+    assert.equal(res.body.certificate.code, "XYZ789");
   });
 
-  it('GET /api/certificates/:id/badge returns OpenBadge JSON', async () => {
-    const res = await request(app).get('/api/certificates/42/badge');
+  it("GET /api/certificates/:id/badge returns OpenBadge JSON", async () => {
+    const res = await request(app).get("/api/certificates/42/badge");
     assert.equal(res.status, 200);
-    assert.equal(res.body['@context'], 'https://w3id.org/openbadges/v2');
-    assert.equal(res.body.id, '42');
+    assert.equal(res.body["@context"], "https://w3id.org/openbadges/v2");
+    assert.equal(res.body.id, "42");
   });
 
-  it('GET /api/certificates/:id/share returns share URL', async () => {
-    const res = await request(app).get('/api/certificates/99/share');
+  it("GET /api/certificates/:id/share returns share URL", async () => {
+    const res = await request(app).get("/api/certificates/99/share");
     assert.equal(res.status, 200);
-    assert.ok(res.body.shareUrl.includes('99'));
-    assert.ok(res.body.shareUrl.startsWith('https://verify.example.com/'));
+    assert.ok(res.body.shareUrl.includes("99"));
+    assert.ok(res.body.shareUrl.startsWith("https://verify.example.com/"));
   });
 
-  it('Public routes work without any auth headers', async () => {
+  it("Public routes work without any auth headers", async () => {
     authControl.studentEnabled = false;
     authControl.adminEnabled = false;
 
-    const verifyRes = await request(app).get('/api/certificates/verify/code123');
+    const verifyRes = await request(app).get(
+      "/api/certificates/verify/code123"
+    );
     assert.equal(verifyRes.status, 200);
 
-    const badgeRes = await request(app).get('/api/certificates/42/badge');
+    const badgeRes = await request(app).get("/api/certificates/42/badge");
     assert.equal(badgeRes.status, 200);
 
-    const shareRes = await request(app).get('/api/certificates/42/share');
+    const shareRes = await request(app).get("/api/certificates/42/share");
     assert.equal(shareRes.status, 200);
 
     authControl.studentEnabled = true;
@@ -164,7 +184,7 @@ describe('Certificates Routes — Public Routes', () => {
 // Student Auth Routes
 // ---------------------------------------------------------------------------
 
-describe('Certificates Routes — Student Auth', () => {
+describe("Certificates Routes — Student Auth", () => {
   let app;
 
   before(async () => {
@@ -173,30 +193,30 @@ describe('Certificates Routes — Student Auth', () => {
     app = await createTestApp();
   });
 
-  it('GET /api/certificates/me returns certificates array', async () => {
-    const res = await request(app).get('/api/certificates/me');
+  it("GET /api/certificates/me returns certificates array", async () => {
+    const res = await request(app).get("/api/certificates/me");
     assert.equal(res.status, 200);
     assert.ok(Array.isArray(res.body.certificates));
   });
 
-  it('GET /api/certificates/:id/download returns PDF buffer', async () => {
-    const res = await request(app).get('/api/certificates/42/download');
+  it("GET /api/certificates/:id/download returns PDF buffer", async () => {
+    const res = await request(app).get("/api/certificates/42/download");
     assert.equal(res.status, 200);
-    assert.equal(res.headers['content-type'], 'application/pdf');
+    assert.equal(res.headers["content-type"], "application/pdf");
     assert.ok(Buffer.isBuffer(res.body));
-    assert.ok(res.body.toString().startsWith('%PDF-'));
+    assert.ok(res.body.toString().startsWith("%PDF-"));
   });
 
-  it('GET /api/certificates/me returns 401 when unauthenticated', async () => {
+  it("GET /api/certificates/me returns 401 when unauthenticated", async () => {
     authControl.studentEnabled = false;
-    const res = await request(app).get('/api/certificates/me');
+    const res = await request(app).get("/api/certificates/me");
     assert.equal(res.status, 401);
     authControl.studentEnabled = true;
   });
 
-  it('GET /api/certificates/:id/download returns 401 when unauthenticated', async () => {
+  it("GET /api/certificates/:id/download returns 401 when unauthenticated", async () => {
     authControl.studentEnabled = false;
-    const res = await request(app).get('/api/certificates/99/download');
+    const res = await request(app).get("/api/certificates/99/download");
     assert.equal(res.status, 401);
     authControl.studentEnabled = true;
   });
@@ -206,7 +226,7 @@ describe('Certificates Routes — Student Auth', () => {
 // Admin Certificate Routes
 // ---------------------------------------------------------------------------
 
-describe('Certificates Routes — Admin Management', () => {
+describe("Certificates Routes — Admin Management", () => {
   let app;
 
   before(async () => {
@@ -215,9 +235,9 @@ describe('Certificates Routes — Admin Management', () => {
     app = await createTestApp();
   });
 
-  it('POST /api/certificates/issue returns 201 with certificates array', async () => {
+  it("POST /api/certificates/issue returns 201 with certificates array", async () => {
     const res = await request(app)
-      .post('/api/certificates/issue')
+      .post("/api/certificates/issue")
       .send({
         eventId: 1,
         userIds: [1, 2, 3],
@@ -227,34 +247,34 @@ describe('Certificates Routes — Admin Management', () => {
     assert.ok(Array.isArray(res.body.certificates));
   });
 
-  it('POST /api/certificates/issue with empty body still succeeds (mock)', async () => {
-    const res = await request(app).post('/api/certificates/issue').send({});
+  it("POST /api/certificates/issue with empty body still succeeds (mock)", async () => {
+    const res = await request(app).post("/api/certificates/issue").send({});
     assert.equal(res.status, 201);
     assert.equal(res.body.success, true);
   });
 
-  it('GET /api/admin/certificates/:id returns certificate by id', async () => {
-    const res = await request(app).get('/api/admin/certificates/42');
+  it("GET /api/admin/certificates/:id returns certificate by id", async () => {
+    const res = await request(app).get("/api/admin/certificates/42");
     assert.equal(res.status, 200);
-    assert.equal(res.body.certificate.id, '42');
+    assert.equal(res.body.certificate.id, "42");
   });
 
-  it('POST /api/admin/certificates/:id/verify verifies a certificate', async () => {
-    const res = await request(app).post('/api/admin/certificates/42/verify');
+  it("POST /api/admin/certificates/:id/verify verifies a certificate", async () => {
+    const res = await request(app).post("/api/admin/certificates/42/verify");
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.equal(res.body.verified, true);
   });
 
-  it('POST /api/admin/certificates/:id/revoke revokes a certificate', async () => {
-    const res = await request(app).post('/api/admin/certificates/42/revoke');
+  it("POST /api/admin/certificates/:id/revoke revokes a certificate", async () => {
+    const res = await request(app).post("/api/admin/certificates/42/revoke");
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.equal(res.body.revoked, true);
   });
 });
 
-describe('Certificates Routes — Admin Auth Enforcement', () => {
+describe("Certificates Routes — Admin Auth Enforcement", () => {
   let app;
 
   before(async () => {
@@ -263,10 +283,10 @@ describe('Certificates Routes — Admin Auth Enforcement', () => {
     app = await createTestApp();
   });
 
-  it('POST /api/certificates/issue returns 401 without admin auth', async () => {
+  it("POST /api/certificates/issue returns 401 without admin auth", async () => {
     authControl.adminEnabled = false;
     const res = await request(app)
-      .post('/api/certificates/issue')
+      .post("/api/certificates/issue")
       .send({
         eventId: 1,
         userIds: [1],
@@ -275,23 +295,23 @@ describe('Certificates Routes — Admin Auth Enforcement', () => {
     authControl.adminEnabled = true;
   });
 
-  it('GET /api/admin/certificates/:id returns 401 without admin auth', async () => {
+  it("GET /api/admin/certificates/:id returns 401 without admin auth", async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).get('/api/admin/certificates/42');
+    const res = await request(app).get("/api/admin/certificates/42");
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
 
-  it('POST /api/admin/certificates/:id/verify returns 401 without admin auth', async () => {
+  it("POST /api/admin/certificates/:id/verify returns 401 without admin auth", async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).post('/api/admin/certificates/42/verify');
+    const res = await request(app).post("/api/admin/certificates/42/verify");
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
 
-  it('POST /api/admin/certificates/:id/revoke returns 401 without admin auth', async () => {
+  it("POST /api/admin/certificates/:id/revoke returns 401 without admin auth", async () => {
     authControl.adminEnabled = false;
-    const res = await request(app).post('/api/admin/certificates/42/revoke');
+    const res = await request(app).post("/api/admin/certificates/42/revoke");
     assert.equal(res.status, 401);
     authControl.adminEnabled = true;
   });
@@ -301,7 +321,7 @@ describe('Certificates Routes — Admin Auth Enforcement', () => {
 // 404 Handling
 // ---------------------------------------------------------------------------
 
-describe('Certificates Routes — 404 Handling', () => {
+describe("Certificates Routes — 404 Handling", () => {
   let app;
 
   before(async () => {
@@ -310,14 +330,14 @@ describe('Certificates Routes — 404 Handling', () => {
     app = await createTestApp();
   });
 
-  it('returns 404 for unknown certificate routes', async () => {
-    const res = await request(app).get('/api/certificates/non-existent-route');
+  it("returns 404 for unknown certificate routes", async () => {
+    const res = await request(app).get("/api/certificates/non-existent-route");
     assert.equal(res.status, 404);
   });
 
-  it('returns 404 for unknown admin certificate routes (unknown method)', async () => {
+  it("returns 404 for unknown admin certificate routes (unknown method)", async () => {
     // GET /admin/certificates/:id is a wildcard; PATCH is unmatched
-    const res = await request(app).patch('/api/admin/certificates/some-id');
+    const res = await request(app).patch("/api/admin/certificates/some-id");
     assert.equal(res.status, 404);
   });
 });
