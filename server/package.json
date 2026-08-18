@@ -89,7 +89,8 @@
     "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.3.4",
     "yjs": "^13.6.1",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "prisma": "^6.4.0"
   },
   "overrides": {
     "ws": "^8.20.2",
@@ -101,7 +102,6 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "prisma": "^6.4.0",
     "supertest": "^7.2.2"
   }
 }

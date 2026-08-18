@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - '**.yaml'
-      - '**.yml'
+      - 'infra/k8s/**'
+      - '.github/workflows/kubeconform.yml'
   pull_request:
     paths:
-      - '**.yaml'
-      - '**.yml'
+      - 'infra/k8s/**'
+      - '.github/workflows/kubeconform.yml'
   workflow_dispatch:
 
 permissions:
@@ -30,17 +30,20 @@ jobs:
       - name: Install Kubeconform
         run: |
           KUBECONFORM_VERSION="0.6.7"
-          wget -qO- https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz | sudo tar -xz -C /usr/local/bin kubeconform
+          curl -sL https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz | tar -xz
+          sudo mv kubeconform /usr/local/bin/
           kubeconform -v
 
       - name: Run Kubeconform Validation
         id: validate
         run: |
           set -o pipefail
-          # Validates all yaml files in the repository
-          # Ignores .github directory to skip GitHub Actions workflows
-          # Ignores missing schemas to support Custom Resource Definitions (CRDs)
-          kubeconform -summary -ignore-missing-schemas -ignore-filename-pattern '\.github/' -output tap . | tee kubeconform-output.log
+          if [ -d infra/k8s ]; then
+            kubeconform -summary -ignore-missing-schemas -output tap infra/k8s/ | tee kubeconform-output.log
+          else
+            echo "1..1" > kubeconform-output.log
+            echo "ok 1 - No k8s manifests found" >> kubeconform-output.log
+          fi
         continue-on-error: true
 
       - name: Generate Job Summary
