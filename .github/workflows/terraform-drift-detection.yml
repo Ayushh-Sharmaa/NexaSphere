@@ -36,7 +36,7 @@ jobs:
       - name: Terraform Init
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE }}
+          terraform workspace select ${{ matrix.environment }}
 
       - name: Terraform Plan (Drift Detection)
         id: plan

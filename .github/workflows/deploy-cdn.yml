@@ -48,7 +48,7 @@ jobs:
           NODE_ENV: production
 
       - name: Configure AWS credentials
-        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
+        if: env.AWS_ACCESS_KEY_ID != ''
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
@@ -56,14 +56,14 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync immutable hashed assets to S3
-        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           aws s3 sync website/dist/assets s3://${{ env.S3_BUCKET }}/assets \
             --delete \
             --cache-control "public, max-age=31536000, immutable"
 
       - name: Sync mutable HTML and entrypoint files to S3
-        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           aws s3 sync website/dist s3://${{ env.S3_BUCKET }} \
             --delete \
@@ -71,7 +71,7 @@ jobs:
             --cache-control "public, max-age=0, must-revalidate"
 
       - name: Invalidate CloudFront distribution cache
-        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
+        if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
