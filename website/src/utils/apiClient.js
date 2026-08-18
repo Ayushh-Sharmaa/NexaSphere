@@ -35,7 +35,11 @@ export class ApiError extends Error {
  */
 function getIDBCacheKey(url) {
   try {
-    const pathname = new URL(url, window.location.origin).pathname;
+    const origin =
+      typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'http://localhost';
+    const pathname = new URL(url, origin).pathname;
     if (pathname.includes('/dashboard')) return CACHE_KEYS.DASHBOARD;
     if (pathname.includes('/analytics')) return CACHE_KEYS.ANALYTICS;
     if (pathname.includes('/notifications')) return CACHE_KEYS.NOTIFICATIONS;

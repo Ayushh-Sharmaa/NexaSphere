@@ -37,16 +37,9 @@ function safeEqual(a, b) {
     return false;
   }
 
-  const hashA = crypto.createHash('sha256').update(String(a)).digest();
-  const hashB = crypto.createHash('sha256').update(String(b)).digest();
-
-  return crypto.timingSafeEqual(hashA, hashB);
-}
-const ADMIN_USERNAME = requiredEnv('ADMIN_USERNAME');
-  if (a === undefined || a === null || b === undefined || b === null)
-    return false;
   const hashA = crypto.createHash("sha256").update(String(a)).digest();
   const hashB = crypto.createHash("sha256").update(String(b)).digest();
+
   return crypto.timingSafeEqual(hashA, hashB);
 }
 

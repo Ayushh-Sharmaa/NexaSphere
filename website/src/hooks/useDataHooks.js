@@ -19,6 +19,13 @@ export function useThemeManagement() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
     // Wrapped in try-catch — localStorage.setItem throws SecurityError
     // in Safari private browsing or QuotaExceededError when storage is full.
     try {

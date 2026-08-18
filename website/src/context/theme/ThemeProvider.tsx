@@ -128,9 +128,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
   const isDark = resolvedTheme === 'dark';
 
-  // Apply data-theme attribute to <html>
+  // Apply data-theme attribute and dark class to <html>
   useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', resolvedTheme);
+    if (resolvedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
   }, [resolvedTheme]);
 
   // Apply data-style attribute to <html>

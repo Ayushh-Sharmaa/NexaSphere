@@ -6,22 +6,22 @@
 const assets = [
   {
     id: 1,
-    name: 'Tech Fest Banner',
-    type: 'image',
-    category: 'Events',
-    folder: 'Event Banners',
-    url: '/uploads/banner.png',
-    size: '2.3 MB',
+    name: "Tech Fest Banner",
+    type: "image",
+    category: "Events",
+    folder: "Event Banners",
+    url: "/uploads/banner.png",
+    size: "2.3 MB",
     createdAt: new Date().toISOString(),
   },
   {
     id: 2,
-    name: 'Certificate Template',
-    type: 'pdf',
-    category: 'Certificates',
-    folder: 'Templates',
-    url: '/uploads/certificate.pdf',
-    size: '850 KB',
+    name: "Certificate Template",
+    type: "pdf",
+    category: "Certificates",
+    folder: "Templates",
+    url: "/uploads/certificate.pdf",
+    size: "850 KB",
     createdAt: new Date().toISOString(),
   },
 ];
@@ -29,24 +29,24 @@ const assets = [
 const folders = [
   {
     id: 1,
-    name: 'Event Banners',
+    name: "Event Banners",
   },
   {
     id: 2,
-    name: 'Certificates',
+    name: "Certificates",
   },
 ];
 
 const versionHistory = [
   {
-    version: 'v1',
+    version: "v1",
     updatedAt: new Date().toISOString(),
   },
 ];
 
 const storageAnalytics = {
   totalAssets: assets.length,
-  totalStorage: '3.15 GB',
+  totalStorage: "3.15 GB",
   images: 120,
   pdfs: 45,
   videos: 18,
@@ -54,14 +54,16 @@ const storageAnalytics = {
 };
 
 // Get All Assets
-const getAllAssets = async () => assets;
+export const getAllAssets = async () => assets;
 
 // Get Asset By ID
-const getAssetById = async (id) => assets.find((asset) => asset.id === Number(id));
+export const getAssetById = async (id) =>
+  assets.find((asset) => asset.id === Number(id));
 
 // Upload Asset
-const uploadAsset = async (data) => {
-  const nextId = assets.length > 0 ? Math.max(...assets.map((a) => a.id)) + 1 : 1;
+export const uploadAsset = async (data) => {
+  const nextId =
+    assets.length > 0 ? Math.max(...assets.map((a) => a.id)) + 1 : 1;
   const asset = {
     id: nextId,
     createdAt: new Date().toISOString(),
@@ -73,7 +75,7 @@ const uploadAsset = async (data) => {
 };
 
 // Update Asset
-const updateAsset = async (id, data) => {
+export const updateAsset = async (id, data) => {
   const index = assets.findIndex((asset) => asset.id === Number(id));
 
   if (index === -1) return null;
@@ -88,7 +90,7 @@ const updateAsset = async (id, data) => {
 };
 
 // Delete Asset
-const deleteAsset = async (id) => {
+export const deleteAsset = async (id) => {
   const index = assets.findIndex((asset) => asset.id === Number(id));
 
   if (index === -1) return null;
@@ -97,21 +99,26 @@ const deleteAsset = async (id) => {
 };
 
 // Search Assets
-const searchAssets = async (query) => {
+export const searchAssets = async (query) => {
   if (!query) return assets;
 
-  return assets.filter((asset) => asset.name.toLowerCase().includes(query.toLowerCase()));
+  return assets.filter((asset) =>
+    asset.name.toLowerCase().includes(query.toLowerCase())
+  );
 };
 
 // Assets By Category
-const getAssetsByCategory = async (category) =>
-  assets.filter((asset) => asset.category.toLowerCase() === category.toLowerCase());
+export const getAssetsByCategory = async (category) =>
+  assets.filter(
+    (asset) => asset.category.toLowerCase() === category.toLowerCase()
+  );
 
 // Folder Management
-const getFolders = async () => folders;
+export const getFolders = async () => folders;
 
-const createFolder = async (data) => {
-  const nextId = folders.length > 0 ? Math.max(...folders.map((f) => f.id)) + 1 : 1;
+export const createFolder = async (data) => {
+  const nextId =
+    folders.length > 0 ? Math.max(...folders.map((f) => f.id)) + 1 : 1;
   const folder = {
     id: nextId,
     ...data,
@@ -121,7 +128,7 @@ const createFolder = async (data) => {
   return folder;
 };
 
-const deleteFolder = async (id) => {
+export const deleteFolder = async (id) => {
   const numId = Number(id);
   const index = folders.findIndex((f) => f.id === numId);
   if (index === -1) return null;
@@ -131,7 +138,7 @@ const deleteFolder = async (id) => {
   // Cascade reset folder tag of assets referencing the deleted folder
   assets.forEach((asset) => {
     if (asset.folder === folderName) {
-      asset.folder = 'Uncategorized';
+      asset.folder = "Uncategorized";
     }
   });
 
@@ -139,7 +146,7 @@ const deleteFolder = async (id) => {
 };
 
 // Duplicate Detection
-const detectDuplicates = async () => [
+export const detectDuplicates = async () => [
   {
     assetId: 1,
     duplicateOf: 2,
@@ -147,67 +154,50 @@ const detectDuplicates = async () => [
 ];
 
 // AI Tags
-const generateAITags = async () => ['event', 'banner', 'technology', 'campus'];
+export const generateAITags = async () => [
+  "event",
+  "banner",
+  "technology",
+  "campus",
+];
 
 // Version History
-const getVersionHistory = async () => versionHistory;
+export const getVersionHistory = async () => versionHistory;
 
 // Preview Asset
-const previewAsset = async (id) => ({
+export const previewAsset = async (id) => ({
   assetId: id,
   previewUrl: `/preview/${id}`,
 });
 
 // Bulk Upload
-const bulkUpload = async (files) => ({
+export const bulkUpload = async (files) => ({
   uploaded: files?.length || 0,
-  status: 'Completed',
+  status: "Completed",
 });
 
 // Bulk Download
-const bulkDownload = async (ids) => ({
+export const bulkDownload = async (ids) => ({
   downloaded: ids?.length || 0,
-  downloadUrl: '/downloads/assets.zip',
+  downloadUrl: "/downloads/assets.zip",
 });
 
 // Share Asset
-const shareAsset = async (data) => ({
+export const shareAsset = async (data) => ({
   assetId: data.assetId,
   sharedWith: data.user,
   permission: data.permission,
-  status: 'Shared',
+  status: "Shared",
 });
 
 // Storage Analytics
-const getStorageAnalytics = async () => storageAnalytics;
+export const getStorageAnalytics = async () => storageAnalytics;
 
 // Expiring Assets
-const getExpiringAssets = async () => [
+export const getExpiringAssets = async () => [
   {
     id: 3,
-    name: 'Old Event Poster',
-    expiresOn: '2026-08-01',
+    name: "Old Event Poster",
+    expiresOn: "2026-08-01",
   },
 ];
-
-module.exports = {
-  getAllAssets,
-  getAssetById,
-  uploadAsset,
-  updateAsset,
-  deleteAsset,
-  searchAssets,
-  getAssetsByCategory,
-  getFolders,
-  createFolder,
-  deleteFolder,
-  detectDuplicates,
-  generateAITags,
-  getVersionHistory,
-  previewAsset,
-  bulkUpload,
-  bulkDownload,
-  shareAsset,
-  getStorageAnalytics,
-  getExpiringAssets,
-};

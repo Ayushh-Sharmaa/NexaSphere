@@ -10,7 +10,6 @@ export function SubscriptionsManager() {
     revenue: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -19,7 +18,6 @@ export function SubscriptionsManager() {
 
   const loadData = async () => {
     setLoading(true);
-    setError("");
     setError(null);
 
     try {

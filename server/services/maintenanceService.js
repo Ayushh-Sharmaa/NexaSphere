@@ -6,12 +6,12 @@
 const maintenanceList = [
   {
     id: 1,
-    title: 'Database Upgrade',
-    description: 'Scheduled database maintenance.',
-    startTime: '2026-07-20T01:00:00Z',
-    endTime: '2026-07-20T03:00:00Z',
-    status: 'Scheduled',
-    services: ['Authentication', 'Events'],
+    title: "Database Upgrade",
+    description: "Scheduled database maintenance.",
+    startTime: "2026-07-20T01:00:00Z",
+    endTime: "2026-07-20T03:00:00Z",
+    status: "Scheduled",
+    services: ["Authentication", "Events"],
   },
 ];
 
@@ -19,29 +19,44 @@ const history = [];
 
 const notifications = [];
 
-const serviceImpact = ['Authentication', 'Events', 'Portfolio', 'Notifications'];
+const serviceImpact = [
+  "Authentication",
+  "Events",
+  "Portfolio",
+  "Notifications",
+];
 
 const banner = {
   active: false,
-  message: 'No scheduled maintenance.',
+  message: "No scheduled maintenance.",
 };
 
 // Get All
-const getAllMaintenance = async () => maintenanceList;
+export const getAllMaintenance = async () => maintenanceList;
 
 // Get By ID
-const getMaintenanceById = async (id) => maintenanceList.find((item) => item.id === Number(id));
+export const getMaintenanceById = async (id) =>
+  maintenanceList.find((item) => item.id === Number(id));
 
 // Create
-const createMaintenance = async (data) => {
-  if (data.startTime && data.endTime && new Date(data.startTime) >= new Date(data.endTime)) {
-    throw new Error('Invalid maintenance window: startTime must be before endTime');
+export const createMaintenance = async (data) => {
+  if (
+    data.startTime &&
+    data.endTime &&
+    new Date(data.startTime) >= new Date(data.endTime)
+  ) {
+    throw new Error(
+      "Invalid maintenance window: startTime must be before endTime"
+    );
   }
 
-  const nextId = maintenanceList.length > 0 ? Math.max(...maintenanceList.map((m) => m.id)) + 1 : 1;
+  const nextId =
+    maintenanceList.length > 0
+      ? Math.max(...maintenanceList.map((m) => m.id)) + 1
+      : 1;
   const maintenance = {
     id: maintenanceList.length + 1,
-    status: 'Scheduled',
+    status: "Scheduled",
     createdAt: new Date().toISOString(),
     ...data,
   };
@@ -51,7 +66,7 @@ const createMaintenance = async (data) => {
 };
 
 // Update
-const updateMaintenance = async (id, data) => {
+export const updateMaintenance = async (id, data) => {
   const index = maintenanceList.findIndex((item) => item.id === Number(id));
 
   if (index === -1) return null;
@@ -59,7 +74,9 @@ const updateMaintenance = async (id, data) => {
   const startTime = data.startTime || maintenanceList[index].startTime;
   const endTime = data.endTime || maintenanceList[index].endTime;
   if (startTime && endTime && new Date(startTime) >= new Date(endTime)) {
-    throw new Error('Invalid maintenance window: startTime must be before endTime');
+    throw new Error(
+      "Invalid maintenance window: startTime must be before endTime"
+    );
   }
 
   maintenanceList[index] = {
@@ -72,7 +89,7 @@ const updateMaintenance = async (id, data) => {
 };
 
 // Delete
-const deleteMaintenance = async (id) => {
+export const deleteMaintenance = async (id) => {
   const index = maintenanceList.findIndex((item) => item.id === Number(id));
 
   if (index === -1) return null;
@@ -81,12 +98,12 @@ const deleteMaintenance = async (id) => {
 };
 
 // Start
-const startMaintenance = async (id) => {
+export const startMaintenance = async (id) => {
   const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
 
-  maintenance.status = 'In Progress';
+  maintenance.status = "In Progress";
 
   banner.active = true;
   banner.message = `${maintenance.title} is currently in progress.`;
@@ -95,41 +112,41 @@ const startMaintenance = async (id) => {
 };
 
 // Complete
-const completeMaintenance = async (id) => {
+export const completeMaintenance = async (id) => {
   const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
 
-  maintenance.status = 'Completed';
+  maintenance.status = "Completed";
 
   history.push(maintenance);
 
   banner.active = false;
-  banner.message = 'No scheduled maintenance.';
+  banner.message = "No scheduled maintenance.";
 
   return maintenance;
 };
 
 // Emergency Maintenance
-const emergencyMaintenance = async (data) => ({
+export const emergencyMaintenance = async (data) => ({
   id: Date.now(),
-  type: 'Emergency',
-  status: 'Active',
+  type: "Emergency",
+  status: "Active",
   startedAt: new Date().toISOString(),
   ...data,
 });
 
 // Public Status
-const getPublicStatus = async () => ({
+export const getPublicStatus = async () => ({
   maintenance: maintenanceList,
   banner,
 });
 
 // History
-const getHistory = async () => history;
+export const getHistory = async () => history;
 
 // Countdown
-const getCountdown = async (id) => {
+export const getCountdown = async (id) => {
   const maintenance = maintenanceList.find((item) => item.id === Number(id));
 
   if (!maintenance) return null;
@@ -142,7 +159,7 @@ const getCountdown = async (id) => {
 };
 
 // Notifications
-const sendNotifications = async (data) => {
+export const sendNotifications = async (data) => {
   const notification = {
     id: notifications.length + 1,
     sentAt: new Date().toISOString(),
@@ -155,32 +172,14 @@ const sendNotifications = async (data) => {
 };
 
 // Approval
-const approveMaintenance = async (id) => ({
+export const approveMaintenance = async (id) => ({
   maintenanceId: id,
   approved: true,
   approvedAt: new Date().toISOString(),
 });
 
 // Banner
-const getStatusBanner = async () => banner;
+export const getStatusBanner = async () => banner;
 
 // Service Impact
-const getServiceImpact = async () => serviceImpact;
-
-module.exports = {
-  getAllMaintenance,
-  getMaintenanceById,
-  createMaintenance,
-  updateMaintenance,
-  deleteMaintenance,
-  startMaintenance,
-  completeMaintenance,
-  emergencyMaintenance,
-  getPublicStatus,
-  getHistory,
-  getCountdown,
-  sendNotifications,
-  approveMaintenance,
-  getStatusBanner,
-  getServiceImpact,
-};
+export const getServiceImpact = async () => serviceImpact;

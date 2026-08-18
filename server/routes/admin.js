@@ -2,33 +2,36 @@
  * Admin Dashboard Routes
  * Provides admin-only endpoints for membership data and session info.
  */
-import { tracedFetch } from '../config/appContext.js';
-import { Router } from 'express';
-import { adminAuthMiddleware } from '../middleware/adminAuthMiddleware.js';
-import { supabaseBreaker, HAS_SUPABASE } from '../storage/supabaseClient.js';
-import { validate } from '../middleware/validate.js';
-import { ssoInviteSchema } from '../validators/routes/adminSchemas.js';
-import { usersRepository } from '../repositories/usersRepository.js';
-import { financialService } from '../services/financialService.js';
+import { tracedFetch } from "../config/appContext.js";
+import { Router } from "express";
+import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware.js";
+import { supabaseBreaker, HAS_SUPABASE } from "../storage/supabaseClient.js";
+import { validate } from "../middleware/validate.js";
+import { ssoInviteSchema } from "../validators/routes/adminSchemas.js";
+import { usersRepository } from "../repositories/usersRepository.js";
+import { financialService } from "../services/financialService.js";
 import {
   validateConfigChange,
   createChangeHistory,
   rollbackConfig,
-} from '../utils/configApproval.js';
-import { apiRateLimiter } from '../middleware/rateLimiter.js';
-import { CircuitBreaker, circuitBreakerRegistry } from '../utils/circuitBreaker.js';
+} from "../utils/configApproval.js";
+import { apiRateLimiter } from "../middleware/rateLimiter.js";
+import {
+  CircuitBreaker,
+  circuitBreakerRegistry,
+} from "../utils/circuitBreaker.js";
 import {
   runIntegrityCheck,
   detectCorruption,
   generateRecoveryRecommendation,
   createRecoveryAuditLog,
-} from '../utils/dataIntegrityValidator.js';
+} from "../utils/dataIntegrityValidator.js";
 import {
   activateReadOnlyMode,
   deactivateReadOnlyMode,
   getReadOnlyStatus,
   createIncidentLog,
-} from '../routes/readOnlyMode.js';
+} from "../routes/readOnlyMode.js";
 
 import {
   getServiceStatus,
@@ -36,7 +39,7 @@ import {
   getMaintenanceSchedule,
   getHistoricalUptime,
   getSubscriberNotifications,
-} from '../utils/serviceStatus.js';
+} from "../utils/serviceStatus.js";
 import {
   runConsistencyCheck,
   getSynchronizationStatus,
@@ -44,8 +47,12 @@ import {
   generateIntegrityReport,
   getConsistencyAlerts,
   triggerForceSync,
-} from '../utils/consistencyVerifier.js';
-import { sendSuccess, sendError, sendNoContent } from '../utils/responseHelper.js';
+} from "../utils/consistencyVerifier.js";
+import {
+  sendSuccess,
+  sendError,
+  sendNoContent,
+} from "../utils/responseHelper.js";
 
 const router = Router();
 const adminAuth = adminAuthMiddleware.requireAdmin;
@@ -57,9 +64,13 @@ router.use(apiRateLimiter);
  */
 async function _rawMembershipFetch(scriptUrl, secret) {
   const response = await fetch(scriptUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getResponses', apiKey: secret, token: secret }),
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "getResponses",
+      apiKey: secret,
+      token: secret,
+    }),
   });
   if (!response.ok) {
     throw new Error(`Google Apps Script returned ${response.status}`);
@@ -68,9 +79,9 @@ async function _rawMembershipFetch(scriptUrl, secret) {
 }
 
 const membershipBreaker = circuitBreakerRegistry.register(
-  'membership-gas',
+  "membership-gas",
   new CircuitBreaker(_rawMembershipFetch, {
-    name: 'membership-gas',
+    name: "membership-gas",
     failureThreshold: 3,
     successThreshold: 2,
     coolDownPeriod: 15000,
@@ -84,14 +95,14 @@ const membershipBreaker = circuitBreakerRegistry.register(
  * This ensures form submissions are always visible to admins even when
  * Google Sheets writes fail (quota, network, etc.).
  */
-router.get('/membership', adminAuth, async (req, res) => {
+router.get("/membership", adminAuth, async (req, res) => {
   // Primary: Read from Supabase (source of truth)
   if (HAS_SUPABASE) {
     try {
       const data = await supabaseBreaker.execute(
-        'form_submissions?form_type=eq.membership&order=created_at.desc',
+        "form_submissions?form_type=eq.membership&order=created_at.desc",
         {
-          method: 'GET',
+          method: "GET",
         }
       );
       const responses = (data || []).map((row) => ({
@@ -104,14 +115,14 @@ router.get('/membership', adminAuth, async (req, res) => {
       }));
       return sendSuccess(res, { responses });
     } catch (err) {
-      if (err.code === 'CIRCUIT_OPEN') {
+      if (err.code === "CIRCUIT_OPEN") {
         console.warn(
-          '[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script'
+          "[Membership] Supabase circuit breaker is OPEN, falling back to Google Apps Script"
         );
-      // Fall through to Google Apps Script fallback
+        // Fall through to Google Apps Script fallback
+      }
     }
   }
-}
   // Fallback: Google Apps Script (legacy path)
   const scriptUrl = process.env.MEMBERSHIP_SCRIPT_URL;
   const secret = process.env.MEMBERSHIP_SECRET;
@@ -124,9 +135,9 @@ router.get('/membership', adminAuth, async (req, res) => {
     const data = await membershipBreaker.execute(scriptUrl, secret);
     return sendSuccess(res, { responses: data.responses || [] });
     const response = await tracedFetch(scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'getResponses', token: secret }),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "getResponses", token: secret }),
     });
 
     if (!response.ok) {
@@ -135,26 +146,41 @@ router.get('/membership', adminAuth, async (req, res) => {
 
     return res.json({ responses: data.responses || [] });
   } catch (err) {
-    if (err.code === 'CIRCUIT_OPEN') {
+    if (err.code === "CIRCUIT_OPEN") {
       console.warn(
-        '[Membership] Google Apps Script circuit breaker is OPEN, returning empty responses'
+        "[Membership] Google Apps Script circuit breaker is OPEN, returning empty responses"
       );
       return sendSuccess(res, { responses: [] });
     }
-    console.error('[Membership] Failed to fetch responses from Google Apps Script:', err.message);
-    return sendError(req, res, 'Failed to fetch membership responses', 500, 'INTERNAL_ERROR');
+    console.error(
+      "[Membership] Failed to fetch responses from Google Apps Script:",
+      err.message
+    );
+    return sendError(
+      req,
+      res,
+      "Failed to fetch membership responses",
+      500,
+      "INTERNAL_ERROR"
+    );
   }
 });
 
 /**
  * POST /api/admin/membership/sync — Manually sync missed Google Forms responses.
  */
-router.post('/membership/sync', adminAuth, async (req, res) => {
+router.post("/membership/sync", adminAuth, async (req, res) => {
   const scriptUrl = process.env.MEMBERSHIP_SCRIPT_URL;
   const secret = process.env.MEMBERSHIP_SECRET;
 
   if (!scriptUrl || !secret) {
-    return sendError(req, res, 'Membership script URL or secret not configured', 503, 'SERVICE_UNAVAILABLE');
+    return sendError(
+      req,
+      res,
+      "Membership script URL or secret not configured",
+      503,
+      "SERVICE_UNAVAILABLE"
+    );
   }
 
   try {
@@ -163,7 +189,8 @@ router.post('/membership/sync', adminAuth, async (req, res) => {
 
     let createdCount = 0;
     for (const response of responses) {
-      const email = response.email || response.collegeEmail || response.college_email;
+      const email =
+        response.email || response.collegeEmail || response.college_email;
       const fullName = response.fullName || response.full_name || response.name;
 
       if (!email) continue;
@@ -174,27 +201,39 @@ router.post('/membership/sync', adminAuth, async (req, res) => {
       try {
         await usersRepository.createUser({
           username: email,
-          display_name: fullName || email.split('@')[0],
+          display_name: fullName || email.split("@")[0],
           email: email,
-          role: 'member',
+          role: "member",
         });
         createdCount++;
       } catch (err) {
-        console.error(`[Membership Sync] Failed to create user for ${email}:`, err.message);
+        console.error(
+          `[Membership Sync] Failed to create user for ${email}:`,
+          err.message
+        );
       }
     }
 
-    return sendSuccess(res, { message: 'Sync complete', created: createdCount });
+    return sendSuccess(res, {
+      message: "Sync complete",
+      created: createdCount,
+    });
   } catch (err) {
-    console.error('[Membership Sync] Failed to sync responses:', err.message);
-    return sendError(req, res, 'Failed to sync membership responses', 500, 'INTERNAL_ERROR');
+    console.error("[Membership Sync] Failed to sync responses:", err.message);
+    return sendError(
+      req,
+      res,
+      "Failed to sync membership responses",
+      500,
+      "INTERNAL_ERROR"
+    );
   }
 });
 
 /**
  * GET /me — Returns the authenticated admin's username.
  */
-router.get('/me', adminAuth, (req, res) => {
+router.get("/me", adminAuth, (req, res) => {
   return sendSuccess(res, { username: req.adminSession.username });
 });
 
@@ -202,7 +241,7 @@ router.get('/me', adminAuth, (req, res) => {
  * POST /api/admin/config-review
  * Validate critical configuration changes
  */
-router.post('/api/admin/config-review', adminAuth, (req, res) => {
+router.post("/api/admin/config-review", adminAuth, (req, res) => {
   const validation = validateConfigChange(req.body);
 
   const history = createChangeHistory(req.body);
@@ -210,94 +249,94 @@ router.post('/api/admin/config-review', adminAuth, (req, res) => {
   const rollback = rollbackConfig(req.body);
 
   return sendSuccess(res, {
+    success: true,
     validation,
     history,
     rollback,
   });
 });
 
-router.get('/api/admin/database-health', adminAuth, (req, res) => {
+router.get("/api/admin/database-health", adminAuth, (req, res) => {
   sendSuccess(res, runIntegrityCheck());
 });
 
-router.get('/api/admin/database-corruption', adminAuth, (req, res) => {
+router.get("/api/admin/database-corruption", adminAuth, (req, res) => {
   sendSuccess(res, detectCorruption());
 });
 
-router.get('/api/admin/database-recovery', adminAuth, (req, res) => {
+router.get("/api/admin/database-recovery", adminAuth, (req, res) => {
   sendSuccess(res, generateRecoveryRecommendation());
 });
 
-router.get('/api/admin/database-audit-log', adminAuth, (req, res) => {
+router.get("/api/admin/database-audit-log", adminAuth, (req, res) => {
   sendSuccess(res, createRecoveryAuditLog());
 });
 
-router.get('/api/admin/read-only-status', adminAuth, (req, res) => {
+router.get("/api/admin/read-only-status", adminAuth, (req, res) => {
   sendSuccess(res, getReadOnlyStatus());
 });
 
-router.post('/api/admin/read-only-enable', adminAuth, (req, res) => {
+router.post("/api/admin/read-only-enable", adminAuth, (req, res) => {
   sendSuccess(res, activateReadOnlyMode());
 });
 
-router.post('/api/admin/read-only-disable', adminAuth, (req, res) => {
+router.post("/api/admin/read-only-disable", adminAuth, (req, res) => {
   sendSuccess(res, deactivateReadOnlyMode());
 });
 
-router.get('/api/admin/read-only-log', adminAuth, (req, res) => {
+router.get("/api/admin/read-only-log", adminAuth, (req, res) => {
   sendSuccess(res, createIncidentLog());
 });
 
-router.get('/api/admin/service-status', adminAuth, (req, res) => {
+router.get("/api/admin/service-status", adminAuth, (req, res) => {
   sendSuccess(res, getServiceStatus());
 });
 
-router.get('/api/admin/incidents', adminAuth, (req, res) => {
+router.get("/api/admin/incidents", adminAuth, (req, res) => {
   sendSuccess(res, getIncidentTimeline());
 });
 
-router.get('/api/admin/maintenance', adminAuth, (req, res) => {
+router.get("/api/admin/maintenance", adminAuth, (req, res) => {
   sendSuccess(res, getMaintenanceSchedule());
 });
 
-router.get('/api/admin/uptime-report', adminAuth, (req, res) => {
+router.get("/api/admin/uptime-report", adminAuth, (req, res) => {
   sendSuccess(res, getHistoricalUptime());
 });
 
-router.get('/api/admin/status-subscribers', adminAuth, (req, res) => {
+router.get("/api/admin/status-subscribers", adminAuth, (req, res) => {
   sendSuccess(res, getSubscriberNotifications());
 });
 
-router.get('/api/admin/consistency-check', adminAuth, (req, res) => {
+router.get("/api/admin/consistency-check", adminAuth, (req, res) => {
   sendSuccess(res, runConsistencyCheck());
 });
 
-router.get('/api/admin/sync-status', adminAuth, (req, res) => {
+router.get("/api/admin/sync-status", adminAuth, (req, res) => {
   sendSuccess(res, getSynchronizationStatus());
 });
 
-router.post('/api/admin/sync/force', adminAuth, (req, res) => {
+router.post("/api/admin/sync/force", adminAuth, (req, res) => {
   sendSuccess(res, triggerForceSync());
 });
 
-
-router.get('/api/admin/conflicts', adminAuth, (req, res) => {
+router.get("/api/admin/conflicts", adminAuth, (req, res) => {
   sendSuccess(res, detectConflicts());
 });
 
-router.get('/api/admin/integrity-report', adminAuth, (req, res) => {
+router.get("/api/admin/integrity-report", adminAuth, (req, res) => {
   sendSuccess(res, generateIntegrityReport());
 });
 
-router.get('/api/admin/consistency-alerts', adminAuth, (req, res) => {
+router.get("/api/admin/consistency-alerts", adminAuth, (req, res) => {
   sendSuccess(res, getConsistencyAlerts());
 });
 
-router.get('/api/admin/dependency-report', adminAuth, async (req, res) => {
+router.get("/api/admin/dependency-report", adminAuth, async (req, res) => {
   // dependency monitoring report
 });
 
-router.get('/api/admin/security-analytics', adminAuth, async (req, res) => {
+router.get("/api/admin/security-analytics", adminAuth, async (req, res) => {
   sendSuccess(res, {
     blockedIPs,
     riskScores,
@@ -305,7 +344,7 @@ router.get('/api/admin/security-analytics', adminAuth, async (req, res) => {
   });
 });
 
-router.get('/api/admin/reports/engagement', adminAuth, async (req, res) => {
+router.get("/api/admin/reports/engagement", adminAuth, async (req, res) => {
   // Generate simulated user engagement stats
   const seedUsers = Array.from({ length: 45 }, (_, i) => {
     const eventsAttended = Math.floor(Math.random() * 15);
@@ -326,40 +365,46 @@ router.get('/api/admin/reports/engagement', adminAuth, async (req, res) => {
       activeDays30,
       activeDays90,
       engagementScore,
-      status: isInactive ? 'Inactive' : 'Active',
+      status: isInactive ? "Inactive" : "Active",
     };
   });
   seedUsers.sort((a, b) => b.engagementScore - a.engagementScore);
   sendSuccess(res, { users: seedUsers });
 });
 
-router.get('/api/admin/reports/revenue', adminAuth, async (req, res) => {
+router.get("/api/admin/reports/revenue", adminAuth, async (req, res) => {
   try {
-    const user = { id: req.adminSession.username, role: 'admin' };
+    const user = { id: req.adminSession.username, role: "admin" };
     const report = await financialService.getRevenueReport(user);
     sendSuccess(res, report);
   } catch (error) {
     sendError(
       req,
       res,
-      error.message || 'Failed to generate revenue report',
+      error.message || "Failed to generate revenue report",
       500,
-      'INTERNAL_ERROR'
+      "INTERNAL_ERROR"
     );
   }
 });
 
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 router.post(
-  '/api/admin/sso-invite',
+  "/api/admin/sso-invite",
   apiRateLimiter,
-  validate(ssoInviteSchema),
   adminAuth,
+  validate(ssoInviteSchema),
   (req, res) => {
     const { email } = req.body;
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return sendError(req, res, 'Valid email address is required', 400, 'VALIDATION_ERROR');
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return sendError(
+        req,
+        res,
+        "Valid email address is required",
+        400,
+        "VALIDATION_ERROR"
+      );
     }
 
     const jwtSecret = process.env.JWT_SECRET;
@@ -367,27 +412,35 @@ router.post(
       return sendError(
         req,
         res,
-        'JWT_SECRET is not configured on the server',
+        "JWT_SECRET is not configured on the server",
         500,
-        'INTERNAL_ERROR'
+        "INTERNAL_ERROR"
       );
     }
 
     // Generate a token valid for 24 hours
-    const token = jwt.sign({ email: email.toLowerCase(), bypassSso: true }, jwtSecret, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { email: email.toLowerCase(), bypassSso: true },
+      jwtSecret,
+      {
+        expiresIn: "24h",
+      }
+    );
 
-    const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+    const baseUrl = process.env.BASE_URL || "http://localhost:8080";
     const inviteUrl = `${baseUrl}/api/auth/google?token=${token}`;
 
-    return sendSuccess(res, { inviteUrl });
+    return sendSuccess(res, { token, inviteUrl });
   }
 );
-router.get('/sessions', adminAuth, adminAuthMiddleware.getSecurityOverview);
-router.post('/sessions/extend', adminAuth, adminAuthMiddleware.extendSession);
-router.delete('/sessions/:sessionId', adminAuth, adminAuthMiddleware.revokeSession);
-router.delete('/sessions', adminAuth, adminAuthMiddleware.logoutOtherSessions);
+router.get("/sessions", adminAuth, adminAuthMiddleware.getSecurityOverview);
+router.post("/sessions/extend", adminAuth, adminAuthMiddleware.extendSession);
+router.delete(
+  "/sessions/:sessionId",
+  adminAuth,
+  adminAuthMiddleware.revokeSession
+);
+router.delete("/sessions", adminAuth, adminAuthMiddleware.logoutOtherSessions);
 
 /**
  * @swagger
@@ -421,7 +474,7 @@ router.delete('/sessions', adminAuth, adminAuthMiddleware.logoutOtherSessions);
  *       401:
  *         description: Unauthorized
  */
-router.get('/admin/stats', requireAuth, async (req, res) => {
+router.get("/admin/stats", adminAuth, async (req, res) => {
   try {
     // These calls use whatever DB/repository layer the project already uses.
     // Adjust the method names to match what exists in your controllers/repositories.
@@ -440,15 +493,17 @@ router.get('/admin/stats', requireAuth, async (req, res) => {
       activeEvents: events.filter((e) => new Date(e.date) >= now).length,
       totalTeamMembers: teamMembers.length,
       // Count submissions with a "pending" status field
-      pendingMemberships: memberships.filter((m) => m.status === 'pending').length,
-      pendingRecruitments: recruitments.filter((r) => r.status === 'pending').length,
+      pendingMemberships: memberships.filter((m) => m.status === "pending")
+        .length,
+      pendingRecruitments: recruitments.filter((r) => r.status === "pending")
+        .length,
       totalApplications: memberships.length + recruitments.length,
     };
 
     res.json(stats);
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    res.status(500).json({ error: 'Failed to fetch platform statistics' });
+    console.error("Error fetching admin stats:", error);
+    res.status(500).json({ error: "Failed to fetch platform statistics" });
   }
 });
 

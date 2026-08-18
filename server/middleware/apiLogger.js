@@ -1,8 +1,11 @@
-import logger from '../utils/logger.js';
+import logger from "../utils/logger.js";
 // Patterns to identify sensitive tokens in paths
 const SENSITIVE_PATH_PATTERNS = [
-  { regex: /(\/api\/auth\/reset-password\/)([^/?]+)/g, replacement: '$1[REDACTED]' },
-  { regex: /(\/api\/auth\/verify\/)([^/?]+)/g, replacement: '$1[REDACTED]' },
+  {
+    regex: /(\/api\/auth\/reset-password\/)([^/?]+)/g,
+    replacement: "$1[REDACTED]",
+  },
+  { regex: /(\/api\/auth\/verify\/)([^/?]+)/g, replacement: "$1[REDACTED]" },
 ];
 
 /**
@@ -14,7 +17,10 @@ function redactPath(path) {
     redacted = redacted.replace(pattern.regex, pattern.replacement);
   }
   // Optional: Mask query parameters if they contain sensitive tokens
-  redacted = redacted.replace(/(token|password|secret)=([^&]+)/gi, '$1=[REDACTED]');
+  redacted = redacted.replace(
+    /(token|password|secret)=([^&]+)/gi,
+    "$1=[REDACTED]"
+  );
   return redacted;
 }
 
@@ -27,7 +33,7 @@ export function apiLogger(req, res, next) {
   const start = process.hrtime.bigint();
   const { method, originalUrl, reqId } = req;
 
-  res.on('finish', () => {
+  res.on("finish", () => {
     const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
 
     const status = res.statusCode;
@@ -56,8 +62,3 @@ export function apiLogger(req, res, next) {
     }
   });
 }
-
-const logStream = (() => {
-  ensureLogDir();
-  return fs.createWriteStream(LOG_FILE, { flags: 'a' });
-})();

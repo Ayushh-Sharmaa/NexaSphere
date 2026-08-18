@@ -6,16 +6,16 @@
 const reports = [
   {
     id: 1,
-    name: 'Event Registration Report',
-    type: 'CSV',
-    status: 'Completed',
+    name: "Event Registration Report",
+    type: "CSV",
+    status: "Completed",
     createdAt: new Date().toISOString(),
   },
   {
     id: 2,
-    name: 'Attendance Analytics',
-    type: 'PDF',
-    status: 'Completed',
+    name: "Attendance Analytics",
+    type: "PDF",
+    status: "Completed",
     createdAt: new Date().toISOString(),
   },
 ];
@@ -23,10 +23,10 @@ const reports = [
 const templates = [
   {
     id: 1,
-    name: 'Monthly Event Summary',
+    name: "Monthly Event Summary",
     filters: {
-      module: 'events',
-      format: 'PDF',
+      module: "events",
+      format: "PDF",
     },
   },
 ];
@@ -38,19 +38,20 @@ const reportHistory = [];
 const auditLogs = [];
 
 // Get All Reports
-const getReports = async () => reports;
+export const getReports = async () => reports;
 
 // Get Scheduled Reports
-const getScheduledReports = async () => scheduledReports;
+export const getScheduledReports = async () => scheduledReports;
 
 // Export Data
-const exportData = async (data) => {
-  const nextId = reports.length > 0 ? Math.max(...reports.map((r) => r.id)) + 1 : 1;
+export const exportData = async (data) => {
+  const nextId =
+    reports.length > 0 ? Math.max(...reports.map((r) => r.id)) + 1 : 1;
   const report = {
     id: reports.length + 1,
-    name: data.name || 'Custom Export',
-    type: data.format || 'CSV',
-    status: 'Completed',
+    name: data.name || "Custom Export",
+    type: data.format || "CSV",
+    status: "Completed",
     exportedAt: new Date().toISOString(),
   };
 
@@ -58,7 +59,7 @@ const exportData = async (data) => {
   reportHistory.push(report);
 
   auditLogs.push({
-    action: 'Export Generated',
+    action: "Export Generated",
     report: report.name,
     timestamp: new Date().toISOString(),
   });
@@ -67,24 +68,25 @@ const exportData = async (data) => {
 };
 
 // Schedule Report
-const scheduleReport = async (data) => ({
+export const scheduleReport = async (data) => ({
   id: Date.now(),
   schedule: data.schedule,
   format: data.format,
-  status: 'Scheduled',
+  status: "Scheduled",
 });
 
 // Generate Custom Report
-const generateCustomReport = async (data) => ({
+export const generateCustomReport = async (data) => ({
   id: Date.now(),
-  title: data.title || 'Custom Report',
+  title: data.title || "Custom Report",
   filters: data.filters || {},
   generatedAt: new Date().toISOString(),
 });
 
 // Save Template
-const saveTemplate = async (data) => {
-  const nextId = templates.length > 0 ? Math.max(...templates.map((t) => t.id)) + 1 : 1;
+export const saveTemplate = async (data) => {
+  const nextId =
+    templates.length > 0 ? Math.max(...templates.map((t) => t.id)) + 1 : 1;
   const template = {
     id: nextId,
     ...data,
@@ -96,34 +98,36 @@ const saveTemplate = async (data) => {
 };
 
 // Get Templates
-const getTemplates = async () => templates;
+export const getTemplates = async () => templates;
 
 // Email Report
-const emailReport = async (data) => ({
+export const emailReport = async (data) => ({
   email: data.email,
   report: data.report,
-  status: 'Sent',
+  status: "Sent",
   sentAt: new Date().toISOString(),
 });
 
 // Dashboard Summary
-const getDashboardSummary = async () => ({
+export const getDashboardSummary = async () => ({
   totalReports: reports.length,
   scheduledReports: scheduledReports.length,
   exportedToday: reportHistory.filter(
-    (r) => new Date(r.exportedAt || r.createdAt).toDateString() === new Date().toDateString()
+    (r) =>
+      new Date(r.exportedAt || r.createdAt).toDateString() ===
+      new Date().toDateString()
   ).length,
   totalDownloads: auditLogs.length,
 });
 
 // Report History
-const getReportHistory = async () => reportHistory;
+export const getReportHistory = async () => reportHistory;
 
 // Audit Logs
-const getAuditLogs = async () => auditLogs;
+export const getAuditLogs = async () => auditLogs;
 
 // Filter Reports
-const filterReports = async (filters) => {
+export const filterReports = async (filters) => {
   let filtered = [...reports];
 
   if (filters.type) {
@@ -142,25 +146,9 @@ const filterReports = async (filters) => {
 };
 
 // Export Permissions
-const getPermissions = async () => ({
+export const getPermissions = async () => ({
   admin: true,
   organizer: true,
   faculty: false,
   student: false,
 });
-
-module.exports = {
-  getReports,
-  getScheduledReports,
-  exportData,
-  scheduleReport,
-  generateCustomReport,
-  saveTemplate,
-  getTemplates,
-  emailReport,
-  getDashboardSummary,
-  getReportHistory,
-  getAuditLogs,
-  filterReports,
-  getPermissions,
-};

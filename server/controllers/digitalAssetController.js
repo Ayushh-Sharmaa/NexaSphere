@@ -1,7 +1,7 @@
-const digitalAssetService = require('../services/digitalAssetService');
+import * as digitalAssetService from "../services/digitalAssetService.js";
 
 // Get All Assets
-const getAllAssets = async (req, res) => {
+export const getAllAssets = async (req, res) => {
   try {
     const assets = await digitalAssetService.getAllAssets();
 
@@ -12,21 +12,21 @@ const getAllAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch assets.',
+      message: "Failed to fetch assets.",
       error: error.message,
     });
   }
 };
 
 // Get Asset By ID
-const getAssetById = async (req, res) => {
+export const getAssetById = async (req, res) => {
   try {
     const asset = await digitalAssetService.getAssetById(req.params.id);
 
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: 'Asset not found.',
+        message: "Asset not found.",
       });
     }
 
@@ -37,85 +37,88 @@ const getAssetById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch asset.',
+      message: "Failed to fetch asset.",
       error: error.message,
     });
   }
 };
 
 // Upload Asset
-const uploadAsset = async (req, res) => {
+export const uploadAsset = async (req, res) => {
   try {
     const asset = await digitalAssetService.uploadAsset(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Asset uploaded successfully.',
+      message: "Asset uploaded successfully.",
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to upload asset.',
+      message: "Failed to upload asset.",
       error: error.message,
     });
   }
 };
 
 // Update Asset
-const updateAsset = async (req, res) => {
+export const updateAsset = async (req, res) => {
   try {
-    const asset = await digitalAssetService.updateAsset(req.params.id, req.body);
+    const asset = await digitalAssetService.updateAsset(
+      req.params.id,
+      req.body
+    );
 
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: 'Asset not found.',
+        message: "Asset not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Asset updated successfully.',
+      message: "Asset updated successfully.",
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update asset.',
+      message: "Failed to update asset.",
       error: error.message,
     });
   }
 };
 
 // Delete Asset
-const deleteAsset = async (req, res) => {
+export const deleteAsset = async (req, res) => {
   try {
     const asset = await digitalAssetService.deleteAsset(req.params.id);
 
     if (!asset) {
       return res.status(404).json({
         success: false,
-        message: 'Asset not found.',
+        message: "Asset not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Asset deleted successfully.',
+      message: "Asset deleted successfully.",
       data: asset,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to delete asset.',
+      message: "Failed to delete asset.",
       error: error.message,
     });
   }
 };
 
 // Search Assets
-const searchAssets = async (req, res) => {
+export const searchAssets = async (req, res) => {
   try {
     const assets = await digitalAssetService.searchAssets(req.query.q);
 
@@ -126,16 +129,18 @@ const searchAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to search assets.',
+      message: "Failed to search assets.",
       error: error.message,
     });
   }
 };
 
 // Get Assets By Category
-const getAssetsByCategory = async (req, res) => {
+export const getAssetsByCategory = async (req, res) => {
   try {
-    const assets = await digitalAssetService.getAssetsByCategory(req.params.category);
+    const assets = await digitalAssetService.getAssetsByCategory(
+      req.params.category
+    );
 
     res.status(200).json({
       success: true,
@@ -144,14 +149,14 @@ const getAssetsByCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch assets by category.',
+      message: "Failed to fetch assets by category.",
       error: error.message,
     });
   }
 };
 
 // Get Folders
-const getFolders = async (req, res) => {
+export const getFolders = async (req, res) => {
   try {
     const folders = await digitalAssetService.getFolders();
 
@@ -162,33 +167,33 @@ const getFolders = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch folders.',
+      message: "Failed to fetch folders.",
       error: error.message,
     });
   }
 };
 
 // Create Folder
-const createFolder = async (req, res) => {
+export const createFolder = async (req, res) => {
   try {
     const folder = await digitalAssetService.createFolder(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Folder created successfully.',
+      message: "Folder created successfully.",
       data: folder,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create folder.',
+      message: "Failed to create folder.",
       error: error.message,
     });
   }
 };
 
 // Detect Duplicate Assets
-const detectDuplicates = async (req, res) => {
+export const detectDuplicates = async (req, res) => {
   try {
     const duplicates = await digitalAssetService.detectDuplicates();
 
@@ -199,14 +204,14 @@ const detectDuplicates = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to detect duplicate assets.',
+      message: "Failed to detect duplicate assets.",
       error: error.message,
     });
   }
 };
 
 // AI Image Tags
-const generateAITags = async (req, res) => {
+export const generateAITags = async (req, res) => {
   try {
     const tags = await digitalAssetService.generateAITags(req.params.id);
 
@@ -217,14 +222,14 @@ const generateAITags = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to generate AI tags.',
+      message: "Failed to generate AI tags.",
       error: error.message,
     });
   }
 };
 
 // Version History
-const getVersionHistory = async (req, res) => {
+export const getVersionHistory = async (req, res) => {
   try {
     const history = await digitalAssetService.getVersionHistory(req.params.id);
 
@@ -235,14 +240,14 @@ const getVersionHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch version history.',
+      message: "Failed to fetch version history.",
       error: error.message,
     });
   }
 };
 
 // Preview Asset
-const previewAsset = async (req, res) => {
+export const previewAsset = async (req, res) => {
   try {
     const preview = await digitalAssetService.previewAsset(req.params.id);
 
@@ -253,33 +258,33 @@ const previewAsset = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to preview asset.',
+      message: "Failed to preview asset.",
       error: error.message,
     });
   }
 };
 
 // Bulk Upload
-const bulkUpload = async (req, res) => {
+export const bulkUpload = async (req, res) => {
   try {
     const result = await digitalAssetService.bulkUpload(req.body.files);
 
     res.status(201).json({
       success: true,
-      message: 'Assets uploaded successfully.',
+      message: "Assets uploaded successfully.",
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Bulk upload failed.',
+      message: "Bulk upload failed.",
       error: error.message,
     });
   }
 };
 
 // Bulk Download
-const bulkDownload = async (req, res) => {
+export const bulkDownload = async (req, res) => {
   try {
     const result = await digitalAssetService.bulkDownload(req.body.ids);
 
@@ -290,33 +295,33 @@ const bulkDownload = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Bulk download failed.',
+      message: "Bulk download failed.",
       error: error.message,
     });
   }
 };
 
 // Share Asset
-const shareAsset = async (req, res) => {
+export const shareAsset = async (req, res) => {
   try {
     const result = await digitalAssetService.shareAsset(req.body);
 
     res.status(200).json({
       success: true,
-      message: 'Asset shared successfully.',
+      message: "Asset shared successfully.",
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to share asset.',
+      message: "Failed to share asset.",
       error: error.message,
     });
   }
 };
 
 // Storage Analytics
-const getStorageAnalytics = async (req, res) => {
+export const getStorageAnalytics = async (req, res) => {
   try {
     const analytics = await digitalAssetService.getStorageAnalytics();
 
@@ -327,14 +332,14 @@ const getStorageAnalytics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch storage analytics.',
+      message: "Failed to fetch storage analytics.",
       error: error.message,
     });
   }
 };
 
 // Expiring Assets
-const getExpiringAssets = async (req, res) => {
+export const getExpiringAssets = async (req, res) => {
   try {
     const assets = await digitalAssetService.getExpiringAssets();
 
@@ -345,29 +350,8 @@ const getExpiringAssets = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch expiring assets.',
+      message: "Failed to fetch expiring assets.",
       error: error.message,
     });
   }
-};
-
-module.exports = {
-  getAllAssets,
-  getAssetById,
-  uploadAsset,
-  updateAsset,
-  deleteAsset,
-  searchAssets,
-  getAssetsByCategory,
-  getFolders,
-  createFolder,
-  detectDuplicates,
-  generateAITags,
-  getVersionHistory,
-  previewAsset,
-  bulkUpload,
-  bulkDownload,
-  shareAsset,
-  getStorageAnalytics,
-  getExpiringAssets,
 };

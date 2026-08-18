@@ -7,6 +7,8 @@ import {
   Outlet,
 } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { useAdminShortcuts } from "./hooks/useAdminShortcuts";
+import CommandMenu from "./components/CommandMenu";
 import "./styles/admin.css";
 
 // Lazy loaded components
@@ -78,6 +80,16 @@ import { SsoInvitePage } from "./pages/SsoInvitePage";
 import { UserSegmentation } from "./pages/UserSegmentation";
 import RateLimitMonitor from "./pages/dashboard/RateLimitMonitor";
 import ScheduledReports from "./pages/dashboard/ScheduledReports";
+import { BannersManager } from "./pages/BannersManager";
+import { LiveQaManager } from "./pages/LiveQaManager";
+import UserManager from "./pages/UserManager";
+import { EventPlanningManager } from "./pages/EventPlanningManager";
+import { ImpersonationManager } from "./pages/ImpersonationManager";
+import { SubscriptionsManager } from "./pages/SubscriptionsManager";
+import RealTimeDashboard from "./pages/RealTimeDashboard";
+import { AlertManager } from "./pages/AlertManager";
+import { SessionPlayer } from "./pages/SessionPlayer";
+
 function RequireAuth() {
   const { isLoading, isVerified } = useAuth();
 
@@ -253,16 +265,46 @@ export default function App() {
               element={<UserEngagementReport />}
             />
             <Route path="/dashboard/security" element={<SecurityCenter />} />
-            <Route
-              path="/dashboard/reports"
-              element={<UserEngagementReport />}
-            />
-            <Route
-              path="/dashboard/sponsorships"
-              element={<SponsorshipsManager />}
-            />
-            <Route path="/dashboard/audit-logs" element={<AuditLogViewer />} />
             <Route path="/dashboard/activity-logs" element={<ActivityLogs />} />
+            <Route
+              path="/dashboard/moderation"
+              element={<ModerationManager />}
+            />
+            <Route path="/dashboard/rbac" element={<RBACManager />} />
+            <Route path="/dashboard/sso-invite" element={<SsoInvitePage />} />
+            <Route
+              path="/dashboard/user-segmentation"
+              element={<UserSegmentation />}
+            />
+            <Route
+              path="/dashboard/rate-limits"
+              element={<RateLimitMonitor />}
+            />
+            <Route
+              path="/dashboard/reports/scheduled"
+              element={<ScheduledReports />}
+            />
+            <Route path="/dashboard/banners" element={<BannersManager />} />
+            <Route path="/dashboard/qa-poll" element={<LiveQaManager />} />
+            <Route path="/dashboard/users" element={<UserManager />} />
+            <Route
+              path="/dashboard/event-planning"
+              element={<EventPlanningManager />}
+            />
+            <Route
+              path="/dashboard/impersonation"
+              element={<ImpersonationManager />}
+            />
+            <Route
+              path="/dashboard/subscriptions"
+              element={<SubscriptionsManager />}
+            />
+            <Route path="/dashboard/realtime" element={<RealTimeDashboard />} />
+            <Route path="/dashboard/alerts" element={<AlertManager />} />
+            <Route
+              path="/dashboard/session-player"
+              element={<SessionPlayer />}
+            />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

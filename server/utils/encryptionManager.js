@@ -1,19 +1,15 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
-const ALGORITHM = 'aes-256-cbc';
-if (!process.env.ENCRYPTION_KEY) {
-  if (process.env.NODE_ENV === 'test') {
-    process.env.ENCRYPTION_KEY = '12345678901234567890123456789012'; // 32 bytes fallback
-  } else {
-    throw new Error('FATAL: ENCRYPTION_KEY environment variable is not set.');
-  }
-if (!process.env.ENCRYPTION_KEY && process.env.NODE_ENV !== 'test') {
-  throw new Error('FATAL: ENCRYPTION_KEY environment variable is not set.');
-}
-let ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'test-encryption-key-123456789012';
-  throw new Error('FATAL: ENCRYPTION_KEY environment variable is not set.');
-}
-let ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+const ALGORITHM = "aes-256-cbc";
+const ENCRYPTION_KEY =
+  process.env.ENCRYPTION_KEY ||
+  (process.env.NODE_ENV === "test" || !process.env.NODE_ENV
+    ? "12345678901234567890123456789012"
+    : (() => {
+        throw new Error(
+          "FATAL: ENCRYPTION_KEY environment variable is not set."
+        );
+      })());
 
 let auditLogs = [];
 
@@ -23,18 +19,22 @@ let auditLogs = [];
 const encryptData = (data) => {
   const iv = crypto.randomBytes(16);
 
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+  const cipher = crypto.createCipheriv(
+    ALGORITHM,
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
 
-  let encrypted = cipher.update(data, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
+  let encrypted = cipher.update(data, "utf8", "hex");
+  encrypted += cipher.final("hex");
 
   auditLogs.push({
-    action: 'ENCRYPT',
+    action: "ENCRYPT",
     timestamp: new Date().toISOString(),
   });
 
   return {
-    iv: iv.toString('hex'),
+    iv: iv.toString("hex"),
     encryptedData: encrypted,
   };
 };
@@ -46,15 +46,15 @@ const decryptData = (encryptedObject) => {
   const decipher = crypto.createDecipheriv(
     ALGORITHM,
     Buffer.from(ENCRYPTION_KEY),
-    Buffer.from(encryptedObject.iv, 'hex')
+    Buffer.from(encryptedObject.iv, "hex")
   );
 
-  let decrypted = decipher.update(encryptedObject.encryptedData, 'hex', 'utf8');
+  let decrypted = decipher.update(encryptedObject.encryptedData, "hex", "utf8");
 
-  decrypted += decipher.final('utf8');
+  decrypted += decipher.final("utf8");
 
   auditLogs.push({
-    action: 'DECRYPT',
+    action: "DECRYPT",
     timestamp: new Date().toISOString(),
   });
 
@@ -65,15 +65,15 @@ const decryptData = (encryptedObject) => {
  * Rotate encryption key
  */
 const rotateEncryptionKey = () => {
-  ENCRYPTION_KEY = crypto.randomBytes(32).toString('hex').slice(0, 32);
+  ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex").slice(0, 32);
 
   auditLogs.push({
-    action: 'KEY_ROTATION',
+    action: "KEY_ROTATION",
     timestamp: new Date().toISOString(),
   });
 
   return {
-    message: 'Encryption key rotated successfully',
+    message: "Encryption key rotated successfully",
     rotatedAt: new Date().toISOString(),
   };
 };
@@ -93,7 +93,7 @@ const getEncryptionStatus = () => {
     algorithm: ALGORITHM,
     keyConfigured: Boolean(ENCRYPTION_KEY),
     auditEvents: auditLogs.length,
-    status: 'SECURE',
+    status: "SECURE",
   };
 };
 

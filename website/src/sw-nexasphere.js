@@ -264,7 +264,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (action === 'register') {
     const registerUrl = event.notification.data?.registerUrl || urlToOpen;
-    event.waitUntil(clients.openWindow(registerUrl));
+    event.waitUntil(self.clients.openWindow(registerUrl));
     return;
   }
 
@@ -273,14 +273,14 @@ self.addEventListener('notificationclick', (event) => {
   }
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url === urlToOpen && 'focus' in client) {
           return client.focus();
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(urlToOpen);
       }
     })
   );

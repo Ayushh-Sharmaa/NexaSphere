@@ -1,7 +1,7 @@
-const knowledgeAssistantService = require("../services/knowledgeAssistantService");
+import * as knowledgeAssistantService from "../services/knowledgeAssistantService.js";
 
 // Ask AI Assistant
-const askQuestion = async (req, res) => {
+export const askQuestion = async (req, res) => {
   try {
     const response = await knowledgeAssistantService.askQuestion(req.body);
 
@@ -20,7 +20,7 @@ const askQuestion = async (req, res) => {
 };
 
 // Natural Language Search
-const naturalSearch = async (req, res) => {
+export const naturalSearch = async (req, res) => {
   try {
     const results = await knowledgeAssistantService.naturalSearch(req.query.q);
 
@@ -38,9 +38,11 @@ const naturalSearch = async (req, res) => {
 };
 
 // Documentation Search
-const getDocumentation = async (req, res) => {
+export const getDocumentation = async (req, res) => {
   try {
-    const docs = await knowledgeAssistantService.getDocumentation(req.query.topic);
+    const docs = await knowledgeAssistantService.getDocumentation(
+      req.query.topic
+    );
 
     res.status(200).json({
       success: true,
@@ -56,7 +58,7 @@ const getDocumentation = async (req, res) => {
 };
 
 // Event Recommendations
-const getEventRecommendations = async (req, res) => {
+export const getEventRecommendations = async (req, res) => {
   try {
     const events = await knowledgeAssistantService.getEventRecommendations(
       req.query.userId
@@ -76,7 +78,7 @@ const getEventRecommendations = async (req, res) => {
 };
 
 // Club Information
-const getClubInformation = async (req, res) => {
+export const getClubInformation = async (req, res) => {
   try {
     const clubs = await knowledgeAssistantService.getClubInformation(
       req.query.club
@@ -96,7 +98,7 @@ const getClubInformation = async (req, res) => {
 };
 
 // FAQ Generation
-const generateFAQs = async (req, res) => {
+export const generateFAQs = async (req, res) => {
   try {
     const faqs = await knowledgeAssistantService.generateFAQs();
 
@@ -114,7 +116,7 @@ const generateFAQs = async (req, res) => {
 };
 
 // Step-by-Step Guides
-const getGuides = async (req, res) => {
+export const getGuides = async (req, res) => {
   try {
     const guides = await knowledgeAssistantService.getGuides(req.query.topic);
 
@@ -132,7 +134,7 @@ const getGuides = async (req, res) => {
 };
 
 // Smart Search Suggestions
-const getSuggestions = async (req, res) => {
+export const getSuggestions = async (req, res) => {
   try {
     const suggestions = await knowledgeAssistantService.getSuggestions(
       req.query.q
@@ -152,7 +154,7 @@ const getSuggestions = async (req, res) => {
 };
 
 // Translation
-const translateResponse = async (req, res) => {
+export const translateResponse = async (req, res) => {
   try {
     const translated = await knowledgeAssistantService.translateResponse(
       req.body
@@ -172,7 +174,7 @@ const translateResponse = async (req, res) => {
 };
 
 // Query History
-const getHistory = async (req, res) => {
+export const getHistory = async (req, res) => {
   try {
     const history = await knowledgeAssistantService.getHistory(
       req.query.userId
@@ -192,7 +194,7 @@ const getHistory = async (req, res) => {
 };
 
 // Feedback
-const submitFeedback = async (req, res) => {
+export const submitFeedback = async (req, res) => {
   try {
     const feedback = await knowledgeAssistantService.submitFeedback(req.body);
 
@@ -211,7 +213,7 @@ const submitFeedback = async (req, res) => {
 };
 
 // Analytics
-const getAnalytics = async (req, res) => {
+export const getAnalytics = async (req, res) => {
   try {
     const analytics = await knowledgeAssistantService.getAnalytics();
 
@@ -229,7 +231,7 @@ const getAnalytics = async (req, res) => {
 };
 
 // Update Knowledge Base
-const updateKnowledgeBase = async (req, res) => {
+export const updateKnowledgeBase = async (req, res) => {
   try {
     const update = await knowledgeAssistantService.updateKnowledgeBase();
 
@@ -245,20 +247,4 @@ const updateKnowledgeBase = async (req, res) => {
       error: error.message,
     });
   }
-};
-
-module.exports = {
-  askQuestion,
-  naturalSearch,
-  getDocumentation,
-  getEventRecommendations,
-  getClubInformation,
-  generateFAQs,
-  getGuides,
-  getSuggestions,
-  translateResponse,
-  getHistory,
-  submitFeedback,
-  getAnalytics,
-  updateKnowledgeBase,
 };

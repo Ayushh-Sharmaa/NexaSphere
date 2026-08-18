@@ -7,14 +7,14 @@
 const campaigns = [
   {
     id: 1,
-    title: 'Welcome Students',
-    message: 'Welcome to NexaSphere!',
-    channels: ['email', 'in-app'],
-    audience: 'Students',
-    scheduleTime: '2026-07-10T10:00:00Z',
-    timezone: 'Asia/Kolkata',
+    title: "Welcome Students",
+    message: "Welcome to NexaSphere!",
+    channels: ["email", "in-app"],
+    audience: "Students",
+    scheduleTime: "2026-07-10T10:00:00Z",
+    timezone: "Asia/Kolkata",
     recurring: false,
-    status: 'Scheduled',
+    status: "Scheduled",
     createdAt: new Date().toISOString(),
   },
 ];
@@ -22,9 +22,9 @@ const campaigns = [
 const templates = [
   {
     id: 1,
-    name: 'General Announcement',
-    subject: 'Important Update',
-    message: 'This is a notification template.',
+    name: "General Announcement",
+    subject: "Important Update",
+    message: "This is a notification template.",
   },
 ];
 
@@ -39,14 +39,16 @@ const analytics = {
 };
 
 // Get all campaigns
-const getAllCampaigns = async () => campaigns;
+export const getAllCampaigns = async () => campaigns;
 
 // Get campaign by ID
-const getCampaignById = async (id) => campaigns.find((campaign) => campaign.id === Number(id));
+export const getCampaignById = async (id) =>
+  campaigns.find((campaign) => campaign.id === Number(id));
 
 // Create campaign
-const createCampaign = async (data) => {
-  const nextId = campaigns.length > 0 ? Math.max(...campaigns.map((c) => c.id)) + 1 : 1;
+export const createCampaign = async (data) => {
+  const nextId =
+    campaigns.length > 0 ? Math.max(...campaigns.map((c) => c.id)) + 1 : 1;
   const campaign = {
     id: nextId,
     status: "Draft",
@@ -59,7 +61,7 @@ const createCampaign = async (data) => {
 };
 
 // Update campaign
-const updateCampaign = async (id, data) => {
+export const updateCampaign = async (id, data) => {
   const index = campaigns.findIndex((campaign) => campaign.id === Number(id));
 
   if (index === -1) return null;
@@ -74,7 +76,7 @@ const updateCampaign = async (id, data) => {
 };
 
 // Delete campaign
-const deleteCampaign = async (id) => {
+export const deleteCampaign = async (id) => {
   const index = campaigns.findIndex((campaign) => campaign.id === Number(id));
 
   if (index === -1) return null;
@@ -83,36 +85,39 @@ const deleteCampaign = async (id) => {
 };
 
 // Schedule campaign
-const scheduleCampaign = async (id, scheduleData) => {
+export const scheduleCampaign = async (id, scheduleData) => {
   const campaign = campaigns.find((item) => item.id === Number(id));
 
   if (!campaign) return null;
 
-  if (scheduleData.scheduleTime && new Date(scheduleData.scheduleTime).getTime() <= Date.now()) {
+  if (
+    scheduleData.scheduleTime &&
+    new Date(scheduleData.scheduleTime).getTime() <= Date.now()
+  ) {
     throw new Error("Cannot schedule a campaign in the past");
   }
 
   campaign.scheduleTime = scheduleData.scheduleTime;
-  campaign.timezone = scheduleData.timezone || 'UTC';
+  campaign.timezone = scheduleData.timezone || "UTC";
   campaign.recurring = scheduleData.recurring || false;
-  campaign.status = 'Scheduled';
+  campaign.status = "Scheduled";
 
   return campaign;
 };
 
 // Send campaign immediately
-const sendCampaign = async (id) => {
+export const sendCampaign = async (id) => {
   const campaign = campaigns.find((item) => item.id === Number(id));
 
   if (!campaign) return null;
 
-  campaign.status = 'Sent';
+  campaign.status = "Sent";
   campaign.sentAt = new Date().toISOString();
 
   history.push({
     campaignId: campaign.id,
     title: campaign.title,
-    status: 'Sent',
+    status: "Sent",
     timestamp: campaign.sentAt,
   });
 
@@ -120,33 +125,34 @@ const sendCampaign = async (id) => {
 };
 
 // Pause campaign
-const pauseCampaign = async (id) => {
+export const pauseCampaign = async (id) => {
   const campaign = campaigns.find((item) => item.id === Number(id));
 
   if (!campaign) return null;
 
-  campaign.status = 'Paused';
+  campaign.status = "Paused";
   return campaign;
 };
 
 // Resume campaign
-const resumeCampaign = async (id) => {
+export const resumeCampaign = async (id) => {
   const campaign = campaigns.find((item) => item.id === Number(id));
 
   if (!campaign) return null;
 
-  campaign.status = 'Scheduled';
+  campaign.status = "Scheduled";
   return campaign;
 };
 
 // Campaign history
-const getCampaignHistory = async () => history;
+export const getCampaignHistory = async () => history;
 
 // Templates
-const getTemplates = async () => templates;
+export const getTemplates = async () => templates;
 
-const createTemplate = async (data) => {
-  const nextId = templates.length > 0 ? Math.max(...templates.map((t) => t.id)) + 1 : 1;
+export const createTemplate = async (data) => {
+  const nextId =
+    templates.length > 0 ? Math.max(...templates.map((t) => t.id)) + 1 : 1;
   const template = {
     id: nextId,
     ...data,
@@ -157,40 +163,22 @@ const createTemplate = async (data) => {
 };
 
 // Audience Segments
-const getAudienceSegments = async () => [
-  'Students',
-  'Faculty',
-  'Staff',
-  'Parents',
-  'Alumni',
-  'Departments',
-  'Clubs',
+export const getAudienceSegments = async () => [
+  "Students",
+  "Faculty",
+  "Staff",
+  "Parents",
+  "Alumni",
+  "Departments",
+  "Clubs",
 ];
 
 // Analytics
-const getAnalytics = async () => analytics;
+export const getAnalytics = async () => analytics;
 
 // A/B Test
-const createABTest = async (data) => ({
+export const createABTest = async (data) => ({
   id: Date.now(),
-  status: 'Created',
+  status: "Created",
   ...data,
 });
-
-module.exports = {
-  getAllCampaigns,
-  getCampaignById,
-  createCampaign,
-  updateCampaign,
-  deleteCampaign,
-  scheduleCampaign,
-  sendCampaign,
-  pauseCampaign,
-  resumeCampaign,
-  getCampaignHistory,
-  getTemplates,
-  createTemplate,
-  getAudienceSegments,
-  getAnalytics,
-  createABTest,
-};

@@ -130,15 +130,6 @@ const links = [
     to: "/dashboard/audit-logs",
     label: "Audit Logs",
     icon: "FileText",
-    to: "/dashboard/audit-logs",
-    label: "Audit Logs",
-    icon: "FileText",
-    requiredScope: "settings:admin",
-  },
-  {
-    to: "/dashboard/scheduled-tasks",
-    label: "Scheduled Tasks",
-    icon: "Clock",
     requiredScope: "settings:admin",
   },
   {
@@ -151,6 +142,9 @@ const links = [
     to: "/dashboard/reports",
     label: "Reports",
     icon: "Target",
+    requiredScope: "settings:admin",
+  },
+  {
     to: "/dashboard/settings",
     label: "Platform Settings",
     icon: "Settings",
@@ -165,12 +159,19 @@ export function Sidebar() {
 
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState(
-    document.documentElement.getAttribute("data-theme") || "dark"
+    () => document.documentElement.getAttribute("data-theme") || "dark"
   );
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
 
     document.documentElement.setAttribute("data-theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
 
     localStorage.setItem("ns-admin-theme", newTheme);
 

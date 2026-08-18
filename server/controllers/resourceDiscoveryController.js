@@ -1,85 +1,107 @@
-const resourceDiscoveryService = require('../services/resourceDiscoveryService');
+import * as resourceDiscoveryService from "../services/resourceDiscoveryService.js";
 
-exports.getAllResources = (req, res) => {
+export const getAllResources = (req, res) => {
   res.status(200).json(resourceDiscoveryService.getAllResources());
 };
 
-exports.getResourceById = (req, res) => {
+export const getResourceById = (req, res) => {
   res.status(200).json(resourceDiscoveryService.getResourceById(req.params.id));
 };
 
-exports.searchResources = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.searchResources(req.query.q || ''));
+export const searchResources = (req, res) => {
+  res
+    .status(200)
+    .json(resourceDiscoveryService.searchResources(req.query.q || ""));
 };
 
-exports.getResourcesByCategory = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.getResourcesByCategory(req.params.category));
+export const getResourcesByCategory = (req, res) => {
+  res
+    .status(200)
+    .json(resourceDiscoveryService.getResourcesByCategory(req.params.category));
 };
 
-exports.getPopularResources = (req, res) => {
+export const getPopularResources = (req, res) => {
   res.status(200).json(resourceDiscoveryService.getPopularResources());
 };
 
-exports.getRecentResources = (req, res) => {
+export const getRecentResources = (req, res) => {
   res.status(200).json(resourceDiscoveryService.getRecentResources());
 };
 
-exports.getRecommendedResources = (req, res) => {
+export const getRecommendedResources = (req, res) => {
   const userId = req.params.userId;
   const authUserId = req.studentUser?.sub || req.user?.id;
 
   if (userId !== authUserId) {
-    return res.status(403).json({ error: 'Access denied: can only view your own recommendations' });
+    return res
+      .status(403)
+      .json({ error: "Access denied: can only view your own recommendations" });
   }
 
-  res.status(200).json(resourceDiscoveryService.getRecommendedResources(userId));
+  res
+    .status(200)
+    .json(resourceDiscoveryService.getRecommendedResources(userId));
 };
 
-exports.bookmarkResource = (req, res) => {
+export const bookmarkResource = (req, res) => {
   const userId = req.params.userId;
   const authUserId = req.studentUser?.sub || req.user?.id;
 
   if (userId !== authUserId) {
-    return res.status(403).json({ error: 'Access denied: can only bookmark resources for yourself' });
+    return res
+      .status(403)
+      .json({
+        error: "Access denied: can only bookmark resources for yourself",
+      });
   }
 
-  res.status(200).json(resourceDiscoveryService.bookmarkResource(userId, req.params.id));
+  res
+    .status(200)
+    .json(resourceDiscoveryService.bookmarkResource(userId, req.params.id));
 };
 
-exports.removeBookmark = (req, res) => {
+export const removeBookmark = (req, res) => {
   const userId = req.params.userId;
   const authUserId = req.studentUser?.sub || req.user?.id;
 
   if (userId !== authUserId) {
-    return res.status(403).json({ error: 'Access denied: can only remove bookmarks for yourself' });
+    return res
+      .status(403)
+      .json({ error: "Access denied: can only remove bookmarks for yourself" });
   }
 
-  res.status(200).json(resourceDiscoveryService.removeBookmark(userId, req.params.id));
+  res
+    .status(200)
+    .json(resourceDiscoveryService.removeBookmark(userId, req.params.id));
 };
 
-exports.getBookmarkedResources = (req, res) => {
+export const getBookmarkedResources = (req, res) => {
   const userId = req.params.userId;
   const authUserId = req.studentUser?.sub || req.user?.id;
 
   if (userId !== authUserId) {
-    return res.status(403).json({ error: 'Access denied: can only view your own bookmarks' });
+    return res
+      .status(403)
+      .json({ error: "Access denied: can only view your own bookmarks" });
   }
 
   res.status(200).json(resourceDiscoveryService.getBookmarkedResources(userId));
 };
 
-exports.createResource = (req, res) => {
+export const createResource = (req, res) => {
   res.status(201).json(resourceDiscoveryService.createResource(req.body));
 };
 
-exports.updateResource = (req, res) => {
-  res.status(200).json(resourceDiscoveryService.updateResource(req.params.id, req.body));
+export const updateResource = (req, res) => {
+  res
+    .status(200)
+    .json(resourceDiscoveryService.updateResource(req.params.id, req.body));
 };
 
-exports.deleteResource = (req, res) => {
+export const deleteResource = (req, res) => {
   res.status(200).json(resourceDiscoveryService.deleteResource(req.params.id));
 };
 
-exports.getResourceAnalytics = (req, res) => {
+export const getResourceAnalytics = (req, res) => {
   res.status(200).json(resourceDiscoveryService.getResourceAnalytics());
 };

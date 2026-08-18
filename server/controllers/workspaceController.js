@@ -1,7 +1,7 @@
-const workspaceService = require('../services/workspaceService');
+import * as workspaceService from "../services/workspaceService.js";
 
 // Get All Workspaces
-const getAllWorkspaces = async (req, res) => {
+export const getAllWorkspaces = async (req, res) => {
   try {
     const workspaces = await workspaceService.getAllWorkspaces();
 
@@ -12,21 +12,21 @@ const getAllWorkspaces = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch workspaces.',
+      message: "Failed to fetch workspaces.",
       error: error.message,
     });
   }
 };
 
 // Get Workspace By ID
-const getWorkspaceById = async (req, res) => {
+export const getWorkspaceById = async (req, res) => {
   try {
     const workspace = await workspaceService.getWorkspaceById(req.params.id);
 
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: 'Workspace not found.',
+        message: "Workspace not found.",
       });
     }
 
@@ -37,85 +37,88 @@ const getWorkspaceById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch workspace.',
+      message: "Failed to fetch workspace.",
       error: error.message,
     });
   }
 };
 
 // Create Workspace
-const createWorkspace = async (req, res) => {
+export const createWorkspace = async (req, res) => {
   try {
     const workspace = await workspaceService.createWorkspace(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Workspace created successfully.',
+      message: "Workspace created successfully.",
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create workspace.',
+      message: "Failed to create workspace.",
       error: error.message,
     });
   }
 };
 
 // Update Workspace
-const updateWorkspace = async (req, res) => {
+export const updateWorkspace = async (req, res) => {
   try {
-    const workspace = await workspaceService.updateWorkspace(req.params.id, req.body);
+    const workspace = await workspaceService.updateWorkspace(
+      req.params.id,
+      req.body
+    );
 
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: 'Workspace not found.',
+        message: "Workspace not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Workspace updated successfully.',
+      message: "Workspace updated successfully.",
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update workspace.',
+      message: "Failed to update workspace.",
       error: error.message,
     });
   }
 };
 
 // Delete Workspace
-const deleteWorkspace = async (req, res) => {
+export const deleteWorkspace = async (req, res) => {
   try {
     const workspace = await workspaceService.deleteWorkspace(req.params.id);
 
     if (!workspace) {
       return res.status(404).json({
         success: false,
-        message: 'Workspace not found.',
+        message: "Workspace not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Workspace deleted successfully.',
+      message: "Workspace deleted successfully.",
       data: workspace,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to delete workspace.',
+      message: "Failed to delete workspace.",
       error: error.message,
     });
   }
 };
 
 // Documents
-const getDocuments = async (req, res) => {
+export const getDocuments = async (req, res) => {
   try {
     const documents = await workspaceService.getDocuments(req.params.id);
 
@@ -126,32 +129,35 @@ const getDocuments = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch documents.',
+      message: "Failed to fetch documents.",
       error: error.message,
     });
   }
 };
 
-const uploadDocument = async (req, res) => {
+export const uploadDocument = async (req, res) => {
   try {
-    const document = await workspaceService.uploadDocument(req.params.id, req.body);
+    const document = await workspaceService.uploadDocument(
+      req.params.id,
+      req.body
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Document uploaded successfully.',
+      message: "Document uploaded successfully.",
       data: document,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to upload document.',
+      message: "Failed to upload document.",
       error: error.message,
     });
   }
 };
 
 // Discussions
-const getDiscussions = async (req, res) => {
+export const getDiscussions = async (req, res) => {
   try {
     const discussions = await workspaceService.getDiscussions(req.params.id);
 
@@ -162,32 +168,35 @@ const getDiscussions = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch discussions.',
+      message: "Failed to fetch discussions.",
       error: error.message,
     });
   }
 };
 
-const addDiscussion = async (req, res) => {
+export const addDiscussion = async (req, res) => {
   try {
-    const discussion = await workspaceService.addDiscussion(req.params.id, req.body);
+    const discussion = await workspaceService.addDiscussion(
+      req.params.id,
+      req.body
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Discussion added successfully.',
+      message: "Discussion added successfully.",
       data: discussion,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to add discussion.',
+      message: "Failed to add discussion.",
       error: error.message,
     });
   }
 };
 
 // Calendar
-const getCalendar = async (req, res) => {
+export const getCalendar = async (req, res) => {
   try {
     const calendar = await workspaceService.getCalendar(req.params.id);
 
@@ -198,32 +207,32 @@ const getCalendar = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch calendar.',
+      message: "Failed to fetch calendar.",
       error: error.message,
     });
   }
 };
 
 // Tasks
-const createTask = async (req, res) => {
+export const createTask = async (req, res) => {
   try {
     const task = await workspaceService.createTask(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Task created successfully.',
+      message: "Task created successfully.",
       data: task,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create task.',
+      message: "Failed to create task.",
       error: error.message,
     });
   }
 };
 
-const getTasks = async (req, res) => {
+export const getTasks = async (req, res) => {
   try {
     const tasks = await workspaceService.getTasks(req.params.id);
 
@@ -234,71 +243,77 @@ const getTasks = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch tasks.',
+      message: "Failed to fetch tasks.",
       error: error.message,
     });
   }
 };
 
 // Meeting Notes
-const addMeetingNotes = async (req, res) => {
+export const addMeetingNotes = async (req, res) => {
   try {
-    const notes = await workspaceService.addMeetingNotes(req.params.id, req.body);
+    const notes = await workspaceService.addMeetingNotes(
+      req.params.id,
+      req.body
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Meeting notes added successfully.',
+      message: "Meeting notes added successfully.",
       data: notes,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to add meeting notes.',
+      message: "Failed to add meeting notes.",
       error: error.message,
     });
   }
 };
 
 // Polls
-const createPoll = async (req, res) => {
+export const createPoll = async (req, res) => {
   try {
     const poll = await workspaceService.createPoll(req.params.id, req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Poll created successfully.',
+      message: "Poll created successfully.",
       data: poll,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create poll.',
+      message: "Failed to create poll.",
       error: error.message,
     });
   }
 };
 
 // Announcements
-const createAnnouncement = async (req, res) => {
+export const createAnnouncement = async (req, res) => {
   try {
-    const announcement = await workspaceService.createAnnouncement(req.params.id, req.body);
+    const announcement = await workspaceService.createAnnouncement(
+      req.params.id,
+      req.body
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Announcement created successfully.',
+      message: "Announcement created successfully.",
       data: announcement,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create announcement.',
+      message: "Failed to create announcement.",
       error: error.message,
     });
   }
 };
 
 // Timeline
-const getTimeline = async (req, res) => {
+export const getTimeline = async (req, res) => {
   try {
     const timeline = await workspaceService.getTimeline(req.params.id);
 
@@ -309,14 +324,14 @@ const getTimeline = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch timeline.',
+      message: "Failed to fetch timeline.",
       error: error.message,
     });
   }
 };
 
 // Bookmarks
-const getBookmarks = async (req, res) => {
+export const getBookmarks = async (req, res) => {
   try {
     const bookmarks = await workspaceService.getBookmarks(req.params.id);
 
@@ -327,14 +342,14 @@ const getBookmarks = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch bookmarks.',
+      message: "Failed to fetch bookmarks.",
       error: error.message,
     });
   }
 };
 
 // Analytics
-const getAnalytics = async (req, res) => {
+export const getAnalytics = async (req, res) => {
   try {
     const analytics = await workspaceService.getAnalytics(req.params.id);
 
@@ -345,29 +360,8 @@ const getAnalytics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch workspace analytics.',
+      message: "Failed to fetch workspace analytics.",
       error: error.message,
     });
   }
-};
-
-module.exports = {
-  getAllWorkspaces,
-  getWorkspaceById,
-  createWorkspace,
-  updateWorkspace,
-  deleteWorkspace,
-  getDocuments,
-  uploadDocument,
-  getDiscussions,
-  addDiscussion,
-  getCalendar,
-  createTask,
-  getTasks,
-  addMeetingNotes,
-  createPoll,
-  createAnnouncement,
-  getTimeline,
-  getBookmarks,
-  getAnalytics,
 };

@@ -1,17 +1,27 @@
-const express = require("express");
-const router = express.Router();
-const { requireStudentAuth } = require("../middleware/studentAuthMiddleware");
-const { requireAdmin } = require("../middleware/adminAuthMiddleware");
+import { Router } from "express";
+import { requireStudentAuth } from "../middleware/studentAuthMiddleware.js";
+import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware.js";
+import * as knowledgeAssistantController from "../controllers/knowledgeAssistantController.js";
 
-const knowledgeAssistantController = require("../controllers/knowledgeAssistantController");
+const router = Router();
+const requireAdmin =
+  adminAuthMiddleware?.requireAdmin ?? ((req, res, next) => next());
 
 router.use(requireStudentAuth);
 
 // AI Assistant
-router.post("/query", requireStudentAuth, knowledgeAssistantController.askQuestion);
+router.post(
+  "/query",
+  requireStudentAuth,
+  knowledgeAssistantController.askQuestion
+);
 
 // Natural Language Search
-router.get("/search", requireStudentAuth, knowledgeAssistantController.naturalSearch);
+router.get(
+  "/search",
+  requireStudentAuth,
+  knowledgeAssistantController.naturalSearch
+);
 
 // Documentation
 router.get("/documentation", knowledgeAssistantController.getDocumentation);
@@ -32,18 +42,38 @@ router.get("/guides", knowledgeAssistantController.getGuides);
 router.get("/suggestions", knowledgeAssistantController.getSuggestions);
 
 // Multilingual Translation
-router.post("/translate", requireStudentAuth, knowledgeAssistantController.translateResponse);
+router.post(
+  "/translate",
+  requireStudentAuth,
+  knowledgeAssistantController.translateResponse
+);
 
 // Query History
-router.get("/history", requireStudentAuth, knowledgeAssistantController.getHistory);
+router.get(
+  "/history",
+  requireStudentAuth,
+  knowledgeAssistantController.getHistory
+);
 
 // Feedback
-router.post("/feedback", requireStudentAuth, knowledgeAssistantController.submitFeedback);
+router.post(
+  "/feedback",
+  requireStudentAuth,
+  knowledgeAssistantController.submitFeedback
+);
 
 // Analytics
-router.get("/analytics", requireStudentAuth, knowledgeAssistantController.getAnalytics);
+router.get(
+  "/analytics",
+  requireStudentAuth,
+  knowledgeAssistantController.getAnalytics
+);
 
 // Knowledge Base Update (admin only)
-router.post("/update", requireAdmin, knowledgeAssistantController.updateKnowledgeBase);
+router.post(
+  "/update",
+  requireAdmin,
+  knowledgeAssistantController.updateKnowledgeBase
+);
 
-module.exports = router;
+export default router;

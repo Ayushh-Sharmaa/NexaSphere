@@ -1,9 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "class",
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./website/src/**/*.{js,jsx,ts,tsx}",
+    "./admin-dashboard/src/**/*.{js,jsx,ts,tsx}",
     "./public/index.html",
+    "./website/index.html",
+    "./admin-dashboard/index.html",
+    "./index.html",
+    "./app/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -37,15 +43,6 @@ module.exports = {
         theme: "ease-in-out",
       },
     },
-  },
-  plugins: [],
-};
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./app/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
   },
   plugins: [],
 };

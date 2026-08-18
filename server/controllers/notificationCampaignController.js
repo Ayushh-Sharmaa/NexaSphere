@@ -1,7 +1,7 @@
-const notificationCampaignService = require('../services/notificationCampaignService');
+import * as notificationCampaignService from "../services/notificationCampaignService.js";
 
 // Get all campaigns
-const getAllCampaigns = async (req, res) => {
+export const getAllCampaigns = async (req, res) => {
   try {
     const campaigns = await notificationCampaignService.getAllCampaigns();
     res.status(200).json({
@@ -11,21 +11,23 @@ const getAllCampaigns = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch campaigns.',
+      message: "Failed to fetch campaigns.",
       error: error.message,
     });
   }
 };
 
 // Get campaign by ID
-const getCampaignById = async (req, res) => {
+export const getCampaignById = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.getCampaignById(req.params.id);
+    const campaign = await notificationCampaignService.getCampaignById(
+      req.params.id
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
@@ -36,189 +38,203 @@ const getCampaignById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch campaign.',
+      message: "Failed to fetch campaign.",
       error: error.message,
     });
   }
 };
 
 // Create campaign
-const createCampaign = async (req, res) => {
+export const createCampaign = async (req, res) => {
   try {
     const campaign = await notificationCampaignService.createCampaign(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Campaign created successfully.',
+      message: "Campaign created successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create campaign.',
+      message: "Failed to create campaign.",
       error: error.message,
     });
   }
 };
 
 // Update campaign
-const updateCampaign = async (req, res) => {
+export const updateCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.updateCampaign(req.params.id, req.body);
+    const campaign = await notificationCampaignService.updateCampaign(
+      req.params.id,
+      req.body
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign updated successfully.',
+      message: "Campaign updated successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update campaign.',
+      message: "Failed to update campaign.",
       error: error.message,
     });
   }
 };
 
 // Delete campaign
-const deleteCampaign = async (req, res) => {
+export const deleteCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.deleteCampaign(req.params.id);
+    const campaign = await notificationCampaignService.deleteCampaign(
+      req.params.id
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign deleted successfully.',
+      message: "Campaign deleted successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to delete campaign.',
+      message: "Failed to delete campaign.",
       error: error.message,
     });
   }
 };
 
 // Schedule campaign
-const scheduleCampaign = async (req, res) => {
+export const scheduleCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.scheduleCampaign(req.params.id, req.body);
+    const campaign = await notificationCampaignService.scheduleCampaign(
+      req.params.id,
+      req.body
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign scheduled successfully.',
+      message: "Campaign scheduled successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to schedule campaign.',
+      message: "Failed to schedule campaign.",
       error: error.message,
     });
   }
 };
 
 // Send campaign immediately
-const sendCampaign = async (req, res) => {
+export const sendCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.sendCampaign(req.params.id);
+    const campaign = await notificationCampaignService.sendCampaign(
+      req.params.id
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign sent successfully.',
+      message: "Campaign sent successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to send campaign.',
+      message: "Failed to send campaign.",
       error: error.message,
     });
   }
 };
 
 // Pause campaign
-const pauseCampaign = async (req, res) => {
+export const pauseCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.pauseCampaign(req.params.id);
+    const campaign = await notificationCampaignService.pauseCampaign(
+      req.params.id
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign paused successfully.',
+      message: "Campaign paused successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to pause campaign.',
+      message: "Failed to pause campaign.",
       error: error.message,
     });
   }
 };
 
 // Resume campaign
-const resumeCampaign = async (req, res) => {
+export const resumeCampaign = async (req, res) => {
   try {
-    const campaign = await notificationCampaignService.resumeCampaign(req.params.id);
+    const campaign = await notificationCampaignService.resumeCampaign(
+      req.params.id
+    );
 
     if (!campaign) {
       return res.status(404).json({
         success: false,
-        message: 'Campaign not found.',
+        message: "Campaign not found.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Campaign resumed successfully.',
+      message: "Campaign resumed successfully.",
       data: campaign,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to resume campaign.',
+      message: "Failed to resume campaign.",
       error: error.message,
     });
   }
 };
 
 // Campaign history
-const getCampaignHistory = async (req, res) => {
+export const getCampaignHistory = async (req, res) => {
   try {
     const history = await notificationCampaignService.getCampaignHistory();
 
@@ -229,14 +245,14 @@ const getCampaignHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch campaign history.',
+      message: "Failed to fetch campaign history.",
       error: error.message,
     });
   }
 };
 
 // Templates
-const getTemplates = async (req, res) => {
+export const getTemplates = async (req, res) => {
   try {
     const templates = await notificationCampaignService.getTemplates();
 
@@ -247,32 +263,32 @@ const getTemplates = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch templates.',
+      message: "Failed to fetch templates.",
       error: error.message,
     });
   }
 };
 
-const createTemplate = async (req, res) => {
+export const createTemplate = async (req, res) => {
   try {
     const template = await notificationCampaignService.createTemplate(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'Template created successfully.',
+      message: "Template created successfully.",
       data: template,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create template.',
+      message: "Failed to create template.",
       error: error.message,
     });
   }
 };
 
 // Audience Segments
-const getAudienceSegments = async (req, res) => {
+export const getAudienceSegments = async (req, res) => {
   try {
     const segments = await notificationCampaignService.getAudienceSegments();
 
@@ -283,16 +299,18 @@ const getAudienceSegments = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch audience segments.',
+      message: "Failed to fetch audience segments.",
       error: error.message,
     });
   }
 };
 
 // Analytics
-const getAnalytics = async (req, res) => {
+export const getAnalytics = async (req, res) => {
   try {
-    const analytics = await notificationCampaignService.getAnalytics(req.params.id);
+    const analytics = await notificationCampaignService.getAnalytics(
+      req.params.id
+    );
 
     res.status(200).json({
       success: true,
@@ -301,45 +319,27 @@ const getAnalytics = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch analytics.',
+      message: "Failed to fetch analytics.",
       error: error.message,
     });
   }
 };
 
 // A/B Testing
-const createABTest = async (req, res) => {
+export const createABTest = async (req, res) => {
   try {
     const result = await notificationCampaignService.createABTest(req.body);
 
     res.status(201).json({
       success: true,
-      message: 'A/B test created successfully.',
+      message: "A/B test created successfully.",
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to create A/B test.',
+      message: "Failed to create A/B test.",
       error: error.message,
     });
   }
-};
-
-module.exports = {
-  getAllCampaigns,
-  getCampaignById,
-  createCampaign,
-  updateCampaign,
-  deleteCampaign,
-  scheduleCampaign,
-  sendCampaign,
-  pauseCampaign,
-  resumeCampaign,
-  getCampaignHistory,
-  getTemplates,
-  createTemplate,
-  getAudienceSegments,
-  getAnalytics,
-  createABTest,
 };

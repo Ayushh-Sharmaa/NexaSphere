@@ -1,61 +1,73 @@
-const workflowAutomationService = require('../services/workflowAutomationService');
+import * as workflowAutomationService from "../services/workflowAutomationService.js";
 
-exports.getAllWorkflows = (req, res) => {
+export const getAllWorkflows = (req, res) => {
   res.status(200).json(workflowAutomationService.getAllWorkflows());
 };
 
-exports.getWorkflowById = (req, res) => {
-  res.status(200).json(workflowAutomationService.getWorkflowById(req.params.id));
+export const getWorkflowById = (req, res) => {
+  res
+    .status(200)
+    .json(workflowAutomationService.getWorkflowById(req.params.id));
 };
 
-exports.createWorkflow = (req, res) => {
+export const createWorkflow = (req, res) => {
   res.status(201).json(workflowAutomationService.createWorkflow(req.body));
 };
 
-exports.updateWorkflow = (req, res) => {
-  res.status(200).json(workflowAutomationService.updateWorkflow(req.params.id, req.body));
+export const updateWorkflow = (req, res) => {
+  res
+    .status(200)
+    .json(workflowAutomationService.updateWorkflow(req.params.id, req.body));
 };
 
-exports.deleteWorkflow = (req, res) => {
+export const deleteWorkflow = (req, res) => {
   res.status(200).json(workflowAutomationService.deleteWorkflow(req.params.id));
 };
 
-exports.submitRequest = (req, res) => {
+export const submitRequest = (req, res) => {
   res.status(201).json(workflowAutomationService.submitRequest(req.body));
 };
 
-exports.approveRequest = (req, res) => {
-  res.status(200).json(workflowAutomationService.approveRequest(req.params.id, req.body.approver));
+export const approveRequest = (req, res) => {
+  res
+    .status(200)
+    .json(
+      workflowAutomationService.approveRequest(req.params.id, req.body.approver)
+    );
 };
 
-exports.rejectRequest = (req, res) => {
-  res.status(200).json(workflowAutomationService.rejectRequest(req.params.id, req.body.approver));
+export const rejectRequest = (req, res) => {
+  res
+    .status(200)
+    .json(
+      workflowAutomationService.rejectRequest(req.params.id, req.body.approver)
+    );
 };
 
-exports.bulkApprove = (req, res) => {
+export const bulkApprove = (req, res) => {
   res.status(200).json(workflowAutomationService.bulkApprove(req.body.ids));
 };
 
-exports.getPendingRequests = (req, res) => {
+export const getPendingRequests = (req, res) => {
   res.status(200).json(workflowAutomationService.getPendingRequests());
 };
 
-exports.getApprovalHistory = (req, res) => {
+export const getApprovalHistory = (req, res) => {
   res.status(200).json(workflowAutomationService.getApprovalHistory());
 };
 
-exports.getWorkflowTemplates = (req, res) => {
+export const getWorkflowTemplates = (req, res) => {
   res.status(200).json(workflowAutomationService.getWorkflowTemplates());
 };
 
-exports.getWorkflowAnalytics = (req, res) => {
+export const getWorkflowAnalytics = (req, res) => {
   res.status(200).json(workflowAutomationService.getWorkflowAnalytics());
 };
 
-exports.escalatePendingRequests = (req, res) => {
+export const escalatePendingRequests = (req, res) => {
   res.status(200).json(workflowAutomationService.escalatePendingRequests());
 };
 
-exports.getAuditLogs = (req, res) => {
+export const getAuditLogs = (req, res) => {
   res.status(200).json(workflowAutomationService.getAuditLogs());
 };

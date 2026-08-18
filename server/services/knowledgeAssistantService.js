@@ -58,7 +58,7 @@ const faqs = [
 ];
 
 // Ask AI Question
-const askQuestion = async (data) => {
+export const askQuestion = async (data) => {
   const response = {
     question: data.question,
     answer:
@@ -72,7 +72,7 @@ const askQuestion = async (data) => {
 };
 
 // Natural Language Search
-const naturalSearch = async (query) => {
+export const naturalSearch = async (query) => {
   if (!query) return [];
 
   return documentation.filter((doc) =>
@@ -81,7 +81,7 @@ const naturalSearch = async (query) => {
 };
 
 // Documentation Search
-const getDocumentation = async (topic) => {
+export const getDocumentation = async (topic) => {
   if (!topic) return documentation;
 
   return documentation.filter((doc) =>
@@ -90,10 +90,10 @@ const getDocumentation = async (topic) => {
 };
 
 // Event Recommendations
-const getEventRecommendations = async () => events;
+export const getEventRecommendations = async () => events;
 
 // Club Information
-const getClubInformation = async (club) => {
+export const getClubInformation = async (club) => {
   if (!club) return clubs;
 
   return clubs.filter((item) =>
@@ -102,10 +102,10 @@ const getClubInformation = async (club) => {
 };
 
 // FAQ Generation
-const generateFAQs = async () => faqs;
+export const generateFAQs = async () => faqs;
 
 // Step-by-Step Guides
-const getGuides = async (topic) => ({
+export const getGuides = async (topic) => ({
   topic: topic || "General",
   steps: [
     "Open NexaSphere.",
@@ -116,7 +116,7 @@ const getGuides = async (topic) => ({
 });
 
 // Smart Search Suggestions
-const getSuggestions = async (query) => {
+export const getSuggestions = async (query) => {
   if (!query) return [];
 
   return [
@@ -128,24 +128,24 @@ const getSuggestions = async (query) => {
 };
 
 // Translation
-const translateResponse = async (data) => ({
+export const translateResponse = async (data) => ({
   original: data.text,
   translated: data.text,
   language: data.language || "English",
 });
 
 // Query History
-const getHistory = async () => queryHistory;
+export const getHistory = async () => queryHistory;
 
 // Feedback
-const submitFeedback = async (data) => ({
+export const submitFeedback = async (data) => ({
   id: Date.now(),
   status: "Received",
   ...data,
 });
 
 // Analytics
-const getAnalytics = async () => ({
+export const getAnalytics = async () => ({
   totalQueries: queryHistory.length,
   documentationArticles: documentation.length,
   clubsIndexed: clubs.length,
@@ -154,23 +154,7 @@ const getAnalytics = async () => ({
 });
 
 // Update Knowledge Base
-const updateKnowledgeBase = async () => ({
+export const updateKnowledgeBase = async () => ({
   status: "Updated",
   updatedAt: new Date().toISOString(),
 });
-
-module.exports = {
-  askQuestion,
-  naturalSearch,
-  getDocumentation,
-  getEventRecommendations,
-  getClubInformation,
-  generateFAQs,
-  getGuides,
-  getSuggestions,
-  translateResponse,
-  getHistory,
-  submitFeedback,
-  getAnalytics,
-  updateKnowledgeBase,
-};

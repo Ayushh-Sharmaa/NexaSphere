@@ -1,20 +1,20 @@
-﻿const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Get All Workspaces
-const getAllWorkspaces = async () => {
+export const getAllWorkspaces = async () => {
   return await prisma.workspace.findMany();
 };
 
 // Get Workspace By ID
-const getWorkspaceById = async (id) => {
+export const getWorkspaceById = async (id) => {
   return await prisma.workspace.findUnique({
     where: { id: id },
   });
 };
 
 // Create Workspace
-const createWorkspace = async (data) => {
+export const createWorkspace = async (data) => {
   return await prisma.workspace.create({
     data: {
       name: data.name,
@@ -24,7 +24,7 @@ const createWorkspace = async (data) => {
 };
 
 // Update Workspace
-const updateWorkspace = async (id, data) => {
+export const updateWorkspace = async (id, data) => {
   return await prisma.workspace.update({
     where: { id: id },
     data: data,
@@ -32,20 +32,20 @@ const updateWorkspace = async (id, data) => {
 };
 
 // Delete Workspace
-const deleteWorkspace = async (id) => {
+export const deleteWorkspace = async (id) => {
   return await prisma.workspace.delete({
     where: { id: id },
   });
 };
 
 // Documents (Files)
-const getDocuments = async (workspaceId) => {
+export const getDocuments = async (workspaceId) => {
   return await prisma.workspaceFile.findMany({
     where: { workspaceId: workspaceId },
   });
 };
 
-const uploadDocument = async (workspaceId, data) => {
+export const uploadDocument = async (workspaceId, data) => {
   // In a real app this would upload to S3 or Google Drive.
   // Here we just save the file reference.
   return await prisma.workspaceFile.create({
@@ -61,7 +61,7 @@ const uploadDocument = async (workspaceId, data) => {
 };
 
 // Discussions (Messages)
-const getDiscussions = async (workspaceId) => {
+export const getDiscussions = async (workspaceId) => {
   return await prisma.workspaceMessage.findMany({
     where: { workspaceId: workspaceId },
     include: { sender: true },
@@ -69,7 +69,7 @@ const getDiscussions = async (workspaceId) => {
   });
 };
 
-const addDiscussion = async (workspaceId, data) => {
+export const addDiscussion = async (workspaceId, data) => {
   return await prisma.workspaceMessage.create({
     data: {
       workspaceId: workspaceId,
@@ -80,13 +80,13 @@ const addDiscussion = async (workspaceId, data) => {
 };
 
 // Tasks
-const getTasks = async (workspaceId) => {
+export const getTasks = async (workspaceId) => {
   return await prisma.workspaceTask.findMany({
     where: { workspaceId: workspaceId },
   });
 };
 
-const createTask = async (workspaceId, data) => {
+export const createTask = async (workspaceId, data) => {
   return await prisma.workspaceTask.create({
     data: {
       workspaceId: workspaceId,
@@ -100,43 +100,25 @@ const createTask = async (workspaceId, data) => {
 };
 
 // Stubs for missing parts
-const getCalendar = async (workspaceId) => ({ workspaceId, events: [] });
-const addMeetingNotes = async (workspaceId, data) => ({
+export const getCalendar = async (workspaceId) => ({ workspaceId, events: [] });
+export const addMeetingNotes = async (workspaceId, data) => ({
   id: "mock",
   workspaceId,
 });
-const createPoll = async (workspaceId, data) => ({ id: "mock", workspaceId });
-const createAnnouncement = async (workspaceId, data) => ({
+export const createPoll = async (workspaceId, data) => ({
   id: "mock",
   workspaceId,
 });
-const getTimeline = async (workspaceId) => [];
-const getBookmarks = async (workspaceId) => [];
-const getAnalytics = async (workspaceId) => ({
+export const createAnnouncement = async (workspaceId, data) => ({
+  id: "mock",
+  workspaceId,
+});
+export const getTimeline = async (workspaceId) => [];
+export const getBookmarks = async (workspaceId) => [];
+export const getAnalytics = async (workspaceId) => ({
   workspaceId,
   members: 1,
   documents: 0,
   discussions: 0,
   tasks: 0,
 });
-
-module.exports = {
-  getAllWorkspaces,
-  getWorkspaceById,
-  createWorkspace,
-  updateWorkspace,
-  deleteWorkspace,
-  getDocuments,
-  uploadDocument,
-  getDiscussions,
-  addDiscussion,
-  getCalendar,
-  createTask,
-  getTasks,
-  addMeetingNotes,
-  createPoll,
-  createAnnouncement,
-  getTimeline,
-  getBookmarks,
-  getAnalytics,
-};

@@ -20,7 +20,9 @@ function getSessionTtlMs() {
 
 function getSessionIdleTimeoutMs() {
   const value = Number(process.env.ADMIN_SESSION_IDLE_TIMEOUT_MS);
-  return Number.isFinite(value) && value > 0 ? value : DEFAULT_SESSION_IDLE_TIMEOUT_MS;
+  return Number.isFinite(value) && value > 0
+    ? value
+    : DEFAULT_SESSION_IDLE_TIMEOUT_MS;
 }
 
 function getCleanupIntervalMs() {
@@ -172,7 +174,6 @@ export async function getAdminSession(token) {
       // Async non-blocking deferred persistence: execute outside the request query thread context
       withDb(async (dbClient) => {
         await dbClient.query(
-          "update admin_sessions set last_seen_at = now() where token_hash = $1 and last_seen_at < now() - interval '1 minute'",
           "update admin_sessions set last_seen_at = now() where token_hash = $1",
           [tokenHash]
         );

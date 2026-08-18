@@ -76,6 +76,7 @@ mock.module("../../utils/consistencyVerifier.js", {
     detectConflicts: () => ({ conflicts: [] }),
     generateIntegrityReport: () => ({ passed: true, score: 100 }),
     getConsistencyAlerts: () => ({ alerts: [] }),
+    triggerForceSync: () => ({ success: true }),
   },
 });
 
@@ -167,6 +168,7 @@ mock.module("../../middleware/adminAuthMiddleware.js", {
           recentLogins: [],
           securityScore: 85,
         }),
+      extendSession: (req, res) => res.json({ success: true }),
       revokeSession: (req, res) =>
         res.json({ success: true, revoked: req.params.sessionId }),
       logoutOtherSessions: (req, res) =>
