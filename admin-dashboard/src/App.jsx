@@ -92,6 +92,7 @@ const RecruitmentResponsesManager = lazy(() =>
     default: m.RecruitmentResponsesManager,
   }))
 );
+const ApplicationsManager = lazy(() => import("./pages/ApplicationsManager"));
 const CertificateManager = lazy(() =>
   import("./pages/CertificateManager").then((m) => ({
     default: m.CertificateManager,
@@ -345,6 +346,10 @@ export default function App() {
               <Route
                 path="/dashboard/core-team"
                 element={<CoreTeamManager />}
+              />
+              <Route
+                path="/dashboard/applications"
+                element={<ApplicationsManager />}
               />
               <Route
                 path="/dashboard/membership"

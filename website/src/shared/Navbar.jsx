@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth, SignInButton, UserButton } from '@clerk/react';
 import { BRAND_LOGO_FULL, BRAND_LOGO_ICON } from './brandAssets';
 import { ThemeToggle } from '../components/common/ThemeToggle';
 
@@ -17,6 +18,7 @@ const TABS = [
 
 export default function Navbar({ activeTab, onTabChange }) {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [compact, setCompact] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 1200 : false
@@ -65,59 +67,125 @@ export default function Navbar({ activeTab, onTabChange }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (compact) {
-    return (
-      <nav className="ns-navbar-mobile" aria-label="Mobile Navigation">
+  return (
+    <nav
+      className={`ns-navbar${scrolled ? ' scrolled' : ''}${compact ? ' ns-navbar-mobile' : ''}`}
+      aria-label="Main Navigation"
+    >
+      <div className="container">
         <div
-          className="ns-mobile-top"
+          className="ns-nav-top"
           style={{
-            background: 'none',
-            border: 'none',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             width: '100%',
-            padding: '0 16px',
           }}
         >
           <div
+            className="ns-nav-logos"
             onClick={goHome}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
             aria-label="Go to homepage"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && goHome()}
           >
             <img
-              src={BRAND_LOGO_ICON}
+              src={compact ? BRAND_LOGO_ICON : BRAND_LOGO_FULL}
               alt="NexaSphere"
-              className="ns-mobile-logo-ns"
-              loading="lazy"
-              width="28"
-              height="28"
+              className="ns-nav-logo-ns ns-nav-logo-icon"
+              style={{ height: '32px' }}
             />
-            <span className="ns-mobile-brand">
-              <span>NexaSphere</span>
-            </span>
+            <div className="ns-nav-divider" />
+            <span className="ns-nav-brand">NexaSphere</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            className="ns-nav-actions"
+            style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
+          >
+            {isSignedIn ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => navigate('/portal')}
+                  style={{
+                    background: 'linear-gradient(135deg, #CC1111 0%, #990000 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '0.86rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(204, 17, 17, 0.3)',
+                  }}
+                >
+                  Student Portal
+                </button>
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            ) : (
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  style={{
+                    background: 'linear-gradient(135deg, #CC1111 0%, #990000 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '0.86rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(204, 17, 17, 0.3)',
+                  }}
+                >
+                  Join / Sign In
+                </button>
+              </SignInButton>
+            )}
+
             <ThemeToggle />
-            <button
-              className={`ns-nav-menu-toggle${menuOpen ? ' open' : ''}`}
-              onClick={() => setMenuOpen((open) => !open)}
-              type="button"
-              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              aria-expanded={menuOpen}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+
+            {compact && (
+              <button
+                className={`ns-nav-menu-toggle${menuOpen ? ' open' : ''}`}
+                onClick={() => setMenuOpen((open) => !open)}
+                type="button"
+                aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={menuOpen}
+              >
+                <span />
+                <span />
+                <span />
+              </button>
+            )}
           </div>
         </div>
 
-        {menuOpen && (
+        {!compact && (
+          <div className="ns-nav-menu" id="ns-nav-menu">
+            <ul className="ns-nav-tabs">
+              {TABS.map((t) => (
+                <li key={t}>
+                  <button
+                    className={`ns-nav-tab${activeTab === t ? ' active' : ''}${
+                      t === 'Contact' ? ' contact-tab contact-nav-tab' : ''
+                    }`}
+                    onClick={() => handleTab(t)}
+                    aria-current={activeTab === t ? 'page' : undefined}
+                  >
+                    {t}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {compact && menuOpen && (
           <div className="ns-mobile-tabs" id="ns-nav-menu">
             {TABS.map((t) => (
               <button
@@ -133,57 +201,6 @@ export default function Navbar({ activeTab, onTabChange }) {
             ))}
           </div>
         )}
-      </nav>
-    );
-  }
-
-  return (
-    <nav className={`ns-navbar${scrolled ? ' scrolled' : ''}`} aria-label="Main Navigation">
-      <div className="container">
-        <div className="ns-nav-top">
-          <div
-            className="ns-nav-logos"
-            onClick={goHome}
-            style={{ cursor: 'pointer' }}
-            aria-label="Go to homepage"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && goHome()}
-          >
-            <img
-              src={BRAND_LOGO_FULL}
-              alt="NexaSphere"
-              className="ns-nav-logo-ns ns-nav-logo-icon"
-            />
-            <div className="ns-nav-divider" />
-            <span className="ns-nav-brand">NexaSphere</span>
-          </div>
-
-          <div
-            className="ns-nav-actions"
-            style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
-          >
-            <ThemeToggle />
-          </div>
-        </div>
-
-        <div className="ns-nav-menu" id="ns-nav-menu">
-          <ul className="ns-nav-tabs">
-            {TABS.map((t) => (
-              <li key={t}>
-                <button
-                  className={`ns-nav-tab${activeTab === t ? ' active' : ''}${
-                    t === 'Contact' ? ' contact-tab contact-nav-tab' : ''
-                  }`}
-                  onClick={() => handleTab(t)}
-                  aria-current={activeTab === t ? 'page' : undefined}
-                >
-                  {t}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </nav>
   );

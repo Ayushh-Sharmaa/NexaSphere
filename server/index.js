@@ -45,6 +45,7 @@ import notificationsRouter from "./routes/notifications.js";
 import adminRouter from "./routes/admin.js";
 import announcementsRouter from "./routes/announcements.js";
 import bulkRouter from "./routes/bulk.js";
+import apiV1Router from "./routes/apiV1.js";
 import { validateEnvironment } from "./utils/envValidator.js";
 import { performanceMonitor } from "./middleware/performanceMonitor.js";
 import { enhancedTracingMiddleware } from "./middleware/enhancedTracingMiddleware.js";
@@ -578,6 +579,9 @@ adminEvents.on("CORE_TEAM_MEMBER_REMOVED", (event) =>
 );
 // Read-only guard — blocks non-GET requests when system is in maintenance mode
 app.use(readOnlyGuard);
+
+// ── NexaSphere Canonical API v1 ───────────────────────────────────
+app.use("/api/v1", apiV1Router);
 
 // Mount route modules
 app.use("/api/form-submissions", formSubmissionsRouter);

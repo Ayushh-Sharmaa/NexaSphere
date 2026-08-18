@@ -17,6 +17,10 @@ const ContactPage = lazy(() => import('../pages/contact/ContactPage'));
 const RoadmapsPage = lazy(() => import('../pages/roadmaps/RoadmapsPage'));
 const ResourcesPage = lazy(() => import('../pages/resources/ResourcesPage'));
 const CertificateVerifyPage = lazy(() => import('../pages/certificates/CertificateVerifyPage'));
+const StudentDashboard = lazy(() => import('../pages/portal/StudentDashboard'));
+const MembershipApplicationPage = lazy(() => import('../pages/portal/MembershipApplicationPage'));
+const CoreTeamApplicationPage = lazy(() => import('../pages/portal/CoreTeamApplicationPage'));
+const ApplicationsTimelinePage = lazy(() => import('../pages/portal/ApplicationsTimelinePage'));
 
 const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
 const AnalyticsPage = lazy(() => import('../pages/analytics/AnalyticsPage'));
@@ -539,12 +543,46 @@ export function AppRoutes({
         }
       />
 
-      {/* ── Recruitment / Apply ── */}
+      {/* ── Recruitment / Apply (Core Team) ── */}
       <Route
         path="/apply"
         element={
-          <PageIn k="apply">
-            <RecruitmentPage onBack={onBackHome} />
+          <PageIn k="apply-core">
+            <CoreTeamApplicationPage />
+          </PageIn>
+        }
+      />
+
+      {/* ── Student Portal & Recruitment ── */}
+      <Route
+        path="/portal"
+        element={
+          <PageIn k="portal">
+            <StudentDashboard />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/portal/applications"
+        element={
+          <PageIn k="portal-apps">
+            <ApplicationsTimelinePage />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/apply/membership"
+        element={
+          <PageIn k="apply-mem">
+            <MembershipApplicationPage />
+          </PageIn>
+        }
+      />
+      <Route
+        path="/apply/core-team"
+        element={
+          <PageIn k="apply-core">
+            <CoreTeamApplicationPage />
           </PageIn>
         }
       />
@@ -553,8 +591,8 @@ export function AppRoutes({
       <Route
         path="/join"
         element={
-          <PageIn k="join">
-            <MembershipPage onBack={onBackHome} />
+          <PageIn k="apply-mem">
+            <MembershipApplicationPage />
           </PageIn>
         }
       />

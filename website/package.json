@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/react": "^6.14.4",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -29,6 +30,7 @@
     "@rrweb/types": "^2.0.0",
     "@sentry/react": "^10.67.0",
     "@sentry/tracing": "^7.84.0",
+    "@tanstack/react-query": "^5.101.4",
     "@tensorflow/tfjs": "^4.22.0",
     "@testing-library/dom": "^10.4.1",
     "axios": "^1.18.0",

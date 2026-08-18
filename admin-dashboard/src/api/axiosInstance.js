@@ -1,13 +1,25 @@
-// Thin fetch-based HTTP client with an axios-compatible interface.
-// Reads VITE_API_BASE from the environment; defaults to an empty string
-// (same-origin) when not set.
 import { eventEmitter, EVENTS } from "../services/eventEmitter";
 
 const BASE_URL = (import.meta.env?.VITE_API_BASE ?? "").replace(/\/$/, "");
 
-function getAuthHeader() {
-  const token = localStorage.getItem("admin_token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+let clerkTokenGetter = null;
+
+export function setClerkTokenGetter(fn) {
+  clerkTokenGetter = fn;
+}
+
+async function getAuthHeader() {
+  if (clerkTokenGetter) {
+    try {
+      const token = await clerkTokenGetter();
+      if (token) return { Authorization: `Bearer ${token}` };
+    } catch {
+      // fallback to localStorage
+    }
+  }
+
+  const legacyToken = localStorage.getItem("admin_token");
+  return legacyToken ? { Authorization: `Bearer ${legacyToken}` } : {};
 }
 
 async function request(
@@ -15,7 +27,9 @@ async function request(
   url,
   { data, params, timeout = 30000, signal: callerSignal } = {}
 ) {
-  let fullUrl = `${BASE_URL}${url}`;
+  let fullUrl = url.startsWith("http")
+    ? url
+    : `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 
   if (params) {
     const qs = new URLSearchParams(
@@ -27,16 +41,17 @@ async function request(
   const timeoutController = new AbortController();
   const timer = setTimeout(() => timeoutController.abort(), timeout);
 
-  // Link caller signal if provided
   if (callerSignal) {
     callerSignal.addEventListener("abort", () => timeoutController.abort());
   }
+
+  const authHeaders = await getAuthHeader();
 
   const options = {
     method,
     headers: {
       "Content-Type": "application/json",
-      ...getAuthHeader(),
+      ...authHeaders,
     },
     signal: timeoutController.signal,
   };
@@ -64,7 +79,7 @@ async function request(
       try {
         error.response.data = await response.json();
       } catch {
-        // non-JSON body — leave data as null
+        // non-JSON body
       }
       throw error;
     }

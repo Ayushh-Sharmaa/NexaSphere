@@ -76,6 +76,11 @@ const links = [
     icon: "Users",
     requiredScope: "settings:admin",
   },
+  {
+    to: "/dashboard/applications",
+    label: "Applications (NX-MEM/CORE)",
+    icon: "FileText",
+  },
   { to: "/dashboard/membership", label: "Membership", icon: "FileText" },
   { to: "/dashboard/sync-monitor", label: "Sync Monitor", icon: "Database" },
   { to: "/dashboard/recruitment", label: "Recruitment", icon: "UserPlus" },
