@@ -22,7 +22,6 @@ import {
 import './styles/themes.css';
 import './styles/globals.css';
 import './styles/animations.css';
-import './styles/chatbot.css';
 import './styles/components.css';
 import './styles/portfolio.css';
 import './styles/pwa.css';
@@ -49,7 +48,6 @@ import { useBackToTop } from './hooks/useScrollLogic';
 import Navbar from './shared/Navbar';
 import SkipLink from './components/common/SkipLink';
 import MoveToTop from './shared/MoveToTop';
-import Chatbot from './shared/Chatbot';
 import ScrollProgress from './shared/ScrollProgress';
 import Terminal from './components/developer/Terminal';
 import CinematicOpening from './shared/CinematicOpening';
@@ -395,8 +393,6 @@ function AppShell() {
       <InstallPrompt />
       {swUpdateFn && <UpdatePrompt updateSW={swUpdateFn} />}
       <EnablePushPrompt />
-
-      <Chatbot />
 
       {/* Loading cover to prevent flash during intro sequence */}
       <div
