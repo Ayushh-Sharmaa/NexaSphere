@@ -25,7 +25,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || '' }}
           aws-region: us-east-1
 
       - name: Setup Terraform
@@ -36,15 +36,14 @@ jobs:
       - name: Terraform Init
         run: |
           terraform init
-          terraform workspace select ${{ matrix.environment }} || terraform workspace new ${{ matrix.environment }}
+          terraform workspace select ${{ env.TF_WORKSPACE }}
 
-      - name: Terraform Plan
+      - name: Terraform Plan (Drift Detection)
         id: plan
-        run: |
-          terraform plan -no-color -detailed-exitcode > plan.txt
+        run: terraform plan -detailed-exitcode -no-color
         continue-on-error: true
         env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD || '' }}
 
       - name: Create Drift Issue
         if: steps.plan.outputs.exitcode == 2

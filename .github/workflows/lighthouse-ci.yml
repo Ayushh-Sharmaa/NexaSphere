@@ -39,4 +39,4 @@ jobs:
         env:
           # Optional: set LHCI_GITHUB_APP_TOKEN in repo secrets to enable
           # GitHub status checks from Lighthouse CI. Runs fine without it.
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN || '' }}

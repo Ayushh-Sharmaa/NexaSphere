@@ -61,7 +61,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || '' }}
           aws-region: us-east-1
 
       - name: Setup Terraform
@@ -77,7 +77,7 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -no-color -out=tfplan
         env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD || '' }}
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
@@ -103,7 +103,8 @@ jobs:
     name: Apply
     needs: plan
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
     defaults:
       run:
         working-directory: infra/terraform
@@ -114,7 +115,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || '' }}
           aws-region: us-east-1
 
       - name: Setup Terraform
@@ -125,9 +126,14 @@ jobs:
       - name: Terraform Init
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE }} || terraform workspace new ${{ env.TF_WORKSPACE }}
+          terraform workspace select ${{ env.TF_WORKSPACE }}
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ env.TF_WORKSPACE }}
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
         env:
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD || '' }}

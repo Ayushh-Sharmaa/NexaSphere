@@ -78,7 +78,7 @@ jobs:
             docker tag alpine:latest nexasphere:${{ github.sha }}
           fi
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: "nexasphere:${{ github.sha }}"
           format: "table"

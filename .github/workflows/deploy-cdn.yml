@@ -19,11 +19,11 @@ jobs:
     name: Deploy static assets to S3 and CloudFront CDN
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || '' }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || '' }}
+      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      S3_BUCKET: ${{ secrets.S3_BUCKET || '' }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID || '' }}
 
     steps:
       - name: Checkout code
@@ -44,7 +44,7 @@ jobs:
       - name: Build client website
         run: npm run build --workspace=website
         env:
-          VITE_CDN_URL: ${{ secrets.VITE_CDN_URL }}
+          VITE_CDN_URL: ${{ secrets.VITE_CDN_URL || '' }}
           NODE_ENV: production
 
       - name: Configure AWS credentials
