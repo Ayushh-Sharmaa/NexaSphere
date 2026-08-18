@@ -117,9 +117,6 @@ export default defineConfig({
               return 'vendor-i18n';
           }
           // Heavy route chunks — loaded only when that route is visited
-          if (id.includes('mentorship')) return 'page-mentorship';
-          if (id.includes('portfolio')) return 'page-portfolio';
-          if (id.includes('gamification')) return 'page-gamification';
           if (id.includes('analytics')) return 'page-analytics';
         },
       },

@@ -15,24 +15,15 @@ const AboutPage = lazy(() => import('../pages/about/AboutPage'));
 const TeamPage = lazy(() => import('../pages/team/TeamPage'));
 const ContactPage = lazy(() => import('../pages/contact/ContactPage'));
 const RoadmapsPage = lazy(() => import('../pages/roadmaps/RoadmapsPage'));
-const ProjectsPage = lazy(() => import('../pages/projects/ProjectsPage'));
 const ResourcesPage = lazy(() => import('../pages/resources/ResourcesPage'));
 const CertificateVerifyPage = lazy(() => import('../pages/certificates/CertificateVerifyPage'));
 
-const PortfolioBuilder = lazy(() => import('../components/portfolio/PortfolioBuilder'));
-const PublicPortfolio = lazy(() => import('../pages/portfolio/PublicPortfolio'));
 const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
-const LeaderboardPage = lazy(() => import('../pages/leaderboard/LeaderboardPage'));
 const AnalyticsPage = lazy(() => import('../pages/analytics/AnalyticsPage'));
 const WorkspacePage = lazy(() => import('../pages/workspace/WorkspacePage'));
-const GamificationDashboard = lazy(
-  () => import('../components/gamification/GamificationDashboard')
-);
 const ForumPage = lazy(() => import('../pages/forum/ForumPage'));
 const ForumThreadPage = lazy(() => import('../pages/forum/ForumThreadPage'));
 const LoginPage = lazy(() => import('../pages/login/LoginPage'));
-const MentorsPage = lazy(() => import('../pages/mentorship/MentorsPage'));
-const MentorshipDashboard = lazy(() => import('../pages/mentorship/MentorshipDashboard'));
 const StatusPage = lazy(() => import('../pages/StatusPage'));
 const LiveStreamPage = lazy(() => import('../pages/streaming/LiveStreamPage'));
 const LiveQa = lazy(() => import('../pages/events/LiveQa'));
@@ -40,7 +31,6 @@ const NotificationHistoryPage = lazy(
   () => import('../pages/notifications/NotificationHistoryPage')
 );
 const SponsorsPage = lazy(() => import('../pages/sponsors/SponsorsPage'));
-const RecommendationsPage = lazy(() => import('../pages/resume/RecommendationsPage'));
 const SkillExchangePage = lazy(() => import('../pages/skills/SkillExchangePage'));
 const WebhooksPage = lazy(() => import('../pages/monitoring/WebhooksPage'));
 const AmaListPage = lazy(() => import('../pages/ama/AmaListPage'));
@@ -48,7 +38,6 @@ const AmaThreadPage = lazy(() => import('../pages/ama/AmaThreadPage'));
 const RevenueDashboardPage = lazy(() => import('../pages/monitoring/RevenueDashboardPage'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'));
 const AccountSettingsPage = lazy(() => import('../pages/settings/AccountSettingsPage'));
-const ExplorePage = lazy(() => import('../pages/explore/ExplorePage'));
 const CollabPage = lazy(() => import('../pages/collab/CollabPage'));
 const SearchPage = lazy(() => import('../pages/search/SearchPage'));
 const TemplateLibrary = lazy(() => import('../pages/TemplateLibrary'));
@@ -450,15 +439,6 @@ export function AppRoutes({
       />
 
       <Route
-        path="/explore"
-        element={
-          <PageIn k="explore">
-            <ExplorePage onBack={onBackHome} eventsData={eventsData} />
-          </PageIn>
-        }
-      />
-
-      <Route
         path="/search"
         element={
           <PageIn k="search">
@@ -473,64 +453,6 @@ export function AppRoutes({
           <ProtectedRoute>
             <PageIn k="collab">
               <CollabPage onBack={onBackHome} />
-            </PageIn>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/portfolio"
-        element={
-          <ProtectedRoute>
-            <PageIn k="portfolio-builder">
-              <PortfolioBuilder />
-            </PageIn>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/gamification"
-        element={
-          <ProtectedRoute>
-            <PageIn k="gamification">
-              <GamificationDashboard />
-            </PageIn>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/recommendations"
-        element={
-          <PageIn k="recommendations">
-            <RecommendationsPage onBack={onBackHome} />
-          </PageIn>
-        }
-      />
-
-      <Route
-        path="/mentorship"
-        element={
-          <PageIn k="mentors">
-            <MentorsPage />
-          </PageIn>
-        }
-      />
-      <Route
-        path="/mentorship/mentors"
-        element={
-          <PageIn k="mentor-directory">
-            <MentorsPage />
-          </PageIn>
-        }
-      />
-      <Route
-        path="/mentorship/dashboard"
-        element={
-          <ProtectedRoute>
-            <PageIn k="mentorship-dashboard">
-              <MentorshipDashboard />
             </PageIn>
           </ProtectedRoute>
         }
@@ -573,15 +495,6 @@ export function AppRoutes({
         element={
           <PageIn k="ama-thread">
             <AmaThreadPage />
-          </PageIn>
-        }
-      />
-      {/* ── Projects ── */}
-      <Route
-        path="/projects"
-        element={
-          <PageIn k="projects">
-            <ProjectsPage onBack={onBackHome} />
           </PageIn>
         }
       />
@@ -716,16 +629,6 @@ export function AppRoutes({
         element={
           <PageIn k="status">
             <StatusPage />
-          </PageIn>
-        }
-      />
-
-      {/* ── Public Leaderboard ── */}
-      <Route
-        path="/leaderboard"
-        element={
-          <PageIn k="leaderboard">
-            <LeaderboardPage />
           </PageIn>
         }
       />

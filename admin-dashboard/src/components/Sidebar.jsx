@@ -88,21 +88,10 @@ const links = [
     requiredScope: "settings:admin",
   },
   {
-    to: "/dashboard/portfolios",
-    label: "Portfolios",
-    icon: "FileText",
-    requiredScope: "events:read",
-  },
-  {
     to: "/dashboard/forum",
     label: "Forum",
     icon: "FileText",
     requiredScope: "events:read",
-  },
-  {
-    to: "/dashboard/mentorship",
-    label: "Mentorship",
-    icon: "Users",
   },
   {
     to: "/dashboard/streams",

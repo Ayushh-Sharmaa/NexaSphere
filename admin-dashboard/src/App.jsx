@@ -102,18 +102,8 @@ const AnnouncementsManager = lazy(() =>
     default: m.AnnouncementsManager,
   }))
 );
-const PortfolioManager = lazy(() =>
-  import("./pages/PortfolioManager").then((m) => ({
-    default: m.PortfolioManager,
-  }))
-);
 const ForumManager = lazy(() =>
   import("./pages/ForumManager").then((m) => ({ default: m.ForumManager }))
-);
-const MentorshipManager = lazy(() =>
-  import("./pages/MentorshipManager").then((m) => ({
-    default: m.MentorshipManager,
-  }))
 );
 const StreamManager = lazy(() =>
   import("./pages/StreamManager").then((m) => ({ default: m.StreamManager }))
@@ -373,15 +363,7 @@ export default function App() {
                 path="/dashboard/announcements"
                 element={<AnnouncementsManager />}
               />
-              <Route
-                path="/dashboard/portfolios"
-                element={<PortfolioManager />}
-              />
               <Route path="/dashboard/forum" element={<ForumManager />} />
-              <Route
-                path="/dashboard/mentorship"
-                element={<MentorshipManager />}
-              />
               <Route path="/dashboard/streams" element={<StreamManager />} />
               <Route
                 path="/dashboard/circuit-breaker"

@@ -88,7 +88,6 @@ const DNH = 64;
 // Lazy-loaded heavy pages
 const RecruitmentPage = lazy(() => import('./pages/recruitment/RecruitmentPage'));
 const MembershipPage = lazy(() => import('./pages/membership/MembershipPage'));
-// const AdminPage = lazy(() => import('./pages/admin/AdminPage')); // TODO: page missing from repo, see issue tracker
 const ActivitiesPage = lazy(() => import('./pages/activities/ActivitiesPage'));
 const ActivityDetailPage = lazy(() => import('./pages/activities/ActivityDetailPage'));
 const EventsPage = lazy(() => import('./pages/events/EventsPage'));
@@ -98,25 +97,17 @@ const TeamPage = lazy(() => import('./pages/team/TeamPage'));
 const ContactPage = lazy(() => import('./pages/contact/ContactPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
 const RoadmapsPage = lazy(() => import('./pages/roadmaps/RoadmapsPage'));
-const ProjectsPage = lazy(() => import('./pages/projects/ProjectsPage'));
 const CertificateVerifyPage = lazy(() => import('./pages/certificates/CertificateVerifyPage'));
-// const CollabPage = lazy(() => import('./pages/collab/CollabPage')); // TODO: page missing from repo, see issue tracker
-const PortfolioBuilder = lazy(() => import('./components/portfolio/PortfolioBuilder'));
-const PublicPortfolio = lazy(() => import('./pages/portfolio/PublicPortfolio'));
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage'));
 const WorkspacePage = lazy(() => import('./pages/workspace/WorkspacePage'));
-const GamificationDashboard = lazy(() => import('./components/gamification/GamificationDashboard'));
 const ForumPage = lazy(() => import('./pages/forum/ForumPage'));
 const ForumThreadPage = lazy(() => import('./pages/forum/ForumThreadPage'));
 const LoginPage = lazy(() => import('./pages/login/LoginPage'));
-const MentorsPage = lazy(() => import('./pages/mentorship/MentorsPage'));
-const MentorshipDashboard = lazy(() => import('./pages/mentorship/MentorshipDashboard'));
 const StatusPage = lazy(() => import('./pages/StatusPage'));
 const LiveStreamPage = lazy(() => import('./pages/streaming/LiveStreamPage'));
 const SponsorsPage = lazy(() => import('./pages/sponsors/SponsorsPage'));
 const NotificationHistoryPage = lazy(() => import('./pages/notifications/NotificationHistoryPage'));
-const RecommendationsPage = lazy(() => import('./pages/resume/RecommendationsPage'));
 
 /* ── Page wipe transition ── */
 const Wipe = memo(function Wipe({ on: wipeOn, ph }) {
@@ -522,23 +513,17 @@ function MainRouter({
       '/': 'Home',
       '/activities': 'Activities',
       '/events': 'Events',
-      '/projects': 'Projects',
       '/roadmaps': 'Roadmaps',
       '/about': 'About',
       '/team': 'Core Team',
       '/contact': 'Contact',
       '/dashboard': 'Dashboard',
       '/analytics': 'Analytics',
-      '/gamification': 'Gamification',
       '/apply': 'Apply',
       '/join': 'Join',
-      '/explore': 'Explore',
       '/forum': 'Forum',
-      '/mentorship': 'Mentorship',
-      '/mentorship/mentors': 'Mentorship',
-      '/mentorship/dashboard': 'Mentorship',
+      '/resources': 'Resources',
       '/sponsors': 'Sponsors',
-      '/recommendations': 'Recommendations',
     };
     const tab = pathMap[location.pathname] || 'Home';
     setActiveTab(tab);
@@ -598,20 +583,14 @@ function MainRouter({
         Analytics: '/analytics',
         Activities: '/activities',
         Events: '/events',
-        Projects: '/projects',
         Roadmaps: '/roadmaps',
-        Explore: '/explore',
         Resources: '/resources',
-        Portfolio: '/portfolio',
         Collab: '/collab',
         About: '/about',
         'Core Team': '/team',
         Contact: '/contact',
         Forum: '/forum',
-        Mentorship: '/mentorship',
         Sponsors: '/sponsors',
-        Recommendations: '/recommendations',
-        Gamification: '/gamification',
       };
       const targetPath = routeMap[tab];
       if (targetPath) {

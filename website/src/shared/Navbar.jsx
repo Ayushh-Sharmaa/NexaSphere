@@ -15,15 +15,9 @@ const TABS = [
   'Home',
   'Activities',
   'Events',
-  'Projects',
   'Roadmaps',
-  'Recommendations',
-  'Portfolio',
-  'Explore',
   'Resources',
   'Forum',
-  'Gamification',
-  'Mentorship',
   'About',
   'Core Team',
   'Contact',
@@ -368,27 +362,6 @@ export default function Navbar({
               title="View all notifications"
             >
               <ClipboardList size={16} aria-hidden="true" />
-            </button>
-            <button
-              onClick={() => navigate('/leaderboard')}
-              aria-label="Leaderboard"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--t1)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '6px',
-                borderRadius: '50%',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-              title="Open leaderboard"
-            >
-              <Trophy size={16} />
             </button>
             <button
               onClick={onSearchToggle}

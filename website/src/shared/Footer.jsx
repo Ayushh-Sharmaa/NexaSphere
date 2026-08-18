@@ -11,7 +11,6 @@ const ADMIN_URL = import.meta.env.VITE_ADMIN_DASHBOARD_URL || '/admin';
 const FOOTER_LINKS = [
   { label: 'Activities', path: '/activities' },
   { label: 'Events', path: '/events' },
-  { label: 'Projects', path: '/projects' },
   { label: 'Roadmaps', path: '/roadmaps' },
   { label: 'About', path: '/about' },
   { label: 'Team', path: '/team' },
