@@ -6,12 +6,12 @@
  * @param {'asc'|'desc'} direction
  * @returns {Array}
  */
-export function sortData(data, key, direction = 'asc') {
+export function sortData(data, key, direction = "asc") {
   if (!Array.isArray(data) || data.length === 0 || !key) {
     return Array.isArray(data) ? [...data] : [];
   }
 
-  const multiplier = direction === 'desc' ? -1 : 1;
+  const multiplier = direction === "desc" ? -1 : 1;
 
   return [...data].sort((a, b) => {
     const aValue = a?.[key];
@@ -21,14 +21,14 @@ export function sortData(data, key, direction = 'asc') {
     if (aValue == null) return 1;
     if (bValue == null) return -1;
 
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
+    if (typeof aValue === "number" && typeof bValue === "number") {
       return (aValue - bValue) * multiplier;
     }
 
     return (
       String(aValue).localeCompare(String(bValue), undefined, {
         numeric: true,
-        sensitivity: 'base',
+        sensitivity: "base",
       }) * multiplier
     );
   });
@@ -42,12 +42,14 @@ export function sortData(data, key, direction = 'asc') {
  * @param {Array<string>} columns
  * @returns {Array}
  */
-export function filterData(data, searchTerm = '', columns = []) {
+export function filterData(data, searchTerm = "", columns = []) {
   if (!Array.isArray(data) || data.length === 0) {
     return [];
   }
 
-  const term = String(searchTerm ?? '').trim().toLowerCase();
+  const term = String(searchTerm ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!term) {
     return [...data];
@@ -59,7 +61,7 @@ export function filterData(data, searchTerm = '', columns = []) {
 
   return data.filter((item) =>
     columns.some((column) =>
-      String(item?.[column] ?? '')
+      String(item?.[column] ?? "")
         .toLowerCase()
         .includes(term)
     )
@@ -125,18 +127,16 @@ export function paginateData(data, page = 1, pageSize = 10) {
 export function applyTableState(
   data,
   {
-    sortKey = '',
-    sortDir = 'asc',
-    search = '',
+    sortKey = "",
+    sortDir = "asc",
+    search = "",
     columns = [],
     page = 1,
     pageSize = 10,
   } = {}
 ) {
   const filtered = filterData(data, search, columns);
-  const sorted = sortKey
-    ? sortData(filtered, sortKey, sortDir)
-    : filtered;
+  const sorted = sortKey ? sortData(filtered, sortKey, sortDir) : filtered;
 
   return paginateData(sorted, page, pageSize);
 }

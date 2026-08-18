@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Ping API Health Endpoint
         id: ping
@@ -43,7 +43,7 @@ jobs:
 
       - name: Create Alert Issue on Failure
         if: steps.ping.outputs.healthy == 'false'
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const runId = context.runId;

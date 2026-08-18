@@ -21,7 +21,7 @@ jobs:
     environment: staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Deploy to Vercel Preview
         uses: amondnet/vercel-action@de09aeac2ace6599ec9b11ef87558759a496bac4 # v42.3.0
@@ -38,7 +38,7 @@ jobs:
     environment: staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Deploy to Render
         uses: johnbeynon/render-deploy-action@a63fe3b2c1d880fad347a6ec2923b97e700755fe # v0.0.8
@@ -54,10 +54,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -134,10 +134,10 @@ jobs:
     needs: run-staging-migrations
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'

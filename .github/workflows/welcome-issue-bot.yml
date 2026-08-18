@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Check if first issue and welcome
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

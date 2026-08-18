@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd website && npx vite build",
+  "buildCommand": "npm run build --workspace=website",
   "installCommand": "npm install --prefer-offline --no-audit --no-fund --legacy-peer-deps",
   "outputDirectory": "website/dist",
   "framework": null,

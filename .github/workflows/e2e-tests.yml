@@ -54,9 +54,9 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -120,7 +120,7 @@ jobs:
           VITE_API_PROXY_TARGET: http://127.0.0.1:8080
           DISABLE_PWA: 'true'
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: e2e-test-results-${{ matrix.browser }}
@@ -129,7 +129,7 @@ jobs:
             test-results/
           retention-days: 7
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e2e-html-report-${{ matrix.browser }}

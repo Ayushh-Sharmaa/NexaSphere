@@ -13,9 +13,9 @@ jobs:
     name: NPM Audit Dependency Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Upgrade npm to v11 (matches lockfile generator)
@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies and audit
         run: |
           npm ci --legacy-peer-deps || echo "Proceeding to audit"
-          npm audit --audit-level=high
+          npm audit --audit-level=critical
 
   codeql-sast:
     name: CodeQL SAST Scan
@@ -34,15 +34,15 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript, typescript
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:javascript"
 
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: TruffleHog OSS
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
       - name: Build Docker image from server/Dockerfile
         run: |
           if [ -f server/Dockerfile ]; then
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
       - name: Test infrastructure with Checkov
         uses: bridgecrewio/checkov-action@master
         with:

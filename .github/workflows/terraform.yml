@@ -29,7 +29,7 @@ jobs:
         working-directory: infra/terraform
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
@@ -56,10 +56,10 @@ jobs:
         working-directory: infra/terraform
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
@@ -80,13 +80,13 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
 
       - name: Upload Plan
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: tfplan-${{ env.TF_WORKSPACE }}
           path: infra/terraform/tfplan
 
       - name: Post Plan Comment
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -109,10 +109,10 @@ jobs:
         working-directory: infra/terraform
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1

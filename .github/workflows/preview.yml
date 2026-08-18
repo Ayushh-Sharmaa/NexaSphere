@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Deploy to Vercel (Preview)
         id: vercel
@@ -40,7 +40,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Inform about Cleanup
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             await github.rest.issues.createComment({
