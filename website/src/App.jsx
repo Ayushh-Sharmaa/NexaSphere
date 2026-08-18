@@ -51,9 +51,7 @@ import SkipLink from './components/common/SkipLink';
 import MoveToTop from './shared/MoveToTop';
 import Chatbot from './shared/Chatbot';
 import ScrollProgress from './shared/ScrollProgress';
-import SearchBar from './components/SearchBar';
 import Terminal from './components/developer/Terminal';
-import BookmarksDrawer from './components/bookmarks/BookmarksDrawer';
 import CinematicOpening from './shared/CinematicOpening';
 import OfflineBanner from './components/pwa/OfflineBanner.jsx';
 import InstallPrompt from './components/pwa/InstallPrompt.jsx';
@@ -380,18 +378,6 @@ function AppShell() {
   const { isOpen: isTerminalOpen, closeTerminal } = useDeveloperMode();
 
   const { eventsData, swUpdateFn } = useAppBootstrap(cinDone);
-  const { isAuthenticated, loading: authLoading } = useStudentAuth();
-  const hasCompletedWalkthrough = useWalkthroughStore((state) => state.hasCompleted);
-  const startWalkthrough = useWalkthroughStore((state) => state.startWalkthrough);
-
-  useEffect(() => {
-    if (cinDone && !authLoading && isAuthenticated && !hasCompletedWalkthrough) {
-      const t = setTimeout(() => {
-        startWalkthrough();
-      }, 1500);
-      return () => clearTimeout(t);
-    }
-  }, [cinDone, authLoading, isAuthenticated, hasCompletedWalkthrough, startWalkthrough]);
 
   // Skip cinematic opening for deep links (anything except "/")
   useEffect(() => {
@@ -399,21 +385,6 @@ function AppShell() {
       setCinDone(true);
     }
   }, [location.pathname, isPlaywright]);
-
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [bookmarksOpen, setBookmarksOpen] = useState(false);
-
-  // Ctrl+K / Cmd+K search trigger
-  useEffect(() => {
-    const fn = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen((s) => !s);
-      }
-    };
-    window.addEventListener('keydown', fn);
-    return () => window.removeEventListener('keydown', fn);
-  }, []);
 
   return (
     <>
@@ -426,8 +397,6 @@ function AppShell() {
       <EnablePushPrompt />
 
       <Chatbot />
-
-      <WalkthroughOverlay />
 
       {/* Loading cover to prevent flash during intro sequence */}
       <div
@@ -454,10 +423,6 @@ function AppShell() {
         theme={theme}
         setTheme={setTheme}
         eventsData={eventsData}
-        searchOpen={searchOpen}
-        setSearchOpen={setSearchOpen}
-        bookmarksOpen={bookmarksOpen}
-        setBookmarksOpen={setBookmarksOpen}
         isTerminalOpen={isTerminalOpen}
         closeTerminal={closeTerminal}
       />
@@ -466,30 +431,16 @@ function AppShell() {
 }
 
 /* ─────────────────────────────────────────────────────
-   RequireAuth Wrapper
+   RequireAuth Wrapper (Passthrough — Login removed)
 ───────────────────────────────────────────────────── */
 function RequireAuth({ children }) {
-  const { isAuthenticated, loading } = useStudentAuth();
-  if (loading) return <PageLoadingSpinner />;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
 /* ─────────────────────────────────────────────────────
    MainRouter — renders the Navbar + Routes
 ───────────────────────────────────────────────────── */
-function MainRouter({
-  cinDone,
-  theme,
-  setTheme,
-  eventsData,
-  searchOpen,
-  setSearchOpen,
-  bookmarksOpen,
-  setBookmarksOpen,
-  isTerminalOpen,
-  closeTerminal,
-}) {
+function MainRouter({ cinDone, theme, setTheme, eventsData, isTerminalOpen, closeTerminal }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { sessionId } = useAnalytics();
@@ -656,17 +607,7 @@ function MainRouter({
     <SessionRecordingProvider sessionId={sessionId}>
       {cinDone && <AmbientOrbs theme={theme} />}
       <SkipLink targetId="main-content" label="Skip to main content" />
-      {cinDone && (
-        <Navbar
-          activeTab={activeTab}
-          onTabChange={onTab}
-          theme={theme}
-          onApply={openApply}
-          onJoin={openJoin}
-          onToggleBookmarks={() => setBookmarksOpen((prev) => !prev)}
-          onSearchToggle={() => setSearchOpen(true)}
-        />
-      )}
+      {cinDone && <Navbar activeTab={activeTab} onTabChange={onTab} />}
 
       <Wipe on={wipeOn} ph={wipePh} />
 
@@ -694,80 +635,12 @@ function MainRouter({
 
       {cinDone && <MoveToTop />}
 
-      {/* Floating search FAB */}
-      {cinDone && (
-        <button
-          id="search-fab"
-          onClick={() => setSearchOpen(true)}
-          aria-label="Open search"
-          title="Search (Ctrl+K)"
-          style={{
-            position: 'fixed',
-            bottom: '80px',
-            left: '24px',
-            zIndex: 8500,
-            width: '46px',
-            height: '46px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg,#CC1111,#880000)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(204,17,17,0.5)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.12)';
-            e.currentTarget.style.boxShadow = '0 6px 28px rgba(204,17,17,0.75)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 20px rgba(204,17,17,0.5)';
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-      )}
-
-      <SearchBar
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        activities={activityPages}
-        events={eventsData}
-        onNavigate={onNavigate}
-        onEventClick={onKSSClick}
-      />
-
       <Terminal
         isOpen={isTerminalOpen}
         onClose={closeTerminal}
         theme={theme}
         setTheme={setTheme}
         onNavigate={onTab}
-      />
-
-      <BookmarksDrawer
-        isOpen={bookmarksOpen}
-        onClose={() => setBookmarksOpen(false)}
-        onNavigate={(type) => {
-          if (type === 'Event') onTab('Events');
-          else if (type === 'Activity') onTab('Activities');
-          else if (type === 'Roadmap') onTab('Roadmaps');
-        }}
       />
     </SessionRecordingProvider>
   );

@@ -8,6 +8,7 @@ import { initializeSentry } from './utils/errorTracking.js';
 import * as Sentry from '@sentry/react';
 import { ThemeProvider } from './context/theme/ThemeProvider';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { AppProviders } from './providers/AppProviders';
 import { initSyncManager } from './utils/syncManager.js';
 import reportWebVitals from './reportWebVitals.js';
 
@@ -85,9 +86,11 @@ createRoot(document.getElementById('root')).render(
     <HelmetProvider>
       <ThemeProvider>
         <SocketProvider>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
+          <AppProviders>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+          </AppProviders>
         </SocketProvider>
       </ThemeProvider>
     </HelmetProvider>

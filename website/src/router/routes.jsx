@@ -613,16 +613,6 @@ export function AppRoutes({
         }
       />
 
-      {/* ── Login / SSO ── */}
-      <Route
-        path="/login"
-        element={
-          <PageIn k="login">
-            <LoginPage />
-          </PageIn>
-        }
-      />
-
       {/* ── Status Page ── */}
       <Route
         path="/status"

@@ -92,8 +92,16 @@ export function StudentAuthProvider({ children }) {
   return <StudentAuthContext.Provider value={value}>{children}</StudentAuthContext.Provider>;
 }
 
+const defaultAuthState = {
+  user: null,
+  loading: false,
+  login: () => {},
+  logout: () => {},
+  isAuthenticated: false,
+};
+
 export function useStudentAuth() {
   const ctx = useContext(StudentAuthContext);
-  if (!ctx) throw new Error('useStudentAuth must be used within StudentAuthProvider');
+  if (!ctx) return defaultAuthState;
   return ctx;
 }

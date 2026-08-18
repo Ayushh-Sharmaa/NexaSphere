@@ -1,6 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useStudentAuth } from '../context/StudentAuthContext';
 
 /**
  * Page loading spinner fallback.
@@ -34,13 +32,9 @@ export function PageLoadingSpinner() {
 }
 
 /**
- * Route guard requiring student authentication.
- * Redirects to /login if not authenticated.
+ * Route guard (passthrough when login is disabled).
  */
 export function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useStudentAuth();
-  if (loading) return <PageLoadingSpinner />;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
