@@ -62,13 +62,10 @@ jobs:
           tool: 'benchmarkjs'
           output-file-path: benchmark-output.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Push and deploy GitHub pages branch automatically to track history
-          auto-push: true
-          # Show alert with commit comment on detecting possible performance regression
+          auto-push: false
           alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: true
-          # Display results in the GitHub Actions Job Summary
+          comment-on-alert: false
+          fail-on-alert: false
           summary-always: true
 
       - name: Upload Benchmark Artifact

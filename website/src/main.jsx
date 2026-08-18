@@ -1,9 +1,3 @@
-// At the top (with other imports):
-import registerAndWatchSW from './utils/registerSW';
-
-// At the very bottom (after ReactDOM.createRoot(...).render(...)):
-registerAndWatchSW();
-
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';

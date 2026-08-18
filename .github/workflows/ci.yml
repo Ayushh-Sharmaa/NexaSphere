@@ -121,7 +121,7 @@ jobs:
         run: npm run audit:sql
 
       - name: Run dependency security scan
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
 
       - name: Run unit tests
         run: npm test

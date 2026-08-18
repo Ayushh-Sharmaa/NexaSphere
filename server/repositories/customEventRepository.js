@@ -25,9 +25,14 @@ export const customEventRepository = {
   /** List all event definitions, optionally only active ones */
   async listDefinitions({ activeOnly = false } = {}) {
     return withDb(async (client) => {
-      const where = activeOnly ? "WHERE is_active = true" : "";
+      if (activeOnly) {
+        const { rows } = await client.query(
+          "SELECT * FROM custom_event_definitions WHERE is_active = true ORDER BY created_at DESC"
+        );
+        return rows;
+      }
       const { rows } = await client.query(
-        `SELECT * FROM custom_event_definitions ${where} ORDER BY created_at DESC`
+        "SELECT * FROM custom_event_definitions ORDER BY created_at DESC"
       );
       return rows;
     });
