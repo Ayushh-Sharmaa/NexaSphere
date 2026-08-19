@@ -141,98 +141,90 @@ export const searchController = {
       // 1. Log analytics
       await searchAnalyticsRepository.logSearch(q, 0, req.user?.id);
 
-      // 2. Try Elasticsearch
-      let results = await elasticsearchService.search(q, type, limit, skip);
-      let trueTotal = results.length;
+      let results = [];
 
-      // 3. Fallback to Fuse.js
-      if (results.length === 0) {
-        let allItems = [];
-        if (type === "all" || type === "events") {
+      if (type === "all" || type === "events") {
+        try {
           const events = await eventsRepository.list({ page: 1, limit: 100 });
-          if (type === "all" || type === "events") {
-            const events = await eventsRepository.list({ page: 1, limit: 100 });
-            const matched = (events?.rows || [])
-              .filter(
-                (ev) =>
-                  ev.name?.toLowerCase().includes(query) ||
-                  ev.description?.toLowerCase().includes(query) ||
-                  ev.shortName?.toLowerCase().includes(query) ||
-                  ev.location?.toLowerCase().includes(query) ||
-                  ev.tags?.some((t) => t.toLowerCase().includes(query))
-              )
-              .map((ev) => ({
-                id: ev.id,
-                type: "event",
-                title: ev.name || ev.shortName,
-                description: ev.description,
-                image: ev.image,
-                date: ev.date,
-                tags: ev.tags,
-                category: ev.category,
-                url: `/events/${ev.id}`,
-              }));
-            allItems = [...allItems, ...matched];
-          }
-
-          if (type === "all" || type === "members") {
-            const members = await coreTeamService.listMembers();
-            const matched = (members || [])
-              .filter(
-                (m) =>
-                  m.name?.toLowerCase().includes(query) ||
-                  m.role?.toLowerCase().includes(query) ||
-                  m.bio?.toLowerCase().includes(query) ||
-                  m.skills?.some((s) => s.toLowerCase().includes(query))
-              )
-              .map((m) => ({
-                id: m.id,
-                type: "member",
-                title: m.name,
-                description: m.role || m.bio,
-                image: m.avatar || m.image,
-                tags: m.skills,
-                url: `/team`,
-              }));
-            allItems = [...allItems, ...matched];
-          }
-
-          if (type === "all" || type === "activities") {
-            const activities = await activityEventsService.listAllActivities();
-            const matched = Object.entries(activities || {})
-              .filter(
-                ([key, a]) =>
-                  key.toLowerCase().includes(query) ||
-                  a.title?.toLowerCase().includes(query) ||
-                  a.description?.toLowerCase().includes(query) ||
-                  a.subtitle?.toLowerCase().includes(query)
-              )
-              .map(([key, a]) => ({
-                id: key,
-                type: "activity",
-                title: a.title || key,
-                description: a.description || a.subtitle,
-                image: a.image,
-                tags: a.tags,
-                url: `/activities/${encodeURIComponent(key)}`,
-              }));
-            allItems = [...allItems, ...matched];
-          }
-
-          const fuse = new Fuse(allItems, {
-            keys: ["title", "description", "tags"],
-            includeScore: true,
-            threshold: 0.4, // typo tolerance
-          });
-
-          results = fuse.search(q).map((r) => ({ ...r.item, score: r.score }));
-          trueTotal = results.length;
-          results = results.slice(skip, skip + limit);
+          const matched = (events?.rows || [])
+            .filter(
+              (ev) =>
+                ev.name?.toLowerCase().includes(query) ||
+                ev.description?.toLowerCase().includes(query) ||
+                ev.shortName?.toLowerCase().includes(query) ||
+                ev.location?.toLowerCase().includes(query) ||
+                ev.tags?.some((t) => t.toLowerCase().includes(query))
+            )
+            .map((ev) => ({
+              id: ev.id,
+              type: "event",
+              title: ev.name || ev.shortName,
+              description: ev.description,
+              image: ev.image,
+              date: ev.date,
+              tags: ev.tags,
+              category: ev.category,
+              url: `/events/${ev.id}`,
+            }));
+          results = [...results, ...matched];
+        } catch (e) {
+          console.error("Search events error:", e);
         }
+      }
 
-        const trueTotal = results.length;
-        results = results.slice(skip, skip + limit);
+      if (type === "all" || type === "members") {
+        try {
+          const members = await coreTeamService.listMembers();
+          const matched = (members || [])
+            .filter(
+              (m) =>
+                m.name?.toLowerCase().includes(query) ||
+                m.role?.toLowerCase().includes(query) ||
+                m.bio?.toLowerCase().includes(query) ||
+                m.skills?.some((s) => s.toLowerCase().includes(query))
+            )
+            .map((m) => ({
+              id: m.id,
+              type: "member",
+              title: m.name,
+              description: m.role || m.bio,
+              image: m.avatar || m.image,
+              tags: m.skills,
+              url: `/team`,
+            }));
+          results = [...results, ...matched];
+        } catch (e) {
+          console.error("Search members error:", e);
+        }
+      }
 
+      if (type === "all" || type === "activities") {
+        try {
+          const activities = await activityEventsService.listAllActivities();
+          const matched = Object.entries(activities || {})
+            .filter(
+              ([key, a]) =>
+                key.toLowerCase().includes(query) ||
+                a.title?.toLowerCase().includes(query) ||
+                a.description?.toLowerCase().includes(query) ||
+                a.subtitle?.toLowerCase().includes(query)
+            )
+            .map(([key, a]) => ({
+              id: key,
+              type: "activity",
+              title: a.title || key,
+              description: a.description || a.subtitle,
+              image: a.image,
+              tags: a.tags,
+              url: `/activities/${encodeURIComponent(key)}`,
+            }));
+          results = [...results, ...matched];
+        } catch (e) {
+          console.error("Search activities error:", e);
+        }
+      }
+
+      if (type === "all" || type === "users" || type === "portfolios") {
         try {
           const portfolios = await portfolioRepository.listAll();
           let allPortfolios = portfolios;
@@ -266,22 +258,20 @@ export const searchController = {
               tags: p.skills,
               url: `/p/${p.username}`,
             }));
-          matchedUsers = [...matchedUsers, ...portMatched];
+
+          const seen = new Set();
+          const uniqueUsers = [];
+          for (const u of portMatched) {
+            const key = u.url.toLowerCase();
+            if (!seen.has(key)) {
+              seen.add(key);
+              uniqueUsers.push(u);
+            }
+          }
+          results = [...results, ...uniqueUsers];
         } catch (e) {
           console.error("Search portfolios error:", e);
         }
-
-        // Deduplicate
-        const seen = new Set();
-        const uniqueUsers = [];
-        for (const u of matchedUsers) {
-          const key = u.url.toLowerCase();
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueUsers.push(u);
-          }
-        }
-        results = [...results, ...uniqueUsers];
       }
 
       if (type === "all" || type === "communities" || type === "groups") {
