@@ -108,6 +108,9 @@ export const api = {
   },
   markNotificationRead: (id) => api.patch(`/notifications/${id}/read`),
   markAllNotificationsRead: () => api.post('/notifications/read-all'),
+
+  // Recruitment / Platform Settings
+  getRecruitmentStatus: () => api.get('/recruitment-status'),
 };
 
 export default api;

@@ -16,6 +16,7 @@ import { mentorsService } from "../services/mentorsService.js";
 import { fundRequestsService } from "../services/fundRequestsService.js";
 import { notificationsService } from "../services/notificationsService.js";
 import { adminAnalyticsService } from "../services/adminAnalyticsService.js";
+import { settingsService } from "../services/settingsService.js";
 import logger from "../utils/logger.js";
 
 const router = express.Router();
@@ -33,12 +34,10 @@ router.post("/auth/sync", requireClerkAuth, async (req, res) => {
     return res.json({ success: true, data: { profile, role: req.auth.role } });
   } catch (err) {
     logger.error("Sync profile error:", err);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "SYNC_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "SYNC_ERROR", message: err.message },
+    });
   }
 });
 
@@ -54,12 +53,10 @@ router.get("/auth/me", requireClerkAuth, async (req, res) => {
       },
     });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "AUTH_ME_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "AUTH_ME_ERROR", message: err.message },
+    });
   }
 });
 
@@ -68,12 +65,10 @@ router.get("/profile", requireClerkAuth, async (req, res) => {
     const profile = await profilesService.getProfileByClerkId(req.auth.userId);
     return res.json({ success: true, data: { profile } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "PROFILE_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "PROFILE_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -85,12 +80,10 @@ router.put("/profile", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: { profile } });
   } catch (err) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: { code: "PROFILE_UPDATE_ERROR", message: err.message },
-      });
+    return res.status(400).json({
+      success: false,
+      error: { code: "PROFILE_UPDATE_ERROR", message: err.message },
+    });
   }
 });
 
@@ -103,12 +96,10 @@ router.get("/applications/status", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: summary });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "STATUS_SUMMARY_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "STATUS_SUMMARY_ERROR", message: err.message },
+    });
   }
 });
 
@@ -119,12 +110,10 @@ router.get("/applications", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: { applications } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "APPS_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "APPS_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -160,12 +149,10 @@ router.get("/applications/:id", requireClerkAuth, async (req, res) => {
       req.params.id
     );
     if (!application) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: { code: "NOT_FOUND", message: "Application not found" },
-        });
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Application not found" },
+      });
     }
 
     // Authorization: User can only see their own application unless Admin
@@ -173,12 +160,10 @@ router.get("/applications/:id", requireClerkAuth, async (req, res) => {
       application.clerk_user_id !== req.auth.userId &&
       !["admin", "super_admin"].includes(req.auth.role)
     ) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          error: { code: "FORBIDDEN", message: "Access denied" },
-        });
+      return res.status(403).json({
+        success: false,
+        error: { code: "FORBIDDEN", message: "Access denied" },
+      });
     }
 
     // Hide internal reviewer notes from student API
@@ -188,12 +173,10 @@ router.get("/applications/:id", requireClerkAuth, async (req, res) => {
 
     return res.json({ success: true, data: { application } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "APP_DETAILS_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "APP_DETAILS_ERROR", message: err.message },
+    });
   }
 });
 
@@ -217,12 +200,10 @@ router.get(
       });
       return res.json({ success: true, data: result });
     } catch (err) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          error: { code: "ADMIN_APPS_ERROR", message: err.message },
-        });
+      return res.status(500).json({
+        success: false,
+        error: { code: "ADMIN_APPS_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -246,12 +227,10 @@ router.patch(
       return res.json({ success: true, data: { application: updated } });
     } catch (err) {
       const statusCode = err.statusCode || 400;
-      return res
-        .status(statusCode)
-        .json({
-          success: false,
-          error: { code: "STATUS_UPDATE_ERROR", message: err.message },
-        });
+      return res.status(statusCode).json({
+        success: false,
+        error: { code: "STATUS_UPDATE_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -277,12 +256,10 @@ router.get("/activities", async (req, res) => {
     });
     return res.json({ success: true, data: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "ACTIVITIES_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "ACTIVITIES_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -290,21 +267,17 @@ router.get("/activities/:id", async (req, res) => {
   try {
     const activity = await activitiesService.getActivityById(req.params.id);
     if (!activity) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: { code: "NOT_FOUND", message: "Activity not found" },
-        });
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Activity not found" },
+      });
     }
     return res.json({ success: true, data: { activity } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "ACTIVITY_DETAIL_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "ACTIVITY_DETAIL_ERROR", message: err.message },
+    });
   }
 });
 
@@ -320,12 +293,10 @@ router.post(
       });
       return res.status(201).json({ success: true, data: { activity } });
     } catch (err) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: { code: "CREATE_ACTIVITY_ERROR", message: err.message },
-        });
+      return res.status(400).json({
+        success: false,
+        error: { code: "CREATE_ACTIVITY_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -342,12 +313,10 @@ router.put(
       );
       return res.json({ success: true, data: { activity: updated } });
     } catch (err) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: { code: "UPDATE_ACTIVITY_ERROR", message: err.message },
-        });
+      return res.status(400).json({
+        success: false,
+        error: { code: "UPDATE_ACTIVITY_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -365,12 +334,10 @@ router.patch(
       );
       return res.json({ success: true, data: { activity: updated } });
     } catch (err) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: { code: "STATUS_ACTIVITY_ERROR", message: err.message },
-        });
+      return res.status(400).json({
+        success: false,
+        error: { code: "STATUS_ACTIVITY_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -387,12 +354,10 @@ router.get("/events", async (req, res) => {
     });
     return res.json({ success: true, data: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "EVENTS_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "EVENTS_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -400,21 +365,17 @@ router.get("/events/:id", async (req, res) => {
   try {
     const event = await eventsService.getEventById(req.params.id);
     if (!event) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: { code: "NOT_FOUND", message: "Event not found" },
-        });
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Event not found" },
+      });
     }
     return res.json({ success: true, data: { event } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "EVENT_DETAIL_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "EVENT_DETAIL_ERROR", message: err.message },
+    });
   }
 });
 
@@ -432,12 +393,10 @@ router.post("/events/:id/register", requireClerkAuth, async (req, res) => {
     return res.status(201).json({ success: true, data: { registration: reg } });
   } catch (err) {
     const statusCode = err.statusCode || 400;
-    return res
-      .status(statusCode)
-      .json({
-        success: false,
-        error: { code: "EVENT_REG_ERROR", message: err.message },
-      });
+    return res.status(statusCode).json({
+      success: false,
+      error: { code: "EVENT_REG_ERROR", message: err.message },
+    });
   }
 });
 
@@ -448,12 +407,10 @@ router.get("/events/user/registrations", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: { registrations } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "USER_REGS_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "USER_REGS_ERROR", message: err.message },
+    });
   }
 });
 
@@ -470,12 +427,10 @@ router.get("/teams", async (req, res) => {
     });
     return res.json({ success: true, data: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "TEAMS_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "TEAMS_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -484,12 +439,10 @@ router.post("/teams", requireClerkAuth, async (req, res) => {
     const team = await teamsService.createTeam(req.auth.userId, req.body);
     return res.status(201).json({ success: true, data: { team } });
   } catch (err) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: { code: "TEAM_CREATE_ERROR", message: err.message },
-      });
+    return res.status(400).json({
+      success: false,
+      error: { code: "TEAM_CREATE_ERROR", message: err.message },
+    });
   }
 });
 
@@ -504,12 +457,10 @@ router.post("/teams/:id/join", requireClerkAuth, async (req, res) => {
       .status(201)
       .json({ success: true, data: { request: reqResult } });
   } catch (err) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: { code: "TEAM_JOIN_ERROR", message: err.message },
-      });
+    return res.status(400).json({
+      success: false,
+      error: { code: "TEAM_JOIN_ERROR", message: err.message },
+    });
   }
 });
 
@@ -524,12 +475,10 @@ router.get("/mentors", async (req, res) => {
     });
     return res.json({ success: true, data: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "MENTORS_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "MENTORS_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -540,12 +489,10 @@ router.get("/fund-requests", requireClerkAuth, async (req, res) => {
     const requests = await fundRequestsService.getUserRequests(req.auth.userId);
     return res.json({ success: true, data: { requests } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "FUNDS_FETCH_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "FUNDS_FETCH_ERROR", message: err.message },
+    });
   }
 });
 
@@ -559,12 +506,10 @@ router.post("/fund-requests", requireClerkAuth, async (req, res) => {
       .status(201)
       .json({ success: true, data: { request: reqResult } });
   } catch (err) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: { code: "FUND_SUBMIT_ERROR", message: err.message },
-      });
+    return res.status(400).json({
+      success: false,
+      error: { code: "FUND_SUBMIT_ERROR", message: err.message },
+    });
   }
 });
 
@@ -582,12 +527,10 @@ router.get(
       });
       return res.json({ success: true, data: result });
     } catch (err) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          error: { code: "ADMIN_FUNDS_ERROR", message: err.message },
-        });
+      return res.status(500).json({
+        success: false,
+        error: { code: "ADMIN_FUNDS_ERROR", message: err.message },
+      });
     }
   }
 );
@@ -607,12 +550,10 @@ router.get("/notifications", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "NOTIFICATIONS_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "NOTIFICATIONS_ERROR", message: err.message },
+    });
   }
 });
 
@@ -624,12 +565,10 @@ router.patch("/notifications/:id/read", requireClerkAuth, async (req, res) => {
     );
     return res.json({ success: true, data: { notification: updated } });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "NOTIF_READ_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "NOTIF_READ_ERROR", message: err.message },
+    });
   }
 });
 
@@ -638,12 +577,10 @@ router.post("/notifications/read-all", requireClerkAuth, async (req, res) => {
     await notificationsService.markAllAsRead(req.auth.userId);
     return res.json({ success: true });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: { code: "NOTIF_READ_ALL_ERROR", message: err.message },
-      });
+    return res.status(500).json({
+      success: false,
+      error: { code: "NOTIF_READ_ALL_ERROR", message: err.message },
+    });
   }
 });
 
@@ -656,12 +593,87 @@ router.get(
       const metrics = await adminAnalyticsService.getMetrics();
       return res.json({ success: true, data: { metrics } });
     } catch (err) {
-      return res
-        .status(500)
-        .json({
+      return res.status(500).json({
+        success: false,
+        error: { code: "ANALYTICS_ERROR", message: err.message },
+      });
+    }
+  }
+);
+
+/* ── 10. Recruitment Status & Platform Settings ─────────────────── */
+
+/**
+ * GET /api/v1/recruitment-status
+ * Public endpoint (no auth required).
+ * Returns the open/closed state of each recruitment pathway so the frontend
+ * can gate form access without needing an authenticated API call.
+ */
+router.get("/recruitment-status", async (req, res) => {
+  try {
+    const status = await settingsService.getRecruitmentStatus();
+    return res.json({ success: true, data: status });
+  } catch (err) {
+    logger.error("[recruitment-status] Error:", err);
+    // Return safe defaults on error — never block the UI with a 500 here
+    return res.json({
+      success: true,
+      data: { core_team_open: false, membership_open: true },
+    });
+  }
+});
+
+/**
+ * PATCH /api/v1/admin/settings/:key
+ * Admin-only. Updates a single settings key.
+ * Body: { value: <any JSON-serializable value> }
+ *
+ * Allowed keys are validated server-side to prevent arbitrary key creation.
+ */
+const ALLOWED_SETTING_KEYS = new Set([
+  "core_team_recruitment_open",
+  "membership_open",
+]);
+
+router.patch(
+  "/admin/settings/:key",
+  requireClerkAuth,
+  requireRole(["admin", "super_admin"]),
+  async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { value } = req.body;
+
+      if (!ALLOWED_SETTING_KEYS.has(key)) {
+        return res.status(400).json({
           success: false,
-          error: { code: "ANALYTICS_ERROR", message: err.message },
+          error: {
+            code: "INVALID_SETTING_KEY",
+            message: `Unknown setting key: "${key}". Allowed: ${[...ALLOWED_SETTING_KEYS].join(", ")}.`,
+          },
         });
+      }
+
+      if (value === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: "VALUE_REQUIRED",
+            message: 'Request body must include a "value" field.',
+          },
+        });
+      }
+
+      const updated = await settingsService.set(key, value, req.auth.userId);
+      logger.info(
+        `[admin/settings] ${req.auth.userId} set ${key} = ${JSON.stringify(value)}`
+      );
+      return res.json({ success: true, data: { setting: updated } });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        error: { code: "SETTINGS_UPDATE_ERROR", message: err.message },
+      });
     }
   }
 );

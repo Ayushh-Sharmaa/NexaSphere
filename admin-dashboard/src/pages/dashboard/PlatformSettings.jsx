@@ -7,9 +7,16 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
-const API = "/api/admin/settings";
+const API_V1 = "/api/v1";
+const LEGACY_API = "/api/admin/settings"; // kept for non-recruitment settings until backend is migrated
+
+// Keys managed via the real /api/v1/admin/settings/:key endpoint
+const V1_SETTING_KEYS = new Set([
+  "core_team_recruitment_open",
+  "membership_open",
+]);
 
 const TABS = ["General", "Event", "User", "Email", "Integrations", "History"];
 const ENVS = ["development", "staging", "production"];
@@ -18,6 +25,20 @@ const ENVS = ["development", "staging", "production"];
 
 const FIELDS = {
   General: [
+    {
+      key: "core_team_recruitment_open",
+      label: "Core Team Recruitment Open",
+      type: "boolean",
+      description:
+        "Allow students to submit Core Team applications. Disable to close recruitment.",
+    },
+    {
+      key: "membership_open",
+      label: "Membership Applications Open",
+      type: "boolean",
+      description:
+        "Allow students to submit NexaSphere membership applications.",
+    },
     { key: "platform_name", label: "Platform Name", type: "text" },
     { key: "platform_tagline", label: "Tagline", type: "text" },
     { key: "contact_email", label: "Contact Email", type: "email" },
@@ -406,8 +427,34 @@ export default function PlatformSettings() {
   const loadSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(API, { params: { env } });
-      setSettings(data.settings);
+      // 1. Load recruitment flags from the real /api/v1/recruitment-status endpoint
+      let recruitmentSettings = {};
+      try {
+        const { data: rsData } = await axiosInstance.get(
+          `${API_V1}/recruitment-status`
+        );
+        if (rsData?.data) {
+          recruitmentSettings = {
+            core_team_recruitment_open: rsData.data.core_team_open,
+            membership_open: rsData.data.membership_open,
+          };
+        }
+      } catch {
+        // Non-fatal: recruitment status may not yet be available
+      }
+
+      // 2. Load all other settings from the legacy settings API
+      let legacySettings = {};
+      try {
+        const { data } = await axiosInstance.get(LEGACY_API, {
+          params: { env },
+        });
+        legacySettings = data.settings || {};
+      } catch {
+        // Non-fatal if the legacy endpoint is absent
+      }
+
+      setSettings({ ...legacySettings, ...recruitmentSettings });
       setPending({});
       setErrors({});
     } catch {
@@ -450,18 +497,35 @@ export default function PlatformSettings() {
   }
 
   async function handleSave() {
-    const updates = pending;
+    const updates = { ...pending };
     if (!Object.keys(updates).length)
       return showToast("No changes to save", "info");
     setSaving(true);
     try {
-      await axios.put(API, { env, updates });
+      // 1. Save V1-managed keys (recruitment flags) via the real API endpoint
+      const v1Keys = Object.keys(updates).filter((k) => V1_SETTING_KEYS.has(k));
+      for (const key of v1Keys) {
+        await axiosInstance.patch(`${API_V1}/admin/settings/${key}`, {
+          value: updates[key],
+        });
+        delete updates[key]; // remove so we don't also send to legacy endpoint
+      }
+
+      // 2. Save remaining keys to the legacy endpoint (if any)
+      if (Object.keys(updates).length > 0) {
+        await axiosInstance.put(LEGACY_API, { env, updates });
+      }
+
       showToast("Settings saved");
       setPreviewData(null);
       loadSettings();
     } catch (e) {
-      setErrors(e.response?.data?.errors || {});
-      showToast("Save failed — see highlighted fields", "error");
+      const errorData = e.response?.data || {};
+      setErrors(errorData.errors || {});
+      showToast(
+        errorData.error?.message || "Save failed — see highlighted fields",
+        "error"
+      );
     } finally {
       setSaving(false);
     }

@@ -16,6 +16,15 @@ export default function CoreTeamApplicationPage() {
     enabled: !!isSignedIn,
   });
 
+  // Check whether core team recruitment is currently open.
+  // This is a public endpoint — no auth required — so we always fetch it,
+  // allowing the page to show the closed state even to signed-out visitors.
+  const { data: recruitmentData, isLoading: recruitmentLoading } = useQuery({
+    queryKey: ['recruitmentStatus'],
+    queryFn: () => api.getRecruitmentStatus(),
+    staleTime: 1000 * 60 * 5, // 5-minute cache — admins can change this at any time
+  });
+
   const [formData, setFormData] = useState({
     targetRole: 'Technical Lead',
     secondaryRole: 'Event Operations Lead',
@@ -64,7 +73,9 @@ export default function CoreTeamApplicationPage() {
     );
   }
 
-  if (statusLoading) {
+  // Show a single loading state while either the recruitment gate or the
+  // membership eligibility check is still in flight.
+  if (recruitmentLoading || (isSignedIn && statusLoading)) {
     return (
       <div
         style={{
@@ -74,7 +85,73 @@ export default function CoreTeamApplicationPage() {
           justifyContent: 'center',
         }}
       >
-        <p style={{ color: 'var(--text-secondary)' }}>Verifying membership eligibility...</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Checking recruitment status...</p>
+      </div>
+    );
+  }
+
+  // ── Recruitment gate: show closed state if admins have toggled off ─────────
+  const isCoreTeamOpen = recruitmentData?.data?.core_team_open ?? false;
+
+  if (!isCoreTeamOpen) {
+    return (
+      <div
+        className="container"
+        style={{ padding: '60px 16px', maxWidth: '600px', textAlign: 'center' }}
+      >
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔐</div>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '12px' }}>
+          Core Team Recruitment is Currently Closed
+        </h2>
+        <p
+          style={{
+            color: 'var(--text-secondary)',
+            lineHeight: '1.6',
+            marginBottom: '24px',
+          }}
+        >
+          We are not accepting Core Team applications at this time. Check back during the next
+          recruitment window, announced on our socials.
+        </p>
+        <p
+          style={{
+            color: 'var(--text-secondary)',
+            fontSize: '0.92rem',
+            marginBottom: '24px',
+          }}
+        >
+          Membership applications are open —{' '}
+          <button
+            onClick={() => navigate('/portal/apply')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#CC1111',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              textDecoration: 'underline',
+              padding: 0,
+            }}
+          >
+            apply for NexaSphere membership
+          </button>{' '}
+          to join the community first.
+        </p>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            color: 'var(--text-primary, #fff)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '8px',
+            padding: '10px 20px',
+            cursor: 'pointer',
+            fontSize: '0.92rem',
+          }}
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
