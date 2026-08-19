@@ -1,10 +1,47 @@
 import { CopyButton } from "../components/CopyButton";
 import { DashboardCardSkeleton } from "../components/DashboardCardSkeleton";
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, auth } from "../services/api";
-import { Skeleton } from "../components/Skeleton";
 import { AdminIcon } from "../components/AdminIcon";
+import { HelpTooltip } from "../components/HelpTooltip";
 import { PermissionGuard } from "../components/PermissionGuard";
+
+const QUICK_ACTIONS = [
+  {
+    to: "/dashboard/events",
+    label: "Create Event",
+    description: "Schedule a new event or activity",
+    icon: "Calendar",
+    requiredScope: "events:read",
+  },
+  {
+    to: "/dashboard/applications",
+    label: "Review Applications",
+    description: "View and process membership applications",
+    icon: "FileText",
+  },
+  {
+    to: "/dashboard/core-team",
+    label: "Core Team",
+    description: "Manage core team members and roles",
+    icon: "Users",
+    requiredScope: "settings:admin",
+  },
+  {
+    to: "/dashboard/announcements",
+    label: "Announcements",
+    description: "Post a new announcement",
+    icon: "Bell",
+  },
+  {
+    to: "/dashboard/settings",
+    label: "Platform Settings",
+    description: "Configure recruitment, features, and platform options",
+    icon: "Settings",
+    requiredScope: "settings:admin",
+  },
+];
 export function DashboardHome() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

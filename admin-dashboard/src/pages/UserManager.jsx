@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import UserTimelineModal from "../components/UserTimelineModal";
 import { Skeleton } from "../components/Skeleton";
+import { HelpTooltip } from "../components/HelpTooltip";
 
 const ROLES = ["member", "moderator", "admin"];
 const PASSWORD_REQUIREMENTS = [
