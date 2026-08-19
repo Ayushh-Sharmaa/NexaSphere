@@ -46,7 +46,7 @@
     "react-is": "^19.0.0"
   },
   "devDependencies": {
-    "artillery": "^2.0.33",
+    "artillery": "^2.0.34",
     "artillery-plugin-metrics-by-endpoint": "^1.27.0",
     "concurrently": "^10.0.0",
     "husky": "^9.1.7",
