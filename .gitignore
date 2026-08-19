@@ -85,7 +85,6 @@ ci-logs.txt
 *.diff
 
 # ── Scratch / Debug files (developer local artifacts) ─────────────
-# These files are temporary debug outputs and should never be committed.
 git_branches.txt
 git_branches_vv.txt
 git_commit_*.txt
@@ -123,11 +122,9 @@ scratch/
 .turbo/
 image.png
 test_output.txt
+.clerk/
 
 # ── Issue-specific working files (NEVER commit these) ─────────────
-# Files named after specific issue numbers are temporary working docs.
-# They belong in your local editor/notes, not in the repository.
-# Pattern: anything with .issue<N>, ISSUE_<N>, or _ISSUE<N> in the name.
 *.issue[0-9]*
 *_ISSUE[0-9]*.js
 *_ISSUE[0-9]*.jsx
@@ -135,5 +132,4 @@ test_output.txt
 PR_CONTENT_ISSUE_*.md
 PR_TEMPLATE_ISSUE_*.md
 NexaSphere/
-# Accidental legacy self-submodule path (kept local only)
 /NexaSphere/

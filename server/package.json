@@ -20,7 +20,7 @@
     "migrate:create": "node-pg-migrate -f .postgres_migrations_config.json create",
     "db:validate": "node scripts/validate-database.js",
     "audit:sql": "node scripts/audit-sql.js",
-    "postinstall": "npx prisma generate --schema=./prisma/schema.prisma",
+    "postinstall": "npx prisma generate --schema=../prisma/schema.prisma",
     "dr-drill": "node --loader ts-node/esm scripts/dr-drill.ts"
   },
   "dependencies": {
