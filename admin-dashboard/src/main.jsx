@@ -19,9 +19,13 @@ const queryClient = new QueryClient({
   },
 });
 
-const CLERK_PUBLISHABLE_KEY =
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
-  "pk_test_bW9yYWwtc25haWwtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  throw new Error(
+    "VITE_CLERK_PUBLISHABLE_KEY is not set. Add it to admin-dashboard/.env.local — see admin-dashboard/.env.example."
+  );
+}
 
 function ClerkAuthBridge({ children }) {
   const { getToken } = useAuth();
