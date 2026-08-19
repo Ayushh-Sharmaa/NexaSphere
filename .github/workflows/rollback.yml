@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Repository at Release Tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.release_tag }} # ← actually checks out the tag
 
