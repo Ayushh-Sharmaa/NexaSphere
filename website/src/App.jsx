@@ -36,7 +36,6 @@ import './i18n';
 import nexasphereLogo from './assets/images/logos/nexasphere-logo.png';
 
 // Core structural elements
-import AppProviders from './providers/AppProviders';
 import AppRoutes from './router/routes';
 import useAppBootstrap from './hooks/useAppBootstrap';
 import { useTheme } from './hooks/useTheme';
@@ -69,7 +68,6 @@ import { activityPages } from './data/activities/index';
 const isPlaywright =
   typeof window !== 'undefined' && window.navigator.userAgent.includes('Playwright');
 
-import { BookmarkProvider } from './context/BookmarkContext';
 import { StudentAuthProvider, useStudentAuth } from './context/StudentAuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { PageLoadingSpinner } from './router/ProtectedRoute';
@@ -360,9 +358,7 @@ function Cursor() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppProviders>
-        <AppShell />
-      </AppProviders>
+      <AppShell />
     </BrowserRouter>
   );
 }
