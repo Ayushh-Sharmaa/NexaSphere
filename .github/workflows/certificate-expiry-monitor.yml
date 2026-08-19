@@ -20,7 +20,7 @@ jobs:
 
       - name: Alert if expiring soon
         if: env.days_left < 30 && env.days_left >= 0
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const daysLeft = parseInt(process.env.days_left);

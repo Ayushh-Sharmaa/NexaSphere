@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Detect and label conflicting PRs
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -178,7 +178,7 @@ jobs:
 
     steps:
       - name: Wait for GitHub to compute mergeability, then act
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
