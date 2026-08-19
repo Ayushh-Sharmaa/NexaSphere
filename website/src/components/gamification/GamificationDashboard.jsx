@@ -26,6 +26,14 @@ export default function GamificationDashboard() {
     };
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'leaderboard') {
+      gamificationService.getLeaderboard().then((lb) => {
+        if (lb && lb.length > 0) setLeaderboard(lb);
+      });
+    }
+  }, [activeTab]);
+
   const showToast = (type, message) => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, type, message }]);

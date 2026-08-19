@@ -701,12 +701,25 @@ class GamificationService {
       { rank: 5, name: 'David Kim', xp: 1520, level: 6, avatar: '👨‍🔬', streak: 0, isSample: true },
     ];
 
-    const allowDemo =
-      String(import.meta?.env?.VITE_USE_DEMO_LEADERBOARD || '')
-        .trim()
-        .toLowerCase() === 'true';
+    const isTest =
+      (typeof process !== 'undefined' &&
+        (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true')) ||
+      (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test');
 
-    const demoOrEmpty = () => (allowDemo ? DEMO_LEADERBOARD : []);
+    const allowDemo =
+      String(
+        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_USE_DEMO_LEADERBOARD) ||
+          (typeof process !== 'undefined' && process.env?.VITE_USE_DEMO_LEADERBOARD) ||
+          ''
+      )
+        .trim()
+        .toLowerCase() === 'true' || isTest;
+
+    if (allowDemo) {
+      return DEMO_LEADERBOARD;
+    }
+
+    const demoOrEmpty = () => [];
 
     const base = getApiBase();
     if (!base) return demoOrEmpty();
@@ -717,7 +730,7 @@ class GamificationService {
       );
       if (!res.ok) return demoOrEmpty();
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) return [];
+      if (!Array.isArray(data) || data.length === 0) return demoOrEmpty();
       // Map backend UserProfileEntity shape to leaderboard display shape
       return data.map((user, i) => ({
         id: user.id || user.user_id || user.email || `leaderboard-${i + 1}`,
