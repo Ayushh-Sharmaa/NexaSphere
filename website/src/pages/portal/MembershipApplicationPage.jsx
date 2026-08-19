@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useUser, useAuth } from '@clerk/react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/apiClient';
 
 export default function MembershipApplicationPage() {
@@ -9,6 +9,13 @@ export default function MembershipApplicationPage() {
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['activityCategories'],
+    queryFn: () => api.getActivityCategories(),
+    staleTime: 1000 * 60 * 10, // categories rarely change; 10 min cache
+  });
+  const activityCategories = categoriesData?.data?.categories || [];
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
@@ -20,6 +27,7 @@ export default function MembershipApplicationPage() {
     year: '2nd Year',
     semester: '3rd',
     domainInterest: 'Full-Stack Web Development',
+    activityInterest: '',
     githubUrl: '',
     linkedinUrl: '',
     whyJoin: '',
@@ -73,6 +81,10 @@ export default function MembershipApplicationPage() {
     setErrorMessage('');
     if (!formData.fullName.trim() || !formData.rollNumber.trim() || !formData.collegeEmail.trim()) {
       setErrorMessage('Please fill in all required academic fields.');
+      return;
+    }
+    if (!formData.activityInterest) {
+      setErrorMessage('Please select which activity type interests you most.');
       return;
     }
 
@@ -434,6 +446,37 @@ export default function MembershipApplicationPage() {
             <option value="Competitive Programming & DSA">Competitive Programming & DSA</option>
             <option value="Cyber Security & Networking">Cyber Security & Networking</option>
             <option value="Open Source & Developer Tooling">Open Source & Developer Tooling</option>
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '16px' }}>
+          <label
+            style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px' }}
+          >
+            Which Activity Type Interests You Most? *
+          </label>
+          <select
+            name="activityInterest"
+            required
+            value={formData.activityInterest}
+            onChange={handleChange}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.15)',
+              background: '#1c1c1c',
+              color: '#fff',
+            }}
+          >
+            <option value="" disabled>
+              Select an activity type
+            </option>
+            {activityCategories.map((cat) => (
+              <option key={cat.key} value={cat.key}>
+                {cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
