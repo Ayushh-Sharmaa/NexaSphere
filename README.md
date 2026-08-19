@@ -21,13 +21,16 @@ NexaSphere/
 │   ├── controllers/      # Route controllers and request handlers
 │   ├── middleware/       # Authentication, CSRF, rate limiting, logging
 │   ├── migrations/       # PostgreSQL / database migration scripts
-│   ├── prisma/           # Prisma schema and generated models
 │   ├── repositories/     # Data persistence and query layer
 │   ├── routes/           # Express route definitions
 │   ├── services/         # Core business logic services
 │   ├── test/             # Comprehensive API test suite
 │   ├── utils/            # Shared utilities, security, and logging
 │   └── validators/       # Request validation schemas (Zod)
+├── prisma/               # Canonical Prisma schema and database migrations
+│   ├── schema.prisma     # Prisma data models
+│   ├── migrations/       # Prisma migration history
+│   └── seed.ts           # Database seeding script
 │
 ├── package.json          # Monorepo workspaces and script coordination
 ├── vercel.json           # Frontend production deployment configuration
