@@ -1,12 +1,17 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { withDb } from './db.js';
-import { HAS_SUPABASE } from '../storage/supabaseClient.js';
+import { promises as fs } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { withDb } from "./db.js";
+import { HAS_SUPABASE } from "../storage/supabaseClient.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const SLACK_STUDENTS_FILE = path.join(__dirname, '..', 'data', 'student_users_slack.json');
+const SLACK_STUDENTS_FILE = path.join(
+  __dirname,
+  "..",
+  "data",
+  "student_users_slack.json"
+);
 
 async function ensureLocalFile() {
   const dir = path.dirname(SLACK_STUDENTS_FILE);
@@ -14,21 +19,28 @@ async function ensureLocalFile() {
   try {
     await fs.access(SLACK_STUDENTS_FILE);
   } catch {
-    await fs.writeFile(SLACK_STUDENTS_FILE, JSON.stringify({}, null, 2), 'utf8');
+    await fs.writeFile(
+      SLACK_STUDENTS_FILE,
+      JSON.stringify({}, null, 2),
+      "utf8"
+    );
   }
 }
 
 async function readLocalSlackSettings() {
   await ensureLocalFile();
-  const raw = await fs.readFile(SLACK_STUDENTS_FILE, 'utf8');
+  const raw = await fs.readFile(SLACK_STUDENTS_FILE, "utf8");
   return JSON.parse(raw);
 }
 
 async function writeLocalSlackSettings(data) {
   await ensureLocalFile();
-  await fs.writeFile(SLACK_STUDENTS_FILE, JSON.stringify(data, null, 2), 'utf8');
+  await fs.writeFile(
+    SLACK_STUDENTS_FILE,
+    JSON.stringify(data, null, 2),
+    "utf8"
+  );
 }
-
 
 export const studentUsersRepository = {
   async ensureSchema() {
@@ -73,7 +85,9 @@ export const studentUsersRepository = {
         )
       `);
       await client.query(`
-        CREATE INDEX IF NOT EXISTS idx_xp_transactions_user_id ON xp_transactions(student_user_id)
+        CREATE INDEX IF NOT EXISTS idx_xp_transactions_user_id ON xp_transactions(student_user_id);
+      `);
+      await client.query(`
         ALTER TABLE student_users ADD COLUMN IF NOT EXISTS phone_number VARCHAR(20) DEFAULT NULL;
       `);
     });
@@ -83,7 +97,7 @@ export const studentUsersRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM student_users WHERE provider = $1 AND provider_id = $2 LIMIT 1',
+        "SELECT * FROM student_users WHERE provider = $1 AND provider_id = $2 LIMIT 1",
         [provider, providerId]
       );
       return rows[0] || null;
@@ -96,16 +110,17 @@ export const studentUsersRepository = {
       const settings = localSettings[email] || {};
       return {
         email,
-        full_name: 'Local Student',
+        full_name: "Local Student",
         slack_user_id: settings.slackUserId || null,
         slack_dm_reminders: settings.slackDmReminders || false,
       };
     }
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM student_users WHERE email = $1 LIMIT 1', [
-        email,
-      ]);
+      const { rows } = await client.query(
+        "SELECT * FROM student_users WHERE email = $1 LIMIT 1",
+        [email]
+      );
       return rows[0] || null;
     });
   },
@@ -113,9 +128,10 @@ export const studentUsersRepository = {
   async findById(id) {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
-      const { rows } = await client.query('SELECT * FROM student_users WHERE id = $1 LIMIT 1', [
-        id,
-      ]);
+      const { rows } = await client.query(
+        "SELECT * FROM student_users WHERE id = $1 LIMIT 1",
+        [id]
+      );
       return rows[0] || null;
     });
   },
@@ -124,7 +140,7 @@ export const studentUsersRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const check = await client.query(
-        'SELECT id FROM student_users WHERE provider = $1 AND provider_id = $2 LIMIT 1',
+        "SELECT id FROM student_users WHERE provider = $1 AND provider_id = $2 LIMIT 1",
         [provider, providerId]
       );
       const isNewUser = check.rows.length === 0;
@@ -144,7 +160,8 @@ export const studentUsersRepository = {
 
       if (isNewUser && rows[0]) {
         try {
-          const { trackRegistration } = await import('../middleware/performanceMonitor.js');
+          const { trackRegistration } =
+            await import("../middleware/performanceMonitor.js");
           trackRegistration();
         } catch (e) {
           // ignore
@@ -159,7 +176,7 @@ export const studentUsersRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'UPDATE student_users SET role = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        "UPDATE student_users SET role = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
         [role, id]
       );
       return rows[0] || null;
@@ -205,16 +222,18 @@ export const studentUsersRepository = {
   async markRecoveryCodeUsed(id) {
     if (!HAS_SUPABASE) return;
     return withDb(async (client) => {
-      await client.query('UPDATE recovery_codes SET used = true WHERE id = $1', [id]);
+      await client.query(
+        "UPDATE recovery_codes SET used = true WHERE id = $1",
+        [id]
+      );
     });
   },
 
-  async awardXP(userId, amount, action = 'generic', description = null) {
+  async awardXP(userId, amount, action = "generic", description = null) {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
-
       const userRes = await client.query(
-        'SELECT xp, level, badges FROM student_users WHERE id = $1',
+        "SELECT xp, level, badges FROM student_users WHERE id = $1",
         [userId]
       );
       if (userRes.rows.length === 0) return null;
@@ -228,11 +247,15 @@ export const studentUsersRepository = {
       else if (newXP >= 1500) newLevel = 3;
       else if (newXP >= 500) newLevel = 2;
 
-      let badges = Array.isArray(userRes.rows[0].badges) ? userRes.rows[0].badges : [];
-      if (newLevel >= 2 && !badges.includes('explorer')) badges.push('explorer');
-      if (newLevel >= 3 && !badges.includes('contributor')) badges.push('contributor');
-      if (newLevel >= 4 && !badges.includes('expert')) badges.push('expert');
-      if (newLevel >= 5 && !badges.includes('legend')) badges.push('legend');
+      let badges = Array.isArray(userRes.rows[0].badges)
+        ? userRes.rows[0].badges
+        : [];
+      if (newLevel >= 2 && !badges.includes("explorer"))
+        badges.push("explorer");
+      if (newLevel >= 3 && !badges.includes("contributor"))
+        badges.push("contributor");
+      if (newLevel >= 4 && !badges.includes("expert")) badges.push("expert");
+      if (newLevel >= 5 && !badges.includes("legend")) badges.push("legend");
 
       await client.query(
         `INSERT INTO xp_transactions (student_user_id, amount, action, description)
@@ -265,7 +288,7 @@ export const studentUsersRepository = {
     });
   },
 
-  async getLeaderboard(filter = 'all') {
+  async getLeaderboard(filter = "all") {
     if (!HAS_SUPABASE) return [];
     return withDb(async (client) => {
       const { rows } = await client.query(
@@ -282,7 +305,7 @@ export const studentUsersRepository = {
     if (!HAS_SUPABASE) return null;
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'UPDATE student_users SET theme = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        "UPDATE student_users SET theme = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
         [theme, id]
       );
       return rows[0] || null;
@@ -307,7 +330,7 @@ export const studentUsersRepository = {
       if (updates.social_links !== undefined) {
         setClauses.push(`social_links = $${idx++}::jsonb`);
         values.push(
-          typeof updates.social_links === 'string'
+          typeof updates.social_links === "string"
             ? updates.social_links
             : JSON.stringify(updates.social_links)
         );
@@ -318,9 +341,10 @@ export const studentUsersRepository = {
       }
 
       if (setClauses.length === 0) {
-        const { rows } = await client.query('SELECT * FROM student_users WHERE id = $1 LIMIT 1', [
-          id,
-        ]);
+        const { rows } = await client.query(
+          "SELECT * FROM student_users WHERE id = $1 LIMIT 1",
+          [id]
+        );
         return rows[0] || null;
       }
 
@@ -328,7 +352,7 @@ export const studentUsersRepository = {
       values.push(id);
 
       const { rows } = await client.query(
-        `UPDATE student_users SET ${setClauses.join(', ')} WHERE id = $${idx} RETURNING *`,
+        `UPDATE student_users SET ${setClauses.join(", ")} WHERE id = $${idx} RETURNING *`,
         values
       );
       return rows[0] || null;
@@ -339,7 +363,7 @@ export const studentUsersRepository = {
     if (!HAS_SUPABASE) return [];
     return withDb(async (client) => {
       const { rows } = await client.query(
-        'SELECT * FROM student_users ORDER BY last_login_at DESC'
+        "SELECT * FROM student_users ORDER BY last_login_at DESC"
       );
       return rows;
     });

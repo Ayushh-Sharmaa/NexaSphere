@@ -3,7 +3,9 @@ import crypto from "crypto";
 const ALGORITHM = "aes-256-cbc";
 const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY ||
-  (process.env.NODE_ENV === "test" || !process.env.NODE_ENV
+  (process.env.NODE_ENV === "test" ||
+  process.env.NODE_ENV === "development" ||
+  !process.env.NODE_ENV
     ? "12345678901234567890123456789012"
     : (() => {
         throw new Error(

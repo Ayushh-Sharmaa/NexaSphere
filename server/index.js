@@ -27,6 +27,12 @@ import { adminAuthMiddleware } from "./middleware/adminAuthMiddleware.js";
 import analyticsRouter from "./routes/analytics.js";
 import apiRouter from "./routes/api.js";
 import formSubmissionsRouter from "./routes/forms.js";
+const formsRouter = formSubmissionsRouter;
+import healthRouter from "./routes/health.js";
+import recoveryRouter from "./routes/recovery.js";
+import segmentsRouter from "./routes/segments.js";
+import dashboardRouter from "./routes/dashboard.js";
+import auditToolsRouter from "./routes/auditTools.js";
 import { logEvent } from "./controllers/analyticsController.js";
 import healthDashboardRouter from "./routes/healthDashboard.js";
 import complianceRouter from "./routes/compliance.js";
@@ -96,9 +102,7 @@ import {
 } from "./storage/supabaseClient.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const RedisStore = require("connect-redis").default || require("connect-redis");
+import { RedisStore } from "connect-redis";
 import Redis from "ioredis";
 import passport from "./config/studentOAuth.js";
 import { studentUsersRepository } from "./repositories/studentUsersRepository.js";
@@ -467,7 +471,6 @@ if (useStructuredHttpLog) {
 }
 app.use(performanceMonitor);
 app.use(cookieParser());
-app.use(sessionMiddleware);
 
 // Verify Redis URL protocol in production
 const redisSessionUrl = process.env.REDIS_URL || "";
@@ -481,16 +484,29 @@ if (
 }
 // Reuse the existing getRedisClient if possible, else create a new one
 let sessionClient = getRedisClient();
-if (!sessionClient) {
-  sessionClient = new Redis(redisSessionUrl);
+if (!sessionClient && redisSessionUrl) {
+  try {
+    sessionClient = new Redis(redisSessionUrl);
+  } catch (e) {
+    logger.warn(
+      "Could not create Redis session client, falling back to memory store:",
+      e.message
+    );
+  }
 }
+const sessionSecret =
+  process.env.SESSION_SECRET ||
+  process.env.JWT_SECRET ||
+  "dev_session_secret_nexasphere";
 app.use(
   session({
-    store: new RedisStore({
-      client: sessionClient,
-      prefix: "session:express:",
-    }),
-    secret: SESSION_SECRET,
+    store: sessionClient
+      ? new RedisStore({
+          client: sessionClient,
+          prefix: "session:express:",
+        })
+      : undefined,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     name: "ns_session",
@@ -663,38 +679,11 @@ const defaultContent = {
   coreTeam: [],
 };
 
-// â”€â”€ File Upload Configuration â”€â”€
 import webhooksRouter from "./routes/webhooks.js";
 app.use("/api/webhooks", webhooksRouter);
-app.use("/api/admin/scheduled-tasks", adminAuth, scheduledTasksRouter);
-app.use("/api/admin/segments", adminAuth, segmentsRouter);
-app.use("/api/moderation", adminAuth, moderationRouter);
-app.use("/api/admin/rbac", adminAuth, rbacRouter);
-
-app.get("/api/admin/backups", adminAuth, backupController.getBackups);
-app.post(
-  "/api/admin/backups/manual",
-  validate(indexSchemas.manualBackupSchema),
-  adminAuth,
-  backupController.runManualBackup
-);
-app.post(
-  "/api/admin/backups/restore",
-  validate(indexSchemas.restoreBackupSchema),
-  adminAuth,
-  backupController.runRestore
-);
-app.get(
-  "/api/admin/backups/restore-test-history",
-  adminAuth,
-  backupController.getRestoreHistory
-);
-app.delete(
-  "/api/admin/backups",
-  validate(indexSchemas.deleteBackupSchema),
-  adminAuth,
-  backupController.deleteBackup
-);
+app.use("/api/admin/segments", adminAuthRateLimited, segmentsRouter);
+app.use("/api/moderation", adminAuthRateLimited, moderationRouter);
+app.use("/api/admin/rbac", adminAuthRateLimited, rbacRouter);
 app.use(apiKeysRouter);
 
 // Root Level Routers (Keep at the bottom of route stack)
@@ -752,6 +741,17 @@ function validateMagicBytes(filepath, mimeType) {
   fs.closeSync(fd);
   return signatures.some((sig) => sig.every((byte, i) => buffer[i] === byte));
 }
+
+const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
+const uploadWithMagicCheck = [
+  upload.single("file"),
+  (req, res, next) => {
+    if (req.file && !validateMagicBytes(req.file.path, req.file.mimetype)) {
+      return res.status(400).json({ error: "Invalid file magic bytes" });
+    }
+    next();
+  },
+];
 
 async function ensureContentFile() {
   const dir = path.dirname(CONTENT_FILE);
@@ -927,8 +927,16 @@ app.delete(
 
 app.post("/api/admin/login", authRateLimiter, adminAuthMiddleware.login);
 app.post("/api/admin/logout", adminAuthMiddleware.logout);
-app.use("/api/admin/analytics", adminAuth, analyticsRouter);
-app.use("/api/admin/metrics", adminAuth, adminStreamRouter);
+app.use(
+  "/api/admin/analytics",
+  adminAuthMiddleware.requireAdmin,
+  analyticsRouter
+);
+app.use(
+  "/api/admin/metrics",
+  adminAuthMiddleware.requireAdmin,
+  adminStreamRouter
+);
 
 app.get("/api/auth/google", studentAuthController.googleAuth);
 app.get("/api/auth/google/callback", studentAuthController.googleCallback);
@@ -1711,21 +1719,29 @@ app.post(
 );
 
 // Admin resource management
-app.get("/api/admin/resources", adminAuth, resourcesController.listResources);
-app.post("/api/admin/resources", adminAuth, resourcesController.createResource);
+app.get(
+  "/api/admin/resources",
+  adminAuthMiddleware.requireAdmin,
+  resourcesController.listResources
+);
+app.post(
+  "/api/admin/resources",
+  adminAuthMiddleware.requireAdmin,
+  resourcesController.createResource
+);
 app.put(
   "/api/admin/resources/:id",
-  adminAuth,
+  adminAuthMiddleware.requireAdmin,
   resourcesController.updateResource
 );
 app.delete(
   "/api/admin/resources/:id",
-  adminAuth,
+  adminAuthMiddleware.requireAdmin,
   resourcesController.deleteResource
 );
 app.patch(
   "/api/admin/resources/:id/moderate",
-  adminAuth,
+  adminAuthMiddleware.requireAdmin,
   resourcesController.moderateResource
 );
 // Must be registered after all routes.
@@ -1753,21 +1769,30 @@ const port = Number(process.env.PORT || 8787);
 let server;
 
 if (process.env.NODE_ENV !== "test") {
-  if (!process.env.VERCEL) {
-    const boot = HAS_SUPABASE
-      ? studentUsersRepository.ensureSchema()
-      : ensureContentFile();
-    boot.then(() => {
-      server = app.listen(port, () => {
-        console.log(`NexaSphere server listening on http://localhost:${port}`);
-      });
-    });
-  } else {
+  const startServer = () => {
     loadPersistedPushSubscriptions();
     server = app.listen(port, () => {
       console.log(`NexaSphere server listening on http://localhost:${port}`);
     });
     initializeSocketIO(server);
+  };
+
+  if (!process.env.VERCEL) {
+    const boot = HAS_SUPABASE
+      ? studentUsersRepository.ensureSchema()
+      : ensureContentFile();
+    Promise.resolve(boot)
+      .catch((err) => {
+        console.warn(
+          "[Boot] Schema initialization warning:",
+          err?.message || err
+        );
+      })
+      .finally(() => {
+        startServer();
+      });
+  } else {
+    startServer();
   }
 }
 

@@ -3,19 +3,26 @@
  * Handles WebSocket connections for real-time updates
  */
 
-import { Server } from 'socket.io';
-import logger from '../utils/logger.js';
-import { getAdminSession } from '../repositories/adminSessionsRepository.js';
-import { resolveAdminPermissions, getRoomsForPermissions } from './eventPermissions.js';
-import { createAdapter } from '@socket.io/redis-adapter';
-import { liveQaService } from '../services/liveQaService.js';
-import { validationMiddleware } from '../sockets/validationMiddleware.js';
-import { handleYjsUpdate, getOrCreateDoc } from '../utils/yjsSyncHandler.js';
-import * as Y from 'yjs';
+import { Server } from "socket.io";
+import logger from "../utils/logger.js";
+import { getAdminSession } from "../repositories/adminSessionsRepository.js";
+import {
+  resolveAdminPermissions,
+  getRoomsForPermissions,
+} from "./eventPermissions.js";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { liveQaService } from "../services/liveQaService.js";
+import { validationMiddleware } from "../sockets/validationMiddleware.js";
+import { handleYjsUpdate, getOrCreateDoc } from "../utils/yjsSyncHandler.js";
+import * as Y from "yjs";
 
-import { getRedisClient } from '../utils/redis.js';
-import { waitingRoomService } from '../services/waitingRoomService.js';
-import { getWorkspaceDocument, saveWorkspaceDocument } from '../repositories/workspaceRepository.js';
+import { getRedisClient } from "../utils/redis.js";
+import { waitingRoomService } from "../services/waitingRoomService.js";
+import {
+  getWorkspaceDocument,
+  saveWorkspaceDocument,
+} from "../repositories/workspaceRepository.js";
+import { setupChatSocketHandlers } from "../controllers/chatController.js";
 
 let io = null;
 const connectedUsers = new Map();
@@ -54,7 +61,10 @@ function cleanupJoinRoomAttempts() {
     }
   }
   if (cleaned > 0) {
-    logger.debug('joinRoomAttempts cleanup', { cleaned, remaining: joinRoomAttempts.size });
+    logger.debug("joinRoomAttempts cleanup", {
+      cleaned,
+      remaining: joinRoomAttempts.size,
+    });
   }
 }
 
@@ -63,7 +73,8 @@ const MAX_CURSOR_X = 5000;
 const MAX_CURSOR_Y = 5000;
 // ===================================// WEBSOCKET BACKPRESSURE & THROTTLING CONFIG
 // ===================================const MAX_PENDING_PACKETS = parseInt(process.env.WS_MAX_PENDING_PACKETS) || 100;
-const SLOW_CONSUMER_TIMEOUT_MS = parseInt(process.env.WS_SLOW_CONSUMER_TIMEOUT_MS) || 5000;
+const SLOW_CONSUMER_TIMEOUT_MS =
+  parseInt(process.env.WS_SLOW_CONSUMER_TIMEOUT_MS) || 5000;
 
 const EVENT_POLICIES = {
   cursor_moved: {
@@ -78,11 +89,11 @@ const EVENT_POLICIES = {
     throttleMs: 100,
     coalesce: true,
   },
-  'admin:new-registration': {
+  "admin:new-registration": {
     throttleMs: 200, // Max 5 updates per second
     coalesce: true,
   },
-  'registration-confirmed': {
+  "registration-confirmed": {
     throttleMs: 500,
     coalesce: true,
   },
@@ -92,7 +103,7 @@ const EVENT_POLICIES = {
  * Parse Socket.IO packet payload from raw Engine.IO transport string
  */
 function parseSocketPacket(packetStr) {
-  if (typeof packetStr !== 'string') return null;
+  if (typeof packetStr !== "string") return null;
   // Match Socket.IO message format: optional engine.io type (4) + socket.io message type (2) + JSON array
   // E.g. "42[...]" or "2[...]"
   const match = packetStr.match(/^(?:4)?2(\[.*\])$/);
@@ -115,14 +126,14 @@ function parseSocketPacket(packetStr) {
  * Generate a unique qualifier to isolate event states (e.g. per-room or per-user)
  */
 function getEventQualifier(event, payload) {
-  if (!payload || typeof payload !== 'object') return '';
+  if (!payload || typeof payload !== "object") return "";
   let parts = [];
   if (payload.roomId) parts.push(`room:${payload.roomId}`);
   if (payload.teamRoomId) parts.push(`team:${payload.teamRoomId}`);
   if (payload.taskId) parts.push(`task:${payload.taskId}`);
   if (payload.socketId) parts.push(`socket:${payload.socketId}`);
   if (payload.userId) parts.push(`user:${payload.userId}`);
-  return parts.join('|');
+  return parts.join("|");
 }
 
 /**
@@ -142,20 +153,25 @@ export function applyBackpressureProtection(socket) {
   const onDrain = () => {
     socket.data.firstQueuedTime = null;
   };
-  socket.conn.on('drain', onDrain);
+  socket.conn.on("drain", onDrain);
   socket.data.drainListener = onDrain;
 
   const origWrite = socket.conn.write;
   socket.conn.write = function (packet, options) {
-    const pendingCount = socket.conn.writeBuffer ? socket.conn.writeBuffer.length : 0;
+    const pendingCount = socket.conn.writeBuffer
+      ? socket.conn.writeBuffer.length
+      : 0;
 
     // A. Bounded Websocket Buffering (Hard Queue Limits)
     if (pendingCount >= MAX_PENDING_PACKETS) {
-      logger.warn('WebSocket backpressure limit exceeded. Force disconnecting slow consumer.', {
-        socketId: socket.id,
-        pendingCount,
-        maxAllowed: MAX_PENDING_PACKETS,
-      });
+      logger.warn(
+        "WebSocket backpressure limit exceeded. Force disconnecting slow consumer.",
+        {
+          socketId: socket.id,
+          pendingCount,
+          maxAllowed: MAX_PENDING_PACKETS,
+        }
+      );
       socket.disconnect(true);
       return;
     }
@@ -165,11 +181,14 @@ export function applyBackpressureProtection(socket) {
     if (!socket.data.firstQueuedTime) {
       socket.data.firstQueuedTime = now;
     } else if (now - socket.data.firstQueuedTime > SLOW_CONSUMER_TIMEOUT_MS) {
-      logger.warn('WebSocket consumer queue stalled. Force disconnecting slow consumer.', {
-        socketId: socket.id,
-        pendingCount,
-        queuedDurationMs: now - socket.data.firstQueuedTime,
-      });
+      logger.warn(
+        "WebSocket consumer queue stalled. Force disconnecting slow consumer.",
+        {
+          socketId: socket.id,
+          pendingCount,
+          queuedDurationMs: now - socket.data.firstQueuedTime,
+        }
+      );
       socket.disconnect(true);
       return;
     }
@@ -220,7 +239,10 @@ export function getQueuePressureMetrics() {
   for (const [id, socket] of io.sockets.sockets) {
     metrics.push({
       socketId: id,
-      pendingPackets: socket.conn && socket.conn.writeBuffer ? socket.conn.writeBuffer.length : 0,
+      pendingPackets:
+        socket.conn && socket.conn.writeBuffer
+          ? socket.conn.writeBuffer.length
+          : 0,
       firstQueuedTime: socket.data ? socket.data.firstQueuedTime : null,
       adminAuthenticated: !!socket.adminAuthenticated,
     });
@@ -247,9 +269,14 @@ export function startSocketValidation() {
         if (s.adminAuthenticated && s.adminSessionToken) {
           const session = await getAdminSession(s.adminSessionToken);
           if (!session) {
-            logger.warn('Distributed admin session revocation detected. Force disconnecting socket.', { socketId: s.id });
+            logger.warn(
+              "Distributed admin session revocation detected. Force disconnecting socket.",
+              { socketId: s.id }
+            );
             try {
-              s.emit('admin:revoked', { error: 'Session has been revoked or expired' });
+              s.emit("admin:revoked", {
+                error: "Session has been revoked or expired",
+              });
             } catch (e) {
               // Socket might already be closed
             }
@@ -258,11 +285,16 @@ export function startSocketValidation() {
         }
       }
     } catch (error) {
-      logger.error('Failed to validate active admin socket sessions', { error: error.message });
+      logger.error("Failed to validate active admin socket sessions", {
+        error: error.message,
+      });
     }
   }, ADMIN_SESSION_VALIDATION_INTERVAL_MS);
 
-  if (socketValidationTimer && typeof socketValidationTimer.unref === 'function') {
+  if (
+    socketValidationTimer &&
+    typeof socketValidationTimer.unref === "function"
+  ) {
     socketValidationTimer.unref();
   }
   return socketValidationTimer;
@@ -281,7 +313,6 @@ export function stopSocketValidation() {
     joinRoomCleanupTimer = null;
   }
 }
-
 
 /**
  * Parse Bearer token from auth header
@@ -310,17 +341,19 @@ function parseBearer(authHeader) {
  */
 export function resolveSocketCorsOrigin(env = process.env) {
   if (env.FRONTEND_URL) return env.FRONTEND_URL;
-  if (env.NODE_ENV === 'production') {
-    throw new Error('FRONTEND_URL must be set in production for Socket.IO CORS');
+  if (env.NODE_ENV === "production") {
+    throw new Error(
+      "FRONTEND_URL must be set in production for Socket.IO CORS"
+    );
   }
-  return 'http://localhost:5173';
+  return "http://localhost:5173";
 }
 export function initializeSocketIO(httpServer) {
   const allowedOrigins = process.env.FRONTEND_URL
-    ? process.env.FRONTEND_URL.split(',')
+    ? process.env.FRONTEND_URL.split(",")
         .map((o) => o.trim())
         .filter(Boolean)
-    : 'http://localhost:5173';
+    : "http://localhost:5173";
   io = new Server(httpServer, {
     cors: {
       origin: allowedOrigins,
@@ -337,76 +370,86 @@ export function initializeSocketIO(httpServer) {
     try {
       const subClient = pubClient.duplicate();
       io.adapter(createAdapter(pubClient, subClient));
-      logger.info('Socket.IO using Redis adapter for horizontal scaling.');
+      logger.info("Socket.IO using Redis adapter for horizontal scaling.");
     } catch (err) {
-      logger.error('Failed to configure Socket.IO Redis adapter:', err);
-      logger.info('Socket.IO falling back to in-memory adapter.');
+      logger.error("Failed to configure Socket.IO Redis adapter:", err);
+      logger.info("Socket.IO falling back to in-memory adapter.");
     }
   } else {
-    logger.info('Socket.IO using in-memory adapter (REDIS_URL not set).');
+    logger.info("Socket.IO using in-memory adapter (REDIS_URL not set).");
 
-  if (process.env.REDIS_URL) {
-    const pubClient = getRedisClient();
-    const subClient = pubClient.duplicate();
-    subClient.on('error', (err) => {
-      logger.error('Redis subClient connection error:', err);
-    });
-    // Ensure both pub/sub clients are connected before wiring the adapter
-    const connectIfNeeded = async (client) => {
-      if (client && client.status === 'wait') {
-        try {
-          await client.connect();
-        } catch (err) {
-          if (err.message !== 'Redis is already connecting/connected') {
-            throw err;
+    if (process.env.REDIS_URL) {
+      const pubClient = getRedisClient();
+      const subClient = pubClient.duplicate();
+      subClient.on("error", (err) => {
+        logger.error("Redis subClient connection error:", err);
+      });
+      // Ensure both pub/sub clients are connected before wiring the adapter
+      const connectIfNeeded = async (client) => {
+        if (client && client.status === "wait") {
+          try {
+            await client.connect();
+          } catch (err) {
+            if (err.message !== "Redis is already connecting/connected") {
+              throw err;
+            }
           }
         }
-      }
-    };
-    Promise.all([connectIfNeeded(pubClient), connectIfNeeded(subClient)]).then(() => {
-      io.adapter(createAdapter(pubClient, subClient));
-    });
-  } else {
-    logger.info('Skipping Redis adapter in test environment');
-    logger.info('REDIS_URL not configured. Socket.IO falling back to in-memory adapter.');
-  }
+      };
+      Promise.all([
+        connectIfNeeded(pubClient),
+        connectIfNeeded(subClient),
+      ]).then(() => {
+        io.adapter(createAdapter(pubClient, subClient));
+      });
+    } else {
+      logger.info("Skipping Redis adapter in test environment");
+      logger.info(
+        "REDIS_URL not configured. Socket.IO falling back to in-memory adapter."
+      );
+    }
 
-  io.use(async (socket, next) => {
-    const token = socket.handshake.auth?.token || parseBearer(socket.handshake.headers?.authorization);
-    if (token) {
-      try {
-        const session = await getAdminSession(token);
-        if (session) {
-          socket.adminSession = session;
-          socket.adminSessionToken = token;
-          socket.adminAuthenticated = true;
+    io.use(async (socket, next) => {
+      const token =
+        socket.handshake.auth?.token ||
+        parseBearer(socket.handshake.headers?.authorization);
+      if (token) {
+        try {
+          const session = await getAdminSession(token);
+          if (session) {
+            socket.adminSession = session;
+            socket.adminSessionToken = token;
+            socket.adminAuthenticated = true;
+          }
+        } catch (err) {
+          logger.warn("Socket auth middleware error:", err.message);
+          return next(new Error("Authentication failed"));
         }
-      } catch (err) {
-        logger.warn('Socket auth middleware error:', err.message);
-        return next(new Error('Authentication failed'));
+      }
+      next();
+    });
+
+    io.on("connection", (socket) => {
+      _onConnection(socket);
+    });
+
+    liveQaService.setIO(io);
+    // Start distributed revocation checks for admin WebSocket clients
+    startSocketValidation();
+
+    // Start periodic cleanup of joinRoomAttempts map to prevent memory leaks
+    if (!joinRoomCleanupTimer) {
+      joinRoomCleanupTimer = setInterval(
+        cleanupJoinRoomAttempts,
+        JOIN_ROOM_CLEANUP_INTERVAL_MS
+      );
+      if (typeof joinRoomCleanupTimer.unref === "function") {
+        joinRoomCleanupTimer.unref();
       }
     }
-    next();
-  });
 
-  io.on("connection", (socket) => {
-    _onConnection(socket);
-  });
-
-  liveQaService.setIO(io);
-  // Start distributed revocation checks for admin WebSocket clients
-  startSocketValidation();
-
-  // Start periodic cleanup of joinRoomAttempts map to prevent memory leaks
-  if (!joinRoomCleanupTimer) {
-    joinRoomCleanupTimer = setInterval(cleanupJoinRoomAttempts, JOIN_ROOM_CLEANUP_INTERVAL_MS);
-    if (typeof joinRoomCleanupTimer.unref === 'function') {
-      joinRoomCleanupTimer.unref();
-    }
+    return io;
   }
-
-  return io;
-}
 }
 
 export function _onConnection(socket) {
@@ -417,16 +460,16 @@ export function _onConnection(socket) {
 
   // Auto-join authenticated admin sockets to admin room
   if (socket.adminAuthenticated) {
-    socket.join('admin-room');
+    socket.join("admin-room");
     const role = socket.adminSession?.metadata?.role;
-    if (role && typeof role === 'string') {
+    if (role && typeof role === "string") {
       socket.join(`admin-room:${role}`);
     }
     const adminRooms = getRoomsForPermissions(socket.adminPermissions);
     for (const room of adminRooms) {
       socket.join(room);
     }
-    logger.info('Admin joined scoped rooms', {
+    logger.info("Admin joined scoped rooms", {
       socketId: socket.id,
       username: socket.adminSession?.username,
       rooms: adminRooms,
@@ -434,7 +477,8 @@ export function _onConnection(socket) {
   }
 
   // Auto-join workspace room from handshake auth/query (consolidated from workspaceSocket.js)
-  const handshakeRoomId = socket.handshake.auth?.roomId || socket.handshake.query?.roomId || null;
+  const handshakeRoomId =
+    socket.handshake.auth?.roomId || socket.handshake.query?.roomId || null;
   if (handshakeRoomId && /^[a-zA-Z0-9\-_]{1,100}$/.test(handshakeRoomId)) {
     socket.join(handshakeRoomId);
   }
@@ -463,25 +507,32 @@ export function _onConnection(socket) {
 
     const { userId, email } = userData;
 
-    if (typeof userId !== 'string' || typeof email !== 'string') {
-      logger.warn('User identification payload fields must be primitive strings', {
-        socketId: socket.id,
-      });
+    if (typeof userId !== "string" || typeof email !== "string") {
+      logger.warn(
+        "User identification payload fields must be primitive strings",
+        {
+          socketId: socket.id,
+        }
+      );
       return;
     }
 
     // 4. Safe Deep Copy (Persist sanitized primitives)
     if (userId.length > 128 || email.length > 256) {
-      logger.warn('Oversized user identification payload values rejected', { socketId: socket.id });
+      logger.warn("Oversized user identification payload values rejected", {
+        socketId: socket.id,
+      });
       return;
     }
 
     if (connectedUsers.size >= MAX_CONNECTED_USERS) {
-      logger.warn('Max connected users cap reached, rejecting identification', {
+      logger.warn("Max connected users cap reached, rejecting identification", {
         socketId: socket.id,
         cap: MAX_CONNECTED_USERS,
       });
-      socket.emit('error', { message: 'Server at capacity, please retry later.' });
+      socket.emit("error", {
+        message: "Server at capacity, please retry later.",
+      });
       return;
     }
 
@@ -494,7 +545,10 @@ export function _onConnection(socket) {
 
     socket.join(`user-${String(email).toLowerCase()}`);
 
-    logger.info('User identified successfully', { userId: String(userId), socketId: socket.id });
+    logger.info("User identified successfully", {
+      userId: String(userId),
+      socketId: socket.id,
+    });
   });
 
   // Approved public-facing rooms that standard users can join
@@ -609,41 +663,64 @@ export function _onConnection(socket) {
 
     // Sanitize user details to prevent reference leaks / massive nested objects
     const sanitizedUser =
-      user && typeof user === 'object'
+      user && typeof user === "object"
         ? {
-            id: typeof user.id === 'string' ? user.id.slice(0, 100) : undefined,
-            name: typeof user.name === 'string' ? user.name.slice(0, 100) : 'Anonymous',
-            email: typeof user.email === 'string' ? user.email.slice(0, 150) : '',
-            color: typeof user.color === 'string' ? user.color.slice(0, 50) : '#888',
-            initials: typeof user.initials === 'string' ? user.initials.slice(0, 2) : 'U',
+            id: typeof user.id === "string" ? user.id.slice(0, 100) : undefined,
+            name:
+              typeof user.name === "string"
+                ? user.name.slice(0, 100)
+                : "Anonymous",
+            email:
+              typeof user.email === "string" ? user.email.slice(0, 150) : "",
+            color:
+              typeof user.color === "string" ? user.color.slice(0, 50) : "#888",
+            initials:
+              typeof user.initials === "string"
+                ? user.initials.slice(0, 2)
+                : "U",
           }
-        : { name: 'Anonymous', color: '#888', initials: 'U' };
+        : { name: "Anonymous", color: "#888", initials: "U" };
 
     // 6. Load current document from DB and send to the joining socket
-    getWorkspaceDocument(roomId).then((doc) => {
-      if (doc) {
-        workspaceVersions.set(roomId, doc.version);
-        socket.emit('document_state', { content: doc.content, version: doc.version });
-      }
-    }).catch(() => {});
+    getWorkspaceDocument(roomId)
+      .then((doc) => {
+        if (doc) {
+          workspaceVersions.set(roomId, doc.version);
+          socket.emit("document_state", {
+            content: doc.content,
+            version: doc.version,
+          });
+        }
+      })
+      .catch(() => {});
 
     socket
       .to(roomId)
-      .emit('user_joined', { socketId: socket.id, user: sanitizedUser, timestamp: Date.now() });
+      .emit("user_joined", {
+        socketId: socket.id,
+        user: sanitizedUser,
+        timestamp: Date.now(),
+      });
   });
 
   // Leave workspace room
-  socket.on('leave_room', (roomId) => {
-    if (typeof roomId !== 'string') return;
+  socket.on("leave_room", (roomId) => {
+    if (typeof roomId !== "string") return;
     _removeWorkspaceMember(roomId, socket.id);
     socket.leave(roomId);
     const identity = connectedUsers.get(socket.id);
     const sanitizedUser = {
-      name: typeof identity?.name === 'string' ? identity.name.slice(0, 100) : 'Anonymous',
-      email: typeof identity?.email === 'string' ? identity.email.slice(0, 150) : '',
+      name:
+        typeof identity?.name === "string"
+          ? identity.name.slice(0, 100)
+          : "Anonymous",
+      email:
+        typeof identity?.email === "string" ? identity.email.slice(0, 150) : "",
     };
-    logger.info('User left workspace room', { socketId: socket.id, roomId });
-    socket.to(roomId).emit('user_left', { socketId: socket.id, user: sanitizedUser });
+    logger.info("User left workspace room", { socketId: socket.id, roomId });
+    socket
+      .to(roomId)
+      .emit("user_left", { socketId: socket.id, user: sanitizedUser });
   });
 
   // Workspace synchronization events — only relay if sender is a room member
@@ -654,36 +731,39 @@ export function _onConnection(socket) {
     }
   });
 
-  socket.on('planning:join', (eventId) => {
-    if (typeof eventId === 'string' && /^[a-zA-Z0-9\-_]{1,100}$/.test(eventId)) {
+  socket.on("planning:join", (eventId) => {
+    if (
+      typeof eventId === "string" &&
+      /^[a-zA-Z0-9\-_]{1,100}$/.test(eventId)
+    ) {
       socket.join(`planning:${eventId}`);
     }
   });
 
-  socket.on('document_change', async (data) => {
+  socket.on("document_change", async (data) => {
     const { roomId, content, version } = data;
     if (!roomId || !_isWorkspaceMember(roomId, socket.id)) return;
 
-    if (typeof content !== 'string') return;
+    if (typeof content !== "string") return;
     if (content.length > 1048576) return;
 
     // Reject stale versions to prevent silent overwrites
     const currentVersion = workspaceVersions.get(roomId) ?? 0;
     if (version !== currentVersion) {
       const doc = await getWorkspaceDocument(roomId).catch(() => null);
-      socket.emit('document_state', {
-        content: doc?.content || '',
+      socket.emit("document_state", {
+        content: doc?.content || "",
         version: currentVersion,
       });
       return;
     }
-    
+
     // Accept valid update
     workspaceVersions.set(roomId, version);
-    
+
     socket.to(roomId).emit("document_change", { content, version });
     await saveWorkspaceDocument(roomId, content, version).catch((err) =>
-      logger.error('Failed to persist workspace document', { roomId, err })
+      logger.error("Failed to persist workspace document", { roomId, err })
     );
   });
 
@@ -760,43 +840,54 @@ export function _onConnection(socket) {
     // Persist best-effort — DB may be unavailable during local dev
     saveWorkspaceDocument(roomId, content, newVersion).catch(() => {});
 
-    socket.to(roomId).emit('document_change', { content, version: newVersion });
+    socket.to(roomId).emit("document_change", { content, version: newVersion });
   });
-  socket.on('planning:leave', (eventId) => {
-    if (typeof eventId === 'string') socket.leave(`planning:${eventId}`);
+  socket.on("planning:leave", (eventId) => {
+    if (typeof eventId === "string") socket.leave(`planning:${eventId}`);
   });
-  socket.on('planning:updated', (data) => {
+  socket.on("planning:updated", (data) => {
     if (data && data.eventId) {
-      socket.to(`planning:${data.eventId}`).emit('planning:updated', data);
+      socket.to(`planning:${data.eventId}`).emit("planning:updated", data);
     }
   });
 
-  socket.on('cursor_moved', (data) => {
+  socket.on("cursor_moved", (data) => {
     const { roomId, cursor } = data;
     if (!roomId || !_isWorkspaceMember(roomId, socket.id)) return;
 
     // Validate cursor coordinates before broadcasting
-    if (!cursor || typeof cursor.x !== 'number' || typeof cursor.y !== 'number') return;
+    if (!cursor || typeof cursor.x !== "number" || typeof cursor.y !== "number")
+      return;
     if (!Number.isFinite(cursor.x) || !Number.isFinite(cursor.y)) return;
-    if (cursor.x < 0 || cursor.x > MAX_CURSOR_X || cursor.y < 0 || cursor.y > MAX_CURSOR_Y) return;
+    if (
+      cursor.x < 0 ||
+      cursor.x > MAX_CURSOR_X ||
+      cursor.y < 0 ||
+      cursor.y > MAX_CURSOR_Y
+    )
+      return;
 
-    socket.to(roomId).emit('cursor_moved', {
+    socket.to(roomId).emit("cursor_moved", {
       socketId: socket.id,
       cursor: { x: Math.round(cursor.x), y: Math.round(cursor.y) },
     });
   });
 
-  socket.on('typing_start', (data) => {
+  socket.on("typing_start", (data) => {
     const { roomId, user, ...payload } = data;
     if (roomId && _isWorkspaceMember(roomId, socket.id)) {
-      socket.to(roomId).emit('typing_start', { socketId: socket.id, user, ...payload });
+      socket
+        .to(roomId)
+        .emit("typing_start", { socketId: socket.id, user, ...payload });
     }
   });
 
   socket.on("typing_stop", (data) => {
     const { roomId, ...payload } = data;
     if (roomId && _isWorkspaceMember(roomId, socket.id)) {
-      socket.to(roomId).emit("typing_stop", { socketId: socket.id, ...payload });
+      socket
+        .to(roomId)
+        .emit("typing_stop", { socketId: socket.id, ...payload });
     }
   });
 
@@ -855,17 +946,22 @@ export function _onConnection(socket) {
 
   // --- Task management events (consolidated from workspaceSocket.js / roomHandler.js) ---
 
-  socket.on('task_create', async (data, ack) => {
+  socket.on("task_create", async (data, ack) => {
     try {
       const { roomId, task } = data || {};
 
-      if (typeof roomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
-        if (typeof ack === 'function') ack({ success: false, error: 'Invalid roomId' });
+      if (
+        typeof roomId !== "string" ||
+        !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)
+      ) {
+        if (typeof ack === "function")
+          ack({ success: false, error: "Invalid roomId" });
         return;
       }
 
       if (!task || !task.title) {
-        if (typeof ack === 'function') ack({ success: false, error: 'Task title is required' });
+        if (typeof ack === "function")
+          ack({ success: false, error: "Task title is required" });
         return;
       }
 
@@ -876,26 +972,41 @@ export function _onConnection(socket) {
         createdAt: task.createdAt || new Date().toISOString(),
       };
 
-      socket.to(roomId).emit('task_created', payload);
+      socket.to(roomId).emit("task_created", payload);
 
-      if (typeof ack === 'function') ack({ success: true, task: payload });
+      if (typeof ack === "function") ack({ success: true, task: payload });
     } catch (err) {
-      logger.error('task_create error', { error: err.message, socketId: socket.id });
-      if (typeof ack === 'function') ack({ success: false, error: err.message });
+      logger.error("task_create error", {
+        error: err.message,
+        socketId: socket.id,
+      });
+      if (typeof ack === "function")
+        ack({ success: false, error: err.message });
     }
   });
 
-  socket.on('task_update_status', async (data, ack) => {
+  socket.on("task_update_status", async (data, ack) => {
     try {
       const { roomId, taskId, status, previousStatus, updatedBy } = data || {};
 
-      if (typeof roomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
-        if (typeof ack === 'function') ack({ success: false, error: 'Invalid roomId' });
+      if (
+        typeof roomId !== "string" ||
+        !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)
+      ) {
+        if (typeof ack === "function")
+          ack({ success: false, error: "Invalid roomId" });
         return;
       }
 
-      if (!taskId || !['Todo', 'In_Progress', 'Review', 'Done'].includes(status)) {
-        if (typeof ack === 'function') ack({ success: false, error: 'taskId and valid status are required' });
+      if (
+        !taskId ||
+        !["Todo", "In_Progress", "Review", "Done"].includes(status)
+      ) {
+        if (typeof ack === "function")
+          ack({
+            success: false,
+            error: "taskId and valid status are required",
+          });
         return;
       }
 
@@ -908,31 +1019,42 @@ export function _onConnection(socket) {
         timestamp: Date.now(),
       };
 
-      socket.to(roomId).emit('task_updated', payload);
+      socket.to(roomId).emit("task_updated", payload);
 
-      if (typeof ack === 'function') ack({ success: true, task: payload });
+      if (typeof ack === "function") ack({ success: true, task: payload });
     } catch (err) {
-      logger.error('task_update_status error', { error: err.message, socketId: socket.id });
-      if (typeof ack === 'function') ack({ success: false, error: err.message });
+      logger.error("task_update_status error", {
+        error: err.message,
+        socketId: socket.id,
+      });
+      if (typeof ack === "function")
+        ack({ success: false, error: err.message });
     }
   });
 
-  socket.on('task_status_update', async (data, ack) => {
+  socket.on("task_status_update", async (data, ack) => {
     try {
-      const { teamRoomId, taskId, newStatus, previousStatus, updatedBy } = data || {};
+      const { teamRoomId, taskId, newStatus, previousStatus, updatedBy } =
+        data || {};
 
-      if (typeof teamRoomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(teamRoomId)) {
-        if (typeof ack === 'function') ack({ success: false, error: 'Invalid teamRoomId' });
+      if (
+        typeof teamRoomId !== "string" ||
+        !/^[a-zA-Z0-9\-_]{1,100}$/.test(teamRoomId)
+      ) {
+        if (typeof ack === "function")
+          ack({ success: false, error: "Invalid teamRoomId" });
         return;
       }
 
       if (!taskId || !newStatus) {
-        if (typeof ack === 'function') ack({ success: false, error: 'taskId and newStatus required' });
+        if (typeof ack === "function")
+          ack({ success: false, error: "taskId and newStatus required" });
         return;
       }
 
-      if (!['Todo', 'In_Progress', 'Review', 'Done'].includes(newStatus)) {
-        if (typeof ack === 'function') ack({ success: false, error: `Invalid status: ${newStatus}` });
+      if (!["Todo", "In_Progress", "Review", "Done"].includes(newStatus)) {
+        if (typeof ack === "function")
+          ack({ success: false, error: `Invalid status: ${newStatus}` });
         return;
       }
 
@@ -945,12 +1067,16 @@ export function _onConnection(socket) {
         timestamp: Date.now(),
       };
 
-      socket.to(teamRoomId).emit('task_updated', payload);
+      socket.to(teamRoomId).emit("task_updated", payload);
 
-      if (typeof ack === 'function') ack({ success: true, task: payload });
+      if (typeof ack === "function") ack({ success: true, task: payload });
     } catch (err) {
-      logger.error('task_status_update error', { error: err.message, socketId: socket.id });
-      if (typeof ack === 'function') ack({ success: false, error: err.message });
+      logger.error("task_status_update error", {
+        error: err.message,
+        socketId: socket.id,
+      });
+      if (typeof ack === "function")
+        ack({ success: false, error: err.message });
     }
   });
 
@@ -978,12 +1104,12 @@ export function _onConnection(socket) {
       for (const room of authRooms) {
         socket.join(room);
       }
-      socket.join('admin-room');
+      socket.join("admin-room");
       const role = session.metadata?.role;
-      if (role && typeof role === 'string') {
+      if (role && typeof role === "string") {
         socket.join(`admin-room:${role}`);
       }
-      logger.info('Admin authenticated via socket event', {
+      logger.info("Admin authenticated via socket event", {
         socketId: socket.id,
         username: session.username,
         rooms: authRooms,
@@ -1001,12 +1127,17 @@ export function _onConnection(socket) {
     }
   });
 
-  socket.on('waiting:join', ({ eventId, fullName, email, isPriority } = {}) => {
+  socket.on("waiting:join", ({ eventId, fullName, email, isPriority } = {}) => {
     if (!eventId || !email || !fullName) return;
     const userId = socket.id;
-    const result = waitingRoomService.joinQueue(eventId, { userId, fullName, email, isPriority });
+    const result = waitingRoomService.joinQueue(eventId, {
+      userId,
+      fullName,
+      email,
+      isPriority,
+    });
     socket.join(`waiting:${eventId}`);
-    socket.emit('waiting:joined', { eventId, ...result });
+    socket.emit("waiting:joined", { eventId, ...result });
   });
 
   /**
@@ -1018,9 +1149,9 @@ export function _onConnection(socket) {
    * Receives binary CRDT state updates from clients, applies them to the in-memory
    * server-side document, and relays them to all other sockets joined to that room.
    */
-  socket.on('yjs_update', (roomId, update) => {
-    if (typeof roomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
-      logger.warn('Malformed workspace roomId join attempt rejected', {
+  socket.on("yjs_update", (roomId, update) => {
+    if (typeof roomId !== "string" || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
+      logger.warn("Malformed workspace roomId join attempt rejected", {
         socketId: socket.id,
         roomId,
       });
@@ -1028,7 +1159,7 @@ export function _onConnection(socket) {
     }
 
     if (!socket.rooms.has(roomId)) {
-      logger.warn('Unauthorized yjs_update attempt: socket not in room', {
+      logger.warn("Unauthorized yjs_update attempt: socket not in room", {
         socketId: socket.id,
         roomId,
       });
@@ -1036,11 +1167,13 @@ export function _onConnection(socket) {
     }
 
     try {
-      const updateBuffer = Buffer.isBuffer(update) ? update : Buffer.from(update);
+      const updateBuffer = Buffer.isBuffer(update)
+        ? update
+        : Buffer.from(update);
       handleYjsUpdate(roomId, updateBuffer);
-      socket.to(roomId).emit('yjs_update', updateBuffer);
+      socket.to(roomId).emit("yjs_update", updateBuffer);
     } catch (err) {
-      logger.error('Error handling yjs_update', {
+      logger.error("Error handling yjs_update", {
         error: err.message,
         socketId: socket.id,
       });
@@ -1051,8 +1184,8 @@ export function _onConnection(socket) {
    * Generates and transmits the full in-memory document state to a newly joined client
    * upon their synchronization request.
    */
-  socket.on('yjs_sync_request', ({ roomId }) => {
-    if (typeof roomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
+  socket.on("yjs_sync_request", ({ roomId }) => {
+    if (typeof roomId !== "string" || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
       return;
     }
 
@@ -1063,9 +1196,9 @@ export function _onConnection(socket) {
     try {
       const doc = getOrCreateDoc(roomId);
       const stateVector = Y.encodeStateAsUpdate(doc);
-      socket.emit('yjs_update', Buffer.from(stateVector));
+      socket.emit("yjs_update", Buffer.from(stateVector));
     } catch (err) {
-      logger.error('Error handling yjs_sync_request', {
+      logger.error("Error handling yjs_sync_request", {
         error: err.message,
         socketId: socket.id,
       });
@@ -1076,8 +1209,8 @@ export function _onConnection(socket) {
    * Relays awareness/presence protocol updates (e.g. cursor positions, user colors)
    * to all other connected clients in the corresponding workspace.
    */
-  socket.on('yjs_awareness', (roomId, update) => {
-    if (typeof roomId !== 'string' || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
+  socket.on("yjs_awareness", (roomId, update) => {
+    if (typeof roomId !== "string" || !/^[a-zA-Z0-9\-_]{1,100}$/.test(roomId)) {
       return;
     }
 
@@ -1086,50 +1219,57 @@ export function _onConnection(socket) {
     }
 
     const updateBuffer = Buffer.isBuffer(update) ? update : Buffer.from(update);
-    socket.to(roomId).emit('yjs_awareness', updateBuffer);
+    socket.to(roomId).emit("yjs_awareness", updateBuffer);
   });
 
   // Handles abrupt disconnects (crash, sleep, network drop)
-  socket.on('disconnecting', (reason) => {
-    logger.info('Socket disconnecting', { socketId: socket.id, reason });
+  socket.on("disconnecting", (reason) => {
+    logger.info("Socket disconnecting", { socketId: socket.id, reason });
     connectedUsers.delete(socket.id);
     joinRoomAttempts.delete(socket.id);
     _cleanupWorkspaceMembership(socket.id);
   });
 
-  socket.on('waiting:status', ({ eventId } = {}) => {
+  socket.on("waiting:status", ({ eventId } = {}) => {
     if (!eventId) return;
     const queue = waitingRoomService.getQueue(eventId);
-    socket.emit('waiting:status:update', { eventId, queue, total: queue.length });
+    socket.emit("waiting:status:update", {
+      eventId,
+      queue,
+      total: queue.length,
+    });
   });
 
-  socket.on('waiting:admit-one', ({ eventId } = {}) => {
+  socket.on("waiting:admit-one", ({ eventId } = {}) => {
     if (!socket.adminAuthenticated || !eventId) return;
     const entry = waitingRoomService.admitOne(eventId);
     if (entry) {
-      socket.emit('waiting:admitted-entry', { eventId, entry });
+      socket.emit("waiting:admitted-entry", { eventId, entry });
     }
   });
 
-  socket.on('waiting:admit-all', ({ eventId } = {}) => {
+  socket.on("waiting:admit-all", ({ eventId } = {}) => {
     if (!socket.adminAuthenticated || !eventId) return;
     const admitted = waitingRoomService.admitAll(eventId);
-    socket.emit('waiting:admitted-entries', { eventId, count: admitted.length });
+    socket.emit("waiting:admitted-entries", {
+      eventId,
+      count: admitted.length,
+    });
   });
 
-  socket.on('waiting:remove', ({ eventId, entryId } = {}) => {
+  socket.on("waiting:remove", ({ eventId, entryId } = {}) => {
     if (!socket.adminAuthenticated || !eventId || !entryId) return;
     waitingRoomService.removeFromQueue(eventId, entryId);
-    socket.emit('waiting:removed-entry', { eventId, entryId });
+    socket.emit("waiting:removed-entry", { eventId, entryId });
   });
 
-  socket.on('waiting:move-front', ({ eventId, entryId } = {}) => {
+  socket.on("waiting:move-front", ({ eventId, entryId } = {}) => {
     if (!socket.adminAuthenticated || !eventId || !entryId) return;
     waitingRoomService.moveToFront(eventId, entryId);
-    socket.emit('waiting:moved-front', { eventId, entryId });
+    socket.emit("waiting:moved-front", { eventId, entryId });
   });
 
-  socket.on('waiting:send-message', ({ eventId, message } = {}) => {
+  socket.on("waiting:send-message", ({ eventId, message } = {}) => {
     if (!socket.adminAuthenticated || !eventId || !message) return;
     waitingRoomService.sendMessage(eventId, message);
   });
@@ -1138,7 +1278,7 @@ export function _onConnection(socket) {
   // The server sends a 'ping' event periodically (see startHeartbeat).
   // Clients must respond with 'pong'.  If no pong arrives before the next
   // heartbeat tick the socket is forcibly disconnected, releasing all memory.
-  socket.on('pong', () => {
+  socket.on("pong", () => {
     socket._heartbeatAlive = true;
   });
 
@@ -1189,7 +1329,6 @@ export function setEmitToRoomOverride(fn) {
   emitToRoomOverride = fn;
 }
 
-
 /**
  * Emit event to specific room
  */
@@ -1214,7 +1353,7 @@ export function emitToUser(userId, eventName, data) {
 export function emitToUserByEmail(email, eventName, data) {
   if (!io) return;
   io.to(`user-${String(email).toLowerCase()}`).emit(eventName, data);
-  logger.debug('Emit to user by email room', { email, event: eventName });
+  logger.debug("Emit to user by email room", { email, event: eventName });
 }
 
 export function getConnectedUsersCount() {
@@ -1229,7 +1368,6 @@ export function getRoom(roomType) {
   return rooms[roomType] || null;
 }
 
-
 /**
  * Emit event to specific role
  */
@@ -1238,21 +1376,21 @@ export function emitToRole(roles, eventName, data) {
   const list = Array.isArray(roles) ? roles : [roles];
   const targets = new Set();
   for (const role of list) {
-    if (role === 'admin' || role === 'super_admin' || role === 'SuperAdmin') {
-      targets.add('admin-room');
+    if (role === "admin" || role === "super_admin" || role === "SuperAdmin") {
+      targets.add("admin-room");
       continue;
     }
-    if (typeof role === 'string' && role.length > 0) {
+    if (typeof role === "string" && role.length > 0) {
       targets.add(`admin-room:${role}`);
     }
   }
-  targets.add('admin-room:SuperAdmin');
-  targets.add('admin-room:super_admin');
+  targets.add("admin-room:SuperAdmin");
+  targets.add("admin-room:super_admin");
 
   for (const room of targets) {
     io.to(room).emit(eventName, data);
   }
-  logger.debug('Emit to role rooms', { rooms: [...targets], event: eventName });
+  logger.debug("Emit to role rooms", { rooms: [...targets], event: eventName });
 }
 
 export function _clearConnectedUsers() {
@@ -1315,7 +1453,7 @@ export function startHeartbeat() {
     io.sockets.sockets.forEach((socket) => {
       if (!socket._heartbeatAlive) {
         // Did not respond to last ping — evict immediately.
-        logger.warn('Evicting unresponsive socket (missed heartbeat pong)', {
+        logger.warn("Evicting unresponsive socket (missed heartbeat pong)", {
           socketId: socket.id,
         });
         socket.disconnect(true);
@@ -1324,14 +1462,14 @@ export function startHeartbeat() {
 
       // Mark as NOT alive; the 'pong' handler will flip it back to true.
       socket._heartbeatAlive = false;
-      socket.emit('ping');
+      socket.emit("ping");
     });
   }, HEARTBEAT_INTERVAL_MS);
 
   // Avoid keeping the process alive solely for the heartbeat in test/CLI envs.
   if (heartbeatInterval.unref) heartbeatInterval.unref();
 
-  logger.info('Socket heartbeat started', {
+  logger.info("Socket heartbeat started", {
     intervalMs: HEARTBEAT_INTERVAL_MS,
     timeoutMs: HEARTBEAT_TIMEOUT_MS,
   });
@@ -1345,7 +1483,7 @@ export function stopHeartbeat() {
   if (heartbeatInterval) {
     clearInterval(heartbeatInterval);
     heartbeatInterval = null;
-    logger.info('Socket heartbeat stopped.');
+    logger.info("Socket heartbeat stopped.");
   }
 }
 
