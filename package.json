@@ -40,7 +40,7 @@
     "react-is": "^19.0.0"
   },
   "devDependencies": {
-    "concurrently": "^10.0.0",
+    "concurrently": "^10.0.5",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.6",
     "prettier": "^3.9.6",
