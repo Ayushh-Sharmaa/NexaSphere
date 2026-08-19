@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import Image from './next-image.jsx';
 import defaultAvatar from '../assets/images/placeholders/default-avatar.png';
 import defaultProject from '../assets/images/placeholders/default-project.png';
 

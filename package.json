@@ -37,12 +37,9 @@
     "express-rate-limit": "^7.0.0",
     "jwt-decode": "^4.0.0",
     "lru-cache": "^11.5.1",
-    "next-intl": "^4.13.5",
     "react-is": "^19.0.0"
   },
   "devDependencies": {
-    "artillery": "^2.0.33",
-    "artillery-plugin-metrics-by-endpoint": "^1.27.0",
     "concurrently": "^10.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.6",

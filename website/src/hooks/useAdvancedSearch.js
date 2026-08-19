@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../utils/debounce.js';
 
 /**
  * Hook for managing advanced search state and API interaction
