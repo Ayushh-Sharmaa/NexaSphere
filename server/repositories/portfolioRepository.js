@@ -418,203 +418,108 @@ export const portfolioRepository = {
     return isValid;
   },
 
-  async createOrUpdate(data, isNewRegistration) {
-    const isDbAvailable = await ensureReady();
 
-    // Sanitize the entire record before any I/O so the database
-    // never holds raw HTML, javascript: URLs, or oversized strings.
-    // The Zod schema in the route handler catches the same
-    // problems earlier, but the repository is the last line of
-    // defense and is callable from other code paths (background
-    // jobs, seeders, tests).
-    const clean = sanitizePortfolioRecord(data);
+async createOrUpdate(data) {
+  const isDbAvailable = await ensureReady();
+  const clean = sanitizePortfolioRecord(data);
 
-    const passkeyVal = clean.passkey || data.passkey;
-    if (typeof passkeyVal !== "string" || passkeyVal.length > 128) {
-      throw new Error("Passkey must be between 1 and 128 characters.");
-    }
+  const passkeyVal = clean.passkey || data.passkey;
+  if (typeof passkeyVal !== "string" || passkeyVal.length > 128) {
+    throw new Error("Passkey must be between 1 and 128 characters.");
+  }
 
-    const sanitizedUsername =
-      clean.username || canonicalizeUsername(data.username);
-    const passkeyHash = await hashPasskey(passkeyVal);
+  const sanitizedUsername = clean.username || canonicalizeUsername(data.username);
+  const passkeyHash = await hashPasskey(passkeyVal);
 
-    const isPublic = clean.isPublic !== undefined ? clean.isPublic : true;
-    const customization = clean.customization || {};
-    const theme = clean.theme || "glassmorphic";
-    const visibleSections = clean.visibleSections;
-    const socialLinks = clean.socialLinks;
-    const customDomain = clean.customDomain || "";
-    const seoMetadata = clean.seoMetadata;
-    const skills = clean.skills;
-    const badges = clean.badges;
-    const projects = clean.projects;
-    const roadmaps = clean.roadmaps;
-    const bio = clean.bio;
-    const title = clean.title;
-    const avatarUrl = clean.avatarUrl || "";
-    const education = clean.education || [];
-    const workExperience = clean.workExperience || [];
-    const githubUsername = clean.githubUsername || null;
-    // Local file fallback
-    const portfolios = await readLocalPortfolios();
-    const portfolio = portfolios[sanitizedUsername];
-    if (!portfolio) return true; // New registration
-    return portfolio.passkeyHash === passkeyHash;
-    return await verifyHash(passkey, portfolio.passkeyHash);
-  },
+  const isPublic = clean.isPublic !== undefined ? clean.isPublic : true;
+  const theme = clean.theme || "glassmorphic";
+  const customization = clean.customization || {};
+  const visibleSections = clean.visibleSections || {
+    quests: true,
+    roadmaps: true,
+    projects: true,
+    analytics: false,
+  };
+  const socialLinks = clean.socialLinks || {};
+  const customDomain = clean.customDomain || "";
+  const seoMetadata = clean.seoMetadata || {};
+  const skills = clean.skills || [];
+  const badges = clean.badges || [];
+  const projects = clean.projects || [];
+  const roadmaps = clean.roadmaps || [];
+  const bio = clean.bio || "";
+  const title = clean.title || "";
+  const avatarUrl = clean.avatarUrl || "";
+  const education = clean.education || [];
+  const workExperience = clean.workExperience || [];
+  const githubUsername = clean.githubUsername || null;
 
-  async createOrUpdate(data) {
-    const isDbAvailable = await ensureReady();
-    const username = String(data.username || "").trim();
-    const sanitizedUsername = username.toLowerCase();
-    const passkeyHash = await hashPasskey(data.passkey);
-
-    const theme = data.theme || "glassmorphic";
-    const visibleSections = data.visibleSections || {
-      quests: true,
-      roadmaps: true,
-      projects: true,
-      analytics: false,
-    };
-    const socialLinks = data.socialLinks || {};
-    const customDomain = data.customDomain || "";
-    const seoMetadata = data.seoMetadata || {};
-    const skills = data.skills || [];
-    const badges = data.badges || [];
-    const projects = data.projects || [];
-    const roadmaps = data.roadmaps || [];
-    const bio = data.bio || "";
-    const title = data.title || "";
-
-    if (isDbAvailable) {
-      try {
-        return await withDb(async (client) => {
-          const { rows } = await client.query(
-            `INSERT INTO portfolios (
-              username, passkey_hash, theme, customization, visible_sections, social_links,
-              custom_domain, seo_metadata, skills, badges, projects, roadmaps, bio, title, avatar_url, education, work_experience, github_username, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
-            ON CONFLICT (username) DO UPDATE SET
-              passkey_hash = EXCLUDED.passkey_hash,
-              theme = EXCLUDED.theme,
-              customization = EXCLUDED.customization,
-              username, passkey_hash, theme, visible_sections, social_links,
-              custom_domain, seo_metadata, skills, badges, projects, roadmaps, bio, title, avatar_url, education, work_experience, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
-              username, passkey_hash, is_public, theme, customization, visible_sections, social_links,
-              custom_domain, seo_metadata, skills, badges, projects, roadmaps, bio, title, avatar_url, education, work_experience, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
-            ON CONFLICT (username) DO UPDATE SET
-              passkey_hash = EXCLUDED.passkey_hash,
-              is_public = EXCLUDED.is_public,
-              theme = EXCLUDED.theme,
-              customization = EXCLUDED.customization,
-              visible_sections = EXCLUDED.visible_sections,
-              social_links = EXCLUDED.social_links,
-              custom_domain = EXCLUDED.custom_domain,
-              seo_metadata = EXCLUDED.seo_metadata,
-              skills = EXCLUDED.skills,
-              badges = EXCLUDED.badges,
-              projects = EXCLUDED.projects,
-              roadmaps = EXCLUDED.roadmaps,
-              bio = EXCLUDED.bio,
-              title = EXCLUDED.title,
-              avatar_url = EXCLUDED.avatar_url,
-              education = EXCLUDED.education,
-              work_experience = EXCLUDED.work_experience,
-              github_username = EXCLUDED.github_username,
-              updated_at = NOW()
-            RETURNING *`,
-            [
-              sanitizedUsername,
-              passkeyHash,
-              isPublic,
-              theme,
-              JSON.stringify(customization),
-              JSON.stringify(visibleSections),
-              JSON.stringify(socialLinks),
-              customDomain,
-              JSON.stringify(seoMetadata),
-              JSON.stringify(skills),
-              JSON.stringify(badges),
-              JSON.stringify(projects),
-              JSON.stringify(roadmaps),
-              bio,
-              title,
-              avatarUrl,
-              JSON.stringify(education),
-              JSON.stringify(workExperience),
-              githubUsername,
-            ]
-          );
-          await invalidateCache(`portfolio:${sanitizedUsername}`);
-          return mapRow(rows[0]);
-        });
-      } catch (err) {
-        if (err.code === "23505") {
-          throw err; // Bubble up unique constraint violation
-        }
-        console.error(
-          "Database INSERT/UPDATE failed. Falling back to local file.",
-          err
+  if (isDbAvailable) {
+    try {
+      return await withDb(async (client) => {
+        const { rows } = await client.query(
+          `INSERT INTO portfolios (
+            username, passkey_hash, is_public, theme, customization, visible_sections, social_links,
+            custom_domain, seo_metadata, skills, badges, projects, roadmaps, bio, title, avatar_url,
+            education, work_experience, github_username, updated_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
+          ON CONFLICT (username) DO UPDATE SET
+            passkey_hash = EXCLUDED.passkey_hash,
+            is_public = EXCLUDED.is_public,
+            theme = EXCLUDED.theme,
+            customization = EXCLUDED.customization,
+            visible_sections = EXCLUDED.visible_sections,
+            social_links = EXCLUDED.social_links,
+            custom_domain = EXCLUDED.custom_domain,
+            seo_metadata = EXCLUDED.seo_metadata,
+            skills = EXCLUDED.skills,
+            badges = EXCLUDED.badges,
+            projects = EXCLUDED.projects,
+            roadmaps = EXCLUDED.roadmaps,
+            bio = EXCLUDED.bio,
+            title = EXCLUDED.title,
+            avatar_url = EXCLUDED.avatar_url,
+            education = EXCLUDED.education,
+            work_experience = EXCLUDED.work_experience,
+            github_username = EXCLUDED.github_username,
+            updated_at = NOW()
+          RETURNING *`,
+          [
+            sanitizedUsername, passkeyHash, isPublic, theme,
+            JSON.stringify(customization), JSON.stringify(visibleSections),
+            JSON.stringify(socialLinks), customDomain, JSON.stringify(seoMetadata),
+            JSON.stringify(skills), JSON.stringify(badges), JSON.stringify(projects),
+            JSON.stringify(roadmaps), bio, title, avatarUrl,
+            JSON.stringify(education), JSON.stringify(workExperience), githubUsername,
+          ]
         );
-      }
+        await invalidateCache(`portfolio:${sanitizedUsername}`);
+        return mapRow(rows[0]);
+      });
+    } catch (err) {
+      if (err.code === "23505") throw err;
+      console.error("Database INSERT/UPDATE failed. Falling back to local file.", err);
     }
+  }
 
-    // Local file fallback
-    return await portfolioMutex.runExclusive(async () => {
-      const portfolios = await readLocalPortfolios();
-      const now = new Date().toISOString();
-      const existing = portfolios[sanitizedUsername] || { createdAt: now };
+  // Local file fallback
+  return await portfolioMutex.runExclusive(async () => {
+    const portfolios = await readLocalPortfolios();
+    const now = new Date().toISOString();
+    const existing = portfolios[sanitizedUsername] || { createdAt: now };
 
-      const updatedPortfolio = {
-        username: sanitizedUsername,
-        passkeyHash,
-        isPublic,
-        theme,
-        customization,
-        visibleSections,
-        socialLinks,
-        customDomain,
-        seoMetadata,
-        skills,
-        badges,
-        projects,
-        roadmaps,
-        bio,
-        title,
-        avatarUrl,
-        education,
-        workExperience,
-        githubUsername,
-        createdAt: existing.createdAt,
-        updatedAt: now,
-      };
-      portfolios[sanitizedUsername] = updatedPortfolio;
-      await writeLocalPortfolios(portfolios);
-
-      return sanitizePortfolioOutput(updatedPortfolio);
-      const result = {
-        username: updatedPortfolio.username,
-        theme: updatedPortfolio.theme,
-        visibleSections: updatedPortfolio.visibleSections,
-        socialLinks: updatedPortfolio.socialLinks,
-        customDomain: updatedPortfolio.customDomain,
-        seoMetadata: updatedPortfolio.seoMetadata,
-        skills: updatedPortfolio.skills,
-        badges: updatedPortfolio.badges,
-        projects: updatedPortfolio.projects,
-        roadmaps: updatedPortfolio.roadmaps,
-        bio: updatedPortfolio.bio,
-        title: updatedPortfolio.title,
-        createdAt: updatedPortfolio.createdAt,
-        updatedAt: updatedPortfolio.updatedAt,
-      };
-
-      await invalidateCache(`portfolio:${sanitizedUsername}`);
-      return result;
-    });
-  },
+    const updatedPortfolio = {
+      username: sanitizedUsername, passkeyHash, isPublic, theme, customization,
+      visibleSections, socialLinks, customDomain, seoMetadata, skills, badges,
+      projects, roadmaps, bio, title, avatarUrl, education, workExperience,
+      githubUsername, createdAt: existing.createdAt, updatedAt: now,
+    };
+    portfolios[sanitizedUsername] = updatedPortfolio;
+    await writeLocalPortfolios(portfolios);
+    await invalidateCache(`portfolio:${sanitizedUsername}`);
+    return sanitizePortfolioOutput(updatedPortfolio);
+  });
+},
 
   async listAll({ includeDeleted = false } = {}) {
     const isDbAvailable = await ensureReady();
