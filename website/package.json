@@ -24,7 +24,7 @@
     "@fullcalendar/daygrid": "^6.1.21",
     "@fullcalendar/interaction": "^6.1.21",
     "@fullcalendar/react": "^6.1.21",
-    "@marsidev/react-turnstile": "^1.5.5",
+    "@marsidev/react-turnstile": "^1.6.0",
     "@sentry/react": "^10.67.0",
     "@tanstack/react-query": "^5.101.4",
     "@testing-library/dom": "^10.4.1",
