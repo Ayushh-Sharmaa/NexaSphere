@@ -35,7 +35,7 @@
     "i18next": "^26.3.6",
     "idb-keyval": "^6.3.0",
     "jspdf": "^4.2.1",
-    "lucide-react": "^1.30.0",
+    "lucide-react": "^1.33.0",
     "pino": "^10.3.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
