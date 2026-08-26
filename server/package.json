@@ -24,7 +24,7 @@
     "dr-drill": "node --loader ts-node/esm scripts/dr-drill.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1092.0",
+    "@aws-sdk/client-s3": "^3.1116.0",
     "@bull-board/api": "^8.1.2",
     "@bull-board/express": "^8.1.2",
     "@clerk/backend": "^3.16.8",
