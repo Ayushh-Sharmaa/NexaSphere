@@ -65,7 +65,7 @@
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/ui": "^4.1.10",
     "cross-env": "^10.1.0",
-    "eslint": "^10.8.1",
+    "eslint": "^10.9.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.9.0",
