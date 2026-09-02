@@ -25,7 +25,7 @@
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.10",
     "react-quill": "^2.0.0",
-    "react-router-dom": "^7.17.0",
+    "react-router-dom": "^7.18.3",
     "recharts": "^3.10.0",
     "rrweb-player": "^2.1.1",
     "socket.io-client": "^4.8.3"
