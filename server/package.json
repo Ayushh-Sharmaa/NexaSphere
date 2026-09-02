@@ -90,7 +90,7 @@
     "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.3.4",
     "yjs": "^13.6.1",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "overrides": {
     "ws": "^8.20.2",
