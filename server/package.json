@@ -101,7 +101,7 @@
     "websocket-driver": "0.7.5"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
+    "jest": "^30.5.0",
     "supertest": "^7.2.2"
   }
 }
