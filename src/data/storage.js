@@ -121,7 +121,7 @@ export function saveMembershipApplication(data) {
     console.warn('LocalStorage save failed:', e);
   }
   // Also try submitting to backend API if reachable
-  fetch(apiUrl('/api/membership'), {
+  fetch(apiUrl('/api/forms/membership'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newApp),

@@ -33,6 +33,7 @@ import TeamPage            from './pages/team/TeamPage';
 import ContactPage         from './pages/contact/ContactPage';
 import RecruitmentPage     from './pages/recruitment/RecruitmentPage';
 import MembershipPage      from './pages/membership/MembershipPage';
+import AdminPage           from './pages/admin/AdminPage';
 
 import { activityPages }   from './data/activities/index';
 import { events as fallbackEvents } from './data/eventsData';
@@ -195,18 +196,56 @@ function Cursor() {
   );
 }
 
+const ROUTES = {
+  home: '/home', activities: '/activities', events: '/events', about: '/about',
+  team: '/team', contact: '/contact', membership: '/membership', recruitment: '/recruitment', admin: '/admin',
+};
+
+function locationToPage(pathname) {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  if (path === '/' || path === ROUTES.home) return { page: null, tab: 'Home' };
+  if (path === ROUTES.activities) return { page: { type: 'section', section: 'Activities' }, tab: 'Activities' };
+  if (path.startsWith('/activities/')) return { page: { type: 'activity', activityKey: decodeURIComponent(path.slice(12)) }, tab: 'Activities' };
+  if (path === ROUTES.events) return { page: { type: 'section', section: 'Events' }, tab: 'Events' };
+  if (path === ROUTES.about) return { page: { type: 'section', section: 'About' }, tab: 'About' };
+  if (path === ROUTES.team) return { page: { type: 'section', section: 'Team' }, tab: 'Team' };
+  if (path === ROUTES.contact) return { page: { type: 'section', section: 'Contact' }, tab: 'Contact' };
+  if (path === ROUTES.membership) return { page: { type: 'join' }, tab: 'Home' };
+  if (path === ROUTES.recruitment || path === '/apply') return { page: { type: 'apply' }, tab: 'Home' };
+  if (path === ROUTES.admin) return { page: { type: 'admin' }, tab: 'Home' };
+  return { page: { type: 'not-found' }, tab: 'Home' };
+}
+
 export default function App() {
   // Skip intro for returning visitors; set flag on first completion
   const [cinDone,  setCinDone]  = useState(() => {
     try { return Boolean(localStorage.getItem('ns_intro_seen')); } catch { return true; }
   });
-  const [activeTab,setActiveTab]= useState('Home');
+  const [activeTab,setActiveTab]= useState(() => locationToPage(window.location.pathname).tab);
   const [mobile,   setMobile]   = useState(window.innerWidth<=768);
   const [wipeOn,   setWipeOn]   = useState(false);
   const [wipePh,   setWipePh]   = useState('out');
-  const [page,     setPage]     = useState(null);
+  const [page,     setPage]     = useState(() => locationToPage(window.location.pathname).page);
   const [theme,    setTheme]    = useState(()=>localStorage.getItem('ns-theme')||'dark');
   const [eventsData,setEventsData]=useState(fallbackEvents);
+
+  const setRoute = useCallback((path, nextPage, tab = 'Home', { replace = false } = {}) => {
+    if (window.location.pathname !== path) window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
+    setPage(nextPage);
+    setActiveTab(tab);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname === '/') window.history.replaceState({}, '', ROUTES.home);
+    const onPopState = () => {
+      const next = locationToPage(window.location.pathname);
+      setPage(next.page);
+      setActiveTab(next.tab);
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
   
   useEffect(()=>{
     document.documentElement.setAttribute('data-theme',theme);
@@ -328,65 +367,24 @@ export default function App() {
     },275);
   },[]);
 
-  const onTab=useCallback(tab=>{
-    
-    if(['Activities','Events','About','Team','Contact'].includes(tab)){
-      nav(()=>{setPage({type:'section',section:tab});setActiveTab(tab);});
-      return;
-    }
-    nav(()=>{
-      setPage(null);setActiveTab(tab);
-      setTimeout(()=>{
-        const el=document.getElementById(`section-${tab.toLowerCase()}`);
-        if(!el)return;
-        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
-      },50);
-    });
-  },[nav,mobile]);
+  const routeForTab = { Home: ROUTES.home, Activities: ROUTES.activities, Events: ROUTES.events, About: ROUTES.about, Team: ROUTES.team, Contact: ROUTES.contact };
+  const onTab = useCallback(tab => nav(() => {
+    const next = locationToPage(routeForTab[tab]);
+    setRoute(routeForTab[tab], next.page, tab);
+  }), [nav, setRoute]);
 
-  const onNavigate=useCallback((type,title)=>{
-    if(type==='activity') nav(()=>setPage({type:'activity',activityKey:title}));
-  },[nav]);
+  const onNavigate = useCallback((type, title) => {
+    if (type === 'activity') nav(() => setRoute(`/activities/${encodeURIComponent(title)}`, { type: 'activity', activityKey: title }, 'Activities'));
+  }, [nav, setRoute]);
 
-  const onEvent=useCallback(ev=>{
-    nav(()=>setPage(p=>({...p,type:'event',event:ev})));
-  },[nav]);
-
-  const onKSSClick=useCallback(ev=>{
-    
-    nav(()=>setPage({type:'event',activityKey:'Insight Session',event:ev}));
-  },[nav]);
-
-  const onBackAct=useCallback(()=>{
-    nav(()=>setPage(p=>({type:'activity',activityKey:p.activityKey})));
-  },[nav]);
-
-  const onBackMain=useCallback(()=>{
-    nav(()=>{
-      setPage(null);
-      setTimeout(()=>{
-        const el=document.getElementById('section-activities');
-        if(!el)return;
-        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
-      },50);
-    });
-  },[nav,mobile]);
-
-  const onBackToSection=useCallback((section)=>{
-    nav(()=>setPage({type:'section',section}));
-  },[nav]);
-
-  const openApply = useCallback(()=>{
-    nav(()=>setPage({type:'apply'}));
-  },[nav]);
-
-  const openJoin = useCallback(()=>{
-    nav(()=>setPage({type:'join'}));
-  },[nav]);
-
-  const onBackHome=useCallback(()=>{
-    nav(()=>{setPage(null);setActiveTab('Home');window.scrollTo({top:0});});
-  },[nav]);
+  const onEvent = useCallback(ev => nav(() => setRoute(`/events/${encodeURIComponent(ev.id || ev.shortName || ev.name)}`, { type: 'event', event: ev }, 'Events')), [nav, setRoute]);
+  const onKSSClick = onEvent;
+  const onBackAct = useCallback(() => nav(() => setRoute(ROUTES.activities, { type: 'section', section: 'Activities' }, 'Activities')), [nav, setRoute]);
+  const onBackMain = onBackAct;
+  const onBackToSection = useCallback(section => onTab(section), [onTab]);
+  const openApply = useCallback(() => nav(() => setRoute(ROUTES.recruitment, { type: 'apply' })), [nav, setRoute]);
+  const openJoin = useCallback(() => nav(() => setRoute(ROUTES.membership, { type: 'join' })), [nav, setRoute]);
+  const onBackHome = useCallback(() => nav(() => setRoute(ROUTES.home, null, 'Home')), [nav, setRoute]);
 
   const nh=mobile?MNH:DNH;
   const cur=page?.activityKey?activityPages[page.activityKey]:null;
@@ -421,11 +419,13 @@ export default function App() {
              {page.section === 'Team' && <TeamPage onBack={onBackHome} onApply={openApply}/>}
              {page.section === 'Contact' && <ContactPage onBack={onBackHome}/>}
              {page.type === 'activity' && cur && <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>}
-             {page.type === 'event' && <EventDetailPage event={page.event} onBack={onBackMain}/>}
+             {page.type === 'event' && page.event && <EventDetailPage event={page.event} onBack={onBackAct}/>}
+             {page.type === 'event' && !page.event && <EventsPage onBack={onBackHome} onEventClick={onKSSClick} events={eventsData}/>}
              {page.type === 'apply' && <RecruitmentPage onBack={onBackHome}/>}
              {page.type === 'join' && <MembershipPage onBack={onBackHome}/>}
+             {page.type === 'admin' && <AdminPage/>}
              {/* 404 fallback for unknown page types */}
-             {page.type && !['section','activity','event','apply','join'].includes(page.type) && <NotFoundPage onGoHome={onBackHome}/>}
+             {page.type && !['section','activity','event','apply','join','admin'].includes(page.type) && <NotFoundPage onGoHome={onBackHome}/>}
            </PageIn>
         ) : (
           <PageIn k="main">
@@ -443,7 +443,7 @@ export default function App() {
         )}
       </main>
 
-      <button id="back-to-top" aria-label="Back to top">↑</button>
+      <button id="back-to-top" aria-label="Back to top">Top</button>
     </>
   );
 }

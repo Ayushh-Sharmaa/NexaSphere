@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { api } from '../services/api';
 import { AdminIcon } from './AdminIcon';
 
-const STATUSES = ['upcoming', 'ongoing', 'completed', 'cancelled'];
+const STATUSES = ['upcoming', 'completed'];
+const CATEGORIES = ['Hackathon', 'Codathon', 'Ideathon', 'Promptathon', 'Workshop', 'Insight Session', 'Open Source Day', 'Tech Debate'];
+const ICONS = ['Brain', 'Wrench', 'Trophy', 'Terminal', 'Lightbulb', 'Sparkles', 'GitBranch', 'MessageSquare'];
 
-const empty = { name: '', dateText: '', description: '', icon: 'Calendar', status: 'upcoming', location: '', registrationLink: '' };
+const empty = { name: '', dateText: '', time: '', venue: '', category: 'Workshop', description: '', speakerName: '', speakerTitle: '', judges: '', topicsCovered: '', highlights: '', facultyInCharge: '', mediaDriveLink: '', icon: 'Wrench', status: 'upcoming', registrationLink: '' };
 
 export function EventForm({ event, onClose }) {
   const [form, setForm] = useState(event ? { ...event } : empty);
@@ -40,16 +42,24 @@ export function EventForm({ event, onClose }) {
         </div>
         <form onSubmit={handleSubmit} className="form">
           <div className="form-row">
-            <label>Name *</label>
+            <label>Event topic / title *</label>
             <input value={form.name} onChange={e => set('name', e.target.value)} required />
           </div>
           <div className="form-row">
-            <label>Date</label>
-            <input value={form.dateText} onChange={e => set('dateText', e.target.value)} placeholder="e.g. March 15, 2025" />
+            <label>Activity category</label>
+            <select value={form.category} onChange={e => set('category', e.target.value)}>
+              {CATEGORIES.map(category => <option key={category}>{category}</option>)}
+            </select>
           </div>
           <div className="form-row">
-            <label>Icon</label>
-            <input value={form.icon} onChange={e => set('icon', e.target.value)} placeholder="Icon name, e.g. Brain or Calendar" />
+            <label>Date *</label>
+            <input value={form.dateText || form.date || ''} onChange={e => set('dateText', e.target.value)} placeholder="e.g. March 15, 2026" required />
+          </div>
+          <div className="form-row"><label>Time</label><input value={form.time || ''} onChange={e => set('time', e.target.value)} placeholder="e.g. 11:00 AM – 1:00 PM" /></div>
+          <div className="form-row"><label>Venue</label><input value={form.venue || form.location || ''} onChange={e => set('venue', e.target.value)} placeholder="Auditorium / Lab" /></div>
+          <div className="form-row">
+            <label>SVG icon</label>
+            <select value={form.icon} onChange={e => set('icon', e.target.value)}>{ICONS.map(icon => <option key={icon}>{icon}</option>)}</select>
           </div>
           <div className="form-row">
             <label>Status</label>
@@ -57,18 +67,18 @@ export function EventForm({ event, onClose }) {
               {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
-          <div className="form-row">
-            <label>Location</label>
-            <input value={form.location} onChange={e => set('location', e.target.value)} />
-          </div>
+          <div className="form-row"><label>Presenter / guest speaker</label><input value={form.speakerName || ''} onChange={e => set('speakerName', e.target.value)} /></div>
+          <div className="form-row"><label>Speaker designation</label><input value={form.speakerTitle || ''} onChange={e => set('speakerTitle', e.target.value)} /></div>
+          <div className="form-row"><label>Jury / judges</label><input value={form.judges || ''} onChange={e => set('judges', e.target.value)} placeholder="Comma-separated names" /></div>
+          <div className="form-row"><label>Faculty in-charge</label><input value={form.facultyInCharge || ''} onChange={e => set('facultyInCharge', e.target.value)} /></div>
+          <div className="form-row"><label>Photos & videos drive link</label><input type="url" value={form.mediaDriveLink || ''} onChange={e => set('mediaDriveLink', e.target.value)} /></div>
           <div className="form-row">
             <label>Registration Link</label>
             <input value={form.registrationLink} onChange={e => set('registrationLink', e.target.value)} type="url" />
           </div>
-          <div className="form-row">
-            <label>Description</label>
-            <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} />
-          </div>
+          <div className="form-row"><label>Overview / summary *</label><textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} required /></div>
+          <div className="form-row"><label>Topics covered</label><textarea value={form.topicsCovered || ''} onChange={e => set('topicsCovered', e.target.value)} rows={2} placeholder="Comma-separated curriculum or discussion points" /></div>
+          <div className="form-row"><label>Event highlights</label><textarea value={form.highlights || ''} onChange={e => set('highlights', e.target.value)} rows={2} /></div>
           {error && <div className="form-error">{error}</div>}
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
