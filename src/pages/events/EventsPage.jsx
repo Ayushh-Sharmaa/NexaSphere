@@ -54,20 +54,20 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
                   className={`timeline-card shimmer ${i % 2 === 0 ? 'pop-left' : 'pop-right'} fired`}
                   style={{
                     animationDelay: `${i * .11}s`,
-                    cursor: isKSS ? 'none' : 'default',
+                    cursor: 'pointer',
                     transition: 'all .28s ease',
                   }}
-                  onClick={isKSS ? () => onEventClick(ev) : undefined}
-                  onMouseEnter={isKSS ? e => {
+                  onClick={() => onEventClick(ev)}
+                  onMouseEnter={e => {
                     e.currentTarget.style.borderColor = 'rgba(168,85,247,.45)';
                     e.currentTarget.style.boxShadow = '0 8px 32px rgba(168,85,247,.15)';
                     e.currentTarget.style.transform = 'translateY(-4px)';
-                  } : undefined}
-                  onMouseLeave={isKSS ? e => {
+                  }}
+                  onMouseLeave={e => {
                     e.currentTarget.style.borderColor = '';
                     e.currentTarget.style.boxShadow = '';
                     e.currentTarget.style.transform = '';
-                  } : undefined}
+                  }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
                     <span style={{ display: 'flex', color: 'var(--c1)' }}><DynamicIcon name={ev.icon || 'Calendar'} size={24} /></span>
@@ -119,4 +119,3 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
     </div>
   );
 }
-

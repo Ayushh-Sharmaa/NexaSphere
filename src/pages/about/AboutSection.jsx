@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DynamicIcon } from '../../shared/Icons';
 
 const WHATSAPP       = 'https://chat.whatsapp.com/Jjc5cuUKENu0RC1vWSEs20';
 const LINKEDIN       = 'https://www.linkedin.com/showcase/glbajaj-nexasphere/';
@@ -84,12 +85,11 @@ export default function AboutSection() {
         </div>
 
         <div className="about-actions pop-in" style={{animationDelay:'.28s'}}>
-          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp">💬 Join WhatsApp</a>
-          <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" className="btn btn-linkedin">🔗 LinkedIn</a>
-          <a href={`mailto:${NEXASPHERE_EMAIL}`} className="btn btn-outline">📧 Email Us</a>
+          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp"><DynamicIcon name="MessageCircle" size={16} /> Join WhatsApp</a>
+          <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" className="btn btn-linkedin"><DynamicIcon name="ExternalLink" size={16} /> LinkedIn</a>
+          <a href={`mailto:${NEXASPHERE_EMAIL}`} className="btn btn-outline"><DynamicIcon name="Mail" size={16} /> Email Us</a>
         </div>
       </div>
     </section>
   );
 }
-

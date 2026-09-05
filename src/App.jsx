@@ -37,6 +37,7 @@ import AdminPage           from './pages/admin/AdminPage';
 
 import { activityPages }   from './data/activities/index';
 import { events as fallbackEvents } from './data/eventsData';
+import { getStoredCustomEvents } from './data/storage';
 import nexasphereLogo      from './assets/images/logos/nexasphere-logo.png';
 
 const MNH = 88, DNH = 64;
@@ -207,6 +208,7 @@ function locationToPage(pathname) {
   if (path === ROUTES.activities) return { page: { type: 'section', section: 'Activities' }, tab: 'Activities' };
   if (path.startsWith('/activities/')) return { page: { type: 'activity', activityKey: decodeURIComponent(path.slice(12)) }, tab: 'Activities' };
   if (path === ROUTES.events) return { page: { type: 'section', section: 'Events' }, tab: 'Events' };
+  if (path.startsWith('/events/')) return { page: { type: 'event', eventId: decodeURIComponent(path.slice(8)) }, tab: 'Events' };
   if (path === ROUTES.about) return { page: { type: 'section', section: 'About' }, tab: 'About' };
   if (path === ROUTES.team) return { page: { type: 'section', section: 'Team' }, tab: 'Team' };
   if (path === ROUTES.contact) return { page: { type: 'section', section: 'Contact' }, tab: 'Contact' };
@@ -227,7 +229,7 @@ export default function App() {
   const [wipePh,   setWipePh]   = useState('out');
   const [page,     setPage]     = useState(() => locationToPage(window.location.pathname).page);
   const [theme,    setTheme]    = useState(()=>localStorage.getItem('ns-theme')||'dark');
-  const [eventsData,setEventsData]=useState(fallbackEvents);
+  const [eventsData,setEventsData]=useState(() => [...getStoredCustomEvents(), ...fallbackEvents]);
 
   const setRoute = useCallback((path, nextPage, tab = 'Home', { replace = false } = {}) => {
     if (window.location.pathname !== path) window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
@@ -266,11 +268,21 @@ export default function App() {
       .then(data => {
         if (!alive) return;
         if (Array.isArray(data?.events) && data.events.length > 0) {
-          setEventsData(data.events);
+          setEventsData([...getStoredCustomEvents(), ...data.events]);
         }
       })
       .catch(() => {});
     return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
+    const refresh = () => setEventsData(current => {
+      const custom = getStoredCustomEvents();
+      const ids = new Set(custom.map(event => String(event.id)));
+      return [...custom, ...current.filter(event => !ids.has(String(event.id)))];
+    });
+    window.addEventListener('ns:data-change', refresh);
+    return () => window.removeEventListener('ns:data-change', refresh);
   }, []);
   
   useEffect(()=>{
@@ -388,6 +400,7 @@ export default function App() {
 
   const nh=mobile?MNH:DNH;
   const cur=page?.activityKey?activityPages[page.activityKey]:null;
+  const selectedEvent = page?.type === 'event' ? (page.event || eventsData.find(event => String(event.id) === String(page.eventId))) : null;
 
   
   return (
@@ -419,8 +432,8 @@ export default function App() {
              {page.section === 'Team' && <TeamPage onBack={onBackHome} onApply={openApply}/>}
              {page.section === 'Contact' && <ContactPage onBack={onBackHome}/>}
              {page.type === 'activity' && cur && <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>}
-             {page.type === 'event' && page.event && <EventDetailPage event={page.event} onBack={onBackAct}/>}
-             {page.type === 'event' && !page.event && <EventsPage onBack={onBackHome} onEventClick={onKSSClick} events={eventsData}/>}
+             {page.type === 'event' && selectedEvent && <EventDetailPage event={selectedEvent} onBack={onBackAct}/>}
+             {page.type === 'event' && !selectedEvent && <EventsPage onBack={onBackHome} onEventClick={onKSSClick} events={eventsData}/>}
              {page.type === 'apply' && <RecruitmentPage onBack={onBackHome}/>}
              {page.type === 'join' && <MembershipPage onBack={onBackHome}/>}
              {page.type === 'admin' && <AdminPage/>}

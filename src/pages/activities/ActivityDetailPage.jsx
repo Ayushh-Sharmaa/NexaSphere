@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { DynamicIcon } from '../../shared/Icons';
 
 function Counter({ value, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -161,10 +162,10 @@ function EventCard({ event, activityColor, onSelect, onDelete }) {
                 background: 'rgba(34,197,94,0.12)', color: '#22c55e',
                 border: '1px solid rgba(34,197,94,0.3)', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0,
-              }}>✅ Completed</span>
+              }}><DynamicIcon name="CheckCircle" size={13} /> Completed</span>
             )}
           </div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '10px' }}>📅 {event.date}</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: 5 }}><DynamicIcon name="Calendar" size={14} /> {event.date}</div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: '0 0 12px', lineHeight: 1.6 }}>
             {event.tagline || event.description}
           </p>
@@ -223,9 +224,9 @@ function UpcomingCard({ event, color }) {
           fontSize: '0.68rem', padding: '2px 8px', borderRadius: '20px',
           background: `${color}15`, color, border: `1px solid ${color}40`,
           fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0,
-        }}>🔜 Upcoming</span>
+        }}><DynamicIcon name="Calendar" size={12} /> Upcoming</span>
       </div>
-      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '6px' }}>📅 {event.date}</div>
+      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: 5 }}><DynamicIcon name="Calendar" size={13} /> {event.date}</div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>{event.description}</p>
     </div>
   );
@@ -476,4 +477,3 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
     </div>
   );
 }
-

@@ -7,6 +7,7 @@ const apiUrl = (path) => API_BASE ? `${API_BASE}${path}` : path;
 const MEMBERSHIP_STORAGE_KEY = 'ns_membership_applications';
 const CORE_TEAM_STORAGE_KEY = 'ns_core_team_applications';
 const EVENTS_STORAGE_KEY = 'ns_custom_events';
+const emitStorageChange = (key) => window.dispatchEvent(new CustomEvent('ns:data-change', { detail: { key } }));
 
 // Initial dummy seed applications for realistic dashboard testing if none exist
 const DEFAULT_MEMBERSHIPS = [
@@ -117,6 +118,7 @@ export function saveMembershipApplication(data) {
   apps.unshift(newApp);
   try {
     localStorage.setItem(MEMBERSHIP_STORAGE_KEY, JSON.stringify(apps));
+    emitStorageChange(MEMBERSHIP_STORAGE_KEY);
   } catch (e) {
     console.warn('LocalStorage save failed:', e);
   }
@@ -134,6 +136,7 @@ export function updateMembershipStatus(id, newStatus) {
   const updated = apps.map(app => app.id === id ? { ...app, status: newStatus } : app);
   try {
     localStorage.setItem(MEMBERSHIP_STORAGE_KEY, JSON.stringify(updated));
+    emitStorageChange(MEMBERSHIP_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
@@ -145,6 +148,7 @@ export function deleteMembershipApplication(id) {
   const updated = apps.filter(app => app.id !== id);
   try {
     localStorage.setItem(MEMBERSHIP_STORAGE_KEY, JSON.stringify(updated));
+    emitStorageChange(MEMBERSHIP_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
@@ -194,6 +198,7 @@ export function saveCoreTeamApplication(data) {
   apps.unshift(newApp);
   try {
     localStorage.setItem(CORE_TEAM_STORAGE_KEY, JSON.stringify(apps));
+    emitStorageChange(CORE_TEAM_STORAGE_KEY);
   } catch (e) {
     console.warn('LocalStorage save failed:', e);
   }
@@ -211,6 +216,7 @@ export function updateCoreTeamStatus(id, newStatus) {
   const updated = apps.map(app => app.id === id ? { ...app, status: newStatus } : app);
   try {
     localStorage.setItem(CORE_TEAM_STORAGE_KEY, JSON.stringify(updated));
+    emitStorageChange(CORE_TEAM_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
@@ -222,6 +228,7 @@ export function deleteCoreTeamApplication(id) {
   const updated = apps.filter(app => app.id !== id);
   try {
     localStorage.setItem(CORE_TEAM_STORAGE_KEY, JSON.stringify(updated));
+    emitStorageChange(CORE_TEAM_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
@@ -254,6 +261,7 @@ export function saveCustomEvent(eventData) {
   }
   try {
     localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events));
+    emitStorageChange(EVENTS_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
@@ -265,6 +273,7 @@ export function deleteStoredCustomEvent(id) {
   const updated = events.filter(e => e.id !== id);
   try {
     localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(updated));
+    emitStorageChange(EVENTS_STORAGE_KEY);
   } catch (e) {
     console.warn(e);
   }
