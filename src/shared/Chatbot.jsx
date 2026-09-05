@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/chatbot.css';
+import { DynamicIcon } from './Icons';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,7 @@ const Chatbot = () => {
       {!isOpen ? (
         <button className="chat-trigger-btn" onClick={() => setIsOpen(true)}>
           <div className="pulse-ring"></div>
-          💬
+          <DynamicIcon name="MessageCircle" size={22} />
         </button>
       ) : (
         <div className="chat-window-glass">
@@ -68,7 +69,7 @@ const Chatbot = () => {
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Query system..."
             />
-            <button onClick={handleSend} className="send-btn">🚀</button>
+            <button onClick={handleSend} className="send-btn" aria-label="Send message"><DynamicIcon name="Send" size={18} /></button>
           </div>
         </div>
       )}

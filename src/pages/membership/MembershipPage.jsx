@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { saveMembershipApplication } from '../../data/storage';
 import { DynamicIcon, IconArrowLeft, IconArrowRight, IconBolt, IconShieldCheck, IconUsers } from '../../shared/Icons';
 import Footer from '../../shared/Footer';
 
@@ -30,17 +31,14 @@ const GROUP_OPTIONS    = [
 
 const MEMBERSHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRQOW3Xjv13vXvft8ezD9sJdvjV3kf-VHm1l_mImHRDUAEqsilK0wb5QBD5GOkixwe/exec';
 
-// Helper: store a copy locally so admin dashboard can see applications
+// Persist immediately; server synchronisation is handled by the shared storage service.
 function storeMembershipLocally(payload) {
-  try {
-    const key = 'ns_db_membership_apps';
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    const dup = existing.find(a => a.whatsapp === payload.whatsapp);
-    if (!dup) {
-      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
-      localStorage.setItem(key, JSON.stringify([record, ...existing]));
-    }
-  } catch { /* ignore */ }
+  saveMembershipApplication({
+    ...payload,
+    year: payload.semester ? `Semester ${payload.semester}` : '',
+    interests: payload.groups ? payload.groups.split(',').map(value => value.trim()).filter(Boolean) : [],
+    goals: payload.whyJoin,
+  });
 }
 
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
@@ -313,18 +311,14 @@ export default function MembershipPage({ onBack }) {
         formType:     'membership',
       };
 
-      const res = await fetch(MEMBERSHIP_SCRIPT_URL, {
+      // Save locally and try the platform API before contacting the optional Sheets mirror.
+      // A Sheets outage must never discard a valid application.
+      storeMembershipLocally(payload);
+      fetch(MEMBERSHIP_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || (data && data.ok === false)) {
-        throw new Error(data?.error || 'Membership form submission failed');
-      }
-
-      // Dual-write: store locally for admin dashboard
-      storeMembershipLocally(payload);
+      }).catch(() => {});
 
       
       try {

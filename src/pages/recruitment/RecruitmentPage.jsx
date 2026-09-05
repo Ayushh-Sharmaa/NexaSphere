@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { saveCoreTeamApplication } from '../../data/storage';
 import { DynamicIcon, IconArrowLeft, IconArrowRight, IconBolt, IconShieldCheck, IconSpark, IconUsers } from '../../shared/Icons';
 import Footer from '../../shared/Footer';
 
@@ -213,18 +214,16 @@ const WHATSAPP_COMMUNITY = 'https://chat.whatsapp.com/FhpJEaod2g419jFMfqrhGZ';
 const LINKEDIN_PAGE      = 'https://www.linkedin.com/showcase/glbajaj-nexasphere/';
 const RECRUITMENT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo1g6WNiO-f8kySE4Mqbdlh3VxZx9pRGLcjt7qyzRCNB1TMK0kRwjZbDD2UsaJFQ0q/exec';
 
-// Helper: store a copy locally so admin dashboard can see applications
+// Persist immediately; the shared storage service asynchronously syncs with the platform API.
 function storeRecruitmentLocally(payload) {
-  try {
-    const key = 'ns_db_coreteam_apps';
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    const dup = existing.find(a => a.collegeEmail === payload.collegeEmail);
-    if (!dup) {
-      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
-      localStorage.setItem(key, JSON.stringify([record, ...existing]));
-    }
-  } catch { /* ignore */ }
+  saveCoreTeamApplication({
+    ...payload,
+    domain: Array.isArray(payload.interests) ? payload.interests[0] : payload.interests,
+    skills: payload.skills || payload.skillset || '',
+    whyJoin: payload.whyJoin || payload.sop || '',
+  });
 }
+
 
 const ROLE_OPTIONS = [
   'Technical Lead',
@@ -987,15 +986,13 @@ export default function RecruitmentPage({ onBack }) {
       // Dual-write: store locally for admin dashboard
       storeRecruitmentLocally(payload);
 
-      const res = await fetch(RECRUITMENT_SCRIPT_URL, {
+      // Google Sheets is a best-effort reporting mirror. The local and API records
+      // are the source of truth, so an unavailable mirror cannot block applicants.
+      fetch(RECRUITMENT_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || (data && data.ok === false)) {
-        throw new Error(data?.error || 'Submission failed');
-      }
+      }).catch(() => {});
       try {
         const existing = JSON.parse(localStorage.getItem('ns_submitted_emails') || '[]');
         existing.push(emailKey);

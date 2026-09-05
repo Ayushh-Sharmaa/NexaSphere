@@ -67,6 +67,8 @@ const defaultContent = {
   ],
   activityEvents: {},
   coreTeam: [],
+  membershipApplications: [],
+  coreTeamApplications: [],
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -102,6 +104,63 @@ async function readContent() {
 async function writeContent(content) {
   await ensureContentFile();
   await fs.writeFile(CONTENT_FILE, JSON.stringify(content, null, 2), 'utf8');
+}
+
+const APPLICATION_TYPES = {
+  membership: 'membershipApplications',
+  recruitment: 'coreTeamApplications',
+  core_team: 'coreTeamApplications',
+};
+
+async function saveApplication(type, body) {
+  const key = APPLICATION_TYPES[type];
+  if (!key) throw new Error('Unknown application type');
+  const content = await readContent();
+  content[key] = Array.isArray(content[key]) ? content[key] : [];
+  const email = String(body.collegeEmail || '').trim().toLowerCase();
+  const phone = normalizePhone(body.whatsapp);
+  const duplicate = content[key].some(item =>
+    String(item.collegeEmail || '').toLowerCase() === email || (phone && normalizePhone(item.whatsapp) === phone)
+  );
+  if (duplicate) throw new Error('An application with this email or WhatsApp number already exists');
+  const application = {
+    ...body,
+    id: String(body.id || `${type}-${Date.now()}`),
+    collegeEmail: email,
+    whatsapp: phone,
+    status: 'pending',
+    submittedAt: body.submittedAt || new Date().toISOString(),
+  };
+  content[key].unshift(application);
+  await writeContent(content);
+  return application;
+}
+
+async function listApplications(type) {
+  const content = await readContent();
+  return Array.isArray(content[APPLICATION_TYPES[type]]) ? content[APPLICATION_TYPES[type]] : [];
+}
+
+async function updateApplicationStatus(type, id, status) {
+  if (!['pending', 'accepted', 'rejected', 'blacklisted'].includes(status)) throw new Error('Invalid application status');
+  const content = await readContent();
+  const apps = content[APPLICATION_TYPES[type]] || [];
+  const index = apps.findIndex(item => item.id === id);
+  if (index < 0) return null;
+  apps[index] = { ...apps[index], status, statusUpdatedAt: new Date().toISOString() };
+  await writeContent(content);
+  return apps[index];
+}
+
+async function deleteApplication(type, id) {
+  const content = await readContent();
+  const key = APPLICATION_TYPES[type];
+  const apps = content[key] || [];
+  const exists = apps.some(item => item.id === id);
+  if (!exists) return false;
+  content[key] = apps.filter(item => item.id !== id);
+  await writeContent(content);
+  return true;
 }
 
 async function supabaseRequest(pathname, { method = 'GET', body } = {}) {
@@ -172,8 +231,19 @@ function sanitizeEvent(input = {}) {
       .replace(/^-+|-+$/g, '') || `event-${Date.now()}`,
     name: toSafeString(input.name, 120),
     shortName: toSafeString(input.shortName || input.name, 60),
-    date: toSafeString(input.date, 80),
-    description: toSafeString(input.description, 1200),
+    date: toSafeString(input.date || input.dateText, 80),
+    description: toSafeString(input.description || input.overview, 1200),
+    category: toSafeString(input.category, 60),
+    speakerName: toSafeString(input.speakerName, 120),
+    speakerTitle: toSafeString(input.speakerTitle, 120),
+    judges: toSafeString(input.judges, 500),
+    topicsCovered: toSafeString(input.topicsCovered, 1200),
+    highlights: toSafeString(input.highlights, 1200),
+    facultyInCharge: toSafeString(input.facultyInCharge, 160),
+    mediaDriveLink: toSafeString(input.mediaDriveLink, 500),
+    time: toSafeString(input.time, 80),
+    venue: toSafeString(input.venue || input.location, 160),
+    registrationLink: toSafeString(input.registrationLink, 500),
     status,
     icon: toSafeString(input.icon || 'Pin', 32),
     tags,
@@ -696,17 +766,48 @@ async function handleForm(formType, req, res) {
     if (!isEmail(body.collegeEmail)) return res.status(400).json({ error: 'Invalid email address' });
     if (!isPhoneish(body.whatsapp)) return res.status(400).json({ error: 'Invalid contact number' });
 
-    const savedToSupabase = await appendToSupabaseForms(formType, body);
+    // JSON persistence is always available locally and powers the applicant suite.
+    const application = await saveApplication(formType, body);
+    const savedToSupabase = await appendToSupabaseForms(formType, application);
     try {
-      await appendFormToSheet(formType, body);
+      await appendFormToSheet(formType, application);
     } catch (sheetErr) {
-      if (!savedToSupabase) throw sheetErr;
+      if (!savedToSupabase) console.warn('Application saved locally; sheet mirror unavailable:', sheetErr.message);
     }
-    return res.json({ ok: true });
+    return res.status(201).json({ ok: true, application });
   } catch (e) {
     return res.status(500).json({ error: e?.message || 'Submission failed' });
   }
 }
+
+app.get('/api/admin/membership-apps', adminAuth, async (req, res) => {
+  try { return res.json({ apps: await listApplications('membership') }); }
+  catch (e) { return res.status(500).json({ error: e.message || 'Unable to load membership applications' }); }
+});
+app.put('/api/admin/membership-apps/:id', adminAuth, async (req, res) => {
+  try {
+    const application = await updateApplicationStatus('membership', String(req.params.id), req.body?.status);
+    return application ? res.json({ app: application }) : res.status(404).json({ error: 'Application not found' });
+  } catch (e) { return res.status(400).json({ error: e.message || 'Unable to update application' }); }
+});
+app.delete('/api/admin/membership-apps/:id', adminAuth, async (req, res) => {
+  try { return (await deleteApplication('membership', String(req.params.id))) ? res.json({ ok: true }) : res.status(404).json({ error: 'Application not found' }); }
+  catch (e) { return res.status(500).json({ error: e.message || 'Unable to delete application' }); }
+});
+app.get('/api/admin/coreteam-apps', adminAuth, async (req, res) => {
+  try { return res.json({ apps: await listApplications('core_team') }); }
+  catch (e) { return res.status(500).json({ error: e.message || 'Unable to load core team applications' }); }
+});
+app.put('/api/admin/coreteam-apps/:id', adminAuth, async (req, res) => {
+  try {
+    const application = await updateApplicationStatus('core_team', String(req.params.id), req.body?.status);
+    return application ? res.json({ app: application }) : res.status(404).json({ error: 'Application not found' });
+  } catch (e) { return res.status(400).json({ error: e.message || 'Unable to update application' }); }
+});
+app.delete('/api/admin/coreteam-apps/:id', adminAuth, async (req, res) => {
+  try { return (await deleteApplication('core_team', String(req.params.id))) ? res.json({ ok: true }) : res.status(404).json({ error: 'Application not found' }); }
+  catch (e) { return res.status(500).json({ error: e.message || 'Unable to delete application' }); }
+});
 
 app.post('/api/forms/membership', (req, res) => handleForm('membership', req, res));
 app.post('/api/forms/recruitment', (req, res) => handleForm('recruitment', req, res));
