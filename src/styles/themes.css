@@ -1,0 +1,127 @@
+:root {
+  
+  --brand-red-primary: #CC1111;   
+  --brand-red-bright:  #EE2222;   
+  --brand-red-dark:    #880000;   
+  --brand-red-light:   #FF4444;   
+  --brand-red-deep:    #660000;   
+
+  
+  --gradient-logo:  linear-gradient(135deg, #EE2222 0%, #880000 100%);
+  --gradient-hero:  linear-gradient(135deg, #EE2222 0%, #880000 50%, #0A0A0A 100%);
+  --gradient-glow:  linear-gradient(135deg,
+                      rgba(204,17,17,0.22) 0%,
+                      rgba(136,0,0,0.4)   50%,
+                      rgba(0,0,0,0.8)     100%);
+
+  
+  --semantic-success: #4CAF50;
+  --semantic-warning: #FFC107;
+  --semantic-error:   #CC1111;
+  --semantic-info:    #2196F3;
+
+  
+  --r1: 8px; --r2: 14px; --r3: 22px; --r4: 32px;
+
+  
+  --nh:  64px;
+  --nhm: 88px;
+}
+
+:root,
+:root[data-theme="dark"] {
+  
+  --bg: #050508;
+  --bg2:   #141414;
+  --card: #0C0C11;
+  --card2: #222222;
+  --card-hover: #262626;
+
+  
+  --c1:  #CC1111;   
+  --c2:  #EE2222;   
+  --c3:  #FF4444;   
+  --c4:  #880000;   
+  --c5:  #4CAF50;   
+
+  
+  --c1a: rgba(204, 17, 17, 0.09);
+  --c1b: rgba(204, 17, 17, 0.24);
+  --c1g: rgba(204, 17, 17, 0.42);
+  --c2a: rgba(238, 34, 34, 0.09);
+  --c2b: rgba(238, 34, 34, 0.24);
+
+  
+  --t1: #F0F0F0;
+  --t2: #A8A8A8;
+  --t3: #606060;
+
+  
+  --bdr:  rgba(204, 17, 17, 0.14);
+  --bdr2: rgba(204, 17, 17, 0.28);
+
+  
+  --sh1:    0 0 28px rgba(204, 17, 17, 0.25), 0 0 70px rgba(204, 17, 17, 0.06);
+  --sh2:    0 0 28px rgba(136,  0,  0, 0.22), 0 0 70px rgba(136,  0,  0, 0.05);
+  --shcard: 0 12px 48px rgba(0, 0, 0, 0.65);
+}
+
+[data-theme="light"] {
+  
+  --bg:    #FFFFFF;
+  --bg2:   #F5F5F5;
+  --card:  #FFFFFF;
+  --card2: #EDEDED;
+  --card-hover: #F9F9F9;
+
+  
+  --c1:  #BB0F0F;   
+  --c2:  #DD2020;
+  --c3:  #FF4444;
+  --c4:  #880000;
+  --c5:  #2e7d32;
+
+  
+  --c1a: rgba(187, 15, 15, 0.07);
+  --c1b: rgba(187, 15, 15, 0.18);
+  --c1g: rgba(187, 15, 15, 0.28);
+  --c2a: rgba(221, 32, 32, 0.07);
+  --c2b: rgba(221, 32, 32, 0.18);
+
+  
+  --t1: #1A1A1A;
+  --t2: #4A4A4A;
+  --t3: #8A8A8A;
+
+  
+  --bdr:  rgba(187, 15, 15, 0.12);
+  --bdr2: rgba(187, 15, 15, 0.22);
+
+  
+  --sh1:    0 2px 16px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.05);
+  --sh2:    0 4px 20px rgba(187, 15, 15, 0.14), 0 1px 4px rgba(0, 0, 0, 0.05);
+  --shcard: 0 4px 24px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  transition:
+    background-color .45s cubic-bezier(.4,0,.2,1),
+    color            .35s cubic-bezier(.4,0,.2,1);
+}
+
+body,
+.ns-navbar, .ns-navbar-mobile,
+.activity-card, .team-card, .timeline-card,
+.about-card-inner, .modal-box, .ns-footer,
+#back-to-top {
+  transition:
+    background-color .42s cubic-bezier(.4,0,.2,1),
+    border-color     .38s cubic-bezier(.4,0,.2,1),
+    color            .30s cubic-bezier(.4,0,.2,1),
+    box-shadow       .30s ease !important;
+}
+
+canvas { transition: none !important; }
+

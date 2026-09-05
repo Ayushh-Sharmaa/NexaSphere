@@ -51,9 +51,9 @@ export default function ParticleBackground({ theme = 'dark' }) {
         vy: (Math.random() - 0.5) * 0.38,
         r:  Math.random() * 2.2 + 0.4,
         ph: Math.random() * Math.PI * 2,
-        // dark hues: cyan/indigo/green; light hues: amber/violet/rose
+        
         hue: [192, 262, 165, 300, 210][Math.floor(Math.random() * 5)],
-        lhue:[30,  270, 330, 200, 0  ][Math.floor(Math.random() * 5)], // light-mode hues
+        lhue:[30,  270, 330, 200, 0  ][Math.floor(Math.random() * 5)], 
       };
     };
 
@@ -63,12 +63,12 @@ export default function ParticleBackground({ theme = 'dark' }) {
       const isL = themeRef.current === 'light';
 
       /* ── theme-aware palette ── */
-      // Dark mode: bright glowing dots on dark bg
-      // Light mode: VERY dark vivid dots on light bg — must be clearly visible
-      const dotL     = isL ? 20  : 72;   // lightness — very dark in light mode
+      
+      
+      const dotL     = isL ? 20  : 72;   
       const dotSat   = isL ? 90  : 100;
-      const dotA     = isL ? 0.85: 0.58; // much higher alpha in light mode
-      const lineA    = isL ? 0.35 : 0.18; // thicker lines in light mode
+      const dotA     = isL ? 0.85: 0.58; 
+      const lineA    = isL ? 0.35 : 0.18; 
       const haloA    = isL ? 0.30 : 0.15;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -77,13 +77,13 @@ export default function ParticleBackground({ theme = 'dark' }) {
         const dx = p.x - mx, dy = p.y - my;
         const d  = Math.sqrt(dx * dx + dy * dy);
 
-        // Repulsion
+        
         if (d < REPEL_DIST && d > 0) {
           const f = ((REPEL_DIST - d) / REPEL_DIST) * 1.9;
           p.vx += (dx / d) * f * 0.019;
           p.vy += (dy / d) * f * 0.019;
         }
-        // Attraction
+        
         else if (d < ATTRACT_DIST && d > REPEL_DIST) {
           const f = ((ATTRACT_DIST - d) / ATTRACT_DIST) * 0.55;
           p.vx -= (dx / d) * f * 0.009;
@@ -122,7 +122,7 @@ export default function ParticleBackground({ theme = 'dark' }) {
         const pulse  = 0.78 + 0.22 * Math.sin(p.ph);
         const alpha  = dotA * pulse;
         const radius = p.r * (distToCursor < HALO_DIST
-          ? (1 + (1 - distToCursor / HALO_DIST) * 0.6) // enlarge near cursor
+          ? (1 + (1 - distToCursor / HALO_DIST) * 0.6) 
           : 1);
 
         ctx.beginPath();
@@ -130,7 +130,7 @@ export default function ParticleBackground({ theme = 'dark' }) {
         ctx.fillStyle = `hsla(${hue},${dotSat}%,${dotL}%,${alpha})`;
         ctx.fill();
 
-        // Inner bright core (light mode: white, dark mode: white highlight)
+        
         if (p.r > 0.9) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, radius * 0.35, 0, Math.PI * 2);
@@ -196,10 +196,11 @@ export default function ParticleBackground({ theme = 'dark' }) {
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
         zIndex: 0, pointerEvents: 'none',
-        // Both modes fully visible — light mode gets full opacity
+        
         opacity: theme === 'light' ? 1.0 : 0.55,
         transition: 'opacity 1.2s ease',
       }}
     />
   );
 }
+

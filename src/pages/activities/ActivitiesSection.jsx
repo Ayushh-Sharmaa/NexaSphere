@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { activities } from '../../data/activitiesData';
+import { activityPages } from '../../data/activities/index';
 
 /* Anti-gravity delays — same pattern as team cards */
 const AG_DELAYS = [0, -2.1, -4.2, -1.0, -3.3, -5.5, -0.7, -6.1];
@@ -7,6 +8,13 @@ const AG_DELAYS = [0, -2.1, -4.2, -1.0, -3.3, -5.5, -0.7, -6.1];
 function ActivityCard({ a, idx, onNav }) {
   const ref      = useRef(null);
   const agDelay  = AG_DELAYS[idx % AG_DELAYS.length];
+
+  // Check if this activity has any content to show
+  const detail = activityPages[a.title];
+  const hasContent = detail && (
+    (detail.conductedEvents && detail.conductedEvents.length > 0) ||
+    (detail.upcomingEvents  && detail.upcomingEvents.length  > 0)
+  );
 
   const onMove = e => {
     const c = ref.current; if (!c) return;
@@ -25,6 +33,7 @@ function ActivityCard({ a, idx, onNav }) {
   };
 
   const click = () => {
+    if (!hasContent) return;
     const c = ref.current;
     if (c) { c.style.transform = 'scale(.92)'; setTimeout(() => { c.style.transform = ''; }, 130); }
     setTimeout(() => onNav('activity', a.title), 160);
@@ -35,23 +44,27 @@ function ActivityCard({ a, idx, onNav }) {
       ref={ref}
       className="activity-card shimmer mag-card"
       style={{
-        cursor: 'pointer',
+        cursor: hasContent ? 'pointer' : 'default',
         perspective: '800px',
-        /* Float animation — starts immediately, no pop-flip class needed */
         animation: `ag 7s ease-in-out ${agDelay}s infinite`,
         willChange: 'transform',
       }}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
+      onMouseMove={hasContent ? onMove : undefined}
+      onMouseLeave={hasContent ? onLeave : undefined}
       onClick={click}
     >
-      {/* Accent top line — appears on hover via CSS */}
       <div className="card-accent-line"/>
       <div className="card-num">{String(idx + 1).padStart(2, '0')}</div>
       <div className="activity-icon">{a.icon}</div>
       <div className="activity-title">{a.title}</div>
       <p className="activity-desc">{a.description}</p>
-      <div className="activity-cta"><span>Explore</span><span>→</span></div>
+      {hasContent ? (
+        <div className="activity-cta"><span>Explore</span><span>→</span></div>
+      ) : (
+        <div className="activity-cta" style={{ opacity: 0.45, cursor: 'default' }}>
+          <span>Coming Soon</span>
+        </div>
+      )}
       <div className="corner-tl"/><div className="corner-br"/>
     </div>
   );
@@ -87,3 +100,4 @@ export default function ActivitiesSection({ onNavigate }) {
     </section>
   );
 }
+

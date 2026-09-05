@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { events as fallbackEvents } from '../../data/eventsData';
 import { BannerOrbs } from '../../shared/MotionLayer';
+import Footer from '../../shared/Footer';
+import { DynamicIcon } from '../../shared/Icons';
 
 export default function EventsPage({ onBack, onEventClick, events = fallbackEvents }) {
   useEffect(() => {
@@ -14,7 +16,7 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
 
   return (
     <div id="events-page" style={{ minHeight: '100vh', padding: '0 0 100px' }}>
-      {/* Hero */}
+      
       <div className="page-banner" style={{
         background: 'linear-gradient(135deg, rgba(0,212,255,.06), rgba(123,111,255,.04))',
         borderBottom: '1px solid var(--bdr)',
@@ -68,7 +70,7 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
                   } : undefined}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{ev.icon}</span>
+                    <span style={{ display: 'flex', color: 'var(--c1)' }}><DynamicIcon name={ev.icon || 'Calendar'} size={24} /></span>
                     <div className="timeline-event-name" style={isKSS ? { color: '#a855f7' } : {}}>{ev.name}</div>
                     {isKSS && (
                       <span style={{
@@ -79,11 +81,17 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
                       }}>View Details →</span>
                     )}
                   </div>
-                  <div className="timeline-event-date">📅 {ev.date}</div>
+                  <div className="timeline-event-date" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <DynamicIcon name="Calendar" size={14} /> {ev.date}
+                  </div>
                   <p className="timeline-event-desc">{ev.description}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '7px', flexWrap: 'wrap' }}>
                     <span className={`timeline-badge ${ev.status}`}>
-                      {ev.status === 'completed' ? '✅ Completed' : '🔜 Upcoming'}
+                      {ev.status === 'completed' ? (
+                        <><DynamicIcon name="CheckCircle" size={14} style={{ marginRight: '4px' }} /> Completed</>
+                      ) : (
+                        <><DynamicIcon name="Calendar" size={14} style={{ marginRight: '4px' }} /> Upcoming</>
+                      )}
                     </span>
                     {ev.tags?.map(t => (
                       <span key={t} style={{
@@ -100,12 +108,15 @@ export default function EventsPage({ onBack, onEventClick, events = fallbackEven
           <div className="timeline-item">
             <div className="timeline-dot upcoming" />
             <div className="timeline-card pop-in fired" style={{ textAlign: 'center', color: 'var(--t3)', animationDelay: `${events.length * .11}s` }}>
-              <span style={{ fontSize: '1.3rem' }}>🚀</span>
+              <DynamicIcon name="Rocket" size={24} style={{ color: 'var(--c1)', marginBottom: '8px' }} />
               <p style={{ marginTop: '6px', fontSize: '.84rem' }}>More events coming soon. Watch this space!</p>
             </div>
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
+

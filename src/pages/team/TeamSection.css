@@ -1,0 +1,107 @@
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.team-card {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: all 0.28s ease;
+}
+
+.team-card-photo-wrap {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--c1b);
+  box-shadow: 0 0 15px var(--c1g);
+}
+
+.team-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.team-card:hover .team-card-photo {
+  transform: scale(1.1);
+}
+
+.team-card-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 4px;
+}
+
+.team-card-role {
+  font-size: 0.82rem;
+  color: var(--c1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.team-card-chips {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.chip-branch, .chip-section {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--c2a);
+  color: var(--c2);
+  border: 1px solid var(--c2b);
+  font-weight: 700;
+}
+
+.team-card-hint {
+  font-size: 0.7rem;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.join-banner {
+  text-align: center;
+  margin-top: 56px;
+  padding: 28px;
+  background: var(--card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r3);
+  max-width: 520px;
+  margin: 56px auto 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.join-banner h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c1);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.join-banner p {
+  color: var(--t2);
+  font-size: 0.88rem;
+  margin-bottom: 18px;
+  line-height: 1.65;
+}

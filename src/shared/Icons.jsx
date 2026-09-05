@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  ArrowUp, ArrowRight, ArrowLeft, Activity, Code2, Lightbulb, Code, BarChart3, Brain, Wrench,
+  ChevronRight, Flame, Crown, Mail, MapPin, Phone, Users, Calendar, BookOpen,
+  Target, Zap, Cpu, Share2, Home, Settings, Menu, X, Search, AlertCircle, CheckCircle
+} from 'lucide-react';
 
 function baseProps(props) {
   return {
@@ -68,3 +73,46 @@ export function IconBolt(props) {
   );
 }
 
+// Lucide icon map for dynamic icon rendering
+export const ICON_MAP = {
+  ArrowUp,
+  ArrowRight,
+  ArrowLeft,
+  Activity,
+  Code2,
+  Lightbulb,
+  Code,
+  BarChart3,
+  Brain,
+  Wrench,
+  ChevronRight,
+  Flame,
+  Crown,
+  Mail,
+  MapPin,
+  Phone,
+  Users,
+  Calendar,
+  BookOpen,
+  Target,
+  Zap,
+  Cpu,
+  Share2,
+  Home,
+  Settings,
+  Menu,
+  X,
+  Search,
+  AlertCircle,
+  CheckCircle,
+};
+
+// Dynamic icon component wrapper
+export function DynamicIcon({ name, size = 24, ...props }) {
+  const IconComponent = ICON_MAP[name];
+  if (!IconComponent) {
+    console.warn(`Icon "${name}" not found in ICON_MAP`);
+    return null;
+  }
+  return <IconComponent size={size} {...props} />;
+}

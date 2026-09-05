@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import express from 'express';
+import { EventEmitter } from 'events';
 import cors from 'cors';
 import { google } from 'googleapis';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import crypto from 'crypto';
+
+import apiRouter from './routes/api.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +22,33 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '512kb' }));
 
+function requestLogger(req, res, next) {
+  const start = process.hrtime.bigint();
+  const { method, path } = req;
+
+  res.on('finish', () => {
+    const duration = Number(process.hrtime.bigint() - start) / 1e6;
+    const status = res.statusCode;
+    const message = `[${method}] ${path} → ${status} (${Math.round(duration)}ms)`;
+
+    if (status >= 500) {
+      console.error(message);
+    } else if (status >= 400) {
+      console.warn(message);
+    } else {
+      console.log(message);
+    }
+  });
+
+  next();
+}
+
+app.use(requestLogger);
+
 const sessions = new Map();
+const adminEvents = new EventEmitter();
+adminEvents.on('CORE_TEAM_MEMBER_ADDED', (event) => console.log(`[EVENT] CORE_TEAM_MEMBER_ADDED:`, event));
+adminEvents.on('CORE_TEAM_MEMBER_REMOVED', (event) => console.log(`[EVENT] CORE_TEAM_MEMBER_REMOVED:`, event));
 
 const defaultContent = {
   events: [
@@ -30,13 +59,14 @@ const defaultContent = {
       date: 'March 14, 2025',
       description: 'NexaSphere\'s inaugural Knowledge Sharing Session focused on the impact of AI.',
       status: 'completed',
-      icon: '🧠',
+      icon: 'Brain',
       tags: ['AI', 'Learning', 'Community'],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
   ],
   activityEvents: {},
+  coreTeam: [],
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -113,6 +143,22 @@ function toSafeString(value, max = 4000) {
   return String(value ?? '').trim().slice(0, max);
 }
 
+function sanitizeHtml(str) {
+  return String(str || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+}
+
+function validateWhatsApp(str) {
+  const v = String(str || '').trim();
+  if (!/^\d{10}$/.test(v)) throw new Error('WhatsApp must be exactly 10 digits');
+  return v;
+}
+
+function validateSection(str) {
+  const v = String(str || '').trim().toUpperCase();
+  if (!/^[A-Z]$/.test(v)) throw new Error('Section must be a single letter (A-Z)');
+  return v;
+}
+
 function sanitizeEvent(input = {}) {
   const status = input.status === 'upcoming' ? 'upcoming' : 'completed';
   const tags = Array.isArray(input.tags)
@@ -129,20 +175,10 @@ function sanitizeEvent(input = {}) {
     date: toSafeString(input.date, 80),
     description: toSafeString(input.description, 1200),
     status,
-    icon: toSafeString(input.icon || '📌', 8),
+    icon: toSafeString(input.icon || 'Pin', 32),
     tags,
   };
 }
-
-const coreTeamMembers = [
-  { name: 'Ayush Sharma', email: 'ayush.sharmaa@hotmail.com', phone: '8923995135' },
-  { name: 'Tanishk Bansal', email: 'tb1093612@gmail.com', phone: '8534998412' },
-  { name: 'Tushar Goswami', email: 'tushh45@gmail.com', phone: '7253948594' },
-  { name: 'Swayam Dwivedi', email: 'swayamdwivedi88@gmail.com', phone: '7307391343' },
-  { name: 'Aryan Singh', email: 'aryan.singh2025@glbajajgroup.org', phone: '8423067765' },
-  { name: 'Vartika Sharma', email: 'vartika.sharma2025@glbajajgroup.org', phone: '9458030331' },
-  { name: 'Vikas Kumar Sharma', email: 'vks184953@gmail.com', phone: '7983419487' },
-];
 
 function normalizePhone(value) {
   return String(value || '').replace(/[^\d]/g, '');
@@ -155,19 +191,11 @@ async function canManageActivityEvent({ name, email, phone, password }) {
   const e = String(email || '').trim().toLowerCase();
   const p = normalizePhone(phone);
 
-  if (HAS_SUPABASE) {
-    try {
-      const rows = await supabaseRequest(`core_team_members?name=eq.${encodeURIComponent(name)}&email=eq.${encodeURIComponent(email)}&phone=eq.${encodeURIComponent(p)}&select=name,email,phone`);
-      if (Array.isArray(rows) && rows.length > 0) return true;
-    } catch {
-      // fallback below
-    }
-  }
-
-  return coreTeamMembers.some(m =>
+  const members = await listCoreTeamStore();
+  return members.some(m =>
     m.name.toLowerCase() === n &&
     m.email.toLowerCase() === e &&
-    normalizePhone(m.phone) === p
+    normalizePhone(m.whatsapp) === p
   );
 }
 
@@ -181,7 +209,7 @@ async function listEventsStore() {
       date: r.date_text || r.date,
       description: r.description,
       status: r.status,
-      icon: r.icon || '📌',
+      icon: r.icon || 'Pin',
       tags: Array.isArray(r.tags) ? r.tags : [],
       createdAt: r.created_at,
       updatedAt: r.updated_at,
@@ -218,7 +246,7 @@ async function createEventStore(event) {
       date: row.date_text,
       description: row.description,
       status: row.status,
-      icon: row.icon || '📌',
+      icon: row.icon || 'Pin',
       tags: Array.isArray(row.tags) ? row.tags : [],
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -253,7 +281,7 @@ async function updateEventStore(id, patch) {
       date: row.date_text,
       description: row.description,
       status: row.status,
-      icon: row.icon || '📌',
+      icon: row.icon || 'Pin',
       tags: Array.isArray(row.tags) ? row.tags : [],
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -343,6 +371,60 @@ async function deleteActivityEventStore(activityKey, eventId) {
   const next = list.filter(e => e.id !== eventId);
   if (next.length === list.length) return false;
   content.activityEvents[activityKey] = next;
+  await writeContent(content);
+  return true;
+}
+
+async function listCoreTeamStore() {
+  if (HAS_SUPABASE) {
+    const rows = await supabaseRequest('core_team_members?select=*&order=created_at.asc');
+    return rows.map(r => ({
+      id: r.id, name: r.name, role: r.role, year: r.year,
+      branch: r.branch, section: r.section, email: r.email,
+      whatsapp: r.whatsapp, linkedin: r.linkedin, instagram: r.instagram,
+      photoUrl: r.photo_url, createdAt: r.created_at
+    }));
+  }
+  const content = await readContent();
+  return content.coreTeam || [];
+}
+
+async function createCoreTeamStore(member) {
+  if (HAS_SUPABASE) {
+    const [row] = await supabaseRequest('core_team_members', {
+      method: 'POST',
+      body: [{
+        name: member.name, role: member.role, year: member.year,
+        branch: member.branch, section: member.section, email: member.email,
+        whatsapp: member.whatsapp, linkedin: member.linkedin,
+        instagram: member.instagram, photo_url: member.photoUrl
+      }]
+    });
+    return {
+      id: row.id, name: row.name, role: row.role, year: row.year,
+      branch: row.branch, section: row.section, email: row.email,
+      whatsapp: row.whatsapp, linkedin: row.linkedin, instagram: row.instagram,
+      photoUrl: row.photo_url, createdAt: row.created_at
+    };
+  }
+  const content = await readContent();
+  content.coreTeam = content.coreTeam || [];
+  const newMember = { ...member, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+  content.coreTeam.push(newMember);
+  await writeContent(content);
+  return newMember;
+}
+
+async function deleteCoreTeamStore(id) {
+  if (HAS_SUPABASE) {
+    const rows = await supabaseRequest(`core_team_members?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
+    return Array.isArray(rows) && rows.length > 0;
+  }
+  const content = await readContent();
+  content.coreTeam = content.coreTeam || [];
+  const before = content.coreTeam.length;
+  content.coreTeam = content.coreTeam.filter(m => String(m.id) !== String(id));
+  if (content.coreTeam.length === before) return false;
   await writeContent(content);
   return true;
 }
@@ -541,6 +623,72 @@ app.delete('/api/admin/events/:id', adminAuth, async (req, res) => {
   }
 });
 
+app.get('/api/content/core-team', async (req, res) => {
+  try {
+    return res.json(await listCoreTeamStore());
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to load core team' });
+  }
+});
+
+app.get('/api/admin/core-team', adminAuth, async (req, res) => {
+  try {
+    return res.json(await listCoreTeamStore());
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to load core team' });
+  }
+});
+
+app.post('/api/admin/core-team', adminAuth, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const adminEmail = req.adminSession?.username || 'admin';
+    
+    const member = {
+      name: sanitizeHtml(toSafeString(body.name, 100)),
+      role: sanitizeHtml(toSafeString(body.role, 100)),
+      year: sanitizeHtml(toSafeString(body.year, 20)),
+      branch: sanitizeHtml(toSafeString(body.branch, 100)),
+      section: validateSection(body.section),
+      email: toSafeString(body.email, 140),
+      whatsapp: validateWhatsApp(body.whatsapp),
+      linkedin: toSafeString(body.linkedin, 255) || null,
+      instagram: toSafeString(body.instagram, 255) || null,
+      photoUrl: toSafeString(body.photoUrl, 500) || null,
+    };
+    
+    if (!member.name || !member.role || !member.year || !member.branch || !member.email) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (!isEmail(member.email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+    
+    const saved = await createCoreTeamStore(member);
+    adminEvents.emit('CORE_TEAM_MEMBER_ADDED', { adminEmail, member: saved, timestamp: new Date().toISOString() });
+    
+    return res.status(201).json(saved);
+  } catch (e) {
+    return res.status(400).json({ error: e?.message || 'Validation failed' });
+  }
+});
+
+app.delete('/api/admin/core-team/:id', adminAuth, async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    const adminEmail = req.adminSession?.username || 'admin';
+    
+    const deleted = await deleteCoreTeamStore(id);
+    if (!deleted) return res.status(404).json({ error: 'Member not found' });
+    
+    adminEvents.emit('CORE_TEAM_MEMBER_REMOVED', { adminEmail, memberId: id, timestamp: new Date().toISOString() });
+    
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to delete member' });
+  }
+});
+
 async function handleForm(formType, req, res) {
   try {
     const body = req.body || {};
@@ -572,6 +720,12 @@ if (!process.env.VERCEL) {
       // eslint-disable-next-line no-console
       console.log(`NexaSphere server listening on http://localhost:${port}`);
     });
+  });
+} else {
+  // Vercel/Render style deployments rely on the platform to start the server.
+  app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`NexaSphere server listening on http://localhost:${port}`);
   });
 }
 

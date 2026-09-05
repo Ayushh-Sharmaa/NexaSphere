@@ -1,11 +1,3 @@
-/* ══════════════════════════════════════════════════════════
-   NEXASPHERE — MOTION LAYER v3  (FULL-SITE EDITION)
-   Extends animations.css v8 — NOTHING removed, only added.
-   ══════════════════════════════════════════════════════════ */
-
-/* ────────────────────────────────────────────────────────
-   1. AMBIENT DEPTH ORBS
-   ──────────────────────────────────────────────────────── */
 @keyframes ambientDrift {
   0%,100% { transform: scale(1)   translate(0,    0);    opacity: var(--orb-lo,.12); }
   33%     { transform: scale(1.15) translate(25px,-18px); opacity: var(--orb-hi,.22); }
@@ -22,9 +14,6 @@
 }
 [data-theme="light"] .ambient-orb { filter: blur(90px); }
 
-/* ────────────────────────────────────────────────────────
-   2. SECTION DIVIDER — animated sweep stripe
-   ──────────────────────────────────────────────────────── */
 @keyframes dividerSweep {
   0%   { background-position: -200% center; }
   100% { background-position:  300% center; }
@@ -46,9 +35,6 @@
   opacity: .45;
 }
 
-/* ────────────────────────────────────────────────────────
-   3. PAGE BANNER ENTRANCE — every tab page
-   ──────────────────────────────────────────────────────── */
 @keyframes bannerReveal {
   from { opacity:0; transform: translateY(-22px) scale(.98); }
   to   { opacity:1; transform: none; }
@@ -65,10 +51,6 @@
   animation: bannerLineGrow .9s .25s cubic-bezier(.22,1,.36,1) both;
 }
 
-/* ────────────────────────────────────────────────────────
-   4. SCROLL REVEAL — .ns-reveal classes
-   Separate from pop-* so no opacity conflict.
-   ──────────────────────────────────────────────────────── */
 .ns-reveal {
   opacity: 0;
   transform: translateY(36px);
@@ -94,7 +76,6 @@
 }
 .ns-reveal-scale.ns-visible { opacity:1; transform:none; }
 
-/* stagger delays */
 .ns-d1 { transition-delay:.06s; }
 .ns-d2 { transition-delay:.12s; }
 .ns-d3 { transition-delay:.18s; }
@@ -102,39 +83,33 @@
 .ns-d5 { transition-delay:.34s; }
 .ns-d6 { transition-delay:.44s; }
 
-/* ────────────────────────────────────────────────────────
-   5. NAV SLIDE-IN + HOVER
-   ──────────────────────────────────────────────────────── */
 @keyframes navSlideIn {
   from { transform: translateY(-100%); opacity:0; }
   to   { transform: translateY(0);     opacity:1; }
 }
-.ns-navbar        { animation: navSlideIn .6s cubic-bezier(.22,1,.36,1) both; }
-.ns-navbar-mobile { animation: navSlideIn .6s cubic-bezier(.22,1,.36,1) both; }
+.ns-navbar        { animation: navSlideIn .6s cubic-bezier(.22,1,.36,1) both; opacity:1 !important; transform: translateY(0) !important; }
+.ns-navbar-mobile { animation: navSlideIn .6s cubic-bezier(.22,1,.36,1) both; opacity:1 !important; transform: translateY(0) !important; }
 
 .ns-nav-tab {
   transition: color .18s, transform .2s cubic-bezier(.34,1.56,.64,1) !important;
 }
 .ns-nav-tab:hover { transform: translateY(-3px) !important; }
 .ns-nav-tab.active::after {
-  box-shadow: 0 0 14px var(--c1g), 0 0 28px rgba(0,212,255,.3) !important;
+  box-shadow: 0 0 14px var(--c1g), 0 0 28px rgba(204,17,17,.3) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   6. BUTTON MICRO-INTERACTIONS
-   ──────────────────────────────────────────────────────── */
 .btn:active { transform: scale(.93) translateY(2px) !important; transition: transform .08s ease !important; }
 
 @keyframes ctaBreath {
   0%,100% { box-shadow: 0 0 20px var(--c1g), 0 4px 16px rgba(0,0,0,.3); }
-  50%     { box-shadow: 0 0 42px var(--c1g), 0 0 36px rgba(0,212,255,.35), 0 4px 16px rgba(0,0,0,.3); }
+  50%     { box-shadow: 0 0 42px var(--c1g), 0 0 36px rgba(204,17,17,.35), 0 4px 16px rgba(0,0,0,.3); }
 }
 .btn-primary { animation: ctaBreath 2.6s ease-in-out infinite; }
 .btn-primary:hover, .btn-primary:active { animation: none !important; }
 
 @keyframes joinBreath {
-  0%,100% { box-shadow: 0 0 20px rgba(123,111,255,.3); }
-  50%     { box-shadow: 0 0 44px rgba(123,111,255,.6), 0 0 70px rgba(189,92,255,.2); }
+  0%,100% { box-shadow: 0 0 20px rgba(255,90,95,.3); }
+  50%     { box-shadow: 0 0 44px rgba(255,90,95,.6), 0 0 70px rgba(189,92,255,.2); }
 }
 .btn-join { animation: joinBreath 2.8s ease-in-out infinite; }
 .btn-join:hover, .btn-join:active { animation: none !important; }
@@ -146,7 +121,6 @@
 .btn-outline { animation: outlinePulse 3s ease-in-out infinite; }
 .btn-outline:hover { animation: none !important; }
 
-/* "Back" button hover */
 .ns-back-btn {
   transition: border-color .2s, color .2s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s !important;
 }
@@ -157,18 +131,12 @@
   box-shadow: 0 0 12px var(--c1g) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   7. SCROLL PROGRESS BAR
-   ──────────────────────────────────────────────────────── */
 @keyframes progressGlow {
   0%,100% { box-shadow: 0 0 6px var(--c1g); }
-  50%     { box-shadow: 0 0 18px var(--c1g), 0 0 36px rgba(123,111,255,.4); }
+  50%     { box-shadow: 0 0 18px var(--c1g), 0 0 36px rgba(255,90,95,.4); }
 }
 #scroll-progress { animation: progressGlow 2s ease-in-out infinite; }
 
-/* ────────────────────────────────────────────────────────
-   8. ACTIVITY CARD (section + page)
-   ──────────────────────────────────────────────────────── */
 .activity-card:hover .activity-icon {
   transform: scale(1.35) rotate(15deg) !important;
   filter: drop-shadow(0 0 12px var(--c1g)) !important;
@@ -176,16 +144,15 @@
 }
 .activity-card:hover {
   transform: translateY(-10px) rotateX(calc(var(--ry,0)*1deg)) rotateY(calc(var(--rx,0)*1deg)) !important;
-  box-shadow: 0 0 0 1.5px var(--c1b), 0 0 40px rgba(0,212,255,.18), 0 32px 70px rgba(0,0,0,.6) !important;
+  box-shadow: 0 0 0 1.5px var(--c1b), 0 0 40px rgba(204,17,17,.18), 0 32px 70px rgba(0,0,0,.6) !important;
 }
 
-/* Activities page card hover (has no --ry/--rx vars) */
 .ns-act-card {
   transition: transform .32s cubic-bezier(.22,1,.36,1), box-shadow .32s, border-color .28s !important;
 }
 .ns-act-card:hover {
   transform: translateY(-10px) scale(1.015) !important;
-  box-shadow: 0 0 0 1.5px var(--c1b), 0 0 32px rgba(0,212,255,.14), 0 28px 60px rgba(0,0,0,.5) !important;
+  box-shadow: 0 0 0 1.5px var(--c1b), 0 0 32px rgba(204,17,17,.14), 0 28px 60px rgba(0,0,0,.5) !important;
 }
 .ns-act-card:hover .ns-act-icon {
   transform: scale(1.3) rotate(12deg) !important;
@@ -196,9 +163,6 @@
   transition: transform .08s !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   9. TEAM CARD HOVER
-   ──────────────────────────────────────────────────────── */
 .team-card:hover {
   transform: translateY(-8px) scale(1.025) !important;
   box-shadow: var(--sh1), 0 0 0 1px var(--c1b), 0 28px 64px rgba(0,0,0,.55) !important;
@@ -209,9 +173,6 @@
   box-shadow: 0 0 22px var(--c1g) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   10. VALUE CARD HOVER (About page)
-   ──────────────────────────────────────────────────────── */
 .ns-value-card {
   transition: border-color .25s, box-shadow .25s, transform .28s cubic-bezier(.34,1.56,.64,1) !important;
 }
@@ -225,28 +186,21 @@
   transition: transform .35s cubic-bezier(.34,1.56,.64,1) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   11. TIMELINE CARD HOVER
-   ──────────────────────────────────────────────────────── */
 .timeline-card {
   transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .25s, box-shadow .25s !important;
 }
 .timeline-card:hover {
   transform: translateY(-6px) scale(1.018) !important;
   border-color: var(--c1b) !important;
-  box-shadow: var(--sh1), 0 0 30px rgba(0,212,255,.12) !important;
+  box-shadow: var(--sh1), 0 0 30px rgba(204,17,17,.12) !important;
 }
 
-/* Timeline dot pulse */
 @keyframes dotPulseColor {
   0%,100% { background: var(--c1); box-shadow: 0 0 14px var(--c1g); }
   50%     { background: var(--c3); box-shadow: 0 0 20px rgba(189,92,255,.7); }
 }
 .timeline-dot:not(.upcoming) { animation: dotPulseColor 4s ease-in-out infinite; }
 
-/* ────────────────────────────────────────────────────────
-   12. MODAL SPRING
-   ──────────────────────────────────────────────────────── */
 @keyframes modalSpring {
   0%   { opacity:0; transform: scale(.65) translateY(70px) rotateX(-15deg); }
   60%  { opacity:1; transform: scale(1.04) translateY(-8px) rotateX(2deg); }
@@ -255,9 +209,6 @@
 }
 .modal-box { animation: modalSpring .5s cubic-bezier(.34,1.56,.64,1) !important; }
 
-/* ────────────────────────────────────────────────────────
-   13. PAGE WIPE SHIMMER + FLASH
-   ──────────────────────────────────────────────────────── */
 @keyframes wipeShimmer {
   0%   { transform: translateX(-150%) skewX(-20deg); opacity:0; }
   15%  { opacity:1; }
@@ -266,7 +217,7 @@
 }
 .wipe-shimmer {
   position:fixed; inset:0; z-index:8003; pointer-events:none;
-  background: linear-gradient(105deg,transparent 20%,rgba(0,212,255,.09) 45%,rgba(123,111,255,.07) 55%,transparent 80%);
+  background: linear-gradient(105deg,transparent 20%,rgba(204,17,17,.09) 45%,rgba(255,90,95,.07) 55%,transparent 80%);
   animation: wipeShimmer .45s cubic-bezier(.77,0,.18,1) forwards;
 }
 
@@ -280,9 +231,6 @@
   animation: pageFlash .55s ease-out forwards;
 }
 
-/* ────────────────────────────────────────────────────────
-   14. CHIP HOVER
-   ──────────────────────────────────────────────────────── */
 .chip-branch, .chip-section {
   transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s !important;
   cursor: default;
@@ -290,21 +238,15 @@
 .chip-branch:hover { transform:translateY(-3px)!important; box-shadow:0 5px 14px var(--c1b)!important; }
 .chip-section:hover { transform:translateY(-3px)!important; box-shadow:0 5px 14px var(--c2b)!important; }
 
-/* ────────────────────────────────────────────────────────
-   15. SCROLL INDICATOR BOUNCE
-   ──────────────────────────────────────────────────────── */
 @keyframes scrollBounce {
   0%,100% { transform: scaleY(1) translateY(0); opacity:1; }
   50%     { transform: scaleY(.75) translateY(8px); opacity:.5; }
 }
 .scroll-indicator-line { animation: scrollBounce 1.6s ease-in-out infinite !important; transform-origin: top; }
 
-/* ────────────────────────────────────────────────────────
-   16. BACK-TO-TOP BUTTON
-   ──────────────────────────────────────────────────────── */
 @keyframes bttPulse {
   0%,100% { box-shadow: 0 0 12px var(--c1g), 0 4px 16px rgba(0,0,0,.35); }
-  50%     { box-shadow: 0 0 28px var(--c1g), 0 0 50px rgba(0,212,255,.3); }
+  50%     { box-shadow: 0 0 28px var(--c1g), 0 0 50px rgba(204,17,17,.3); }
 }
 #back-to-top.visible { animation: bttPulse 2.2s ease-in-out infinite; }
 #back-to-top:hover {
@@ -313,9 +255,6 @@
   box-shadow: 0 0 32px var(--c1g) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   17. NAVBAR LOGO + SECTION TITLE
-   ──────────────────────────────────────────────────────── */
 @keyframes logoSpin {
   from { transform: rotate(0deg) scale(1.08); }
   to   { transform: rotate(360deg) scale(1.08); }
@@ -330,36 +269,24 @@
   transition: width .4s cubic-bezier(.34,1.56,.64,1) !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   18. HERO PARALLAX + MOUSE PARALLAX
-   ──────────────────────────────────────────────────────── */
 .hero-bg-parallax { will-change: transform; transition: transform .05s linear; }
 [data-parallax]   { will-change: transform; transition: transform .12s linear; }
 
-/* ────────────────────────────────────────────────────────
-   19. FOOTER HOVER
-   ──────────────────────────────────────────────────────── */
 .ns-footer-logo-ns { transition: transform .3s cubic-bezier(.34,1.56,.64,1), filter .3s !important; }
 .ns-footer-logo-ns:hover { transform:rotate(10deg) scale(1.18)!important; filter:drop-shadow(0 0 14px var(--c1g)) brightness(1.5)!important; }
 .ns-footer-email-link { transition: color .2s, text-shadow .2s !important; }
 .ns-footer-email-link:hover { text-shadow: 0 0 14px var(--c1g); }
 
-/* ────────────────────────────────────────────────────────
-   20. CONTACT PAGE — form input micro-interaction
-   ──────────────────────────────────────────────────────── */
 .ns-input, .ns-textarea, .ns-select {
   transition: border-color .22s, box-shadow .22s, transform .18s cubic-bezier(.34,1.56,.64,1) !important;
 }
 .ns-input:focus, .ns-textarea:focus, .ns-select:focus {
   border-color: var(--c1) !important;
-  box-shadow: 0 0 0 3px rgba(0,212,255,.12), 0 0 20px rgba(0,212,255,.08) !important;
+  box-shadow: 0 0 0 3px rgba(204,17,17,.12), 0 0 20px rgba(204,17,17,.08) !important;
   transform: scale(1.005) !important;
   outline: none !important;
 }
 
-/* ────────────────────────────────────────────────────────
-   21. PERFORMANCE — reduced motion + mobile
-   ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .ambient-orb { display:none; }
   [data-parallax] { transform:none!important; transition:none!important; }
@@ -374,3 +301,5 @@
     opacity:1!important; transform:none!important;
   }
 }
+
+

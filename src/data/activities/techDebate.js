@@ -4,7 +4,7 @@
 
 const techDebate = {
   id: 'tech-debate',
-  icon: '🎙️',
+  icon: 'Mic2',
   title: 'Tech Debate',
   tagline: 'Argue. Defend. Evolve.',
   color: '#ef4444',

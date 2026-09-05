@@ -1,0 +1,190 @@
+[data-theme="dark"] body::before,
+:not([data-theme]) body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 72% 52% at 12% 88%, rgba(120, 40, 220, .055) 0%, transparent 62%),
+    radial-gradient(ellipse 52% 40% at 88% 12%, rgba(40, 100, 220, .045) 0%, transparent 58%),
+    radial-gradient(ellipse 62% 48% at 52% 102%, rgba(204, 17, 17, .04) 0%, transparent 62%),
+    radial-gradient(ellipse 38% 32% at 90% 68%, rgba(10, 160, 120, .028) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 38% at 5% 30%,  rgba(60, 60, 200, .032) 0%, transparent 58%);
+  animation: auroraFloat 28s ease-in-out infinite alternate;
+}
+
+@keyframes auroraFloat {
+  0%   { opacity: .60; transform: scale(1)    translateY(0px); }
+  25%  { opacity: .90; transform: scale(1.03) translateY(-6px); }
+  50%  { opacity: .72; transform: scale(.98)  translateY(4px); }
+  75%  { opacity: 1;   transform: scale(1.04) translateY(-3px); }
+  100% { opacity: .80; transform: scale(1.01) translateY(5px); }
+}
+
+[data-theme="dark"] #root > *,
+:not([data-theme]) #root > * { position: relative; z-index: 1; }
+
+[data-theme="dark"] .activity-card,
+:not([data-theme]) .activity-card,
+[data-theme="dark"] .team-card,
+:not([data-theme]) .team-card,
+[data-theme="dark"] .timeline-card,
+:not([data-theme]) .timeline-card {
+  border-color: transparent !important;
+  background-origin: border-box;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.045),
+    0 4px 24px rgba(0,0,0,.5) !important;
+  position: relative;
+}
+
+[data-theme="dark"] .activity-card::before,
+:not([data-theme]) .activity-card::before,
+[data-theme="dark"] .team-card::before,
+:not([data-theme]) .team-card::before,
+[data-theme="dark"] .timeline-card::before,
+:not([data-theme]) .timeline-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    var(--iris-angle, 135deg),
+    rgba(139, 92, 246, .18),
+    rgba(204, 17,  17,  .28),
+    rgba(59,  130, 246, .14),
+    rgba(16,  185, 129, .10),
+    rgba(251, 191, 36,  .08),
+    rgba(204, 17,  17,  .22),
+    rgba(139, 92,  246, .18)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: irisRotate 10s linear infinite;
+}
+
+@keyframes irisRotate {
+  to { --iris-angle: 495deg; }
+}
+
+[data-theme="dark"] .activity-card:hover,
+:not([data-theme]) .activity-card:hover,
+[data-theme="dark"] .team-card:hover,
+:not([data-theme]) .team-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(204, 17, 17, .35),
+    0 0 30px rgba(120, 40, 220, .12),
+    0 0 60px rgba(204, 17, 17,  .10),
+    0 20px 55px rgba(0, 0, 0,   .65) !important;
+}
+
+[data-theme="dark"] .hero-logo-wrap::after,
+:not([data-theme]) .hero-logo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -36px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    rgba(139, 92, 246, .14),
+    rgba(204, 17,  17,  .24),
+    rgba(59,  130, 246, .12),
+    rgba(16,  185, 129, .08),
+    rgba(251, 191, 36,  .07),
+    rgba(204, 17,  17,  .20),
+    rgba(139, 92,  246, .14)
+  );
+  filter: blur(26px);
+  animation: conicSpin 14s linear infinite;
+  z-index: 0;
+  opacity: .8;
+  pointer-events: none;
+}
+
+@keyframes conicSpin {
+  to { transform: rotate(360deg); }
+}
+
+
+
+[data-theme="dark"] .modal-box,
+:not([data-theme]) .modal-box {
+  background: linear-gradient(160deg, #0C0914, #0D0D14) !important;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, .10),
+    0 0 80px rgba(204, 17, 17,  .08),
+    0 28px 80px rgba(0, 0, 0,   .80) !important;
+}
+
+[data-theme="dark"] .section-title::after,
+:not([data-theme]) .section-title::after {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(120, 40, 220, .5) 20%,
+    rgba(204, 17, 17,  .9) 50%,
+    rgba(59, 130, 246, .5) 80%,
+    transparent 100%
+  ) !important;
+}
+
+[data-theme="dark"] .ns-footer,
+:not([data-theme]) .ns-footer {
+  background: linear-gradient(180deg,
+    rgba(4, 4, 7, 0)   0%,
+    rgba(6, 4, 12, .97) 25%,
+    rgba(5, 5, 9,  1)   100%
+  ) !important;
+  border-top: 1px solid rgba(139, 92, 246, .08) !important;
+}
+
+[data-theme="dark"] #scroll-progress,
+:not([data-theme]) #scroll-progress {
+  background: linear-gradient(90deg,
+    #8B5CF6, #CC1111, #3B82F6, #10B981, #CC1111
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: progressShift 6s linear infinite !important;
+}
+
+@keyframes progressShift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 300% 0%; }
+}
+
+[data-theme="dark"] #back-to-top:hover,
+:not([data-theme]) #back-to-top:hover {
+  box-shadow:
+    0 0 20px rgba(139, 92, 246, .3),
+    0 0 40px rgba(204, 17, 17,  .3),
+    0 0 60px rgba(59, 130, 246, .2) !important;
+}
+
+[data-theme="light"] body::before { display: none; }
+[data-theme="light"] .activity-card::before,
+[data-theme="light"] .team-card::before,
+[data-theme="light"] .timeline-card::before { display: none; }
+[data-theme="light"] .hero-logo-wrap::after { display: none; }
+
+[data-theme="light"] .ns-footer { background: rgba(245,245,248,.97) !important; border-top-color: rgba(0,0,0,.07) !important; }
+[data-theme="light"] .modal-box { background: rgba(255,255,255,.92) !important; backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important; }
+
+[data-theme="light"] .page-banner {
+  background: rgba(255,255,255,.70) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(204,17,17,.08) !important;
+}
+
+[data-theme="light"] .activity-card,
+[data-theme="light"] .team-card,
+[data-theme="light"] .timeline-card {
+  backdrop-filter: blur(10px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  background: rgba(255,255,255,.82) !important;
+}
+
+

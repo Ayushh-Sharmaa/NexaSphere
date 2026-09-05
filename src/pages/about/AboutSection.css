@@ -1,0 +1,135 @@
+.about-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.about-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(123, 111, 255, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.about-container {
+  position: relative;
+  z-index: 1;
+}
+
+.about-grid {
+  display: grid;
+  align-items: center;
+  max-width: 920px;
+  margin: 0 auto 44px;
+}
+
+@media (min-width: 769px) {
+  .about-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.about-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.about-strong-red {
+  color: var(--c1);
+}
+
+.about-strong-dark-red {
+  color: var(--c2);
+}
+
+.contact-mini {
+  margin-top: 16px;
+}
+
+.contact-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  color: var(--c1);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.contact-email {
+  color: var(--c1);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.about-card-inner {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 30px;
+  transition: all 0.28s ease;
+}
+
+.about-card-inner:hover {
+  border-color: var(--c1b);
+  box-shadow: var(--sh1);
+}
+
+.about-card-glow {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.07), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.values-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.value-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 50px;
+  background: var(--c1a);
+  border: 1px solid var(--c1b);
+  color: var(--c1);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: default;
+  transition: all 0.18s;
+}
+
+.value-tag:hover {
+  background: var(--c1b);
+  transform: translateY(-2px);
+}
+
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}

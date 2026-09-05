@@ -80,3 +80,4 @@ export default function EventsSection({ onEventClick, events = fallbackEvents })
     </section>
   );
 }
+

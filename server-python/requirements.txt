@@ -1,0 +1,9 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic[email]==2.5.3
+httpx==0.26.0
+gspread==5.12.4
+google-auth==2.27.0
+python-dotenv==1.0.0
+google-generativeai==0.8.6

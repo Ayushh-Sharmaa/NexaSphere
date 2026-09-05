@@ -65,7 +65,7 @@ function ContactCard({ icon, label, value, href, delay = 0, color }) {
     >
       <style>{`@keyframes contactBurst{to{transform:translate(var(--tx),var(--ty));opacity:0}}`}</style>
 
-      {/* Glow layer */}
+      
       <div style={{
         position: 'absolute', inset: 0, borderRadius: 'inherit',
         background: `radial-gradient(ellipse at 50% 0%, ${color}18 0%, transparent 60%)`,
@@ -73,10 +73,10 @@ function ContactCard({ icon, label, value, href, delay = 0, color }) {
         pointerEvents: 'none',
       }}/>
 
-      {/* Corner brackets */}
+      
       <div className="corner-tl"/><div className="corner-br"/>
 
-      {/* Icon orb */}
+      
       <div style={{
         width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
         background: `${color}15`, border: `2px solid ${color}40`,
@@ -129,7 +129,7 @@ function MapSection() {
 
   return (
     <div ref={ref} className="pop-in map-wrapper" style={{ maxWidth: 900, margin: '0 auto' }}>
-      {/* Header */}
+      
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -147,7 +147,7 @@ function MapSection() {
         </p>
       </div>
 
-      {/* Map frame */}
+      
       <div style={{
         position: 'relative', borderRadius: 'var(--r3)',
         overflow: 'hidden', border: '1px solid var(--bdr2)',
@@ -155,11 +155,11 @@ function MapSection() {
         aspectRatio: '16/7',
         background: 'var(--card)',
       }}>
-        {/* Corner brackets */}
+        
         <div className="corner-tl" style={{ width: 20, height: 20 }}/>
         <div className="corner-br" style={{ width: 20, height: 20 }}/>
 
-        {/* Loading state */}
+        
         {!loaded && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex',
@@ -203,7 +203,7 @@ function MapSection() {
           />
         )}
 
-        {/* Scan overlay for dark vibes */}
+        
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'linear-gradient(180deg,rgba(0,212,255,.03) 0%,transparent 30%,transparent 70%,rgba(123,111,255,.03) 100%)',
@@ -211,7 +211,7 @@ function MapSection() {
         }}/>
       </div>
 
-      {/* Direction link */}
+      
       <div style={{ textAlign: 'center', marginTop: 16 }}>
         <a
           href="https://maps.google.com/?q=GL+Bajaj+Group+of+Institutions+Mathura"
@@ -228,8 +228,9 @@ function MapSection() {
 
 /* ── Message form CTA ── */
 function MessageCTA() {
-  const [name, setName]     = useState('');
-  const [copied, setCopied] = useState(false);
+  const [name,    setName]    = useState('');
+  const [message, setMessage] = useState('');
+  const [copied,  setCopied]  = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(EMAIL).then(() => {
@@ -239,7 +240,9 @@ function MessageCTA() {
   };
 
   const subject = encodeURIComponent(`Hi NexaSphere${name ? ` — ${name}` : ''}`);
-  const body    = encodeURIComponent(`Hello NexaSphere Team,\n\n[Your message here]\n\nBest,\n${name || 'Your Name'}`);
+  const body    = encodeURIComponent(
+    `Hello NexaSphere Team,\n\n${message || '[Your message here]'}\n\nBest,\n${name || 'Your Name'}`
+  );
 
   return (
     <div className="pop-scale message-cta-box" style={{ maxWidth: 600, margin: '0 auto' }}>
@@ -258,8 +261,8 @@ function MessageCTA() {
         </p>
       </div>
 
-      {/* Quick name field for personalised mailto */}
-      <div style={{ marginBottom: 16 }}>
+      {/* Name field */}
+      <div style={{ marginBottom: 12 }}>
         <input
           value={name}
           onChange={e => setName(e.target.value)}
@@ -269,14 +272,33 @@ function MessageCTA() {
             background: 'var(--card2)', border: '1px solid var(--bdr2)',
             borderRadius: 'var(--r2)', color: 'var(--t1)',
             fontFamily: 'Rajdhani,sans-serif', fontSize: '.95rem',
-            outline: 'none',
+            outline: 'none', boxSizing: 'border-box',
           }}
           onFocus={e => { e.target.style.borderColor = 'var(--c1b)'; e.target.style.boxShadow = 'var(--sh1)'; }}
           onBlur={e  => { e.target.style.borderColor = 'var(--bdr2)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
 
-      {/* Buttons */}
+      {/* Message body field */}
+      <div style={{ marginBottom: 16 }}>
+        <textarea
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          placeholder="Your message — what would you like to tell us?"
+          rows={5}
+          style={{
+            width: '100%', padding: '12px 16px',
+            background: 'var(--card2)', border: '1px solid var(--bdr2)',
+            borderRadius: 'var(--r2)', color: 'var(--t1)',
+            fontFamily: 'Rajdhani,sans-serif', fontSize: '.95rem',
+            outline: 'none', resize: 'vertical', boxSizing: 'border-box',
+          }}
+          onFocus={e => { e.target.style.borderColor = 'var(--c1b)'; e.target.style.boxShadow = 'var(--sh1)'; }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--bdr2)'; e.target.style.boxShadow = 'none'; }}
+        />
+      </div>
+
+      {/* Action buttons */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
         <a
           href={`mailto:${EMAIL}?subject=${subject}&body=${body}`}
@@ -392,7 +414,7 @@ export default function ContactPage({ onBack }) {
         }
       `}</style>
 
-      {/* ── Hero banner ── */}
+      
       <div className="contact-hero">
         <div className="contact-hero-bg"/>
         {onBack && (
@@ -418,7 +440,7 @@ export default function ContactPage({ onBack }) {
 
       <div className="container" style={{ paddingBottom: 80 }}>
 
-        {/* ── Contact Cards ── */}
+        
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
@@ -446,18 +468,18 @@ export default function ContactPage({ onBack }) {
           />
         </div>
 
-        {/* ── Map ── */}
+        
         <div style={{ marginBottom: 72 }}>
           <MapSection/>
         </div>
 
-        {/* ── Divider ── */}
+        
         <div className="contact-divider" style={{ maxWidth: 400, margin: '0 auto 64px' }}/>
 
-        {/* ── Message CTA ── */}
+        
         <MessageCTA/>
 
-        {/* ── Institutional info ── */}
+        
         <div className="pop-in" style={{
           textAlign: 'center', marginTop: 56,
           padding: '24px', maxWidth: 520, margin: '56px auto 0',
@@ -492,3 +514,4 @@ export default function ContactPage({ onBack }) {
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export default function TeamMemberCard({ member, onClick, extraClass = '', style={} }) {
   const ref = useRef(null);
+  const [imgError, setImgError] = useState(false);
 
   const onMove = e => {
     const c = ref.current; if (!c) return;
@@ -28,7 +29,12 @@ export default function TeamMemberCard({ member, onClick, extraClass = '', style
       aria-label={`View ${member.name}'s profile`}
     >
       <div className="team-card-photo-wrap">
-        <img src={member.photo} alt={member.name} className="team-card-photo"/>
+        <img 
+          src={imgError ? 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(member.name) + '&backgroundColor=CC1111&textColor=ffffff' : member.photo} 
+          alt={member.name} 
+          className="team-card-photo"
+          onError={() => setImgError(true)}
+        />
       </div>
       <div className="team-card-name">{member.name}</div>
       <div className="team-card-role">{member.role}</div>
@@ -36,3 +42,4 @@ export default function TeamMemberCard({ member, onClick, extraClass = '', style
     </div>
   );
 }
+

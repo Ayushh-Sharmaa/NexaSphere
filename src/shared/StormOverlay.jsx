@@ -70,7 +70,7 @@ function spawnGrain(W, H, idx) {
     wave: rand(0, Math.PI*2),
     ws:   rand(0.05, 0.12),
     wa:   rand(1, 5),
-    scatterA: Math.random()*Math.PI*2, // blast angle for BANG
+    scatterA: Math.random()*Math.PI*2, 
     scatterSpd: rand(3, 18),
   };
 }
@@ -80,7 +80,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
   const midRef       = useRef(false);
   const doneRef      = useRef(false);
   const startTimeRef = useRef(null);
-  // Keep callbacks in refs so the animation loop always calls the latest version
+  
   const onMidpointRef = useRef(onMidpoint);
   const onDoneRef     = useRef(onDone);
   useEffect(() => { onMidpointRef.current = onMidpoint; }, [onMidpoint]);
@@ -103,10 +103,10 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
 
     const grains = Array.from({ length:N_GRAINS }, (_,i) => spawnGrain(W,H,i));
 
-    // Use ref so this doesn't reset on re-render
+    
     if (!startTimeRef.current) startTimeRef.current = performance.now();
 
-    // Phase timestamps
+    
     const T = {
       erupt:       0,
       compress:    380,
@@ -151,7 +151,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
         const t = elapsed / T.compress;
         const hazeA = easeOut(t) * 0.94;
 
-        // Amber background sweep
+        
         const bg = ctx.createRadialGradient(cx*.6,cy*.5,0, cx,cy,DIAG*.65);
         bg.addColorStop(0,   `rgba(225,145,38,${hazeA*0.85})`);
         bg.addColorStop(0.4, `rgba(188,108,22,${hazeA})`);
@@ -160,7 +160,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
         ctx.fillStyle = bg;
         ctx.fillRect(0,0,W,H);
 
-        // Corner dust blasts
+        
         if (t < 0.75) {
           [[0,0],[W,0],[0,H],[W,H]].forEach(([bx,by]) => {
             const g=ctx.createRadialGradient(bx,by,0,bx,by,DIAG*.52*easeOut(t));
@@ -179,11 +179,11 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
       if (ph === 'compress') {
         const t = (elapsed - T.compress) / (T.singularity - T.compress);
 
-        // Base amber stays
+        
         ctx.fillStyle = `rgba(172,90,12,${lerp(0.88,0.96,t)})`;
         ctx.fillRect(0,0,W,H);
 
-        // Incandescent vortex core building
+        
         const coreR = lerp(380, 15, easeIn(t));
         const cg = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR);
         cg.addColorStop(0,   `rgba(255,220,100,${easeIn(t)*0.95})`);
@@ -199,7 +199,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
       ═══════════════════════════════════════ */
       if (ph === 'singularity') {
         const t = (elapsed - T.singularity) / (T.bang - T.singularity);
-        // White flash ramps up to full then stays
+        
         ctx.fillStyle = `rgba(255,255,255,${ease(t)*0.98})`;
         ctx.fillRect(0,0,W,H);
       }
@@ -213,7 +213,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
         const t = (elapsed - T.bang) / (T.settle - T.bang);
         const te = easeOut(t);
 
-        // New theme flood from center — expands as a circle
+        
         const waveR = te * DIAG * 1.05;
         ctx.save();
         ctx.beginPath();
@@ -222,7 +222,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
         ctx.fill();
         ctx.restore();
 
-        // Shockwave RING — leading edge
+        
         if (t < 0.85) {
           const ringT = clamp(t, 0, 1);
           const ringR = ringT * DIAG * 1.05;
@@ -241,7 +241,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
           ctx.restore();
         }
 
-        // Chromatic aberration: 2 offset rings
+        
         if (t < 0.6) {
           const offset = 18 * (1-t);
           [[target.c1,'rgba(0,0,0,0)'], [target.c3,'rgba(0,0,0,0)']].forEach(([col], ci) => {
@@ -259,7 +259,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
           });
         }
 
-        // Radial LIGHT RAYS from center
+        
         const rays = 24;
         for (let i=0; i<rays; i++) {
           const angle = (i/rays)*Math.PI*2 + t;
@@ -281,7 +281,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
           ctx.restore();
         }
 
-        // Central core glow
+        
         const core = lerp(180, 20, easeOut(t));
         const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,core);
         cg.addColorStop(0,   `rgba(255,255,255,${0.95*(1-t)})`);
@@ -297,14 +297,14 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
       ═══════════════════════════════════════ */
       if (ph === 'settle') {
         const t = (elapsed - T.settle) / (T.done - T.settle);
-        // New theme base is solid
+        
         ctx.fillStyle=`rgb(${target.r},${target.g},${target.b})`;
         ctx.fillRect(0,0,W,H);
-        // Fade canvas out via overlay alpha (we set canvas opacity in style)
+        
         canvasAlpha = 1 - easeOut(t);
         if (cvs) cvs.style.opacity = canvasAlpha;
 
-        // Residual glow
+        
         const resG=ctx.createRadialGradient(cx,cy,0,cx,cy,DIAG*.45);
         resG.addColorStop(0, `rgba(${target.c1.join(',')},${(1-t)*0.28})`);
         resG.addColorStop(1, 'rgba(0,0,0,0)');
@@ -337,25 +337,25 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
           p.a = lerp(p.a, 0, t * 0.6);
 
         } else if (ph === 'singularity') {
-          // Snap to center
+          
           p.x = lerp(p.x, cx, 0.4);
           p.y = lerp(p.y, cy, 0.4);
           p.a *= 0.7;
 
         } else if (ph === 'bang' || ph === 'settle') {
           const t = (elapsed - T.bang) / (T.done - T.bang);
-          // Explode outward in scatter direction
+          
           p.x += Math.cos(p.scatterA) * p.scatterSpd * easeOut(clamp(t*2,0,1));
           p.y += Math.sin(p.scatterA) * p.scatterSpd * easeOut(clamp(t*2,0,1));
           p.a = lerp(p.a, 0, 0.08 + t * 0.08);
-          p.hue = lerp(p.hue, target.c1[0] ?? 192, 0.04); // color-shift toward new theme
+          p.hue = lerp(p.hue, target.c1[0] ?? 192, 0.04); 
         }
 
         if (p.a < 0.04 || ph === 'singularity') {
           if (ph !== 'singularity') return;
         }
 
-        // Motion direction
+        
         const mAngle = ph==='compress'
           ? p.orbitAngle + Math.PI * 0.6 * p.orbitDir
           : ph==='bang'||ph==='settle'
@@ -374,7 +374,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
         ctx.restore();
       });
 
-      // Horizontal sand streaks (erupt only)
+      
       if (ph === 'erupt') {
         const si = easeOut(elapsed / T.compress);
         for (let i=0; i<24; i++) {
@@ -401,7 +401,7 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
 
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, []); // eslint-disable-line
+  }, []); 
 
   return (
     <canvas
@@ -414,3 +414,4 @@ export default function StormOverlay({ toTheme, onMidpoint, onDone }) {
     />
   );
 }
+

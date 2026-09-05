@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Rocket } from 'lucide-react';
 import { teamMembers } from '../../data/teamData';
 import TeamMemberModal from './TeamMemberModal';
 import { IconArrowRight, IconSpark } from '../../shared/Icons';
 import { BannerOrbs } from '../../shared/MotionLayer';
+import Footer from '../../shared/Footer';
 
 function MemberCard({ member, idx, onClick }) {
   const ref = useRef(null);
+  const [imgError, setImgError] = useState(false);
   const agDelays = [-0.0, -2.1, -4.2, -1.0, -3.3, -5.5, -0.7, -6.1, -2.8, -4.9, -1.6, -3.8];
 
   const onMove = e => {
@@ -42,7 +45,12 @@ function MemberCard({ member, idx, onClick }) {
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') click(); }}
     >
       <div className="team-card-photo-wrap">
-        <img src={member.photo} alt={member.name} className="team-card-photo" />
+        <img 
+        src={imgError ? 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(member.name) + '&backgroundColor=CC1111&textColor=ffffff' : member.photo} 
+        alt={member.name} 
+        className="team-card-photo"
+        onError={() => setImgError(true)}
+      />
       </div>
       <div className="team-card-name">{member.name}</div>
       <div className="team-card-role">{member.role}</div>
@@ -66,7 +74,7 @@ export default function TeamPage({ onBack, onApply }) {
 
   return (
     <div id="team-page" style={{ minHeight: '100vh', padding: '0 0 100px' }}>
-      {/* Hero */}
+      
       <div className="page-banner" style={{
         background: 'linear-gradient(135deg, rgba(123,111,255,.07), rgba(189,92,255,.04))',
         borderBottom: '1px solid var(--bdr)',
@@ -96,7 +104,7 @@ export default function TeamPage({ onBack, onApply }) {
       </div>
 
       <div className="container">
-        {/* Leadership */}
+        
         <div style={{ marginBottom: '52px' }}>
           <div style={{
             fontFamily: "'Orbitron', monospace", fontSize: '.68rem', fontWeight: 700,
@@ -113,7 +121,7 @@ export default function TeamPage({ onBack, onApply }) {
           </div>
         </div>
 
-        {/* Core Team */}
+        
         <div style={{ marginBottom: '52px' }}>
           <div style={{
             fontFamily: "'Orbitron', monospace", fontSize: '.68rem', fontWeight: 700,
@@ -130,7 +138,7 @@ export default function TeamPage({ onBack, onApply }) {
           </div>
         </div>
 
-        {/* Join CTA */}
+        
         <div className="ns-reveal-scale" style={{
           textAlign: 'center', padding: '32px',
           background: 'var(--card)', border: '1px solid var(--bdr)',
@@ -139,7 +147,7 @@ export default function TeamPage({ onBack, onApply }) {
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, var(--c1), var(--c2), var(--c3))' }} />
           <div className="corner-tl" /><div className="corner-br" />
-          <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🚀</div>
+          <div style={{ fontSize: '2rem', marginBottom: '10px', color: 'var(--c1)' }}><Rocket size={32} /></div>
           <h3 style={{ fontFamily: 'Orbitron,monospace', fontSize: '1rem', fontWeight: 700, color: 'var(--c1)', marginBottom: '8px', letterSpacing: '.05em' }}>
             Want to Join NexaSphere?
           </h3>
@@ -161,6 +169,9 @@ export default function TeamPage({ onBack, onApply }) {
         <TeamMemberModal member={sel} onClose={() => setSel(null)} />,
         document.body
       )}
+
+      <Footer />
     </div>
   );
 }
+

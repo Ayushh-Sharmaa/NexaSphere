@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// ── Copy Popup ──
 function CopyPopup({ value, onClose }) {
   const [copied, setCopied] = useState(false);
 
@@ -30,16 +29,14 @@ function CopyPopup({ value, onClose }) {
   );
 }
 
-// ── Normalize WhatsApp: handle plain numbers OR full URLs ──
 function getWhatsappDisplay(raw) {
   if (!raw) return null;
-  // Already a full URL
+  
   if (raw.startsWith('http')) return raw;
-  // Plain number — just show it as-is for copy
+  
   return raw;
 }
 
-// ── Modal Content ──
 function ModalContent({ member, onClose }) {
   const [activePopup, setActivePopup] = useState(null);
 
@@ -62,17 +59,17 @@ function ModalContent({ member, onClose }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="modal-box">
-        {/* Close */}
+        
         <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
 
-        {/* Photo */}
+        
         <img src={member.photo} alt={member.name} className="modal-photo" />
 
-        {/* Name & Role */}
+        
         <div className="modal-name">{member.name}</div>
         <div className="modal-role">{member.role}</div>
 
-        {/* Info */}
+        
         <div className="modal-info">
           <div className="modal-info-row">
             <span className="modal-info-label">🎓 Year</span>
@@ -88,7 +85,34 @@ function ModalContent({ member, onClose }) {
           </div>
         </div>
 
-        {/* Social */}
+        
+        {member.achievements && member.achievements.length > 0 && (
+          <div className="modal-achievements">
+            <div className="modal-achievements-title">🏆 Achievements</div>
+            <ul className="modal-achievements-list">
+              {member.achievements.map((ach, idx) => (
+                <li key={idx} className="modal-achievement-item">{ach}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        
+        {member.testimonials && member.testimonials.length > 0 && (
+          <div className="modal-testimonials">
+            <div className="modal-testimonials-title">💬 Testimonials</div>
+            <ul className="modal-testimonials-list">
+              {member.testimonials.map((t, idx) => (
+                <li key={idx} className="modal-testimonial-item">
+                  <span className="testimonial-text">“{t.text}”</span>
+                  <span className="testimonial-author">- {t.author}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        
         {hasSocial && (
           <div className="modal-social">
             {member.linkedin && (
@@ -153,7 +177,6 @@ function ModalContent({ member, onClose }) {
   );
 }
 
-// ── Export: renders via Portal so it's never clipped by any parent ──
 export default function TeamMemberModal({ member, onClose }) {
   if (!member) return null;
   return createPortal(
@@ -161,3 +184,4 @@ export default function TeamMemberModal({ member, onClose }) {
     document.body
   );
 }
+

@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
+import { DynamicIcon } from '../../shared/Icons';
 
-// ── Helpers ──
 function hexToRgb(hex) {
   if (!hex || !hex.startsWith('#')) return '0,212,255';
   return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
 }
 
-// ── Typewriter ──
 function Typewriter({ text, speed = 10 }) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
@@ -36,7 +35,6 @@ function Typewriter({ text, speed = 10 }) {
   );
 }
 
-// ── Animated Stat ──
 function StatCard({ label, value, color }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -76,7 +74,6 @@ function StatCard({ label, value, color }) {
   );
 }
 
-// ── Section Header ──
 function SectionHeader({ icon, title, color }) {
   return (
     <h2 style={{
@@ -88,14 +85,13 @@ function SectionHeader({ icon, title, color }) {
         width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
         background: `rgba(${hexToRgb(color)},0.15)`, border: `1px solid rgba(${hexToRgb(color)},0.3)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem',
-      }}>{icon}</span>
+      }}><DynamicIcon name={icon} size={15} /></span>
       {title}
     </h2>
   );
 }
 
-// ── Person Chip ──
-function PersonChip({ name, role, color, emoji = '⚡' }) {
+function PersonChip({ name, role, color, icon = 'Zap' }) {
   const [hovered, setHovered] = useState(false);
   const rgb = hexToRgb(color);
   return (
@@ -113,7 +109,7 @@ function PersonChip({ name, role, color, emoji = '⚡' }) {
         cursor: 'default',
       }}
     >
-      <span style={{ fontSize: '1rem' }}>{emoji}</span>
+      <span style={{ display: 'flex' }}><DynamicIcon name={icon} size={14} style={{ color }} /></span>
       <div>
         <div style={{ fontFamily: 'Rajdhani,sans-serif', fontWeight: 700, color: hovered ? color : 'var(--text-primary)', fontSize: '0.9rem', lineHeight: 1.2 }}>{name}</div>
         {role && <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{role}</div>}
@@ -122,7 +118,6 @@ function PersonChip({ name, role, color, emoji = '⚡' }) {
   );
 }
 
-// ── Topic Card ──
 function TopicCard({ topic, index, color }) {
   const [hovered, setHovered] = useState(false);
   const rgb = hexToRgb(color);
@@ -154,9 +149,9 @@ function TopicCard({ topic, index, color }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: 'Orbitron,monospace', fontSize: '0.88rem', fontWeight: 700, color, marginBottom: '6px' }}>{topic.title}</div>
           <div style={{ display: 'flex', gap: '14px', marginBottom: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>🎤 {topic.speaker}</span>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><DynamicIcon name="Mic2" size={12} /> {topic.speaker}</span>
             {topic.role && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>· {topic.role}</span>}
-            {topic.duration !== '—' && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>⏱ {topic.duration}</span>}
+            {topic.duration !== '—' && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><DynamicIcon name="Timer" size={12} /> {topic.duration}</span>}
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: 0, lineHeight: 1.65 }}>{topic.summary}</p>
         </div>
@@ -165,7 +160,6 @@ function TopicCard({ topic, index, color }) {
   );
 }
 
-// ── Acknowledgement Card ──
 function AckCard({ ack, color }) {
   const [hovered, setHovered] = useState(false);
   const rgb = hexToRgb(color);
@@ -182,8 +176,8 @@ function AckCard({ ack, color }) {
         boxShadow: hovered ? `0 8px 24px rgba(${rgb},0.12)` : '',
       }}
     >
-      <div style={{ fontFamily: 'Orbitron,monospace', fontSize: '0.82rem', fontWeight: 700, color, marginBottom: '3px' }}>
-        🙏 {ack.name}
+      <div style={{ fontFamily: 'Orbitron,monospace', fontSize: '0.82rem', fontWeight: 700, color, marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <DynamicIcon name="Heart" size={12} /> {ack.name}
       </div>
       <div style={{ fontSize: '0.72rem', color, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>
         {ack.title}
@@ -193,7 +187,6 @@ function AckCard({ ack, color }) {
   );
 }
 
-// ── Media Button ──
 function MediaBtn({ href, icon, label, color }) {
   const [hovered, setHovered] = useState(false);
   const rgb = hexToRgb(color);
@@ -204,7 +197,7 @@ function MediaBtn({ href, icon, label, color }) {
         borderRadius: '12px', padding: '20px 28px', color: 'var(--text-muted)',
         textAlign: 'center', flex: 1, minWidth: '140px',
       }}>
-        <div style={{ fontSize: '1.8rem', marginBottom: '6px' }}>{icon}</div>
+        <div style={{ marginBottom: '6px', display: 'flex', justifyContent: 'center' }}><DynamicIcon name={icon} size={32} /></div>
         <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '3px' }}>{label}</div>
         <div style={{ fontSize: '0.72rem' }}>Coming soon</div>
       </div>
@@ -226,13 +219,12 @@ function MediaBtn({ href, icon, label, color }) {
         boxShadow: hovered ? `0 16px 40px rgba(${rgb},0.25)` : '',
       }}
     >
-      <div style={{ fontSize: '2rem', transition: 'transform 0.3s', transform: hovered ? 'scale(1.2) rotate(-5deg)' : '' }}>{icon}</div>
+      <div style={{ transition: 'transform 0.3s', transform: hovered ? 'scale(1.2) rotate(-5deg)' : '', display: 'flex' }}><DynamicIcon name={icon} size={32} /></div>
       <div style={{ fontFamily: 'Rajdhani,sans-serif', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</div>
     </a>
   );
 }
 
-// ════════════════════════════════════════
 export default function EventDetailPage({ event, activityColor, activityIcon, onBack }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { window.scrollTo({ top: 0 }); setTimeout(() => setMounted(true), 60); }, []);
@@ -243,14 +235,14 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '100px' }}>
 
-      {/* ── Hero ── */}
+      
       <div style={{
         position: 'relative', overflow: 'hidden',
         background: `linear-gradient(160deg, rgba(${rgb},0.12) 0%, rgba(${rgb},0.03) 50%, transparent 100%)`,
         borderBottom: `1px solid rgba(${rgb},0.2)`,
         padding: '60px 0 52px',
       }}>
-        {/* Grid bg */}
+        
         <div style={{
           position: 'absolute', inset: 0, zIndex: 0,
           backgroundImage: `linear-gradient(rgba(${rgb},0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(${rgb},0.05) 1px, transparent 1px)`,
@@ -281,7 +273,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
             transform: mounted ? 'translateY(0)' : 'translateY(36px)',
             transition: 'all 0.8s cubic-bezier(0.22,1,0.36,1)',
           }}>
-            {/* Badge */}
+            
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`,
@@ -313,17 +305,18 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
             )}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '28px', marginTop: '12px' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>📅 {event.date}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>📍 GL Bajaj Group of Institutions, Mathura</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}><DynamicIcon name="Calendar" size={14} /> {event.date}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}><DynamicIcon name="MapPin" size={14} /> GL Bajaj Group of Institutions, Mathura</span>
               <span style={{
                 fontSize: '0.72rem', padding: '3px 12px', borderRadius: '20px',
                 background: 'rgba(34,197,94,0.12)', color: '#22c55e',
                 border: '1px solid rgba(34,197,94,0.3)', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.05em',
-              }}>✅ Completed</span>
+                display: 'flex', alignItems: 'center', gap: '4px'
+              }}><DynamicIcon name="CheckCircle" size={12} /> Completed</span>
             </div>
 
-            {/* Stats */}
+            
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {event.stats?.map(s => <StatCard key={s.label} label={s.label} value={s.value} color={color} />)}
             </div>
@@ -331,13 +324,13 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
         </div>
       </div>
 
-      {/* ── Content ── */}
+      
       <div className="container" style={{ paddingTop: '52px' }}>
         <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '48px' }}>
 
-          {/* Overview */}
+          
           <section>
-            <SectionHeader icon="📋" title="Session Overview" color={color} />
+            <SectionHeader icon="ClipboardList" title="Session Overview" color={color} />
             <div style={{
               background: 'var(--bg-card)', borderLeft: `3px solid ${color}`,
               borderRadius: '0 12px 12px 0', padding: '28px 32px',
@@ -355,67 +348,67 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
             </div>
           </section>
 
-          {/* Presenters */}
+          
           <section>
-            <SectionHeader icon="🎤" title="Presenters" color={color} />
+            <SectionHeader icon="Mic2" title="Presenters" color={color} />
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {event.topics?.map((t, i) => (
-                <PersonChip key={i} name={t.speaker} role="Presenter" color={color} emoji="👨‍💻" />
+                <PersonChip key={i} name={t.speaker} role="Presenter" color={color} icon="Code2" />
               ))}
             </div>
           </section>
 
-          {/* Topics */}
+          
           <section>
-            <SectionHeader icon="🎯" title="Topics Covered" color={color} />
+            <SectionHeader icon="Target" title="Topics Covered" color={color} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {event.topics?.map((t, i) => <TopicCard key={i} topic={t} index={i} color={color} />)}
             </div>
           </section>
 
-          {/* Video Presentors & Anchor */}
+          
           {(event.videoPresenter?.length > 0 || event.anchor) && (
             <section>
-              <SectionHeader icon="🎬" title="Video Presentors & Anchor" color={color} />
+              <SectionHeader icon="Clapperboard" title="Video Presentors & Anchor" color={color} />
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {event.videoPresenter?.map((p, i) => (
-                  <PersonChip key={i} name={p.name} role={p.role} color={color} emoji="🎥" />
+                  <PersonChip key={i} name={p.name} role={p.role} color={color} icon="Video" />
                 ))}
                 {event.anchor && (
-                  <PersonChip name={event.anchor.name} role={event.anchor.role} color={color} emoji="🎤" />
+                  <PersonChip name={event.anchor.name} role={event.anchor.role} color={color} icon="Mic2" />
                 )}
               </div>
             </section>
           )}
 
-          {/* Volunteers */}
+          
           {event.volunteers?.length > 0 && (
             <section>
-              <SectionHeader icon="⚡" title="Volunteers — The Unsung Heroes" color={color} />
+              <SectionHeader icon="Zap" title="Volunteers — The Unsung Heroes" color={color} />
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {event.volunteers.map((v, i) => (
-                  <PersonChip key={i} name={v.name} role="Volunteer" color={color} emoji="⚡" />
+                  <PersonChip key={i} name={v.name} role="Volunteer" color={color} icon="Zap" />
                 ))}
               </div>
             </section>
           )}
 
-          {/* Acknowledgements */}
+          
           {event.acknowledgements?.length > 0 && (
             <section>
-              <SectionHeader icon="🙏" title="Special Thanks" color={color} />
+              <SectionHeader icon="Heart" title="Special Thanks" color={color} />
               <div style={{ display: 'grid', gap: '14px', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
                 {event.acknowledgements.map((a, i) => <AckCard key={i} ack={a} color={color} />)}
               </div>
             </section>
           )}
 
-          {/* Photos & Videos */}
+          
           <section>
-            <SectionHeader icon="📸" title="Photos & Videos" color={color} />
+            <SectionHeader icon="Camera" title="Photos & Videos" color={color} />
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <MediaBtn href={event.photoLink} icon="📷" label="View Photos" color={color} />
-              <MediaBtn href={event.videoLink} icon="🎥" label="Watch Recording" color={color} />
+              <MediaBtn href={event.photoLink} icon="Camera" label="View Photos" color={color} />
+              <MediaBtn href={event.videoLink} icon="Video" label="Watch Recording" color={color} />
             </div>
             {!event.photoLink && !event.videoLink && (
               <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '12px', fontStyle: 'italic' }}>
@@ -424,7 +417,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
             )}
           </section>
 
-          {/* Closing Note */}
+          
           {event.closingNote && (
             <section>
               <div style={{
@@ -438,7 +431,7 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   backgroundImage: `radial-gradient(rgba(${rgb},0.08) 1px, transparent 1px)`,
                   backgroundSize: '20px 20px', pointerEvents: 'none',
                 }} />
-                <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🚀</div>
+                <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'center' }}><DynamicIcon name="Rocket" size={32} /></div>
                 <p style={{
                   fontFamily: 'Rajdhani,sans-serif', fontSize: '1.1rem', fontWeight: 600,
                   color: 'var(--text-primary)', lineHeight: 1.7, margin: '0 0 16px',
@@ -447,13 +440,13 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
                   {event.closingNote}
                 </p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, fontStyle: 'italic' }}>
-                  Stay tuned. Stay curious. The best is yet to come. 💥
+                  Stay tuned. Stay curious. The best is yet to come. <DynamicIcon name="Star" size={12} style={{ verticalAlign: 'middle' }} />
                 </p>
               </div>
             </section>
           )}
 
-          {/* Hashtags */}
+          
           {event.hashtags?.length > 0 && (
             <section>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -481,3 +474,4 @@ export default function EventDetailPage({ event, activityColor, activityIcon, on
     </div>
   );
 }
+

@@ -32,8 +32,15 @@ create index if not exists idx_activity_events_key_created on activity_events (a
 create table if not exists core_team_members (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  role text not null,
+  year text not null,
+  branch text not null,
+  section text not null,
   email text not null,
-  phone text not null,
+  whatsapp text not null,
+  linkedin text,
+  instagram text,
+  photo_url text,
   created_at timestamptz not null default now()
 );
 

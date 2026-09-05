@@ -1,0 +1,97 @@
+/* EventsSection.css */
+/* Minimal styles here, standard timeline is handled in components.css */
+
+.timeline-card.clickable {
+  cursor: none !important;
+}
+
+.timeline-card.clickable:hover {
+  border-color: rgba(204, 17, 17, 0.45);
+  box-shadow: 0 8px 32px rgba(204, 17, 17, 0.15);
+  transform: translateY(-4px) scale(1.02) !important;
+}
+
+.timeline-event-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.timeline-event-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--t1);
+}
+
+.timeline-event-name.kss {
+  color: var(--c1);
+}
+
+.view-details-badge {
+  margin-left: auto;
+  font-size: 0.6rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--c1a);
+  color: var(--c1);
+  border: 1px solid var(--c1b);
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+  animation: pulse 2s infinite;
+}
+
+.timeline-event-date {
+  font-size: 0.8rem;
+  color: var(--t3);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timeline-event-desc {
+  font-size: 0.88rem;
+  color: var(--t2);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.timeline-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-badge {
+  font-size: 0.65rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tag-badge {
+  font-size: 0.62rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--t3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+.timeline-placeholder {
+  text-align: center;
+  width: 100% !important;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+[data-theme="light"] .tag-badge {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}

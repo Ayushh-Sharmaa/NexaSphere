@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-// ── Animated Counter ──
 function Counter({ value, suffix = '' }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -31,7 +30,6 @@ function Counter({ value, suffix = '' }) {
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-// ── Glitch Text Effect ──
 function GlitchText({ text, color }) {
   return (
     <span style={{ position: 'relative', display: 'inline-block' }}
@@ -69,7 +67,6 @@ function GlitchText({ text, color }) {
   );
 }
 
-// ── Floating Orbs Background ──
 function FloatingOrbs({ color }) {
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
@@ -90,7 +87,6 @@ function FloatingOrbs({ color }) {
   );
 }
 
-// ── Scan Line Effect ──
 function ScanLine() {
   return (
     <>
@@ -110,7 +106,6 @@ function ScanLine() {
   );
 }
 
-// ── Event Card ──
 function EventCard({ event, activityColor, onSelect, onDelete }) {
   const [hovered, setHovered] = useState(false);
 
@@ -134,7 +129,7 @@ function EventCard({ event, activityColor, onSelect, onDelete }) {
         overflow: 'hidden',
       }}
     >
-      {/* Shimmer on hover */}
+      
       {hovered && (
         <div style={{
           position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%',
@@ -205,7 +200,6 @@ function EventCard({ event, activityColor, onSelect, onDelete }) {
   );
 }
 
-// ── Upcoming Card ──
 function UpcomingCard({ event, color }) {
   return (
     <div style={{
@@ -237,7 +231,6 @@ function UpcomingCard({ event, color }) {
   );
 }
 
-// hex to rgb helper
 function hexToRgb(hex) {
   const r = parseInt(hex.slice(1,3),16);
   const g = parseInt(hex.slice(3,5),16);
@@ -245,7 +238,6 @@ function hexToRgb(hex) {
   return `${r},${g},${b}`;
 }
 
-// ════════════════════════════════════════
 export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) {
   const [mounted, setMounted] = useState(false);
   const [manualEvents, setManualEvents] = useState([]);
@@ -336,7 +328,7 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '100px', overflow: 'hidden' }}>
 
-      {/* ── Hero Banner ── */}
+      
       <div style={{
         position: 'relative',
         background: `linear-gradient(180deg, rgba(${rgb},0.10) 0%, rgba(${rgb},0.03) 60%, transparent 100%)`,
@@ -348,7 +340,7 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
         <ScanLine />
 
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          {/* Back */}
+          
           <button
             onClick={onBack}
             style={{
@@ -364,7 +356,7 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
             ← Back to Activities
           </button>
 
-          {/* Icon + Title */}
+          
           <div style={{
             opacity: mounted ? 1 : 0,
             transform: mounted ? 'translateY(0)' : 'translateY(30px)',
@@ -411,10 +403,10 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
         </div>
       </div>
 
-      {/* ── Content ── */}
+      
       <div className="container" style={{ paddingTop: '56px' }}>
 
-        {/* Conducted Events */}
+        
         {((activity.conductedEvents && activity.conductedEvents.length > 0) || manualEvents.length > 0) && (
           <div style={{ marginBottom: '56px' }}>
             <h2 style={{
@@ -448,7 +440,7 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
           </div>
         )}
 
-        {/* Upcoming Events */}
+        
         {activity.upcomingEvents && activity.upcomingEvents.length > 0 && (
           <div style={{ maxWidth: '760px' }}>
             <h2 style={{
@@ -471,7 +463,7 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
           </div>
         )}
 
-        {/* Empty state */}
+        
         {(!activity.conductedEvents || activity.conductedEvents.length === 0) &&
          (!manualEvents || manualEvents.length === 0) &&
          (!activity.upcomingEvents || activity.upcomingEvents.length === 0) && (
@@ -484,3 +476,4 @@ export default function ActivityDetailPage({ activity, onBack, onSelectEvent }) 
     </div>
   );
 }
+

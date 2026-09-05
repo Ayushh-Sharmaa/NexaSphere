@@ -64,7 +64,7 @@ export default function TeamSection({ onApply }) {
       entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('fired');obs.unobserve(e.target);}});
     },{threshold:0, rootMargin:'0px 0px -10px 0px'});
     elements.forEach(el=>obs.observe(el));
-    // Fallback: if already scrolled into view, fire immediately
+    
     const fallback = setTimeout(() => {
       elements.forEach(el => {
         const rect = el.getBoundingClientRect();
@@ -87,7 +87,7 @@ export default function TeamSection({ onApply }) {
           {teamMembers.map((m,i)=><MemberCard key={m.id} member={m} idx={i} onClick={setSel}/>)}
         </div>
 
-        {/* Join core team CTA */}
+        
         <div className="ns-reveal-scale" style={{
           textAlign:'center',marginTop:'56px',padding:'28px',
           background:'var(--card)',border:'1px solid var(--bdr)',
@@ -117,3 +117,4 @@ export default function TeamSection({ onApply }) {
     </section>
   );
 }
+
