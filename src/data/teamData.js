@@ -109,8 +109,7 @@ export const teamMembers = [
     section: 'F',
     photo: aryaImg,
     linkedin: null,
-    email:   null
-      'kaushikarya87@gmail.com',
+    email: 'kaushikarya87@gmail.com',
     whatsapp: null,
     instagram: null,
   },
