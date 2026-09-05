@@ -7,6 +7,8 @@ import { DashboardHome } from './pages/DashboardHome';
 import { EventsManager } from './pages/EventsManager';
 import { ActivityEventsManager } from './pages/ActivityEventsManager';
 import { CoreTeamManager } from './pages/CoreTeamManager';
+import { MembershipApplicationsManager } from './pages/MembershipApplicationsManager';
+import { CoreTeamApplicationsManager } from './pages/CoreTeamApplicationsManager';
 import './styles/admin.css';
 
 function RequireAuth() {
@@ -36,6 +38,8 @@ export default function App() {
             <Route path="/dashboard/events" element={<EventsManager />} />
             <Route path="/dashboard/activity-events" element={<ActivityEventsManager />} />
             <Route path="/dashboard/core-team" element={<CoreTeamManager />} />
+            <Route path="/dashboard/membership-apps" element={<MembershipApplicationsManager />} />
+            <Route path="/dashboard/coreteam-apps" element={<CoreTeamApplicationsManager />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to={auth.isAuthenticated() ? '/dashboard' : '/login'} replace />} />

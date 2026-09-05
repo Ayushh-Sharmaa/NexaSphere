@@ -29,4 +29,7 @@ export const EVENTS = {
   CORE_TEAM_MEMBER_REMOVED: 'core-team:removed',
   AUTH_TOKEN_EXPIRED: 'auth:token-expired',
   NOTIFY: 'notify',
+  // Application management
+  MEMBERSHIP_APP_STATUS_CHANGED: 'membership-app:status-changed',
+  CORETEAM_APP_STATUS_CHANGED: 'coreteam-app:status-changed',
 };

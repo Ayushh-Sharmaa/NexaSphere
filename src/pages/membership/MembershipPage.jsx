@@ -30,6 +30,19 @@ const GROUP_OPTIONS    = [
 
 const MEMBERSHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRQOW3Xjv13vXvft8ezD9sJdvjV3kf-VHm1l_mImHRDUAEqsilK0wb5QBD5GOkixwe/exec';
 
+// Helper: store a copy locally so admin dashboard can see applications
+function storeMembershipLocally(payload) {
+  try {
+    const key = 'ns_db_membership_apps';
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    const dup = existing.find(a => a.whatsapp === payload.whatsapp);
+    if (!dup) {
+      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
+      localStorage.setItem(key, JSON.stringify([record, ...existing]));
+    }
+  } catch { /* ignore */ }
+}
+
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
 function Field({ label, required, hint, children }) {
@@ -309,6 +322,9 @@ export default function MembershipPage({ onBack }) {
       if (!res.ok || (data && data.ok === false)) {
         throw new Error(data?.error || 'Membership form submission failed');
       }
+
+      // Dual-write: store locally for admin dashboard
+      storeMembershipLocally(payload);
 
       
       try {

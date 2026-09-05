@@ -9,49 +9,57 @@ export function DashboardHome() {
 
   useEffect(() => {
     Promise.all([
-      api.events.getAll().catch(() => []),
-      api.coreTeam.getAll().catch(() => []),
-    ]).then(([events, team]) => {
+      api.events.getAll().catch(() => ({ events: [] })),
+      api.coreTeam.getAll().catch(() => ({ members: [] })),
+      api.membershipApps.getAll().catch(() => ({ apps: [] })),
+      api.coreTeamApps.getAll().catch(() => ({ apps: [] })),
+    ]).then(([eventsData, teamData, memberApps, coreApps]) => {
+      const events = eventsData?.events || eventsData || [];
+      const team = teamData?.members || teamData || [];
+      const mApps = memberApps?.apps || [];
+      const cApps = coreApps?.apps || [];
       setStats({
         totalEvents: events.length,
         upcomingEvents: events.filter(e => e.status === 'upcoming').length,
         teamMembers: team.length,
+        memberPending: mApps.filter(a => a.status === 'pending').length,
+        memberTotal: mApps.length,
+        coreTeamPending: cApps.filter(a => a.status === 'pending').length,
+        coreTeamTotal: cApps.length,
       });
       setLoading(false);
     });
   }, []);
+
+  const statCard = (icon, value, label, sub, color) => (
+    <div className="stat-card">
+      <span className="stat-icon" style={color ? { color } : {}}>
+        <AdminIcon name={icon} size={28} />
+      </span>
+      <div>
+        <div className="stat-value">{value}</div>
+        <div className="stat-label">{label}</div>
+        {sub && <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 2 }}>{sub}</div>}
+      </div>
+    </div>
+  );
 
   return (
     <div className="page">
       <h2 className="page-title">Dashboard</h2>
       {loading ? (
         <div className="stats-grid">
-          <Skeleton height={100} count={3} />
+          <Skeleton height={100} count={5} />
         </div>
       ) : (
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-icon"><AdminIcon name="Calendar" size={28} /></span>
-            <div>
-              <div className="stat-value">{stats.totalEvents}</div>
-              <div className="stat-label">Total Events</div>
-            </div>
+        <>
+          <div className="stats-grid">
+            {statCard('Calendar', stats.totalEvents, 'Total Events', `${stats.upcomingEvents} upcoming`)}
+            {statCard('Users', stats.teamMembers, 'Core Team Members')}
+            {statCard('UserPlus', stats.memberTotal, 'Membership Apps', `${stats.memberPending} pending review`, stats.memberPending > 0 ? '#ffb400' : undefined)}
+            {statCard('ClipboardList', stats.coreTeamTotal, 'Core Team Apps', `${stats.coreTeamPending} pending review`, stats.coreTeamPending > 0 ? '#ffb400' : undefined)}
           </div>
-          <div className="stat-card">
-            <span className="stat-icon"><AdminIcon name="Clock" size={28} /></span>
-            <div>
-              <div className="stat-value">{stats.upcomingEvents}</div>
-              <div className="stat-label">Upcoming Events</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon"><AdminIcon name="Users" size={28} /></span>
-            <div>
-              <div className="stat-value">{stats.teamMembers}</div>
-              <div className="stat-label">Core Team Members</div>
-            </div>
-          </div>
-        </div>
+        </>
       )}
       <div className="quick-links">
         <h3>Quick Actions</h3>
@@ -59,6 +67,8 @@ export function DashboardHome() {
           <a href="/dashboard/events" className="quick-card"><AdminIcon name="Calendar" size={18} /> Manage Events</a>
           <a href="/dashboard/activity-events" className="quick-card"><AdminIcon name="Target" size={18} /> Activity Events</a>
           <a href="/dashboard/core-team" className="quick-card"><AdminIcon name="Users" size={18} /> Core Team</a>
+          <a href="/dashboard/membership-apps" className="quick-card"><AdminIcon name="UserPlus" size={18} /> Membership Apps</a>
+          <a href="/dashboard/coreteam-apps" className="quick-card"><AdminIcon name="ClipboardList" size={18} /> Core Team Apps</a>
         </div>
       </div>
     </div>

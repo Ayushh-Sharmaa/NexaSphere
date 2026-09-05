@@ -1,8 +1,12 @@
 import React from 'react';
 import {
   ArrowUp, ArrowRight, ArrowLeft, Activity, Code2, Lightbulb, Code, BarChart3, Brain, Wrench,
-  ChevronRight, Flame, Crown, Mail, MapPin, Phone, Users, Calendar, BookOpen,
-  Target, Zap, Cpu, Share2, Home, Settings, Menu, X, Search, AlertCircle, CheckCircle
+  ChevronRight, ChevronDown, Flame, Crown, Mail, MapPin, Phone, Users, Calendar, Clock, BookOpen,
+  Target, Zap, Cpu, Share2, Home, Settings, Menu, X, Search, AlertCircle, CheckCircle, Check,
+  Trophy, Terminal, Sparkles, GitBranch, GitPullRequest, MessageSquare, MessageCircle,
+  GraduationCap, Camera, Video, UserCheck, UserX, Ban, Pin, ExternalLink, Plus, Trash2,
+  Edit3, Filter, Download, Eye, FileText, Layers, Send, Award, Shield, ShieldCheck, Rocket,
+  Star, Heart, Info, Lock, Unlock, LogOut, LogIn, RefreshCw, HelpCircle
 } from 'lucide-react';
 
 function baseProps(props) {
@@ -75,44 +79,124 @@ export function IconBolt(props) {
 
 // Lucide icon map for dynamic icon rendering
 export const ICON_MAP = {
-  ArrowUp,
-  ArrowRight,
-  ArrowLeft,
-  Activity,
-  Code2,
-  Lightbulb,
-  Code,
-  BarChart3,
-  Brain,
-  Wrench,
-  ChevronRight,
-  Flame,
-  Crown,
-  Mail,
-  MapPin,
-  Phone,
-  Users,
-  Calendar,
-  BookOpen,
-  Target,
-  Zap,
-  Cpu,
-  Share2,
-  Home,
-  Settings,
-  Menu,
-  X,
-  Search,
-  AlertCircle,
-  CheckCircle,
+  ArrowUp, ArrowRight, ArrowLeft, Activity, Code2, Lightbulb, Code, BarChart3, Brain, Wrench,
+  ChevronRight, ChevronDown, Flame, Crown, Mail, MapPin, Phone, Users, Calendar, Clock, BookOpen,
+  Target, Zap, Cpu, Share2, Home, Settings, Menu, X, Search, AlertCircle, CheckCircle, Check,
+  Trophy, Terminal, Sparkles, GitBranch, GitPullRequest, MessageSquare, MessageCircle,
+  GraduationCap, Camera, Video, UserCheck, UserX, Ban, Pin, ExternalLink, Plus, Trash2,
+  Edit3, Filter, Download, Eye, FileText, Layers, Send, Award, Shield, ShieldCheck, Rocket,
+  Star, Heart, Info, Lock, Unlock, LogOut, LogIn, RefreshCw, HelpCircle,
 };
 
-// Dynamic icon component wrapper
-export function DynamicIcon({ name, size = 24, ...props }) {
-  const IconComponent = ICON_MAP[name];
+// Aliases and emoji-to-icon mapping
+export const EMOJI_ICON_ALIAS = {
+  '🧠': 'Brain',
+  'brain': 'Brain',
+  '🔧': 'Wrench',
+  'wrench': 'Wrench',
+  '🏆': 'Trophy',
+  'trophy': 'Trophy',
+  '💻': 'Terminal',
+  'terminal': 'Terminal',
+  'code': 'Code2',
+  '💡': 'Lightbulb',
+  'lightbulb': 'Lightbulb',
+  '✨': 'Sparkles',
+  'sparkles': 'Sparkles',
+  'ai': 'Sparkles',
+  '🌿': 'GitBranch',
+  'git': 'GitBranch',
+  'github': 'GitBranch',
+  '🗣️': 'MessageSquare',
+  'debate': 'MessageSquare',
+  'chat': 'MessageCircle',
+  '🎓': 'GraduationCap',
+  'faculty': 'GraduationCap',
+  'camera': 'Camera',
+  '📷': 'Camera',
+  'video': 'Video',
+  '🎥': 'Video',
+  '📌': 'Pin',
+  'pin': 'Pin',
+  'rocket': 'Rocket',
+  '🚀': 'Rocket',
+  'star': 'Star',
+  '⭐': 'Star',
+  'user-check': 'UserCheck',
+  'user-x': 'UserX',
+  'ban': 'Ban',
+  'calendar': 'Calendar',
+  '📅': 'Calendar',
+  'time': 'Clock',
+  '⏰': 'Clock',
+  'location': 'MapPin',
+  '📍': 'MapPin',
+  'email': 'Mail',
+  '✉️': 'Mail',
+  'phone': 'Phone',
+  '📞': 'Phone',
+};
+
+// Dynamic icon component wrapper that handles icon names, emojis, and words
+export function DynamicIcon({ name, size = 20, color, style, className, ...props }) {
+  if (!name) return <Sparkles size={size} color={color} style={style} className={className} {...props} />;
+
+  const cleanName = String(name).trim();
+  const alias = EMOJI_ICON_ALIAS[cleanName] || EMOJI_ICON_ALIAS[cleanName.toLowerCase()];
+  const resolvedKey = alias || cleanName;
+
+  // Exact match or case-insensitive search
+  let IconComponent = ICON_MAP[resolvedKey];
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in ICON_MAP`);
-    return null;
+    const foundKey = Object.keys(ICON_MAP).find(k => k.toLowerCase() === resolvedKey.toLowerCase());
+    if (foundKey) IconComponent = ICON_MAP[foundKey];
   }
-  return <IconComponent size={size} {...props} />;
+
+  if (!IconComponent) {
+    // Graceful fallback to Lucide Sparkles or Activity
+    IconComponent = Sparkles;
+  }
+
+  return (
+    <IconComponent
+      size={size}
+      color={color}
+      style={{ display: 'inline-block', verticalAlign: '-3px', ...style }}
+      className={className}
+      {...props}
+    />
+  );
 }
+
+// Icon shortcut exports
+export {
+  Brain as IconBrain,
+  Wrench as IconWrench,
+  Trophy as IconTrophy,
+  Terminal as IconTerminal,
+  Lightbulb as IconLightbulb,
+  Sparkles as IconSparkles,
+  GitBranch as IconGitBranch,
+  MessageSquare as IconMessageSquare,
+  GraduationCap as IconGraduationCap,
+  Camera as IconCamera,
+  Video as IconVideo,
+  UserCheck as IconUserCheck,
+  UserX as IconUserX,
+  Ban as IconBan,
+  Calendar as IconCalendar,
+  Clock as IconClock,
+  MapPin as IconMapPin,
+  ExternalLink as IconExternalLink,
+  Search as IconSearch,
+  Check as IconCheck,
+  Download as IconDownload,
+  Eye as IconEye,
+  Trash2 as IconTrash,
+  Edit3 as IconEdit,
+  Plus as IconPlus,
+  Filter as IconFilter,
+  Lock as IconLock,
+  LogOut as IconLogOut,
+  RefreshCw as IconRefresh
+};

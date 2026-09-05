@@ -92,10 +92,26 @@ export function ActivityEventsManager() {
               <div className="list-item-left">
                 <div>
                   <div className="item-name">{event.name}</div>
+                  {event.topic && (
+                    <div className="item-meta" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <AdminIcon name="BookOpen" size={12} /> {event.topic}
+                    </div>
+                  )}
+                  {event.presenter && (
+                    <div className="item-meta" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <AdminIcon name="Mic" size={12} /> {event.presenter}
+                    </div>
+                  )}
                   <div className="item-meta">
                     {event.date && `${event.date}`}
                     {event.participants && ` · ${event.participants} participants`}
+                    {event.result && ` · ${event.result}`}
                   </div>
+                  {event.overview && (
+                    <div className="item-meta" style={{ marginTop: 4, fontStyle: 'italic', maxWidth: 500 }}>
+                      {event.overview.length > 120 ? event.overview.slice(0, 120) + '...' : event.overview}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="list-item-right">

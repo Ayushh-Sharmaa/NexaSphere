@@ -213,6 +213,19 @@ const WHATSAPP_COMMUNITY = 'https://chat.whatsapp.com/FhpJEaod2g419jFMfqrhGZ';
 const LINKEDIN_PAGE      = 'https://www.linkedin.com/showcase/glbajaj-nexasphere/';
 const RECRUITMENT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo1g6WNiO-f8kySE4Mqbdlh3VxZx9pRGLcjt7qyzRCNB1TMK0kRwjZbDD2UsaJFQ0q/exec';
 
+// Helper: store a copy locally so admin dashboard can see applications
+function storeRecruitmentLocally(payload) {
+  try {
+    const key = 'ns_db_coreteam_apps';
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    const dup = existing.find(a => a.collegeEmail === payload.collegeEmail);
+    if (!dup) {
+      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
+      localStorage.setItem(key, JSON.stringify([record, ...existing]));
+    }
+  } catch { /* ignore */ }
+}
+
 const ROLE_OPTIONS = [
   'Technical Lead',
   'Domain Lead',
@@ -957,6 +970,7 @@ export default function RecruitmentPage({ onBack }) {
         declarationSelected: Object.entries(form.declarations || {}).filter(([,v])=>!!v).map(([k])=>k).join(', '),
         submittedAt: new Date().toISOString(),
         userAgent: navigator.userAgent,
+        formType: 'coreteam',
       };
 
       
@@ -969,6 +983,9 @@ export default function RecruitmentPage({ onBack }) {
           return;
         }
       } catch { /* ignore */ }
+
+      // Dual-write: store locally for admin dashboard
+      storeRecruitmentLocally(payload);
 
       const res = await fetch(RECRUITMENT_SCRIPT_URL, {
         method: 'POST',

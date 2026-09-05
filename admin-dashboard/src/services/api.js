@@ -34,6 +34,19 @@ const getDb = (key, defaultVal) => {
 };
 const setDb = (key, val) => localStorage.setItem(`ns_db_${key}`, JSON.stringify(val));
 
+// Public helper for user-facing forms to store applications into the admin db
+export function storeApplicationLocally(type, application) {
+  try {
+    const key = type === 'membership' ? 'membership_apps' : 'coreteam_apps';
+    const apps = getDb(key, []);
+    const exists = apps.find(a => a.submittedAt === application.submittedAt && a.whatsapp === application.whatsapp);
+    if (!exists) {
+      const newApp = { ...application, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
+      setDb(key, [newApp, ...apps]);
+    }
+  } catch { /* ignore */ }
+}
+
 async function fetchWithAuth(url, options = {}) {
   // If we are using the mock token (offline mode), bypass fetch entirely
   const isOffline = auth.getToken() === 'mock-jwt-token-for-nexasphere-admin';
@@ -133,6 +146,39 @@ async function fetchWithAuth(url, options = {}) {
           resolve({ success: true });
         }
       }
+      // /api/admin/membership-apps
+      else if (url.startsWith('/api/admin/membership-apps')) {
+        let apps = getDb('membership_apps', []);
+        const id = url.split('/').pop();
+        if (method === 'GET') resolve({ apps });
+        if (method === 'PUT') {
+          apps = apps.map(a => a.id === id ? { ...a, status: body.status, statusUpdatedAt: new Date().toISOString() } : a);
+          setDb('membership_apps', apps);
+          resolve(apps.find(a => a.id === id));
+        }
+        if (method === 'DELETE') {
+          apps = apps.filter(a => a.id !== id);
+          setDb('membership_apps', apps);
+          resolve({ success: true });
+        }
+      }
+
+      // /api/admin/coreteam-apps
+      else if (url.startsWith('/api/admin/coreteam-apps')) {
+        let apps = getDb('coreteam_apps', []);
+        const id = url.split('/').pop();
+        if (method === 'GET') resolve({ apps });
+        if (method === 'PUT') {
+          apps = apps.map(a => a.id === id ? { ...a, status: body.status, statusUpdatedAt: new Date().toISOString() } : a);
+          setDb('coreteam_apps', apps);
+          resolve(apps.find(a => a.id === id));
+        }
+        if (method === 'DELETE') {
+          apps = apps.filter(a => a.id !== id);
+          setDb('coreteam_apps', apps);
+          resolve({ success: true });
+        }
+      }
     }, 300); // simulate slight network delay
   });
 }
@@ -188,4 +234,35 @@ export const api = {
       eventEmitter.emit(EVENTS.NOTIFY, { type: 'success', message: 'Member removed' });
     },
   },
+
+  membershipApps: {
+    getAll: () => fetchWithAuth('/api/admin/membership-apps'),
+    updateStatus: async (id, status) => {
+      const result = await fetchWithAuth(`/api/admin/membership-apps/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+      eventEmitter.emit(EVENTS.MEMBERSHIP_APP_STATUS_CHANGED, { id, status });
+      const labels = { accepted: 'Accepted', rejected: 'Rejected', blacklisted: 'Blacklisted', pending: 'Reset to pending' };
+      eventEmitter.emit(EVENTS.NOTIFY, { type: status === 'accepted' ? 'success' : 'info', message: `Application ${labels[status] || status}` });
+      return result;
+    },
+    delete: async (id) => {
+      await fetchWithAuth(`/api/admin/membership-apps/${id}`, { method: 'DELETE' });
+      eventEmitter.emit(EVENTS.NOTIFY, { type: 'success', message: 'Application removed' });
+    },
+  },
+
+  coreTeamApps: {
+    getAll: () => fetchWithAuth('/api/admin/coreteam-apps'),
+    updateStatus: async (id, status) => {
+      const result = await fetchWithAuth(`/api/admin/coreteam-apps/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+      eventEmitter.emit(EVENTS.CORETEAM_APP_STATUS_CHANGED, { id, status });
+      const labels = { accepted: 'Accepted', rejected: 'Rejected', blacklisted: 'Blacklisted', pending: 'Reset to pending' };
+      eventEmitter.emit(EVENTS.NOTIFY, { type: status === 'accepted' ? 'success' : 'info', message: `Application ${labels[status] || status}` });
+      return result;
+    },
+    delete: async (id) => {
+      await fetchWithAuth(`/api/admin/coreteam-apps/${id}`, { method: 'DELETE' });
+      eventEmitter.emit(EVENTS.NOTIFY, { type: 'success', message: 'Application removed' });
+    },
+  },
 };
+
