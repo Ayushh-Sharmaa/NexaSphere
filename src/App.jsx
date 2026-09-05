@@ -419,6 +419,7 @@ export default function App() {
              {page.section === 'Team' && <TeamPage onBack={onBackHome} onApply={openApply}/>}
              {page.section === 'Contact' && <ContactPage onBack={onBackHome}/>}
              {page.type === 'activity' && cur && <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>}
+             {page.type === 'event' && <EventDetailPage event={page.event} onBack={onBackMain}/>}
              {page.type === 'apply' && <RecruitmentPage onBack={onBackHome}/>}
              {page.type === 'join' && <MembershipPage onBack={onBackHome}/>}
              {/* 404 fallback for unknown page types */}
