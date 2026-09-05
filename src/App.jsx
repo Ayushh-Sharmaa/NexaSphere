@@ -197,7 +197,9 @@ function Cursor() {
 
 export default function App() {
   // Skip intro for returning visitors; set flag on first completion
-  const [cinDone,  setCinDone]  = useState(() => !!localStorage.getItem('ns_intro_seen'));
+  const [cinDone,  setCinDone]  = useState(() => {
+    try { return Boolean(localStorage.getItem('ns_intro_seen')); } catch { return true; }
+  });
   const [activeTab,setActiveTab]= useState('Home');
   const [mobile,   setMobile]   = useState(window.innerWidth<=768);
   const [wipeOn,   setWipeOn]   = useState(false);
@@ -396,18 +398,18 @@ export default function App() {
       <Chatbot /> 
 
       {!cinDone && <CinematicOpening theme={theme} onDone={() => {
-        localStorage.setItem('ns_intro_seen', '1');
+        try { localStorage.setItem('ns_intro_seen', '1'); } catch {}
         setCinDone(true);
       }}/>}
 
-      {cinDone && <ScrollProgress />}
+      <ScrollProgress />
       <Cursor/>
       <Wipe on={wipeOn} ph={wipePh}/>
 
-      {cinDone && <AmbientOrbs theme={theme}/>}
-      {cinDone && <GeometricGridBackground theme={theme} />}
-      {cinDone && <ParticleBackground theme={theme}/>}
-      {cinDone && <Navbar activeTab={activeTab} onTabChange={onTab} onToggleTheme={toggleTheme} theme={theme} onApply={openApply} onJoin={openJoin}/>}
+      <AmbientOrbs theme={theme}/>
+      <GeometricGridBackground theme={theme} />
+      <ParticleBackground theme={theme}/>
+      <Navbar activeTab={activeTab} onTabChange={onTab} onToggleTheme={toggleTheme} theme={theme} onApply={openApply} onJoin={openJoin}/>
 
       <main style={{paddingTop:nh, position:'relative', zIndex:1}}>
         {/* If page is null, show home sections. Otherwise show the specific page. */}
@@ -426,24 +428,22 @@ export default function App() {
              {page.type && !['section','activity','event','apply','join'].includes(page.type) && <NotFoundPage onGoHome={onBackHome}/>}
            </PageIn>
         ) : (
-          cinDone && (
-            <PageIn k="main">
-              <HeroSection onTabChange={onTab} onApply={openApply} onJoin={openJoin} theme={theme}/>
-              <SectionDivider/>
-              <ActivitiesSection onNavigate={onNavigate}/>
-              <SectionDivider/>
-              <EventsSection onEventClick={onKSSClick} events={eventsData}/>
-              <SectionDivider/>
-              <AboutSection/>
-              <SectionDivider/>
-              <TeamSection onApply={openApply}/>
-              <Footer/>
-            </PageIn>
-          )
+          <PageIn k="main">
+            <HeroSection onTabChange={onTab} onApply={openApply} onJoin={openJoin} theme={theme}/>
+            <SectionDivider/>
+            <ActivitiesSection onNavigate={onNavigate}/>
+            <SectionDivider/>
+            <EventsSection onEventClick={onKSSClick} events={eventsData}/>
+            <SectionDivider/>
+            <AboutSection/>
+            <SectionDivider/>
+            <TeamSection onApply={openApply}/>
+            <Footer/>
+          </PageIn>
         )}
       </main>
 
-      {cinDone && <button id="back-to-top" aria-label="Back to top">↑</button>}
+      <button id="back-to-top" aria-label="Back to top">↑</button>
     </>
   );
 }
