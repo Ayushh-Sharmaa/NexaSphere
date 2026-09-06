@@ -57,5 +57,10 @@ create table if not exists form_submissions (
   college_email text,
   whatsapp text,
   payload jsonb not null,
-  created_at timestamptz not null default now()
+  status text not null default 'pending',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
+
+create index if not exists form_submissions_type_idx on form_submissions (form_type);
+create index if not exists form_submissions_status_idx on form_submissions (status);

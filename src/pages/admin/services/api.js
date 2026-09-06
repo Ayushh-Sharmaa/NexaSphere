@@ -1,7 +1,9 @@
 import { eventEmitter, EVENTS } from './eventEmitter';
 import { auth } from './auth';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+// Same-origin by default (see auth.js) so this works behind a reverse proxy
+// or platform rewrite without extra config.
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/+$/, '');
 
 // Mock DB helpers with default seeding
 const getDb = (key, defaultVal) => {

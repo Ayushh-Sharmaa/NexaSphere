@@ -211,20 +211,9 @@ function RolesGuideModal({ onClose }) {
 const WHATSAPP_SCREENING = 'https://chat.whatsapp.com/EFbDGo6awGP2L0laESg3lq';
 const WHATSAPP_COMMUNITY = 'https://chat.whatsapp.com/FhpJEaod2g419jFMfqrhGZ';
 const LINKEDIN_PAGE      = 'https://www.linkedin.com/showcase/glbajaj-nexasphere/';
-const RECRUITMENT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo1g6WNiO-f8kySE4Mqbdlh3VxZx9pRGLcjt7qyzRCNB1TMK0kRwjZbDD2UsaJFQ0q/exec';
-
-// Helper: store a copy locally so admin dashboard can see applications
-function storeRecruitmentLocally(payload) {
-  try {
-    const key = 'ns_db_coreteam_apps';
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    const dup = existing.find(a => a.collegeEmail === payload.collegeEmail);
-    if (!dup) {
-      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
-      localStorage.setItem(key, JSON.stringify([record, ...existing]));
-    }
-  } catch { /* ignore */ }
-}
+// Same-origin by default so this works out of the box on Vercel/Netlify or
+// behind a reverse proxy; set VITE_API_BASE if the API is on another origin.
+const RECRUITMENT_API_URL = `${(import.meta.env?.VITE_API_BASE || '').replace(/\/+$/, '')}/api/forms/recruitment`;
 
 const ROLE_OPTIONS = [
   'Technical Lead',
@@ -984,12 +973,9 @@ export default function RecruitmentPage({ onBack }) {
         }
       } catch { /* ignore */ }
 
-      // Dual-write: store locally for admin dashboard
-      storeRecruitmentLocally(payload);
-
-      const res = await fetch(RECRUITMENT_SCRIPT_URL, {
+      const res = await fetch(RECRUITMENT_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));

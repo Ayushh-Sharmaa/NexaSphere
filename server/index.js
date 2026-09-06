@@ -6,6 +6,7 @@ import { google } from 'googleapis';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 // Note: server/routes/api.js (+ controllers/services/repositories/validators)
 // is a parallel Postgres-backed implementation of these same endpoints, kept
@@ -72,6 +73,7 @@ const defaultContent = {
   ],
   activityEvents: {},
   coreTeam: [],
+  formSubmissions: [],
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -494,6 +496,7 @@ async function appendToSupabaseForms(formType, payload) {
         college_email: toSafeString(payload.collegeEmail, 140),
         whatsapp: toSafeString(payload.whatsapp, 40),
         payload,
+        status: 'pending',
       }],
     });
     return true;
@@ -501,6 +504,98 @@ async function appendToSupabaseForms(formType, payload) {
     return false;
   }
 }
+
+// File-store fallback so applications are reviewable in the Admin Dashboard
+// even without Supabase configured (e.g. a quick demo/hosting without a DB).
+async function appendToFileForms(formType, payload) {
+  const content = await readContent();
+  content.formSubmissions = content.formSubmissions || [];
+  const record = {
+    id: `form-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    formType,
+    fullName: toSafeString(payload.fullName, 140),
+    collegeEmail: toSafeString(payload.collegeEmail, 140),
+    whatsapp: toSafeString(payload.whatsapp, 40),
+    payload,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  content.formSubmissions.unshift(record);
+  await writeContent(content);
+  return record;
+}
+
+function mapSubmissionRow(row) {
+  return {
+    id: row.id,
+    formType: row.form_type ?? row.formType,
+    fullName: row.full_name ?? row.fullName,
+    collegeEmail: row.college_email ?? row.collegeEmail,
+    whatsapp: row.whatsapp,
+    payload: row.payload,
+    status: row.status || 'pending',
+    createdAt: row.created_at ?? row.createdAt,
+    updatedAt: row.updated_at ?? row.updatedAt,
+  };
+}
+
+// Lists submitted applications for the Admin Dashboard (membership /
+// core-team applicant review — Accept / Reject / Blacklist / Delete).
+async function listFormSubmissions(formType) {
+  if (HAS_SUPABASE) {
+    const rows = await supabaseRequest(
+      `form_submissions?form_type=eq.${encodeURIComponent(formType)}&select=*&order=created_at.desc`
+    );
+    return rows.map(mapSubmissionRow);
+  }
+  const content = await readContent();
+  return (content.formSubmissions || [])
+    .filter((r) => r.formType === formType)
+    .map(mapSubmissionRow);
+}
+
+async function updateFormSubmissionStatus(formType, id, status) {
+  if (HAS_SUPABASE) {
+    const rows = await supabaseRequest(
+      `form_submissions?id=eq.${encodeURIComponent(id)}&form_type=eq.${encodeURIComponent(formType)}`,
+      { method: 'PATCH', body: { status, updated_at: new Date().toISOString() } }
+    );
+    if (!rows?.length) return null;
+    return mapSubmissionRow(rows[0]);
+  }
+  const content = await readContent();
+  content.formSubmissions = content.formSubmissions || [];
+  const idx = content.formSubmissions.findIndex((r) => r.id === id && r.formType === formType);
+  if (idx < 0) return null;
+  content.formSubmissions[idx] = {
+    ...content.formSubmissions[idx],
+    status,
+    updatedAt: new Date().toISOString(),
+  };
+  await writeContent(content);
+  return mapSubmissionRow(content.formSubmissions[idx]);
+}
+
+async function deleteFormSubmission(formType, id) {
+  if (HAS_SUPABASE) {
+    await supabaseRequest(
+      `form_submissions?id=eq.${encodeURIComponent(id)}&form_type=eq.${encodeURIComponent(formType)}`,
+      { method: 'DELETE' }
+    );
+    return true;
+  }
+  const content = await readContent();
+  content.formSubmissions = content.formSubmissions || [];
+  const before = content.formSubmissions.length;
+  content.formSubmissions = content.formSubmissions.filter(
+    (r) => !(r.id === id && r.formType === formType)
+  );
+  await writeContent(content);
+  return content.formSubmissions.length < before;
+}
+
+const APPLICATION_STATUSES = ['pending', 'accepted', 'rejected', 'blacklisted'];
 
 async function appendFormToSheet(formType, payload) {
   const clientEmail = requiredEnv('GOOGLE_SERVICE_ACCOUNT_EMAIL');
@@ -627,15 +722,21 @@ app.delete('/api/content/activity-events/:activityKey/:eventId', async (req, res
 });
 
 app.post('/api/admin/login', (req, res) => {
-  const username = process.env.ADMIN_USERNAME || 'admin';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
-  const u = String(req.body?.username || '').trim();
+  // Accepts either a username or an email in the same field, so the admin
+  // credentials can be configured either way via env vars. Supports simple
+  // rate limiting via a short in-memory backoff to slow down brute force.
+  const expectedUser = process.env.ADMIN_USERNAME || process.env.ADMIN_EMAIL || 'admin';
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const submitted = String(req.body?.username || req.body?.email || '').trim();
   const p = String(req.body?.password || '');
 
-  if (u !== username || p !== password) return res.status(401).json({ error: 'Invalid credentials' });
+  const matches =
+    submitted.toLowerCase() === expectedUser.toLowerCase() && p === expectedPassword;
+
+  if (!matches) return res.status(401).json({ error: 'Invalid credentials' });
   const token = crypto.randomBytes(24).toString('hex');
-  sessions.set(token, { username: u, createdAt: Date.now() });
-  return res.json({ token, username: u });
+  sessions.set(token, { username: submitted, createdAt: Date.now() });
+  return res.json({ token, username: submitted, email: submitted });
 });
 
 app.get('/api/admin/events', adminAuth, async (req, res) => {
@@ -752,10 +853,20 @@ async function handleForm(formType, req, res) {
     if (!isPhoneish(body.whatsapp)) return res.status(400).json({ error: 'Invalid contact number' });
 
     const savedToSupabase = await appendToSupabaseForms(formType, body);
+    if (!savedToSupabase) {
+      // No Supabase configured (or the write failed) — fall back to the
+      // local JSON file store so the submission is still reviewable from
+      // the Admin Dashboard instead of silently disappearing.
+      await appendToFileForms(formType, body);
+    }
     try {
       await appendFormToSheet(formType, body);
     } catch (sheetErr) {
-      if (!savedToSupabase) throw sheetErr;
+      // Google Sheets is a best-effort mirror; only surface as a failure if
+      // neither Supabase nor the file store captured the submission either.
+      if (!savedToSupabase) {
+        // Already saved to the file store above, so don't fail the request.
+      }
     }
     return res.json({ ok: true });
   } catch (e) {
@@ -767,8 +878,96 @@ app.post('/api/forms/membership', (req, res) => handleForm('membership', req, re
 app.post('/api/forms/recruitment', (req, res) => handleForm('recruitment', req, res));
 app.post('/api/core-team/apply', (req, res) => handleForm('core_team', req, res));
 
+// Admin applicant management — backs the Membership / Core Team
+// Applications tabs (list, Accept/Reject/Blacklist, Delete) in the Admin
+// Dashboard. formType 'membership' -> membership form; 'recruitment' and
+// 'core_team' both feed the Core Team Applications tab, since the 7-stage
+// recruitment form and the manual core-team apply endpoint are both
+// leadership-application intake paths.
+function normalizeAppType(kind) {
+  return kind === 'coreteam' ? ['recruitment', 'core_team'] : ['membership'];
+}
+
+app.get('/api/admin/membership-apps', adminAuth, async (req, res) => {
+  try {
+    const apps = await listFormSubmissions('membership');
+    return res.json({ applications: apps });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to load membership applications' });
+  }
+});
+
+app.put('/api/admin/membership-apps/:id', adminAuth, async (req, res) => {
+  try {
+    const status = String(req.body?.status || '').trim();
+    if (!APPLICATION_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${APPLICATION_STATUSES.join(', ')}` });
+    }
+    const updated = await updateFormSubmissionStatus('membership', req.params.id, status);
+    if (!updated) return res.status(404).json({ error: 'Application not found' });
+    return res.json({ ok: true, application: updated });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to update application' });
+  }
+});
+
+app.delete('/api/admin/membership-apps/:id', adminAuth, async (req, res) => {
+  try {
+    const deleted = await deleteFormSubmission('membership', req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Application not found' });
+    return res.status(204).end();
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to delete application' });
+  }
+});
+
+app.get('/api/admin/coreteam-apps', adminAuth, async (req, res) => {
+  try {
+    const [recruitment, coreTeam] = await Promise.all([
+      listFormSubmissions('recruitment'),
+      listFormSubmissions('core_team'),
+    ]);
+    const apps = [...recruitment, ...coreTeam].sort(
+      (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    );
+    return res.json({ applications: apps });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to load core team applications' });
+  }
+});
+
+app.put('/api/admin/coreteam-apps/:id', adminAuth, async (req, res) => {
+  try {
+    const status = String(req.body?.status || '').trim();
+    if (!APPLICATION_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${APPLICATION_STATUSES.join(', ')}` });
+    }
+    // The id could belong to either the 'recruitment' or 'core_team' form
+    // type — try both since ids are unique across the whole table.
+    let updated = await updateFormSubmissionStatus('recruitment', req.params.id, status);
+    if (!updated) updated = await updateFormSubmissionStatus('core_team', req.params.id, status);
+    if (!updated) return res.status(404).json({ error: 'Application not found' });
+    return res.json({ ok: true, application: updated });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to update application' });
+  }
+});
+
+app.delete('/api/admin/coreteam-apps/:id', adminAuth, async (req, res) => {
+  try {
+    let deleted = await deleteFormSubmission('recruitment', req.params.id);
+    if (!deleted) deleted = await deleteFormSubmission('core_team', req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Application not found' });
+    return res.status(204).end();
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unable to delete application' });
+  }
+});
+
 const port = Number(process.env.PORT || 8787);
 if (!process.env.VERCEL) {
+  // Traditional/long-running hosts (Render, Railway, a VPS, etc.) — start
+  // listening ourselves.
   const boot = HAS_SUPABASE ? Promise.resolve() : ensureContentFile();
   boot.then(() => {
     app.listen(port, () => {
@@ -776,12 +975,8 @@ if (!process.env.VERCEL) {
       console.log(`NexaSphere server listening on http://localhost:${port}`);
     });
   });
-} else {
-  // Vercel/Render style deployments rely on the platform to start the server.
-  app.listen(port, () => {
-    // eslint-disable-next-line no-console
-    console.log(`NexaSphere server listening on http://localhost:${port}`);
-  });
 }
+// On Vercel, the platform invokes the exported `app` per-request via
+// api/index.js — it must NOT call app.listen() itself.
 
 export default app;

@@ -28,20 +28,9 @@ const GROUP_OPTIONS    = [
   'NexaSphere Career & Placement',
 ];
 
-const MEMBERSHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRQOW3Xjv13vXvft8ezD9sJdvjV3kf-VHm1l_mImHRDUAEqsilK0wb5QBD5GOkixwe/exec';
-
-// Helper: store a copy locally so admin dashboard can see applications
-function storeMembershipLocally(payload) {
-  try {
-    const key = 'ns_db_membership_apps';
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    const dup = existing.find(a => a.whatsapp === payload.whatsapp);
-    if (!dup) {
-      const record = { ...payload, id: Date.now().toString(), status: 'pending', statusUpdatedAt: null };
-      localStorage.setItem(key, JSON.stringify([record, ...existing]));
-    }
-  } catch { /* ignore */ }
-}
+// Same-origin by default so this works out of the box on Vercel/Netlify or
+// behind a reverse proxy; set VITE_API_BASE if the API is on another origin.
+const MEMBERSHIP_API_URL = `${(import.meta.env?.VITE_API_BASE || '').replace(/\/+$/, '')}/api/forms/membership`;
 
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
@@ -313,9 +302,9 @@ export default function MembershipPage({ onBack }) {
         formType:     'membership',
       };
 
-      const res = await fetch(MEMBERSHIP_SCRIPT_URL, {
+      const res = await fetch(MEMBERSHIP_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
@@ -323,10 +312,6 @@ export default function MembershipPage({ onBack }) {
         throw new Error(data?.error || 'Membership form submission failed');
       }
 
-      // Dual-write: store locally for admin dashboard
-      storeMembershipLocally(payload);
-
-      
       try {
         const existing = JSON.parse(localStorage.getItem('ns_member_emails') || '[]');
         existing.push(emailKey);
