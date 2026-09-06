@@ -225,9 +225,35 @@ function MediaBtn({ href, icon, label, color }) {
   );
 }
 
-export default function EventDetailPage({ event, activityColor, activityIcon, onBack }) {
+export default function EventDetailPage({ event: rawEvent, activityColor, activityIcon, onBack }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { window.scrollTo({ top: 0 }); setTimeout(() => setMounted(true), 60); }, []);
+
+  // Admin-created events (via the Admin Event Creation Engine) store their
+  // extra fields under `event.metadata` rather than the richer curated shape
+  // (topics/videoPresenter/anchor/...) used by hand-authored activity data.
+  // Fill in the curated fields from metadata when they're missing, so both
+  // kinds of events render through this same page.
+  const md = rawEvent?.metadata || {};
+  const event = {
+    ...rawEvent,
+    overview: rawEvent?.overview || md.overview || rawEvent?.description || '',
+    topics: rawEvent?.topics?.length ? rawEvent.topics : (
+      (md.topicsCovered || []).map((t) => ({ title: t, speaker: md.presenter?.name || '', role: md.presenter?.title || '', duration: '—', summary: '' }))
+    ),
+    videoPresenter: rawEvent?.videoPresenter?.length ? rawEvent.videoPresenter : (
+      md.presenter?.name ? [{ name: md.presenter.name, role: md.presenter.title || 'Presenter' }] : []
+    ),
+    acknowledgements: rawEvent?.acknowledgements?.length ? rawEvent.acknowledgements : (
+      [
+        ...(md.judges || []).map((j) => ({ name: j, title: 'Judge', note: '' })),
+        ...(md.facultyInCharge?.name ? [{ name: md.facultyInCharge.name, title: `Faculty In-Charge${md.facultyInCharge.department ? ' · ' + md.facultyInCharge.department : ''}`, note: '' }] : []),
+      ]
+    ),
+    photoLink: rawEvent?.photoLink || md.photosLink || '',
+    videoLink: rawEvent?.videoLink || md.videosLink || '',
+    closingNote: rawEvent?.closingNote || (md.highlights?.length ? md.highlights.join(' · ') : ''),
+  };
 
   const color = activityColor || '#a855f7';
   const rgb = hexToRgb(color);

@@ -9,6 +9,10 @@ create table if not exists events (
   status text not null default 'upcoming',
   icon text default '📌',
   tags jsonb not null default '[]'::jsonb,
+  -- Extended event-engine fields (category, speaker, jury, topics covered,
+  -- highlights, faculty in-charge, venue/time, drive links) live here as a
+  -- single JSON blob so the schema stays additive/backward-compatible.
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -24,6 +28,8 @@ create table if not exists activity_events (
   created_by_name text,
   created_by_email text,
   created_by_phone text,
+  -- Extended event-engine fields, see events.metadata above.
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 

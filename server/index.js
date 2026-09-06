@@ -7,7 +7,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import apiRouter from './routes/api.js';
+// Note: server/routes/api.js (+ controllers/services/repositories/validators)
+// is a parallel Postgres-backed implementation of these same endpoints, kept
+// for the pg-pool/Zod-validated code path. This file (server/index.js) is the
+// actual entrypoint run by `npm run dev` / `npm start` in server/package.json,
+// with its own inline Supabase-or-file-store implementation below.
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,6 +65,7 @@ const defaultContent = {
       status: 'completed',
       icon: 'Brain',
       tags: ['AI', 'Learning', 'Community'],
+      metadata: {},
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
@@ -159,6 +164,46 @@ function validateSection(str) {
   return v;
 }
 
+function sanitizeMetadataList(value, max = 24, itemMax = 200) {
+  const arr = Array.isArray(value)
+    ? value
+    : String(value || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean);
+  return arr.map(s => toSafeString(s, itemMax)).filter(Boolean).slice(0, max);
+}
+
+const ACTIVITY_CATEGORIES = [
+  'Hackathon', 'Codathon', 'Ideathon', 'Promptathon',
+  'Workshop', 'Insight Session', 'Open Source Day', 'Tech Debate',
+];
+
+// Extended Admin Event Creation Engine fields, stored as a single JSON blob
+// (`metadata`) on both events and activity_events so the schema stays
+// additive/backward-compatible.
+function sanitizeEventMetadata(input = {}) {
+  const m = input && typeof input === 'object' ? input : {};
+  const category = ACTIVITY_CATEGORIES.includes(m.category) ? m.category : undefined;
+  return {
+    ...(category ? { category } : {}),
+    topic: toSafeString(m.topic, 160),
+    overview: toSafeString(m.overview, 2000),
+    presenter: {
+      name: toSafeString(m.presenter?.name, 120),
+      title: toSafeString(m.presenter?.title, 160),
+    },
+    judges: sanitizeMetadataList(m.judges, 12, 120),
+    topicsCovered: sanitizeMetadataList(m.topicsCovered, 24, 160),
+    highlights: sanitizeMetadataList(m.highlights, 24, 200),
+    facultyInCharge: {
+      name: toSafeString(m.facultyInCharge?.name, 120),
+      department: toSafeString(m.facultyInCharge?.department, 120),
+    },
+    photosLink: toSafeString(m.photosLink, 500),
+    videosLink: toSafeString(m.videosLink, 500),
+    time: toSafeString(m.time, 80),
+    venue: toSafeString(m.venue, 160),
+  };
+}
+
 function sanitizeEvent(input = {}) {
   const status = input.status === 'upcoming' ? 'upcoming' : 'completed';
   const tags = Array.isArray(input.tags)
@@ -177,6 +222,7 @@ function sanitizeEvent(input = {}) {
     status,
     icon: toSafeString(input.icon || 'Pin', 32),
     tags,
+    metadata: sanitizeEventMetadata(input.metadata),
   };
 }
 
@@ -211,6 +257,7 @@ async function listEventsStore() {
       status: r.status,
       icon: r.icon || 'Pin',
       tags: Array.isArray(r.tags) ? r.tags : [],
+      metadata: r.metadata && typeof r.metadata === 'object' ? r.metadata : {},
       createdAt: r.created_at,
       updatedAt: r.updated_at,
     }));
@@ -230,6 +277,7 @@ async function createEventStore(event) {
       status: event.status,
       icon: event.icon,
       tags: event.tags,
+      metadata: event.metadata || {},
     };
     let row;
     try {
@@ -248,6 +296,7 @@ async function createEventStore(event) {
       status: row.status,
       icon: row.icon || 'Pin',
       tags: Array.isArray(row.tags) ? row.tags : [],
+      metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -270,6 +319,7 @@ async function updateEventStore(id, patch) {
         status: patch.status,
         icon: patch.icon,
         tags: patch.tags,
+        metadata: patch.metadata,
         updated_at: new Date().toISOString(),
       },
     });
@@ -283,6 +333,7 @@ async function updateEventStore(id, patch) {
       status: row.status,
       icon: row.icon || 'Pin',
       tags: Array.isArray(row.tags) ? row.tags : [],
+      metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -318,6 +369,7 @@ async function listActivityEventsStore(activityKey) {
       tagline: r.tagline,
       description: r.description,
       status: r.status || 'completed',
+      metadata: r.metadata && typeof r.metadata === 'object' ? r.metadata : {},
       createdAt: r.created_at,
     }));
   }
@@ -340,6 +392,7 @@ async function createActivityEventStore(activityKey, event) {
         created_by_name: event.createdBy?.name || '',
         created_by_email: event.createdBy?.email || '',
         created_by_phone: event.createdBy?.phone || '',
+        metadata: event.metadata || {},
       }],
     });
     return {
@@ -349,6 +402,7 @@ async function createActivityEventStore(activityKey, event) {
       tagline: row.tagline,
       description: row.description,
       status: row.status || 'completed',
+      metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
       createdAt: row.created_at,
     };
   }
@@ -541,6 +595,7 @@ app.post('/api/content/activity-events/:activityKey', async (req, res) => {
         email: toSafeString(body.email, 140),
         phone: normalizePhone(body.phone),
       },
+      metadata: sanitizeEventMetadata(body.metadata),
     };
     if (!event.name || !event.date || !event.description) {
       return res.status(400).json({ error: 'Event name, date and description are required.' });

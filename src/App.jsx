@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import './styles/themes.css';
 import './styles/globals.css';
 import './styles/animations.css';
@@ -33,6 +34,7 @@ import TeamPage            from './pages/team/TeamPage';
 import ContactPage         from './pages/contact/ContactPage';
 import RecruitmentPage     from './pages/recruitment/RecruitmentPage';
 import MembershipPage      from './pages/membership/MembershipPage';
+import AdminApp            from './pages/admin/AdminApp';
 
 import { activityPages }   from './data/activities/index';
 import { events as fallbackEvents } from './data/eventsData';
@@ -195,18 +197,36 @@ function Cursor() {
   );
 }
 
-export default function App() {
+// Maps a URL pathname to the legacy internal "page" shape the section
+// components expect, so their props/behavior stay unchanged.
+function deriveTabFromPath(pathname) {
+  if (pathname.startsWith('/activities')) return 'Activities';
+  if (pathname.startsWith('/events')) return 'Events';
+  if (pathname.startsWith('/about')) return 'About';
+  if (pathname.startsWith('/team')) return 'Team';
+  if (pathname.startsWith('/contact')) return 'Contact';
+  return 'Home';
+}
+
+function AppShell() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+
   // Skip intro for returning visitors; set flag on first completion
   const [cinDone,  setCinDone]  = useState(() => {
     try { return Boolean(localStorage.getItem('ns_intro_seen')); } catch { return true; }
   });
-  const [activeTab,setActiveTab]= useState('Home');
+  const [activeTab,setActiveTab]= useState(() => deriveTabFromPath(location.pathname));
   const [mobile,   setMobile]   = useState(window.innerWidth<=768);
   const [wipeOn,   setWipeOn]   = useState(false);
   const [wipePh,   setWipePh]   = useState('out');
-  const [page,     setPage]     = useState(null);
   const [theme,    setTheme]    = useState(()=>localStorage.getItem('ns-theme')||'dark');
   const [eventsData,setEventsData]=useState(fallbackEvents);
+
+  useEffect(() => {
+    setActiveTab(deriveTabFromPath(location.pathname));
+  }, [location.pathname]);
   
   useEffect(()=>{
     document.documentElement.setAttribute('data-theme',theme);
@@ -244,8 +264,10 @@ export default function App() {
   },[]);
 
   
+  const isHome = location.pathname === '/' || location.pathname === '/home';
+
   useEffect(()=>{
-    if(page)return;
+    if(!isHome)return;
     const nh=mobile?MNH:DNH;
     const fn=()=>{
       const sy=window.scrollY+nh+30;
@@ -256,7 +278,7 @@ export default function App() {
     };
     window.addEventListener('scroll',fn,{passive:true});
     return()=>window.removeEventListener('scroll',fn);
-  },[mobile,page]);
+  },[mobile,isHome]);
 
   
   useEffect(()=>{
@@ -308,90 +330,82 @@ export default function App() {
     };
     window.addEventListener('mousemove',onMove,{passive:true});
     return()=>{obs.disconnect();window.removeEventListener('mousemove',onMove);};
-  },[cinDone,page]);
+  },[cinDone,location.pathname]);
 
-  useNsReveal([cinDone, page]);
+  useNsReveal([cinDone, location.pathname]);
   useHeroParallax();
   useNavScrollTint();
   useGlobalMouseParallax();
   useMagneticCards();
 
   
-  const nav=useCallback((fn)=>{
+  // Runs a URL change wrapped in the page-wipe transition.
+  const nav=useCallback((to)=>{
     setWipeOn(true);setWipePh('out');
     setTimeout(()=>{
-      fn();window.scrollTo({top:0});
+      navigate(to);window.scrollTo({top:0});
       requestAnimationFrame(()=>{
         setWipePh('in');
         setTimeout(()=>setWipeOn(false),340);
       });
     },275);
-  },[]);
+  },[navigate]);
 
   const onTab=useCallback(tab=>{
-    
     if(['Activities','Events','About','Team','Contact'].includes(tab)){
-      nav(()=>{setPage({type:'section',section:tab});setActiveTab(tab);});
+      nav(`/${tab.toLowerCase()}`);
       return;
     }
-    nav(()=>{
-      setPage(null);setActiveTab(tab);
-      setTimeout(()=>{
-        const el=document.getElementById(`section-${tab.toLowerCase()}`);
-        if(!el)return;
-        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
-      },50);
-    });
-  },[nav,mobile]);
+    // "Home": if already on the home page, smooth-scroll to top instead of navigating.
+    if(location.pathname === '/' || location.pathname === '/home'){
+      window.scrollTo({top:0,behavior:'smooth'});
+      setActiveTab('Home');
+      return;
+    }
+    nav('/home');
+  },[nav,location.pathname]);
 
   const onNavigate=useCallback((type,title)=>{
-    if(type==='activity') nav(()=>setPage({type:'activity',activityKey:title}));
+    if(type==='activity') nav(`/activities/${encodeURIComponent(title)}`);
   },[nav]);
 
   const onEvent=useCallback(ev=>{
-    nav(()=>setPage(p=>({...p,type:'event',event:ev})));
+    nav(`/events/${encodeURIComponent(ev?.id ?? '')}`);
   },[nav]);
 
   const onKSSClick=useCallback(ev=>{
-    
-    nav(()=>setPage({type:'event',activityKey:'Insight Session',event:ev}));
-  },[nav]);
-
-  const onBackAct=useCallback(()=>{
-    nav(()=>setPage(p=>({type:'activity',activityKey:p.activityKey})));
+    nav(`/events/${encodeURIComponent(ev?.id ?? '')}`);
   },[nav]);
 
   const onBackMain=useCallback(()=>{
-    nav(()=>{
-      setPage(null);
-      setTimeout(()=>{
-        const el=document.getElementById('section-activities');
-        if(!el)return;
-        window.scrollTo({top:el.offsetTop-(mobile?MNH:DNH),behavior:'smooth'});
-      },50);
-    });
-  },[nav,mobile]);
-
-  const onBackToSection=useCallback((section)=>{
-    nav(()=>setPage({type:'section',section}));
+    nav('/activities');
   },[nav]);
 
   const openApply = useCallback(()=>{
-    nav(()=>setPage({type:'apply'}));
+    nav('/recruitment');
   },[nav]);
 
   const openJoin = useCallback(()=>{
-    nav(()=>setPage({type:'join'}));
+    nav('/membership');
   },[nav]);
 
   const onBackHome=useCallback(()=>{
-    nav(()=>{setPage(null);setActiveTab('Home');window.scrollTo({top:0});});
+    nav('/home');
   },[nav]);
 
   const nh=mobile?MNH:DNH;
-  const cur=page?.activityKey?activityPages[page.activityKey]:null;
 
-  
+  const activityKey = params.activityKey ? decodeURIComponent(params.activityKey) : null;
+  const cur = activityKey ? activityPages[activityKey] : null;
+
+  const eventIdParam = params.eventId;
+  const currentEvent = useMemo(() => {
+    if (eventIdParam == null) return null;
+    return eventsData.find(e => String(e.id) === String(eventIdParam)) || null;
+  }, [eventIdParam, eventsData]);
+
+  const routeKey = location.pathname;
+
   return (
     <>
       {/* Move Chatbot to the very top to bypass all other logic */}
@@ -412,40 +426,54 @@ export default function App() {
       <Navbar activeTab={activeTab} onTabChange={onTab} onToggleTheme={toggleTheme} theme={theme} onApply={openApply} onJoin={openJoin}/>
 
       <main style={{paddingTop:nh, position:'relative', zIndex:1}}>
-        {/* If page is null, show home sections. Otherwise show the specific page. */}
-        {page ? (
-           <PageIn k={page.type + (page.section || page.activityKey)}>
-             {page.section === 'Activities' && <ActivitiesPage onNavigate={onNavigate} onBack={onBackHome}/>}
-             {page.section === 'Events' && <EventsPage onBack={onBackHome} onEventClick={onKSSClick} events={eventsData}/>}
-             {page.section === 'About' && <AboutPage onBack={onBackHome}/>}
-             {page.section === 'Team' && <TeamPage onBack={onBackHome} onApply={openApply}/>}
-             {page.section === 'Contact' && <ContactPage onBack={onBackHome}/>}
-             {page.type === 'activity' && cur && <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>}
-             {page.type === 'event' && <EventDetailPage event={page.event} onBack={onBackMain}/>}
-             {page.type === 'apply' && <RecruitmentPage onBack={onBackHome}/>}
-             {page.type === 'join' && <MembershipPage onBack={onBackHome}/>}
-             {/* 404 fallback for unknown page types */}
-             {page.type && !['section','activity','event','apply','join'].includes(page.type) && <NotFoundPage onGoHome={onBackHome}/>}
-           </PageIn>
-        ) : (
-          <PageIn k="main">
-            <HeroSection onTabChange={onTab} onApply={openApply} onJoin={openJoin} theme={theme}/>
-            <SectionDivider/>
-            <ActivitiesSection onNavigate={onNavigate}/>
-            <SectionDivider/>
-            <EventsSection onEventClick={onKSSClick} events={eventsData}/>
-            <SectionDivider/>
-            <AboutSection/>
-            <SectionDivider/>
-            <TeamSection onApply={openApply}/>
-            <Footer/>
-          </PageIn>
-        )}
+        <PageIn k={routeKey}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={
+              <>
+                <HeroSection onTabChange={onTab} onApply={openApply} onJoin={openJoin} theme={theme}/>
+                <SectionDivider/>
+                <ActivitiesSection onNavigate={onNavigate}/>
+                <SectionDivider/>
+                <EventsSection onEventClick={onKSSClick} events={eventsData}/>
+                <SectionDivider/>
+                <AboutSection/>
+                <SectionDivider/>
+                <TeamSection onApply={openApply}/>
+                <Footer/>
+              </>
+            }/>
+            <Route path="/activities" element={<ActivitiesPage onNavigate={onNavigate} onBack={onBackHome}/>} />
+            <Route path="/activities/:activityKey" element={
+              cur
+                ? <ActivityDetailPage activity={cur} onBack={onBackMain} onSelectEvent={onEvent}/>
+                : <NotFoundPage onGoHome={onBackHome}/>
+            }/>
+            <Route path="/events" element={<EventsPage onBack={onBackHome} onEventClick={onKSSClick} events={eventsData}/>} />
+            <Route path="/events/:eventId" element={
+              currentEvent
+                ? <EventDetailPage event={currentEvent} onBack={()=>nav('/events')}/>
+                : <NotFoundPage onGoHome={onBackHome}/>
+            }/>
+            <Route path="/about" element={<AboutPage onBack={onBackHome}/>} />
+            <Route path="/team" element={<TeamPage onBack={onBackHome} onApply={openApply}/>} />
+            <Route path="/contact" element={<ContactPage onBack={onBackHome}/>} />
+            <Route path="/membership" element={<MembershipPage onBack={onBackHome}/>} />
+            <Route path="/recruitment" element={<RecruitmentPage onBack={onBackHome}/>} />
+            <Route path="/apply" element={<Navigate to="/recruitment" replace />} />
+            <Route path="/admin/*" element={<AdminApp/>} />
+            <Route path="*" element={<NotFoundPage onGoHome={onBackHome}/>} />
+          </Routes>
+        </PageIn>
       </main>
 
       <button id="back-to-top" aria-label="Back to top">↑</button>
     </>
   );
+}
+
+export default function App() {
+  return <AppShell />;
 }
 
 function NotFoundPage({ onGoHome }) {

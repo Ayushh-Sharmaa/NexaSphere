@@ -10,6 +10,7 @@ function mapRow(row) {
     status: row.status,
     icon: row.icon,
     tags: Array.isArray(row.tags) ? row.tags : row.tags ?? [],
+    metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -26,8 +27,8 @@ export const eventsRepository = {
   async create(event) {
     return withDb(async (client) => {
       const { rows } = await client.query(
-        `insert into events (id, name, short_name, date_text, description, status, icon, tags)
-         values ($1,$2,$3,$4,$5,$6,$7,$8)
+        `insert into events (id, name, short_name, date_text, description, status, icon, tags, metadata)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
          on conflict (id) do update set
            name=excluded.name,
            short_name=excluded.short_name,
@@ -36,9 +37,20 @@ export const eventsRepository = {
            status=excluded.status,
            icon=excluded.icon,
            tags=excluded.tags,
+           metadata=excluded.metadata,
            updated_at=now()
          returning *`,
-        [event.id, event.name, event.shortName, event.date, event.description, event.status, event.icon, event.tags]
+        [
+          event.id,
+          event.name,
+          event.shortName,
+          event.date,
+          event.description,
+          event.status,
+          event.icon,
+          event.tags,
+          JSON.stringify(event.metadata || {}),
+        ]
       );
       return mapRow(rows[0]);
     });
@@ -55,10 +67,21 @@ export const eventsRepository = {
            status = coalesce($6, status),
            icon = coalesce($7, icon),
            tags = coalesce($8, tags),
+           metadata = coalesce($9, metadata),
            updated_at = now()
          where id = $1
          returning *`,
-        [id, patch.name ?? null, patch.shortName ?? null, patch.date ?? null, patch.description ?? null, patch.status ?? null, patch.icon ?? null, patch.tags ?? null]
+        [
+          id,
+          patch.name ?? null,
+          patch.shortName ?? null,
+          patch.date ?? null,
+          patch.description ?? null,
+          patch.status ?? null,
+          patch.icon ?? null,
+          patch.tags ?? null,
+          patch.metadata ? JSON.stringify(patch.metadata) : null,
+        ]
       );
       if (!rows.length) return null;
       return mapRow(rows[0]);
@@ -72,4 +95,3 @@ export const eventsRepository = {
     });
   },
 };
-

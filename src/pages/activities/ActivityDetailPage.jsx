@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { DynamicIcon } from '../../shared/Icons';
 
 function Counter({ value, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -164,7 +165,7 @@ function EventCard({ event, activityColor, onSelect, onDelete }) {
               }}>✅ Completed</span>
             )}
           </div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '10px' }}>📅 {event.date}</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '10px' }}><DynamicIcon name="Calendar" size={12} style={{display:'inline',verticalAlign:'-2px',marginRight:4}} /> {event.date}</div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: '0 0 12px', lineHeight: 1.6 }}>
             {event.tagline || event.description}
           </p>
@@ -225,7 +226,7 @@ function UpcomingCard({ event, color }) {
           fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0,
         }}>🔜 Upcoming</span>
       </div>
-      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '6px' }}>📅 {event.date}</div>
+      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '6px' }}><DynamicIcon name="Calendar" size={12} style={{display:'inline',verticalAlign:'-2px',marginRight:4}} /> {event.date}</div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>{event.description}</p>
     </div>
   );

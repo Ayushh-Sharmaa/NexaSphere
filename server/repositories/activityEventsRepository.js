@@ -8,6 +8,7 @@ function mapRow(row) {
     tagline: row.tagline,
     description: row.description,
     status: row.status,
+    metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
     createdAt: row.created_at,
   };
 }
@@ -28,8 +29,8 @@ export const activityEventsRepository = {
       const { rows } = await client.query(
         `insert into activity_events (
            id, activity_key, name, date_text, tagline, description, status,
-           created_by_name, created_by_email, created_by_phone
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+           created_by_name, created_by_email, created_by_phone, metadata
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
          returning *`,
         [
           event.id,
@@ -42,6 +43,7 @@ export const activityEventsRepository = {
           event.createdBy?.name || '',
           event.createdBy?.email || '',
           event.createdBy?.phone || '',
+          JSON.stringify(event.metadata || {}),
         ]
       );
       return mapRow(rows[0]);
@@ -58,4 +60,3 @@ export const activityEventsRepository = {
     });
   },
 };
-

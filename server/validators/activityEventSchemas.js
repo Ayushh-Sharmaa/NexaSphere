@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { eventMetadataSchema } from './eventMetadataSchema.js';
 
 export const activityEventSchema = z
   .object({
@@ -16,6 +17,7 @@ export const activityEventSchema = z
       })
       .optional()
       .default(undefined),
+    metadata: eventMetadataSchema,
   })
   .transform((data) => {
     const id = data.id || `manual-${Date.now()}`;
@@ -25,6 +27,7 @@ export const activityEventSchema = z
       status: data.status === 'upcoming' ? 'upcoming' : 'completed',
       tagline: data.tagline || '',
       createdBy: data.createdBy,
+      metadata: data.metadata || {},
     };
   });
 

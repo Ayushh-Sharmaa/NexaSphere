@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { eventMetadataSchema } from './eventMetadataSchema.js';
 
 const tagsSchema = z
   .union([z.array(z.string()).min(0), z.string()])
@@ -23,6 +24,7 @@ export const eventSchema = z
     status: z.enum(['upcoming', 'completed']).optional().default('completed'),
     icon: z.string().trim().max(32).optional().default('Pin'),
     tags: tagsSchema,
+    metadata: eventMetadataSchema,
   })
   .transform((data) => {
     // Normalize fields to match DB expectations used previously.
@@ -44,6 +46,8 @@ export const eventSchema = z
       description: String(data.description),
       icon: String(data.icon || 'Pin').slice(0, 32),
       tags: Array.isArray(data.tags) ? data.tags : [],
+      metadata: data.metadata || {},
     };
   });
+
 
